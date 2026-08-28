@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "STM32F103C8T6",
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "cStandard": "gnu11",
+            "intelliSenseMode": "gcc-arm",
+            "defines": [
+                "USE_HAL_DRIVER",
+                "STM32F103xB",
+                "USE_FULL_LL_DRIVER"
+            ],
+            "includePath": [
+                "${workspaceFolder}/User",
+                "${workspaceFolder}/Libraries/CMSIS/Include",
+                "${workspaceFolder}/Libraries/CMSIS/Device/ST/STM32F1xx/Include",
+                "${workspaceFolder}/Libraries/STM32F1xx_HAL_Driver/Inc"
+            ]
+        }
+    ],
+    "version": 4
+}
