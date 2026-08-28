@@ -167,12 +167,12 @@ $(BUILD_DIR)/$(TARGET).bin: $(BUILD_DIR)/$(TARGET).elf
 
 
 # ============================================================
-# 烧录
+# 烧录 (Linux 提示无权限时: sudo make flash, 或安装 openocd 的 udev 规则)
 # ============================================================
 
 flash:
 
-	sudo openocd \
+	openocd \
 		-f interface/stlink.cfg \
 		-f target/stm32f1x.cfg \
 		-c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"

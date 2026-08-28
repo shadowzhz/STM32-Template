@@ -5,21 +5,26 @@
 
 ## 环境要求
 
-类 Unix 环境（Linux / macOS / WSL / MSYS2）, 已安装:
+**Linux / macOS**:
 
-| 工具 | 用途 | Debian/Ubuntu 安装 |
-|---|---|---|
-| `arm-none-eabi-gcc` | 交叉编译 | `sudo apt install gcc-arm-none-eabi` |
-| `make` | 构建 | `sudo apt install make` |
-| `openocd` | ST-Link 烧录 | `sudo apt install openocd` |
+```bash
+sudo apt install gcc-arm-none-eabi make openocd   # Debian/Ubuntu, macOS 用 brew 装同名包
+```
 
-注意: `.vscode/c_cpp_properties.json` 里 `compilerPath` 写的是 `/usr/bin/arm-none-eabi-gcc`, 非 Linux 环境请改成你机器上的实际路径（或直接写 `arm-none-eabi-gcc` 让它从 PATH 查找）。
+**Windows（原生，无需 WSL）**:
+
+1. 安装 [MSYS2](https://www.msys2.org)，MSYS2 终端执行: `pacman -S make mingw-w64-x86_64-openocd`
+2. 把 `C:\msys64\usr\bin`（make/sh/find/awk）和 `C:\msys64\mingw64\bin`（openocd）加入系统 PATH
+3. 安装 [Arm GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)（选 `arm-none-eabi` 的 Windows mingw-w64 安装包，安装时勾选 *Add to PATH*）
+4. 安装 ST-Link 驱动 STSW-LINK009（st.com 下载），VSCode + C/C++ 扩展打开工程即可
+
+注意: `.vscode/c_cpp_properties.json` 的 `compilerPath` 填的是不带路径的 `arm-none-eabi-gcc`（从 PATH 查找, 三平台通用）；若 IntelliSense 报找不到头文件, 再改成编译器的完整安装路径。
 
 ## 使用
 
 ```bash
 make          # 编译, 生成 build/STM32F103C8T6.hex, 打印 Flash/RAM 占用并检查溢出
-make flash    # ST-Link + SWD 烧录 (sudo openocd)
+make flash    # ST-Link + SWD 烧录 (Linux 权限不足时: sudo make flash)
 make bin      # 需要时额外生成 .bin
 make clean    # 清理
 ```
