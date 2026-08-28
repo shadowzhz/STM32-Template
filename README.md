@@ -28,14 +28,18 @@ STM32/
 sudo apt install gcc-arm-none-eabi make openocd   # Debian/Ubuntu
 ```
 
-**Windows（原生，无需 WSL）**, 四步:
+**Windows（原生，全程 PowerShell，不需要打开 MSYS2 终端）**:
 
-1. 安装 [MSYS2](https://www.msys2.org)，在 MSYS2 终端执行:
-   `pacman -S make mingw-w64-x86_64-openocd`
-2. 把 `C:\msys64\usr\bin`（make/sh/find/awk）和 `C:\msys64\mingw64\bin`（openocd）加入系统 PATH
-3. 安装 [Arm GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
-   （选 `arm-none-eabi` 的 Windows mingw-w64 安装包，安装时勾选 *Add to PATH*）
-4. 装好 ST-Link 驱动（STSW-LINK009，st.com 下载），VSCode + C/C++ 扩展打开工程即可
+1. 安装 MSYS2: `winget install --id MSYS2.MSYS2 -e`（没有 winget 就去 [msys2.org](https://www.msys2.org) 下安装包双击, 路径保持默认 `C:\msys64`）
+2. PowerShell 里用它装 make 和 openocd（若因运行时自更新中断, 再执行一遍）:
+   `C:\msys64\usr\bin\bash -lc "pacman -Syu --noconfirm && pacman -S --noconfirm make mingw-w64-x86_64-openocd"`
+3. 把工具加入用户 PATH, 重开终端生效:
+   `[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path","User") + ";C:\msys64\usr\bin;C:\msys64\mingw64\bin", "User")`
+4. 安装 [Arm GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)（选 `arm-none-eabi` 的 Windows mingw-w64 安装包, 勾选 *Add to PATH*）
+5. 装好 ST-Link 驱动（STSW-LINK009, st.com 下载）, VSCode + C/C++ 扩展打开工程即可
+
+> 原理: Makefile 的配方是 POSIX shell 语法（find/awk/rm）, 所以 make 必须用 MSYS2 的版本,
+> 不能用原生 Windows 的 make（scoop/choco 装的 make.exe 不带 shell, 会跑不起来）。
 
 ## 快速开始
 
