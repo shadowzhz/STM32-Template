@@ -20,26 +20,58 @@ STM32/
 - **构建报告** —— 每次链接打印 Flash/RAM 占用百分比，超限直接报错
 - **VSCode 就绪** —— 两个模板都带 IntelliSense 与构建任务配置（`.vscode/`）
 
-## 环境要求
+## 环境搭建
 
-**Linux / macOS**: 装 `arm-none-eabi-gcc`、`make`、`openocd` 三个包即可:
+### Ubuntu / Debian
 
 ```bash
-sudo apt install gcc-arm-none-eabi make openocd   # Debian/Ubuntu
+# 1. 安装工具链与烧录器
+sudo apt update && sudo apt install -y gcc-arm-none-eabi make openocd
+
+# 2. 配置 ST-Link 免 sudo 烧录权限 (udev 规则)
+sudo cp /usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d/ 2>/dev/null || \
+echo 'ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3748", MODE="0666"' | sudo tee /etc/udev/rules.d/99-stlink.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
-**Windows（原生，全程 PowerShell，不需要打开 MSYS2 终端）**:
+### Windows (原生 PowerShell，无需进入 MSYS2 终端)
 
-1. 安装 MSYS2: `winget install --id MSYS2.MSYS2 -e`（没有 winget 就去 [msys2.org](https://www.msys2.org) 下安装包双击, 路径保持默认 `C:\msys64`）
-2. PowerShell 里用它装 make 和 openocd（若因运行时自更新中断, 再执行一遍）:
-   `C:\msys64\usr\bin\bash -lc "pacman -Syu --noconfirm && pacman -S --noconfirm make mingw-w64-x86_64-openocd"`
-3. 把工具加入用户 PATH, 重开终端生效:
-   `[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path","User") + ";C:\msys64\usr\bin;C:\msys64\mingw64\bin", "User")`
-4. 安装 [Arm GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)（选 `arm-none-eabi` 的 Windows mingw-w64 安装包, 勾选 *Add to PATH*）
-5. 装好 ST-Link 驱动（STSW-LINK009, st.com 下载）, VSCode + C/C++ 扩展打开工程即可
+1. **安装 MSYS2**：`winget install --id MSYS2.MSYS2 -e`（或官网安装包，路径保持默认 `C:\msys64`）。
+2. **安装 make 与 openocd**（PowerShell 运行，自动换清华源加速）：
+   ```powershell
+   C:\msys64\usr\bin\bash -lc "sed -i 's#https://mirror.msys2.org#https://mirrors.tuna.tsinghua.edu.cn/msys2#g' /etc/pacman.d/mirrorlist.* && pacman -Syu --noconfirm && pacman -S --noconfirm make mingw-w64-x86_64-openocd"
+   ```
+3. **注入环境变量**：
+   ```powershell
+   [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path","User") + ";C:\msys64\usr\bin;C:\msys64\mingw64\bin", "User")
+   ```
+4. **安装 [Arm GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)**：
+   - 务必选 **`arm-none-eabi`** 安装包（**切勿选 aarch64**）。
+   - 安装时勾选 **Add to PATH**。
+   - *（若安装时漏选 Add to PATH，在 PowerShell 执行以下命令自动补全）*：
+     ```powershell
+     $arm = (Get-ChildItem -Path "C:\Program Files", "C:\Program Files (x86)" -Filter "arm-none-eabi-gcc.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName; if ($arm) { [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path","User") + ";$arm", "User"); Write-Host "已补全 Arm PATH: $arm" -ForegroundColor Green }
+     ```
+5. **驱动**：安装 ST-Link 驱动（ST 官网搜 **STSW-LINK009**）。
 
-> 原理: Makefile 的配方是 POSIX shell 语法（find/awk/rm）, 所以 make 必须用 MSYS2 的版本,
-> 不能用原生 Windows 的 make（scoop/choco 装的 make.exe 不带 shell, 会跑不起来）。
+> **重启 PowerShell 终端验证**：依次执行 `arm-none-eabi-gcc --version`、`make --version`、`openocd --version`，均有版本号即就绪。
+
+---
+
+## 避坑速查 (必看)
+
+1. **Windows 下报错 `FIND: 参数格式不正确` 或 `No such file or directory`**：
+   - 原因：Windows 自带的 `C:\Windows\System32\find.exe` 抢占了 MSYS2 的 POSIX `find`。
+   - 解决：确保 MSYS2 的 `C:\msys64\usr\bin` 已加到 PATH，或在 Makefile 中使用 `$(wildcard ...)` 替代 shell `find`。
+2. **`stm32f1xx_hal_conf.h` / `stm32f10x_conf.h` 找不到**：
+   - 用户配置文件**固定存放在 `User/` 目录下**。不要放在 `Libraries/` 里，也不要手滑保存为 `.h.h`。
+3. **链接报错 `ERROR: Flash overflow!`**：
+   - F103C8T6 标称 64KB Flash。HAL 库若启用了过多外设，请在 `User/stm32f1xx_hal_conf.h` 中注释掉不用的模块（未启用的会被链接器裁掉）。
+4. **JTAG 引脚复用导致芯片"锁死"无法烧录**：
+   - PB3/PB4/PA15 当普通 IO 时，切勿使用 `SWJ_DISABLE`（会连 SWD 一起关掉）。必须使用 `__HAL_AFIO_REMAP_SWJ_NOJTAG()`。
+   - 若已被锁，按住板载 **RESET 键**不放点击烧录，连接瞬间松开。
+
+---
 
 ## 快速开始
 
@@ -47,7 +79,7 @@ sudo apt install gcc-arm-none-eabi make openocd   # Debian/Ubuntu
 git clone https://github.com/shadowzhz/STM32.git
 cd STM32/HAL/Template
 make          # 生成 build/STM32F103C8T6.hex 并打印内存占用
-make flash    # ST-Link + SWD 烧录（Linux 权限不足时: sudo make flash）
+make flash    # ST-Link + SWD 烧录（Linux 配置好 udev 后无需 sudo）
 ```
 
 按 **Blue Pill**（STM32F103C8T6）预设：8MHz 晶振 → PLL×9 → 主频 72MHz，
