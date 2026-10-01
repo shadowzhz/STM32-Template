@@ -44,10 +44,15 @@ LDFLAGS = $(MCU) \
 # 自动搜索源码
 # ============================================================
 
-SRC = $(shell find User Drivers Hardware -type f -name '*.c' 2>/dev/null)
+# 递归搜索文件宏（纯 Make 原生，跨平台且无外部 find 依赖）
+rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+
+SEARCH_DIRS := User Drivers Hardware
+
+SRC = $(call rwildcard,$(SEARCH_DIRS),*.c)
 
 # 自动搜索头文件目录
-INC_DIRS = $(shell find User Drivers Hardware -type d 2>/dev/null)
+INC_DIRS = $(sort $(dir $(call rwildcard,$(SEARCH_DIRS),*)))
 
 CFLAGS += $(addprefix -I,$(INC_DIRS))
 

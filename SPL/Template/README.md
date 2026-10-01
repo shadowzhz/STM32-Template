@@ -8,7 +8,7 @@
 **Linux / macOS**:
 
 ```bash
-sudo apt install gcc-arm-none-eabi make openocd   # Debian/Ubuntu, macOS 用 brew 装同名包
+sudo apt install gcc-arm-none-eabi libnewlib-arm-none-eabi make openocd   # Debian/Ubuntu, macOS 用 brew
 ```
 
 **Windows（原生，全程 PowerShell，不需要打开 MSYS2 终端）**:
@@ -29,7 +29,7 @@ sudo apt install gcc-arm-none-eabi make openocd   # Debian/Ubuntu, macOS 用 bre
 4. 安装 [Arm GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)（选 `arm-none-eabi` 的 Windows mingw-w64 安装包, 安装时勾选 *Add to PATH*）
 5. 安装 ST-Link 驱动 STSW-LINK009（st.com 下载）, VSCode + C/C++ 扩展打开工程即可
 
-> 注意: make 必须用 MSYS2 提供的版本（含 POSIX shell, Makefile 配方需要 find/awk/rm）,
+> 注意: make 必须用 MSYS2 提供的版本（含 POSIX shell, Makefile 配方需要 awk/rm 等）,
 > 不要用 scoop/choco 装的原生 make.exe（不带 shell, 编译会失败）。
 
 注意: `.vscode/c_cpp_properties.json` 的 `compilerPath` 填的是不带路径的 `arm-none-eabi-gcc`（从 PATH 查找, 三平台通用）；若 IntelliSense 报找不到头文件, 再改成编译器的完整安装路径。

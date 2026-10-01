@@ -19,6 +19,12 @@
             }
         },
         {
+            "label": "STM32: Flash",
+            "type": "shell",
+            "command": "make flash",
+            "problemMatcher": []
+        },
+        {
             "label": "STM32: Clean",
             "type": "shell",
             "command": "make clean",

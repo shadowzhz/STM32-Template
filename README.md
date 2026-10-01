@@ -4,7 +4,7 @@
 不依赖 CubeMX、Keil 或任何 IDE，命令行三步编译烧录；库源码全部随仓库分发，克隆即用。
 
 ```
-STM32/
+STM32-Template/
 ├── HAL/                            ← 新工程从这里开始
 │   ├── Template/                   HAL + LL 工程模板（HAL v1.1.10，Makefile 已验证编译）
 │   └── 新手注意事项.md             F1 专属坑 / 中断回调 / DMA / 故障速查
@@ -25,34 +25,47 @@ STM32/
 ### Ubuntu / Debian
 
 ```bash
-# 1. 安装工具链与烧录器
-sudo apt update && sudo apt install -y gcc-arm-none-eabi make openocd
+# 1. 安装工具链与烧录器 (显式包含 newlib 库，避免 nano.specs/stdint.h 缺失)
+sudo apt update && sudo apt install -y gcc-arm-none-eabi libnewlib-arm-none-eabi make openocd
 
-# 2. 配置 ST-Link 免 sudo 烧录权限 (udev 规则)
-sudo cp /usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d/ 2>/dev/null || \
-echo 'ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3748", MODE="0666"' | sudo tee /etc/udev/rules.d/99-stlink.rules
+# 2. 配置 ST-Link 免 sudo 烧录权限
+sudo usermod -aG plugdev $USER
+sudo cp /usr/lib/udev/rules.d/60-openocd.rules /etc/udev/rules.d/ 2>/dev/null || \
+echo 'ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3748", MODE="0666"
+ATTRS{idVendor}=="0483", ATTRS{idProduct}=="374b", MODE="0666"' | sudo tee /etc/udev/rules.d/99-stlink.rules
 sudo udevadm control --reload-rules && sudo udevadm trigger
+# 注：配置用户组后重新打开终端生效；临时烧录亦可使用 sudo make flash
+```
+
+### macOS
+
+```bash
+brew install arm-none-eabi-gcc make openocd
 ```
 
 ### Windows (原生 PowerShell，无需进入 MSYS2 终端)
 
 1. **安装 MSYS2**：`winget install --id MSYS2.MSYS2 -e`（或官网安装包，路径保持默认 `C:\msys64`）。
+   - *(若纯净 Windows 尚未安装 Git，可先执行 `winget install Git.Git`)*
 2. **安装 make 与 openocd**（PowerShell 运行，自动换清华源加速）：
    ```powershell
    C:\msys64\usr\bin\bash -lc "sed -i 's#https://mirror.msys2.org#https://mirrors.tuna.tsinghua.edu.cn/msys2#g' /etc/pacman.d/mirrorlist.* && pacman -Syu --noconfirm && pacman -S --noconfirm make mingw-w64-x86_64-openocd"
    ```
+   > **提示**：若 MSYS2 首次更新提示需强制关闭终端重启核心，属于正常机制，**直接重新执行一次步骤 2 的命令**即可继续完成安装。
 3. **注入环境变量**：
    ```powershell
    [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path","User") + ";C:\msys64\usr\bin;C:\msys64\mingw64\bin", "User")
    ```
 4. **安装 [Arm GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)**：
-   - 务必选 **`arm-none-eabi`** 安装包（**切勿选 aarch64**）。
-   - 安装时勾选 **Add to PATH**。
+   - **方案 A（推荐命令行）**：PowerShell 执行 `winget install Arm.GnuArmEmbeddedToolchain`
+   - **方案 B（官网手动下载）**：下载形如 `arm-gnu-toolchain-*-mingw-w64-i686-arm-none-eabi.exe` 的安装包（**切勿选 aarch64 或 zip 压缩包**），安装时勾选 **Add to PATH**。
    - *（若安装时漏选 Add to PATH，在 PowerShell 执行以下命令自动补全）*：
      ```powershell
      $arm = (Get-ChildItem -Path "C:\Program Files", "C:\Program Files (x86)" -Filter "arm-none-eabi-gcc.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName; if ($arm) { [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path","User") + ";$arm", "User"); Write-Host "已补全 Arm PATH: $arm" -ForegroundColor Green }
      ```
-5. **驱动**：安装 ST-Link 驱动（ST 官网搜 **STSW-LINK009**）。
+5. **驱动**：
+   - 官方 ST-Link：安装 ST 官方驱动（官网搜 **STSW-LINK009**）。
+   - 淘宝山寨 / 铝壳 ST-Link V2：若 OpenOCD 报找不到设备，下载 [Zadig](https://zadig.akeo.ie/) 将 ST-Link 设备驱动切换为 **WinUSB** 即可。
 
 > **重启 PowerShell 终端验证**：依次执行 `arm-none-eabi-gcc --version`、`make --version`、`openocd --version`，均有版本号即就绪。
 
@@ -60,14 +73,11 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 
 ## 避坑速查 (必看)
 
-1. **Windows 下报错 `FIND: 参数格式不正确` 或 `No such file or directory`**：
-   - 原因：Windows 自带的 `C:\Windows\System32\find.exe` 抢占了 MSYS2 的 POSIX `find`。
-   - 解决：确保 MSYS2 的 `C:\msys64\usr\bin` 已加到 PATH，或在 Makefile 中使用 `$(wildcard ...)` 替代 shell `find`。
-2. **`stm32f1xx_hal_conf.h` / `stm32f10x_conf.h` 找不到**：
+1. **`stm32f1xx_hal_conf.h` / `stm32f10x_conf.h` 找不到**：
    - 用户配置文件**固定存放在 `User/` 目录下**。不要放在 `Libraries/` 里，也不要手滑保存为 `.h.h`。
-3. **链接报错 `ERROR: Flash overflow!`**：
+2. **链接报错 `ERROR: Flash overflow!`**：
    - F103C8T6 标称 64KB Flash。HAL 库若启用了过多外设，请在 `User/stm32f1xx_hal_conf.h` 中注释掉不用的模块（未启用的会被链接器裁掉）。
-4. **JTAG 引脚复用导致芯片"锁死"无法烧录**：
+3. **JTAG 引脚复用导致芯片"锁死"无法烧录**：
    - PB3/PB4/PA15 当普通 IO 时，切勿使用 `SWJ_DISABLE`（会连 SWD 一起关掉）。必须使用 `__HAL_AFIO_REMAP_SWJ_NOJTAG()`。
    - 若已被锁，按住板载 **RESET 键**不放点击烧录，连接瞬间松开。
 
@@ -75,9 +85,22 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 
 ## 快速开始
 
+### 1. 硬件接线 (ST-Link ↔ STM32F103C8T6)
+
+| ST-Link 烧录器 | 核心板引脚 | 说明 |
+|---|---|---|
+| **3.3V** | 3.3V | ⚠️ **切勿接 5V**，防止烧毁单片机 |
+| **GND** | GND | 共地 |
+| **SWCLK** | SWCLK / PA14 | 时钟线 |
+| **SWDIO** | SWDIO / PA13 | 数据线 |
+
+> **BOOT 跳线检查**：核心板上两个黄色跳线帽（BOOT0 / BOOT1）务必都置于 **0** 端（靠 GND 侧），否则程序无法从 Flash 正常引导。
+
+### 2. 编译与烧录
+
 ```bash
-git clone https://github.com/shadowzhz/STM32.git
-cd STM32/HAL/Template
+git clone https://github.com/shadowzhz/STM32-Template.git
+cd STM32-Template/HAL/Template
 make          # 生成 build/STM32F103C8T6.hex 并打印内存占用
 make flash    # ST-Link + SWD 烧录（Linux 配置好 udev 后无需 sudo）
 ```
