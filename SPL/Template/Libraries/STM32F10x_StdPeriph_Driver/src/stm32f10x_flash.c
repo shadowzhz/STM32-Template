@@ -4,34 +4,32 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file provides all the FLASH firmware functions.
+  * @brief   本文件提供所有 FLASH 固件函数。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供参考，旨在为客户提供有关其产品的编码信息，以便客户节省时间。
+  * 因此，对于因本固件的内容和/或客户将本文所含编码信息用于其产品
+  * 而产生的任何索赔所导致的任何直接、间接或后果性损害，
+  * 意法半导体概不承担责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x_flash.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @defgroup FLASH 
-  * @brief FLASH driver modules
+/** @defgroup FLASH
+  * @brief FLASH 驱动模块
   * @{
   */ 
 
-/** @defgroup FLASH_Private_TypesDefinitions
+/** @defgroup FLASH_Private_TypesDefinitions   FLASH 私有类型定义
   * @{
   */
 
@@ -39,19 +37,19 @@
   * @}
   */ 
 
-/** @defgroup FLASH_Private_Defines
+/** @defgroup FLASH_Private_Defines   FLASH 私有宏定义
   * @{
   */ 
 
-/* Flash Access Control Register bits */
+/* 闪存访问控制寄存器位 */
 #define ACR_LATENCY_Mask         ((uint32_t)0x00000038)
 #define ACR_HLFCYA_Mask          ((uint32_t)0xFFFFFFF7)
 #define ACR_PRFTBE_Mask          ((uint32_t)0xFFFFFFEF)
 
-/* Flash Access Control Register bits */
+/* 闪存访问控制寄存器位 */
 #define ACR_PRFTBS_Mask          ((uint32_t)0x00000020) 
 
-/* Flash Control Register bits */
+/* 闪存控制寄存器位 */
 #define CR_PG_Set                ((uint32_t)0x00000001)
 #define CR_PG_Reset              ((uint32_t)0x00001FFE) 
 #define CR_PER_Set               ((uint32_t)0x00000002)
@@ -65,7 +63,7 @@
 #define CR_STRT_Set              ((uint32_t)0x00000040)
 #define CR_LOCK_Set              ((uint32_t)0x00000080)
 
-/* FLASH Mask */
+/* FLASH 掩码 */
 #define RDPRT_Mask               ((uint32_t)0x00000002)
 #define WRP0_Mask                ((uint32_t)0x000000FF)
 #define WRP1_Mask                ((uint32_t)0x0000FF00)
@@ -73,22 +71,22 @@
 #define WRP3_Mask                ((uint32_t)0xFF000000)
 #define OB_USER_BFB2             ((uint16_t)0x0008)
 
-/* FLASH Keys */
+/* FLASH 密钥 */
 #define RDP_Key                  ((uint16_t)0x00A5)
 #define FLASH_KEY1               ((uint32_t)0x45670123)
 #define FLASH_KEY2               ((uint32_t)0xCDEF89AB)
 
-/* FLASH BANK address */
+/* FLASH BANK 地址 */
 #define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x807FFFF)
 
-/* Delay definition */   
+/* 延时定义 */   
 #define EraseTimeout          ((uint32_t)0x000B0000)
 #define ProgramTimeout        ((uint32_t)0x00002000)
 /**
   * @}
   */ 
 
-/** @defgroup FLASH_Private_Macros
+/** @defgroup FLASH_Private_Macros   FLASH 私有宏
   * @{
   */
 
@@ -96,7 +94,7 @@
   * @}
   */ 
 
-/** @defgroup FLASH_Private_Variables
+/** @defgroup FLASH_Private_Variables   FLASH 私有变量
   * @{
   */
 
@@ -104,7 +102,7 @@
   * @}
   */ 
 
-/** @defgroup FLASH_Private_FunctionPrototypes
+/** @defgroup FLASH_Private_FunctionPrototypes   FLASH 私有函数原型
   * @{
   */
   
@@ -112,27 +110,29 @@
   * @}
   */
 
-/** @defgroup FLASH_Private_Functions
+/** @defgroup FLASH_Private_Functions   FLASH 私有函数
   * @{
   */
 
 /**
-@code  
- 
- This driver provides functions to configure and program the Flash memory of all STM32F10x devices,
- including the latest STM32F10x_XL density devices. 
+@code
 
- STM32F10x_XL devices feature up to 1 Mbyte with dual bank architecture for read-while-write (RWW) capability:
-    - bank1: fixed size of 512 Kbytes (256 pages of 2Kbytes each)
-    - bank2: up to 512 Kbytes (up to 256 pages of 2Kbytes each)
- While other STM32F10x devices features only one bank with memory up to 512 Kbytes.
+ 本驱动提供用于配置和编程所有 STM32F10x 器件（包括最新的 STM32F10x_XL
+ 密度器件）Flash 存储器的函数。
 
- In version V3.3.0, some functions were updated and new ones were added to support
- STM32F10x_XL devices. Thus some functions manages all devices, while other are 
- dedicated for XL devices only.
- 
- The table below presents the list of available functions depending on the used STM32F10x devices.  
-      
+ STM32F10x_XL 器件具有高达 1 Mbyte 的容量，并采用双 Bank 架构以具备
+ 边读边写 (RWW) 能力：
+    - bank1: 固定大小为 512 Kbytes（256 页，每页 2 Kbytes）
+    - bank2: 高达 512 Kbytes（最多 256 页，每页 2 Kbytes）
+ 而其他 STM32F10x 器件只有一个 Bank，存储器容量最高为 512 Kbytes。
+
+ 在 V3.3.0 版本中，更新了一些函数并新增了一些函数以支持
+ STM32F10x_XL 器件。因此，有些函数管理所有器件，而有些函数
+ 则专用于 XL 器件。
+
+ 下表列出了根据所使用的 STM32F10x 器件可用的函数清单。
+ （以下为等宽 ASCII 对照表，为保持列对齐原样保留英文内容）
+
    ***************************************************
    * Legacy functions used for all STM32F10x devices *
    ***************************************************
@@ -242,118 +242,118 @@
 
 
 /**
-  * @brief  Sets the code latency value.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  FLASH_Latency: specifies the FLASH Latency value.
-  *   This parameter can be one of the following values:
-  *     @arg FLASH_Latency_0: FLASH Zero Latency cycle
-  *     @arg FLASH_Latency_1: FLASH One Latency cycle
-  *     @arg FLASH_Latency_2: FLASH Two Latency cycles
-  * @retval None
+  * @brief  设置代码延时值 (Latency)。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  FLASH_Latency: 指定 FLASH 延时值。
+  *   该参数可取以下值之一：
+  *     @arg FLASH_Latency_0: FLASH 零延时周期
+  *     @arg FLASH_Latency_1: FLASH 一个延时周期
+  *     @arg FLASH_Latency_2: FLASH 两个延时周期
+  * @retval 无
   */
 void FLASH_SetLatency(uint32_t FLASH_Latency)
 {
   uint32_t tmpreg = 0;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_LATENCY(FLASH_Latency));
   
-  /* Read the ACR register */
+  /* 读取 ACR 寄存器 */
   tmpreg = FLASH->ACR;  
   
-  /* Sets the Latency value */
+  /* 设置 Latency 值 */
   tmpreg &= ACR_LATENCY_Mask;
   tmpreg |= FLASH_Latency;
   
-  /* Write the ACR register */
+  /* 写入 ACR 寄存器 */
   FLASH->ACR = tmpreg;
 }
 
 /**
-  * @brief  Enables or disables the Half cycle flash access.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  FLASH_HalfCycleAccess: specifies the FLASH Half cycle Access mode.
-  *   This parameter can be one of the following values:
-  *     @arg FLASH_HalfCycleAccess_Enable: FLASH Half Cycle Enable
-  *     @arg FLASH_HalfCycleAccess_Disable: FLASH Half Cycle Disable
-  * @retval None
+  * @brief  使能或关闭半周期闪存访问。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  FLASH_HalfCycleAccess: 指定 FLASH 半周期访问模式。
+  *   该参数可取以下值之一：
+  *     @arg FLASH_HalfCycleAccess_Enable: FLASH 半周期使能
+  *     @arg FLASH_HalfCycleAccess_Disable: FLASH 半周期关闭
+  * @retval 无
   */
 void FLASH_HalfCycleAccessCmd(uint32_t FLASH_HalfCycleAccess)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_HALFCYCLEACCESS_STATE(FLASH_HalfCycleAccess));
   
-  /* Enable or disable the Half cycle access */
+  /* 使能或关闭半周期访问 */
   FLASH->ACR &= ACR_HLFCYA_Mask;
   FLASH->ACR |= FLASH_HalfCycleAccess;
 }
 
 /**
-  * @brief  Enables or disables the Prefetch Buffer.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  FLASH_PrefetchBuffer: specifies the Prefetch buffer status.
-  *   This parameter can be one of the following values:
-  *     @arg FLASH_PrefetchBuffer_Enable: FLASH Prefetch Buffer Enable
-  *     @arg FLASH_PrefetchBuffer_Disable: FLASH Prefetch Buffer Disable
-  * @retval None
+  * @brief  使能或关闭预取缓冲区。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  FLASH_PrefetchBuffer: 指定预取缓冲区的状态。
+  *   该参数可取以下值之一：
+  *     @arg FLASH_PrefetchBuffer_Enable: FLASH 预取缓冲区使能
+  *     @arg FLASH_PrefetchBuffer_Disable: FLASH 预取缓冲区关闭
+  * @retval 无
   */
 void FLASH_PrefetchBufferCmd(uint32_t FLASH_PrefetchBuffer)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_PREFETCHBUFFER_STATE(FLASH_PrefetchBuffer));
   
-  /* Enable or disable the Prefetch Buffer */
+  /* 使能或关闭预取缓冲区 */
   FLASH->ACR &= ACR_PRFTBE_Mask;
   FLASH->ACR |= FLASH_PrefetchBuffer;
 }
 
 /**
-  * @brief  Unlocks the FLASH Program Erase Controller.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function unlocks Bank1 and Bank2.
-  *         - For all other devices it unlocks Bank1 and it is equivalent 
-  *           to FLASH_UnlockBank1 function.. 
-  * @param  None
-  * @retval None
+  * @brief  解锁 FLASH 编程擦除控制器。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  *         - 对于 STM32F10X_XL 器件，本函数解锁 Bank1 和 Bank2。
+  *         - 对于所有其他器件，本函数解锁 Bank1，等效于
+  *           FLASH_UnlockBank1 函数。。
+  * @param  无
+  * @retval 无
   */
 void FLASH_Unlock(void)
 {
-  /* Authorize the FPEC of Bank1 Access */
+  /* 授权访问 Bank1 的 FPEC */
   FLASH->KEYR = FLASH_KEY1;
   FLASH->KEYR = FLASH_KEY2;
 
 #ifdef STM32F10X_XL
-  /* Authorize the FPEC of Bank2 Access */
+  /* 授权访问 Bank2 的 FPEC */
   FLASH->KEYR2 = FLASH_KEY1;
   FLASH->KEYR2 = FLASH_KEY2;
 #endif /* STM32F10X_XL */
 }
 /**
-  * @brief  Unlocks the FLASH Bank1 Program Erase Controller.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function unlocks Bank1.
-  *         - For all other devices it unlocks Bank1 and it is 
-  *           equivalent to FLASH_Unlock function.
-  * @param  None
-  * @retval None
+  * @brief  解锁 FLASH Bank1 编程擦除控制器。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  *         - 对于 STM32F10X_XL 器件，本函数解锁 Bank1。
+  *         - 对于所有其他器件，本函数解锁 Bank1，等效于
+  *           FLASH_Unlock 函数。
+  * @param  无
+  * @retval 无
   */
 void FLASH_UnlockBank1(void)
 {
-  /* Authorize the FPEC of Bank1 Access */
+  /* 授权访问 Bank1 的 FPEC */
   FLASH->KEYR = FLASH_KEY1;
   FLASH->KEYR = FLASH_KEY2;
 }
 
 #ifdef STM32F10X_XL
 /**
-  * @brief  Unlocks the FLASH Bank2 Program Erase Controller.
-  * @note   This function can be used only for STM32F10X_XL density devices.
-  * @param  None
-  * @retval None
+  * @brief  解锁 FLASH Bank2 编程擦除控制器。
+  * @note   本函数仅可用于 STM32F10X_XL 密度器件。
+  * @param  无
+  * @retval 无
   */
 void FLASH_UnlockBank2(void)
 {
-  /* Authorize the FPEC of Bank2 Access */
+  /* 授权访问 Bank2 的 FPEC */
   FLASH->KEYR2 = FLASH_KEY1;
   FLASH->KEYR2 = FLASH_KEY2;
 
@@ -361,257 +361,257 @@ void FLASH_UnlockBank2(void)
 #endif /* STM32F10X_XL */
 
 /**
-  * @brief  Locks the FLASH Program Erase Controller.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function Locks Bank1 and Bank2.
-  *         - For all other devices it Locks Bank1 and it is equivalent 
-  *           to FLASH_LockBank1 function.
-  * @param  None
-  * @retval None
+  * @brief  锁定 FLASH 编程擦除控制器。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  *         - 对于 STM32F10X_XL 器件，本函数锁定 Bank1 和 Bank2。
+  *         - 对于所有其他器件，本函数锁定 Bank1，等效于
+  *           FLASH_LockBank1 函数。
+  * @param  无
+  * @retval 无
   */
 void FLASH_Lock(void)
 {
-  /* Set the Lock Bit to lock the FPEC and the CR of  Bank1 */
+  /* 置位锁定位以锁定 Bank1 的 FPEC 和 CR */
   FLASH->CR |= CR_LOCK_Set;
 
 #ifdef STM32F10X_XL
-  /* Set the Lock Bit to lock the FPEC and the CR of  Bank2 */
+  /* 置位锁定位以锁定 Bank2 的 FPEC 和 CR */
   FLASH->CR2 |= CR_LOCK_Set;
 #endif /* STM32F10X_XL */
 }
 
 /**
-  * @brief  Locks the FLASH Bank1 Program Erase Controller.
-  * @note   this function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function Locks Bank1.
-  *         - For all other devices it Locks Bank1 and it is equivalent 
-  *           to FLASH_Lock function.
-  * @param  None
-  * @retval None
+  * @brief  锁定 FLASH Bank1 编程擦除控制器。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  *         - 对于 STM32F10X_XL 器件，本函数锁定 Bank1。
+  *         - 对于所有其他器件，本函数锁定 Bank1，等效于
+  *           FLASH_Lock 函数。
+  * @param  无
+  * @retval 无
   */
 void FLASH_LockBank1(void)
 {
-  /* Set the Lock Bit to lock the FPEC and the CR of  Bank1 */
+  /* 置位锁定位以锁定 Bank1 的 FPEC 和 CR */
   FLASH->CR |= CR_LOCK_Set;
 }
 
 #ifdef STM32F10X_XL
 /**
-  * @brief  Locks the FLASH Bank2 Program Erase Controller.
-  * @note   This function can be used only for STM32F10X_XL density devices.
-  * @param  None
-  * @retval None
+  * @brief  锁定 FLASH Bank2 编程擦除控制器。
+  * @note   本函数仅可用于 STM32F10X_XL 密度器件。
+  * @param  无
+  * @retval 无
   */
 void FLASH_LockBank2(void)
 {
-  /* Set the Lock Bit to lock the FPEC and the CR of  Bank2 */
+  /* 置位锁定位以锁定 Bank2 的 FPEC 和 CR */
   FLASH->CR2 |= CR_LOCK_Set;
 }
 #endif /* STM32F10X_XL */
 
 /**
-  * @brief  Erases a specified FLASH page.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  Page_Address: The page address to be erased.
-  * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  擦除指定的 FLASH 页。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  Page_Address: 要擦除的页地址。
+  * @retval FLASH 状态：返回值可以是 FLASH_BUSY、FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_ErasePage(uint32_t Page_Address)
 {
   FLASH_Status status = FLASH_COMPLETE;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_ADDRESS(Page_Address));
 
 #ifdef STM32F10X_XL
   if(Page_Address < FLASH_BANK1_END_ADDRESS)  
   {
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank1Operation(EraseTimeout);
     if(status == FLASH_COMPLETE)
     { 
-      /* if the previous operation is completed, proceed to erase the page */
+      /* 若上一次操作已完成，则继续擦除该页 */
       FLASH->CR|= CR_PER_Set;
       FLASH->AR = Page_Address; 
       FLASH->CR|= CR_STRT_Set;
     
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastBank1Operation(EraseTimeout);
 
-      /* Disable the PER Bit */
+      /* 关闭 PER 位 */
       FLASH->CR &= CR_PER_Reset;
     }
   }
   else
   {
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank2Operation(EraseTimeout);
     if(status == FLASH_COMPLETE)
     { 
-      /* if the previous operation is completed, proceed to erase the page */
+      /* 若上一次操作已完成，则继续擦除该页 */
       FLASH->CR2|= CR_PER_Set;
       FLASH->AR2 = Page_Address; 
       FLASH->CR2|= CR_STRT_Set;
     
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastBank2Operation(EraseTimeout);
       
-      /* Disable the PER Bit */
+      /* 关闭 PER 位 */
       FLASH->CR2 &= CR_PER_Reset;
     }
   }
 #else
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastOperation(EraseTimeout);
   
   if(status == FLASH_COMPLETE)
   { 
-    /* if the previous operation is completed, proceed to erase the page */
+    /* 若上一次操作已完成，则继续擦除该页 */
     FLASH->CR|= CR_PER_Set;
     FLASH->AR = Page_Address; 
     FLASH->CR|= CR_STRT_Set;
     
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastOperation(EraseTimeout);
     
-    /* Disable the PER Bit */
+    /* 关闭 PER 位 */
     FLASH->CR &= CR_PER_Reset;
   }
 #endif /* STM32F10X_XL */
 
-  /* Return the Erase Status */
+  /* 返回擦除状态 */
   return status;
 }
 
 /**
-  * @brief  Erases all FLASH pages.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  None
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  擦除所有 FLASH 页。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  无
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_EraseAllPages(void)
 {
   FLASH_Status status = FLASH_COMPLETE;
 
 #ifdef STM32F10X_XL
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastBank1Operation(EraseTimeout);
   
   if(status == FLASH_COMPLETE)
   {
-    /* if the previous operation is completed, proceed to erase all pages */
+    /* 若上一次操作已完成，则继续擦除所有页 */
      FLASH->CR |= CR_MER_Set;
      FLASH->CR |= CR_STRT_Set;
     
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank1Operation(EraseTimeout);
     
-    /* Disable the MER Bit */
+    /* 关闭 MER 位 */
     FLASH->CR &= CR_MER_Reset;
   }    
   if(status == FLASH_COMPLETE)
   {
-    /* if the previous operation is completed, proceed to erase all pages */
+    /* 若上一次操作已完成，则继续擦除所有页 */
      FLASH->CR2 |= CR_MER_Set;
      FLASH->CR2 |= CR_STRT_Set;
     
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank2Operation(EraseTimeout);
     
-    /* Disable the MER Bit */
+    /* 关闭 MER 位 */
     FLASH->CR2 &= CR_MER_Reset;
   }
 #else
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastOperation(EraseTimeout);
   if(status == FLASH_COMPLETE)
   {
-    /* if the previous operation is completed, proceed to erase all pages */
+    /* 若上一次操作已完成，则继续擦除所有页 */
      FLASH->CR |= CR_MER_Set;
      FLASH->CR |= CR_STRT_Set;
     
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastOperation(EraseTimeout);
 
-    /* Disable the MER Bit */
+    /* 关闭 MER 位 */
     FLASH->CR &= CR_MER_Reset;
   }
 #endif /* STM32F10X_XL */
 
-  /* Return the Erase Status */
+  /* 返回擦除状态 */
   return status;
 }
 
 /**
-  * @brief  Erases all Bank1 FLASH pages.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices this function erases all Bank1 pages.
-  *         - For all other devices it erases all Bank1 pages and it is equivalent 
-  *           to FLASH_EraseAllPages function.
-  * @param  None
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  擦除所有 Bank1 FLASH 页。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  *         - 对于 STM32F10X_XL 器件，本函数擦除所有 Bank1 页。
+  *         - 对于所有其他器件，本函数擦除所有 Bank1 页，等效于
+  *           FLASH_EraseAllPages 函数。
+  * @param  无
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_EraseAllBank1Pages(void)
 {
   FLASH_Status status = FLASH_COMPLETE;
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastBank1Operation(EraseTimeout);
   
   if(status == FLASH_COMPLETE)
   {
-    /* if the previous operation is completed, proceed to erase all pages */
+    /* 若上一次操作已完成，则继续擦除所有页 */
      FLASH->CR |= CR_MER_Set;
      FLASH->CR |= CR_STRT_Set;
     
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank1Operation(EraseTimeout);
     
-    /* Disable the MER Bit */
+    /* 关闭 MER 位 */
     FLASH->CR &= CR_MER_Reset;
   }    
-  /* Return the Erase Status */
+  /* 返回擦除状态 */
   return status;
 }
 
 #ifdef STM32F10X_XL
 /**
-  * @brief  Erases all Bank2 FLASH pages.
-  * @note   This function can be used only for STM32F10x_XL density devices.
-  * @param  None
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  擦除所有 Bank2 FLASH 页。
+  * @note   本函数仅可用于 STM32F10x_XL 密度器件。
+  * @param  无
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_EraseAllBank2Pages(void)
 {
   FLASH_Status status = FLASH_COMPLETE;
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastBank2Operation(EraseTimeout);
   
   if(status == FLASH_COMPLETE)
   {
-    /* if the previous operation is completed, proceed to erase all pages */
+    /* 若上一次操作已完成，则继续擦除所有页 */
      FLASH->CR2 |= CR_MER_Set;
      FLASH->CR2 |= CR_STRT_Set;
     
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank2Operation(EraseTimeout);
 
-    /* Disable the MER Bit */
+    /* 关闭 MER 位 */
     FLASH->CR2 &= CR_MER_Reset;
   }    
-  /* Return the Erase Status */
+  /* 返回擦除状态 */
   return status;
 }
 #endif /* STM32F10X_XL */
 
 /**
-  * @brief  Erases the FLASH option bytes.
-  * @note   This functions erases all option bytes except the Read protection (RDP). 
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  None
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  擦除 FLASH 选项字节。
+  * @note   本函数擦除除读保护 (RDP) 之外的所有选项字节。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  无
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_EraseOptionBytes(void)
 {
@@ -619,41 +619,41 @@ FLASH_Status FLASH_EraseOptionBytes(void)
 
   FLASH_Status status = FLASH_COMPLETE;
 
-  /* Get the actual read protection Option Byte value */ 
+  /* 获取实际的读保护选项字节值 */ 
   if(FLASH_GetReadOutProtectionStatus() != RESET)
   {
     rdptmp = 0x00;  
   }
 
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastOperation(EraseTimeout);
   if(status == FLASH_COMPLETE)
   {
-    /* Authorize the small information block programming */
+    /* 授权小信息块编程 */
     FLASH->OPTKEYR = FLASH_KEY1;
     FLASH->OPTKEYR = FLASH_KEY2;
     
-    /* if the previous operation is completed, proceed to erase the option bytes */
+    /* 若上一次操作已完成，则继续擦除选项字节 */
     FLASH->CR |= CR_OPTER_Set;
     FLASH->CR |= CR_STRT_Set;
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastOperation(EraseTimeout);
     
     if(status == FLASH_COMPLETE)
     {
-      /* if the erase operation is completed, disable the OPTER Bit */
+      /* 若擦除操作已完成，则关闭 OPTER 位 */
       FLASH->CR &= CR_OPTER_Reset;
        
-      /* Enable the Option Bytes Programming operation */
+      /* 使能选项字节编程操作 */
       FLASH->CR |= CR_OPTPG_Set;
-      /* Restore the last read protection Option Byte value */
+      /* 恢复上一次的读保护选项字节值 */
       OB->RDP = (uint16_t)rdptmp; 
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastOperation(ProgramTimeout);
  
       if(status != FLASH_TIMEOUT)
       {
-        /* if the program operation is completed, disable the OPTPG Bit */
+        /* 若编程操作已完成，则关闭 OPTPG 位 */
         FLASH->CR &= CR_OPTPG_Reset;
       }
     }
@@ -661,222 +661,222 @@ FLASH_Status FLASH_EraseOptionBytes(void)
     {
       if (status != FLASH_TIMEOUT)
       {
-        /* Disable the OPTPG Bit */
+        /* 关闭 OPTPG 位 */
         FLASH->CR &= CR_OPTPG_Reset;
       }
     }  
   }
-  /* Return the erase status */
+  /* 返回擦除状态 */
   return status;
 }
 
 /**
-  * @brief  Programs a word at a specified address.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  Address: specifies the address to be programmed.
-  * @param  Data: specifies the data to be programmed.
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT. 
+  * @brief  在指定地址编程一个字。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  Address: 指定要编程的地址。
+  * @param  Data: 指定要编程的数据。
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data)
 {
   FLASH_Status status = FLASH_COMPLETE;
   __IO uint32_t tmp = 0;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_ADDRESS(Address));
 
 #ifdef STM32F10X_XL
   if(Address < FLASH_BANK1_END_ADDRESS - 2)
   { 
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank1Operation(ProgramTimeout); 
     if(status == FLASH_COMPLETE)
     {
-      /* if the previous operation is completed, proceed to program the new first 
-        half word */
+      /* 若上一次操作已完成，则继续编程新的第一个
+       半字 */
       FLASH->CR |= CR_PG_Set;
   
       *(__IO uint16_t*)Address = (uint16_t)Data;
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastOperation(ProgramTimeout);
  
       if(status == FLASH_COMPLETE)
       {
-        /* if the previous operation is completed, proceed to program the new second 
-        half word */
+        /* 若上一次操作已完成，则继续编程新的第二个
+       半字 */
         tmp = Address + 2;
 
         *(__IO uint16_t*) tmp = Data >> 16;
     
-        /* Wait for last operation to be completed */
+        /* 等待上一次操作完成 */
         status = FLASH_WaitForLastOperation(ProgramTimeout);
         
-        /* Disable the PG Bit */
+        /* 关闭 PG 位 */
         FLASH->CR &= CR_PG_Reset;
       }
       else
       {
-        /* Disable the PG Bit */
+        /* 关闭 PG 位 */
         FLASH->CR &= CR_PG_Reset;
        }
     }
   }
   else if(Address == (FLASH_BANK1_END_ADDRESS - 1))
   {
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank1Operation(ProgramTimeout);
 
     if(status == FLASH_COMPLETE)
     {
-      /* if the previous operation is completed, proceed to program the new first 
-        half word */
+      /* 若上一次操作已完成，则继续编程新的第一个
+       半字 */
       FLASH->CR |= CR_PG_Set;
   
       *(__IO uint16_t*)Address = (uint16_t)Data;
 
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastBank1Operation(ProgramTimeout);
       
-	  /* Disable the PG Bit */
+	  /* 关闭 PG 位 */
       FLASH->CR &= CR_PG_Reset;
     }
     else
     {
-      /* Disable the PG Bit */
+      /* 关闭 PG 位 */
       FLASH->CR &= CR_PG_Reset;
     }
 
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank2Operation(ProgramTimeout);
 
     if(status == FLASH_COMPLETE)
     {
-      /* if the previous operation is completed, proceed to program the new second 
-      half word */
+      /* 若上一次操作已完成，则继续编程新的第二个
+      半字 */
       FLASH->CR2 |= CR_PG_Set;
       tmp = Address + 2;
 
       *(__IO uint16_t*) tmp = Data >> 16;
     
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastBank2Operation(ProgramTimeout);
         
-      /* Disable the PG Bit */
+      /* 关闭 PG 位 */
       FLASH->CR2 &= CR_PG_Reset;
     }
     else
     {
-      /* Disable the PG Bit */
+      /* 关闭 PG 位 */
       FLASH->CR2 &= CR_PG_Reset;
     }
   }
   else
   {
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastBank2Operation(ProgramTimeout);
 
     if(status == FLASH_COMPLETE)
     {
-      /* if the previous operation is completed, proceed to program the new first 
-        half word */
+      /* 若上一次操作已完成，则继续编程新的第一个
+       半字 */
       FLASH->CR2 |= CR_PG_Set;
   
       *(__IO uint16_t*)Address = (uint16_t)Data;
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastBank2Operation(ProgramTimeout);
  
       if(status == FLASH_COMPLETE)
       {
-        /* if the previous operation is completed, proceed to program the new second 
-        half word */
+        /* 若上一次操作已完成，则继续编程新的第二个
+       半字 */
         tmp = Address + 2;
 
         *(__IO uint16_t*) tmp = Data >> 16;
     
-        /* Wait for last operation to be completed */
+        /* 等待上一次操作完成 */
         status = FLASH_WaitForLastBank2Operation(ProgramTimeout);
         
-        /* Disable the PG Bit */
+        /* 关闭 PG 位 */
         FLASH->CR2 &= CR_PG_Reset;
       }
       else
       {
-        /* Disable the PG Bit */
+        /* 关闭 PG 位 */
         FLASH->CR2 &= CR_PG_Reset;
       }
     }
   }
 #else
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastOperation(ProgramTimeout);
   
   if(status == FLASH_COMPLETE)
   {
-    /* if the previous operation is completed, proceed to program the new first 
-    half word */
+    /* 若上一次操作已完成，则继续编程新的第一个
+    半字 */
     FLASH->CR |= CR_PG_Set;
   
     *(__IO uint16_t*)Address = (uint16_t)Data;
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastOperation(ProgramTimeout);
  
     if(status == FLASH_COMPLETE)
     {
-      /* if the previous operation is completed, proceed to program the new second 
-      half word */
+      /* 若上一次操作已完成，则继续编程新的第二个
+      半字 */
       tmp = Address + 2;
 
       *(__IO uint16_t*) tmp = Data >> 16;
     
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastOperation(ProgramTimeout);
         
-      /* Disable the PG Bit */
+      /* 关闭 PG 位 */
       FLASH->CR &= CR_PG_Reset;
     }
     else
     {
-      /* Disable the PG Bit */
+      /* 关闭 PG 位 */
       FLASH->CR &= CR_PG_Reset;
     }
   }         
 #endif /* STM32F10X_XL */
    
-  /* Return the Program Status */
+  /* 返回编程状态 */
   return status;
 }
 
 /**
-  * @brief  Programs a half word at a specified address.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  Address: specifies the address to be programmed.
-  * @param  Data: specifies the data to be programmed.
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT. 
+  * @brief  在指定地址编程一个半字。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  Address: 指定要编程的地址。
+  * @param  Data: 指定要编程的数据。
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data)
 {
   FLASH_Status status = FLASH_COMPLETE;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_ADDRESS(Address));
 
 #ifdef STM32F10X_XL
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastOperation(ProgramTimeout);
   
   if(Address < FLASH_BANK1_END_ADDRESS)
   {
     if(status == FLASH_COMPLETE)
     {
-      /* if the previous operation is completed, proceed to program the new data */
+      /* 若上一次操作已完成，则继续编程新数据 */
       FLASH->CR |= CR_PG_Set;
   
       *(__IO uint16_t*)Address = Data;
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastBank1Operation(ProgramTimeout);
 
-      /* Disable the PG Bit */
+      /* 关闭 PG 位 */
       FLASH->CR &= CR_PG_Reset;
     }
   }
@@ -884,93 +884,93 @@ FLASH_Status FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data)
   {
     if(status == FLASH_COMPLETE)
     {
-      /* if the previous operation is completed, proceed to program the new data */
+      /* 若上一次操作已完成，则继续编程新数据 */
       FLASH->CR2 |= CR_PG_Set;
   
       *(__IO uint16_t*)Address = Data;
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastBank2Operation(ProgramTimeout);
 
-      /* Disable the PG Bit */
+      /* 关闭 PG 位 */
       FLASH->CR2 &= CR_PG_Reset;
     }
   }
 #else
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastOperation(ProgramTimeout);
   
   if(status == FLASH_COMPLETE)
   {
-    /* if the previous operation is completed, proceed to program the new data */
+    /* 若上一次操作已完成，则继续编程新数据 */
     FLASH->CR |= CR_PG_Set;
   
     *(__IO uint16_t*)Address = Data;
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastOperation(ProgramTimeout);
     
-    /* Disable the PG Bit */
+    /* 关闭 PG 位 */
     FLASH->CR &= CR_PG_Reset;
   } 
 #endif  /* STM32F10X_XL */
   
-  /* Return the Program Status */
+  /* 返回编程状态 */
   return status;
 }
 
 /**
-  * @brief  Programs a half word at a specified Option Byte Data address.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  Address: specifies the address to be programmed.
-  *   This parameter can be 0x1FFFF804 or 0x1FFFF806. 
-  * @param  Data: specifies the data to be programmed.
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT. 
+  * @brief  在指定的选项字节数据地址编程一个半字。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  Address: 指定要编程的地址。
+  *   该参数可以是 0x1FFFF804 或 0x1FFFF806。
+  * @param  Data: 指定要编程的数据。
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_ProgramOptionByteData(uint32_t Address, uint8_t Data)
 {
   FLASH_Status status = FLASH_COMPLETE;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_OB_DATA_ADDRESS(Address));
   status = FLASH_WaitForLastOperation(ProgramTimeout);
 
   if(status == FLASH_COMPLETE)
   {
-    /* Authorize the small information block programming */
+    /* 授权小信息块编程 */
     FLASH->OPTKEYR = FLASH_KEY1;
     FLASH->OPTKEYR = FLASH_KEY2;
-    /* Enables the Option Bytes Programming operation */
+    /* 使能选项字节编程操作 */
     FLASH->CR |= CR_OPTPG_Set; 
     *(__IO uint16_t*)Address = Data;
     
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastOperation(ProgramTimeout);
     if(status != FLASH_TIMEOUT)
     {
-      /* if the program operation is completed, disable the OPTPG Bit */
+      /* 若编程操作已完成，则关闭 OPTPG 位 */
       FLASH->CR &= CR_OPTPG_Reset;
     }
   }
-  /* Return the Option Byte Data Program Status */
+  /* 返回选项字节数据编程状态 */
   return status;
 }
 
 /**
-  * @brief  Write protects the desired pages
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  FLASH_Pages: specifies the address of the pages to be write protected.
-  *   This parameter can be:
-  *     @arg For @b STM32_Low-density_devices: value between FLASH_WRProt_Pages0to3 and FLASH_WRProt_Pages28to31  
-  *     @arg For @b STM32_Medium-density_devices: value between FLASH_WRProt_Pages0to3
-  *       and FLASH_WRProt_Pages124to127
-  *     @arg For @b STM32_High-density_devices: value between FLASH_WRProt_Pages0to1 and
-  *       FLASH_WRProt_Pages60to61 or FLASH_WRProt_Pages62to255
-  *     @arg For @b STM32_Connectivity_line_devices: value between FLASH_WRProt_Pages0to1 and
-  *       FLASH_WRProt_Pages60to61 or FLASH_WRProt_Pages62to127    
-  *     @arg For @b STM32_XL-density_devices: value between FLASH_WRProt_Pages0to1 and
-  *       FLASH_WRProt_Pages60to61 or FLASH_WRProt_Pages62to511
+  * @brief  对所需页进行写保护
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  FLASH_Pages: 指定要写保护的页的地址。
+  *   该参数可以是：
+  *     @arg 对于 @b STM32_Low-density_devices：取值介于 FLASH_WRProt_Pages0to3 和 FLASH_WRProt_Pages28to31 之间
+  *     @arg 对于 @b STM32_Medium-density_devices：取值介于 FLASH_WRProt_Pages0to3
+  *       和 FLASH_WRProt_Pages124to127 之间
+  *     @arg 对于 @b STM32_High-density_devices：取值介于 FLASH_WRProt_Pages0to1 和
+  *       FLASH_WRProt_Pages60to61 或 FLASH_WRProt_Pages62to255 之间
+  *     @arg 对于 @b STM32_Connectivity_line_devices：取值介于 FLASH_WRProt_Pages0to1 和
+  *       FLASH_WRProt_Pages60to61 或 FLASH_WRProt_Pages62to127 之间
+  *     @arg 对于 @b STM32_XL-density_devices：取值介于 FLASH_WRProt_Pages0to1 和
+  *       FLASH_WRProt_Pages60to61 或 FLASH_WRProt_Pages62to511 之间
   *     @arg FLASH_WRProt_AllPages
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_EnableWriteProtection(uint32_t FLASH_Pages)
 {
@@ -978,7 +978,7 @@ FLASH_Status FLASH_EnableWriteProtection(uint32_t FLASH_Pages)
   
   FLASH_Status status = FLASH_COMPLETE;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_WRPROT_PAGE(FLASH_Pages));
   
   FLASH_Pages = (uint32_t)(~FLASH_Pages);
@@ -987,12 +987,12 @@ FLASH_Status FLASH_EnableWriteProtection(uint32_t FLASH_Pages)
   WRP2_Data = (uint16_t)((FLASH_Pages & WRP2_Mask) >> 16);
   WRP3_Data = (uint16_t)((FLASH_Pages & WRP3_Mask) >> 24);
   
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastOperation(ProgramTimeout);
   
   if(status == FLASH_COMPLETE)
   {
-    /* Authorizes the small information block programming */
+    /* 授权小信息块编程 */
     FLASH->OPTKEYR = FLASH_KEY1;
     FLASH->OPTKEYR = FLASH_KEY2;
     FLASH->CR |= CR_OPTPG_Set;
@@ -1000,21 +1000,21 @@ FLASH_Status FLASH_EnableWriteProtection(uint32_t FLASH_Pages)
     {
       OB->WRP0 = WRP0_Data;
       
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastOperation(ProgramTimeout);
     }
     if((status == FLASH_COMPLETE) && (WRP1_Data != 0xFF))
     {
       OB->WRP1 = WRP1_Data;
       
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastOperation(ProgramTimeout);
     }
     if((status == FLASH_COMPLETE) && (WRP2_Data != 0xFF))
     {
       OB->WRP2 = WRP2_Data;
       
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastOperation(ProgramTimeout);
     }
     
@@ -1022,50 +1022,50 @@ FLASH_Status FLASH_EnableWriteProtection(uint32_t FLASH_Pages)
     {
       OB->WRP3 = WRP3_Data;
      
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastOperation(ProgramTimeout);
     }
           
     if(status != FLASH_TIMEOUT)
     {
-      /* if the program operation is completed, disable the OPTPG Bit */
+      /* 若编程操作已完成，则关闭 OPTPG 位 */
       FLASH->CR &= CR_OPTPG_Reset;
     }
   } 
-  /* Return the write protection operation Status */
+  /* 返回写保护操作状态 */
   return status;       
 }
 
 /**
-  * @brief  Enables or disables the read out protection.
-  * @note   If the user has already programmed the other option bytes before calling 
-  *   this function, he must re-program them since this function erases all option bytes.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  Newstate: new state of the ReadOut Protection.
-  *   This parameter can be: ENABLE or DISABLE.
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  使能或关闭读保护。
+  * @note   若用户在调用本函数之前已编程了其他选项字节，
+  *   则必须重新编程这些字节，因为本函数会擦除所有选项字节。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  Newstate: 读保护的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_ReadOutProtection(FunctionalState NewState)
 {
   FLASH_Status status = FLASH_COMPLETE;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   status = FLASH_WaitForLastOperation(EraseTimeout);
   if(status == FLASH_COMPLETE)
   {
-    /* Authorizes the small information block programming */
+    /* 授权小信息块编程 */
     FLASH->OPTKEYR = FLASH_KEY1;
     FLASH->OPTKEYR = FLASH_KEY2;
     FLASH->CR |= CR_OPTER_Set;
     FLASH->CR |= CR_STRT_Set;
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastOperation(EraseTimeout);
     if(status == FLASH_COMPLETE)
     {
-      /* if the erase operation is completed, disable the OPTER Bit */
+      /* 若擦除操作已完成，则关闭 OPTER 位 */
       FLASH->CR &= CR_OPTER_Reset;
-      /* Enable the Option Bytes Programming operation */
+      /* 使能选项字节编程操作 */
       FLASH->CR |= CR_OPTPG_Set; 
       if(NewState != DISABLE)
       {
@@ -1075,12 +1075,12 @@ FLASH_Status FLASH_ReadOutProtection(FunctionalState NewState)
       {
         OB->RDP = RDP_Key;  
       }
-      /* Wait for last operation to be completed */
+      /* 等待上一次操作完成 */
       status = FLASH_WaitForLastOperation(EraseTimeout); 
     
       if(status != FLASH_TIMEOUT)
       {
-        /* if the program operation is completed, disable the OPTPG Bit */
+        /* 若编程操作已完成，则关闭 OPTPG 位 */
         FLASH->CR &= CR_OPTPG_Reset;
       }
     }
@@ -1088,101 +1088,100 @@ FLASH_Status FLASH_ReadOutProtection(FunctionalState NewState)
     {
       if(status != FLASH_TIMEOUT)
       {
-        /* Disable the OPTER Bit */
+        /* 关闭 OPTER 位 */
         FLASH->CR &= CR_OPTER_Reset;
       }
     }
   }
-  /* Return the protection operation Status */
+  /* 返回保护操作状态 */
   return status;       
 }
 
 /**
-  * @brief  Programs the FLASH User Option Byte: IWDG_SW / RST_STOP / RST_STDBY.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  OB_IWDG: Selects the IWDG mode
-  *   This parameter can be one of the following values:
-  *     @arg OB_IWDG_SW: Software IWDG selected
-  *     @arg OB_IWDG_HW: Hardware IWDG selected
-  * @param  OB_STOP: Reset event when entering STOP mode.
-  *   This parameter can be one of the following values:
-  *     @arg OB_STOP_NoRST: No reset generated when entering in STOP
-  *     @arg OB_STOP_RST: Reset generated when entering in STOP
-  * @param  OB_STDBY: Reset event when entering Standby mode.
-  *   This parameter can be one of the following values:
-  *     @arg OB_STDBY_NoRST: No reset generated when entering in STANDBY
-  *     @arg OB_STDBY_RST: Reset generated when entering in STANDBY
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG, 
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  编程 FLASH 用户选项字节：IWDG_SW / RST_STOP / RST_STDBY。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  OB_IWDG: 选择 IWDG 模式
+  *   该参数可取以下值之一：
+  *     @arg OB_IWDG_SW: 选择软件 IWDG
+  *     @arg OB_IWDG_HW: 选择硬件 IWDG
+  * @param  OB_STOP: 进入 STOP 模式时的复位事件。
+  *   该参数可取以下值之一：
+  *     @arg OB_STOP_NoRST: 进入 STOP 时不产生复位
+  *     @arg OB_STOP_RST: 进入 STOP 时产生复位
+  * @param  OB_STDBY: 进入待机模式时的复位事件。
+  *   该参数可取以下值之一：
+  *     @arg OB_STDBY_NoRST: 进入 STANDBY 时不产生复位
+  *     @arg OB_STDBY_RST: 进入 STANDBY 时产生复位
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_UserOptionByteConfig(uint16_t OB_IWDG, uint16_t OB_STOP, uint16_t OB_STDBY)
 {
   FLASH_Status status = FLASH_COMPLETE; 
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_OB_IWDG_SOURCE(OB_IWDG));
   assert_param(IS_OB_STOP_SOURCE(OB_STOP));
   assert_param(IS_OB_STDBY_SOURCE(OB_STDBY));
 
-  /* Authorize the small information block programming */
+  /* 授权小信息块编程 */
   FLASH->OPTKEYR = FLASH_KEY1;
   FLASH->OPTKEYR = FLASH_KEY2;
   
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastOperation(ProgramTimeout);
   
   if(status == FLASH_COMPLETE)
   {  
-    /* Enable the Option Bytes Programming operation */
+    /* 使能选项字节编程操作 */
     FLASH->CR |= CR_OPTPG_Set; 
            
     OB->USER = OB_IWDG | (uint16_t)(OB_STOP | (uint16_t)(OB_STDBY | ((uint16_t)0xF8))); 
   
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastOperation(ProgramTimeout);
     if(status != FLASH_TIMEOUT)
     {
-      /* if the program operation is completed, disable the OPTPG Bit */
+      /* 若编程操作已完成，则关闭 OPTPG 位 */
       FLASH->CR &= CR_OPTPG_Reset;
     }
   }    
-  /* Return the Option Byte program Status */
+  /* 返回选项字节编程状态 */
   return status;
 }
 
 #ifdef STM32F10X_XL
 /**
-  * @brief  Configures to boot from Bank1 or Bank2.  
-  * @note   This function can be used only for STM32F10x_XL density devices.
-  * @param  FLASH_BOOT: select the FLASH Bank to boot from.
-  *   This parameter can be one of the following values:
-  *     @arg FLASH_BOOT_Bank1: At startup, if boot pins are set in boot from user Flash
-  *        position and this parameter is selected the device will boot from Bank1(Default).
-  *     @arg FLASH_BOOT_Bank2: At startup, if boot pins are set in boot from user Flash
-  *        position and this parameter is selected the device will boot from Bank2 or Bank1,
-  *        depending on the activation of the bank. The active banks are checked in
-  *        the following order: Bank2, followed by Bank1.
-  *        The active bank is recognized by the value programmed at the base address
-  *        of the respective bank (corresponding to the initial stack pointer value
-  *        in the interrupt vector table).
-  *        For more information, please refer to AN2606 from www.st.com.    
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG, 
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  配置从 Bank1 或 Bank2 启动。
+  * @note   本函数仅可用于 STM32F10x_XL 密度器件。
+  * @param  FLASH_BOOT: 选择要启动的 FLASH Bank。
+  *   该参数可取以下值之一：
+  *     @arg FLASH_BOOT_Bank1: 启动时，若启动引脚设置为从用户 Flash 启动
+  *        位置且选择该参数，则器件将从 Bank1 启动（默认）。
+  *     @arg FLASH_BOOT_Bank2: 启动时，若启动引脚设置为从用户 Flash 启动
+  *        位置且选择该参数，则器件将从 Bank2 或 Bank1 启动，
+  *        具体取决于 Bank 的激活情况。活动 Bank 的检查顺序为：
+  *        先 Bank2，然后 Bank1。
+  *        活动 Bank 由各 Bank 基地址处编程的值来识别
+  *        （对应于中断向量表中的初始堆栈指针值）。
+  *        更多信息请参阅 www.st.com 上的 AN2606。
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_BootConfig(uint16_t FLASH_BOOT)
 { 
   FLASH_Status status = FLASH_COMPLETE; 
   assert_param(IS_FLASH_BOOT(FLASH_BOOT));
-  /* Authorize the small information block programming */
+  /* 授权小信息块编程 */
   FLASH->OPTKEYR = FLASH_KEY1;
   FLASH->OPTKEYR = FLASH_KEY2;
   
-  /* Wait for last operation to be completed */
+  /* 等待上一次操作完成 */
   status = FLASH_WaitForLastOperation(ProgramTimeout);
   
   if(status == FLASH_COMPLETE)
   {  
-    /* Enable the Option Bytes Programming operation */
+    /* 使能选项字节编程操作 */
     FLASH->CR |= CR_OPTPG_Set; 
 
     if(FLASH_BOOT == FLASH_BOOT_Bank1)
@@ -1193,49 +1192,49 @@ FLASH_Status FLASH_BootConfig(uint16_t FLASH_BOOT)
     {
       OB->USER &= (uint16_t)(~(uint16_t)(OB_USER_BFB2));
     }
-    /* Wait for last operation to be completed */
+    /* 等待上一次操作完成 */
     status = FLASH_WaitForLastOperation(ProgramTimeout);
     if(status != FLASH_TIMEOUT)
     {
-      /* if the program operation is completed, disable the OPTPG Bit */
+      /* 若编程操作已完成，则关闭 OPTPG 位 */
       FLASH->CR &= CR_OPTPG_Reset;
     }
   }    
-  /* Return the Option Byte program Status */
+  /* 返回选项字节编程状态 */
   return status;
 }
 #endif /* STM32F10X_XL */
 
 /**
-  * @brief  Returns the FLASH User Option Bytes values.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  None
-  * @retval The FLASH User Option Bytes values:IWDG_SW(Bit0), RST_STOP(Bit1)
-  *         and RST_STDBY(Bit2).
+  * @brief  返回 FLASH 用户选项字节值。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  无
+  * @retval FLASH 用户选项字节值：IWDG_SW(Bit0)、RST_STOP(Bit1)
+  *         和 RST_STDBY(Bit2)。
   */
 uint32_t FLASH_GetUserOptionByte(void)
 {
-  /* Return the User Option Byte */
+  /* 返回用户选项字节 */
   return (uint32_t)(FLASH->OBR >> 2);
 }
 
 /**
-  * @brief  Returns the FLASH Write Protection Option Bytes Register value.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  None
-  * @retval The FLASH Write Protection  Option Bytes Register value
+  * @brief  返回 FLASH 写保护选项字节寄存器值。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  无
+  * @retval FLASH 写保护选项字节寄存器值
   */
 uint32_t FLASH_GetWriteProtectionOptionByte(void)
 {
-  /* Return the Flash write protection Register value */
+  /* 返回 Flash 写保护寄存器值 */
   return (uint32_t)(FLASH->WRPR);
 }
 
 /**
-  * @brief  Checks whether the FLASH Read Out Protection Status is set or not.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  None
-  * @retval FLASH ReadOut Protection Status(SET or RESET)
+  * @brief  检查 FLASH 读保护状态是否被置位。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  无
+  * @retval FLASH 读保护状态 (SET 或 RESET)
   */
 FlagStatus FLASH_GetReadOutProtectionStatus(void)
 {
@@ -1252,10 +1251,10 @@ FlagStatus FLASH_GetReadOutProtectionStatus(void)
 }
 
 /**
-  * @brief  Checks whether the FLASH Prefetch Buffer status is set or not.
-  * @note   This function can be used for all STM32F10x devices.
-  * @param  None
-  * @retval FLASH Prefetch Buffer Status (SET or RESET).
+  * @brief  检查 FLASH 预取缓冲区状态是否被置位。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  * @param  无
+  * @retval FLASH 预取缓冲区状态 (SET 或 RESET)。
   */
 FlagStatus FLASH_GetPrefetchBufferStatus(void)
 {
@@ -1269,28 +1268,28 @@ FlagStatus FLASH_GetPrefetchBufferStatus(void)
   {
     bitstatus = RESET;
   }
-  /* Return the new state of FLASH Prefetch Buffer Status (SET or RESET) */
+  /* 返回 FLASH 预取缓冲区状态的新状态 (SET 或 RESET) */
   return bitstatus; 
 }
 
 /**
-  * @brief  Enables or disables the specified FLASH interrupts.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices, enables or disables the specified FLASH interrupts
-              for Bank1 and Bank2.
-  *         - For other devices it enables or disables the specified FLASH interrupts for Bank1.
-  * @param  FLASH_IT: specifies the FLASH interrupt sources to be enabled or disabled.
-  *   This parameter can be any combination of the following values:
-  *     @arg FLASH_IT_ERROR: FLASH Error Interrupt
-  *     @arg FLASH_IT_EOP: FLASH end of operation Interrupt
-  * @param  NewState: new state of the specified Flash interrupts.
-  *   This parameter can be: ENABLE or DISABLE.      
-  * @retval None 
+  * @brief  使能或关闭指定的 FLASH 中断。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  *         - 对于 STM32F10X_XL 器件，使能或关闭 Bank1 和 Bank2 的
+  *           指定 FLASH 中断。
+  *         - 对于其他器件，使能或关闭 Bank1 的指定 FLASH 中断。
+  * @param  FLASH_IT: 指定要使能或关闭的 FLASH 中断源。
+  *   该参数可以是以下值的任意组合：
+  *     @arg FLASH_IT_ERROR: FLASH 错误中断
+  *     @arg FLASH_IT_EOP: FLASH 操作结束中断
+  * @param  NewState: 指定 Flash 中断的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
+  * @retval 无
   */
 void FLASH_ITConfig(uint32_t FLASH_IT, FunctionalState NewState)
 {
 #ifdef STM32F10X_XL
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_IT(FLASH_IT)); 
   assert_param(IS_FUNCTIONAL_STATE(NewState));
 
@@ -1298,12 +1297,12 @@ void FLASH_ITConfig(uint32_t FLASH_IT, FunctionalState NewState)
   {
     if(NewState != DISABLE)
     {
-      /* Enable the interrupt sources */
+      /* 使能中断源 */
       FLASH->CR2 |= (FLASH_IT & 0x7FFFFFFF);
     }
     else
     {
-      /* Disable the interrupt sources */
+      /* 关闭中断源 */
       FLASH->CR2 &= ~(uint32_t)(FLASH_IT & 0x7FFFFFFF);
     }
   }
@@ -1311,55 +1310,55 @@ void FLASH_ITConfig(uint32_t FLASH_IT, FunctionalState NewState)
   {
     if(NewState != DISABLE)
     {
-      /* Enable the interrupt sources */
+      /* 使能中断源 */
       FLASH->CR |= FLASH_IT;
     }
     else
     {
-      /* Disable the interrupt sources */
+      /* 关闭中断源 */
       FLASH->CR &= ~(uint32_t)FLASH_IT;
     }
   }
 #else
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_IT(FLASH_IT)); 
   assert_param(IS_FUNCTIONAL_STATE(NewState));
 
   if(NewState != DISABLE)
   {
-    /* Enable the interrupt sources */
+    /* 使能中断源 */
     FLASH->CR |= FLASH_IT;
   }
   else
   {
-    /* Disable the interrupt sources */
+    /* 关闭中断源 */
     FLASH->CR &= ~(uint32_t)FLASH_IT;
   }
 #endif /* STM32F10X_XL */
 }
 
 /**
-  * @brief  Checks whether the specified FLASH flag is set or not.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices, this function checks whether the specified 
-  *           Bank1 or Bank2 flag is set or not.
-  *         - For other devices, it checks whether the specified Bank1 flag is 
-  *           set or not.
-  * @param  FLASH_FLAG: specifies the FLASH flag to check.
-  *   This parameter can be one of the following values:
-  *     @arg FLASH_FLAG_BSY: FLASH Busy flag           
-  *     @arg FLASH_FLAG_PGERR: FLASH Program error flag       
-  *     @arg FLASH_FLAG_WRPRTERR: FLASH Write protected error flag      
-  *     @arg FLASH_FLAG_EOP: FLASH End of Operation flag           
-  *     @arg FLASH_FLAG_OPTERR:  FLASH Option Byte error flag     
-  * @retval The new state of FLASH_FLAG (SET or RESET).
+  * @brief  检查指定的 FLASH 标志是否被置位。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  *         - 对于 STM32F10X_XL 器件，本函数检查指定的
+  *           Bank1 或 Bank2 标志是否被置位。
+  *         - 对于其他器件，本函数检查指定的 Bank1 标志
+  *           是否被置位。
+  * @param  FLASH_FLAG: 指定要检查的 FLASH 标志。
+  *   该参数可取以下值之一：
+  *     @arg FLASH_FLAG_BSY: FLASH 忙标志
+  *     @arg FLASH_FLAG_PGERR: FLASH 编程错误标志
+  *     @arg FLASH_FLAG_WRPRTERR: FLASH 写保护错误标志
+  *     @arg FLASH_FLAG_EOP: FLASH 操作结束标志
+  *     @arg FLASH_FLAG_OPTERR:  FLASH 选项字节错误标志
+  * @retval FLASH_FLAG 的新状态 (SET 或 RESET)。
   */
 FlagStatus FLASH_GetFlagStatus(uint32_t FLASH_FLAG)
 {
   FlagStatus bitstatus = RESET;
 
 #ifdef STM32F10X_XL
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_GET_FLAG(FLASH_FLAG)) ;
   if(FLASH_FLAG == FLASH_FLAG_OPTERR) 
   {
@@ -1398,7 +1397,7 @@ FlagStatus FLASH_GetFlagStatus(uint32_t FLASH_FLAG)
     }
   }
 #else
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_GET_FLAG(FLASH_FLAG)) ;
   if(FLASH_FLAG == FLASH_FLAG_OPTERR) 
   {
@@ -1424,55 +1423,55 @@ FlagStatus FLASH_GetFlagStatus(uint32_t FLASH_FLAG)
   }
 #endif /* STM32F10X_XL */
 
-  /* Return the new state of FLASH_FLAG (SET or RESET) */
+  /* 返回 FLASH_FLAG 的新状态 (SET 或 RESET) */
   return bitstatus;
 }
 
 /**
-  * @brief  Clears the FLASH's pending flags.
-  * @note   This function can be used for all STM32F10x devices.
-  *         - For STM32F10X_XL devices, this function clears Bank1 or Bank2�s pending flags
-  *         - For other devices, it clears Bank1�s pending flags.
-  * @param  FLASH_FLAG: specifies the FLASH flags to clear.
-  *   This parameter can be any combination of the following values:         
-  *     @arg FLASH_FLAG_PGERR: FLASH Program error flag       
-  *     @arg FLASH_FLAG_WRPRTERR: FLASH Write protected error flag      
-  *     @arg FLASH_FLAG_EOP: FLASH End of Operation flag           
-  * @retval None
+  * @brief  清除 FLASH 的挂起标志。
+  * @note   本函数可用于所有 STM32F10x 器件。
+  *         - 对于 STM32F10X_XL 器件，本函数清除 Bank1 或 Bank2 的挂起标志
+  *         - 对于其他器件，本函数清除 Bank1 的挂起标志。
+  * @param  FLASH_FLAG: 指定要清除的 FLASH 标志。
+  *   该参数可以是以下值的任意组合：
+  *     @arg FLASH_FLAG_PGERR: FLASH 编程错误标志
+  *     @arg FLASH_FLAG_WRPRTERR: FLASH 写保护错误标志
+  *     @arg FLASH_FLAG_EOP: FLASH 操作结束标志
+  * @retval 无
   */
 void FLASH_ClearFlag(uint32_t FLASH_FLAG)
 {
 #ifdef STM32F10X_XL
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_CLEAR_FLAG(FLASH_FLAG)) ;
 
   if((FLASH_FLAG & 0x80000000) != 0x0)
   {
-    /* Clear the flags */
+    /* 清除标志 */
     FLASH->SR2 = FLASH_FLAG;
   }
   else
   {
-    /* Clear the flags */
+    /* 清除标志 */
     FLASH->SR = FLASH_FLAG;
   }  
 
 #else
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FLASH_CLEAR_FLAG(FLASH_FLAG)) ;
   
-  /* Clear the flags */
+  /* 清除标志 */
   FLASH->SR = FLASH_FLAG;
 #endif /* STM32F10X_XL */
 }
 
 /**
-  * @brief  Returns the FLASH Status.
-  * @note   This function can be used for all STM32F10x devices, it is equivalent
-  *         to FLASH_GetBank1Status function.
-  * @param  None
-  * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP or FLASH_COMPLETE
+  * @brief  返回 FLASH 状态。
+  * @note   本函数可用于所有 STM32F10x 器件，等效于
+  *         FLASH_GetBank1Status 函数。
+  * @param  无
+  * @retval FLASH 状态：返回值可以是 FLASH_BUSY、FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP 或 FLASH_COMPLETE
   */
 FLASH_Status FLASH_GetStatus(void)
 {
@@ -1500,17 +1499,17 @@ FLASH_Status FLASH_GetStatus(void)
       }
     }
   }
-  /* Return the Flash Status */
+  /* 返回 Flash 状态 */
   return flashstatus;
 }
 
 /**
-  * @brief  Returns the FLASH Bank1 Status.
-  * @note   This function can be used for all STM32F10x devices, it is equivalent
-  *         to FLASH_GetStatus function.
-  * @param  None
-  * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP or FLASH_COMPLETE
+  * @brief  返回 FLASH Bank1 状态。
+  * @note   本函数可用于所有 STM32F10x 器件，等效于
+  *         FLASH_GetStatus 函数。
+  * @param  无
+  * @retval FLASH 状态：返回值可以是 FLASH_BUSY、FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP 或 FLASH_COMPLETE
   */
 FLASH_Status FLASH_GetBank1Status(void)
 {
@@ -1538,17 +1537,17 @@ FLASH_Status FLASH_GetBank1Status(void)
       }
     }
   }
-  /* Return the Flash Status */
+  /* 返回 Flash 状态 */
   return flashstatus;
 }
 
 #ifdef STM32F10X_XL
 /**
-  * @brief  Returns the FLASH Bank2 Status.
-  * @note   This function can be used for STM32F10x_XL density devices.
-  * @param  None
-  * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PG,
-  *        FLASH_ERROR_WRP or FLASH_COMPLETE
+  * @brief  返回 FLASH Bank2 状态。
+  * @note   本函数可用于 STM32F10x_XL 密度器件。
+  * @param  无
+  * @retval FLASH 状态：返回值可以是 FLASH_BUSY、FLASH_ERROR_PG、
+  *        FLASH_ERROR_WRP 或 FLASH_COMPLETE
   */
 FLASH_Status FLASH_GetBank2Status(void)
 {
@@ -1576,29 +1575,29 @@ FLASH_Status FLASH_GetBank2Status(void)
       }
     }
   }
-  /* Return the Flash Status */
+  /* 返回 Flash 状态 */
   return flashstatus;
 }
 #endif /* STM32F10X_XL */
 /**
-  * @brief  Waits for a Flash operation to complete or a TIMEOUT to occur.
-  * @note   This function can be used for all STM32F10x devices, 
-  *         it is equivalent to FLASH_WaitForLastBank1Operation.
-  *         - For STM32F10X_XL devices this function waits for a Bank1 Flash operation
-  *           to complete or a TIMEOUT to occur.
-  *         - For all other devices it waits for a Flash operation to complete 
-  *           or a TIMEOUT to occur.
-  * @param  Timeout: FLASH programming Timeout
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  等待 Flash 操作完成或发生超时。
+  * @note   本函数可用于所有 STM32F10x 器件，
+  *         它等效于 FLASH_WaitForLastBank1Operation。
+  *         - 对于 STM32F10X_XL 器件，本函数等待 Bank1 Flash 操作
+  *           完成或发生超时。
+  *         - 对于所有其他器件，本函数等待 Flash 操作完成
+  *           或发生超时。
+  * @param  Timeout: FLASH 编程超时时间
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_WaitForLastOperation(uint32_t Timeout)
 { 
   FLASH_Status status = FLASH_COMPLETE;
    
-  /* Check for the Flash Status */
+  /* 检查 Flash 状态 */
   status = FLASH_GetBank1Status();
-  /* Wait for a Flash operation to complete or a TIMEOUT to occur */
+  /* 等待 Flash 操作完成或发生超时 */
   while((status == FLASH_BUSY) && (Timeout != 0x00))
   {
     status = FLASH_GetBank1Status();
@@ -1608,25 +1607,25 @@ FLASH_Status FLASH_WaitForLastOperation(uint32_t Timeout)
   {
     status = FLASH_TIMEOUT;
   }
-  /* Return the operation status */
+  /* 返回操作状态 */
   return status;
 }
 
 /**
-  * @brief  Waits for a Flash operation on Bank1 to complete or a TIMEOUT to occur.
-  * @note   This function can be used for all STM32F10x devices, 
-  *         it is equivalent to FLASH_WaitForLastOperation.
-  * @param  Timeout: FLASH programming Timeout
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  等待 Bank1 上的 Flash 操作完成或发生超时。
+  * @note   本函数可用于所有 STM32F10x 器件，
+  *         它等效于 FLASH_WaitForLastOperation。
+  * @param  Timeout: FLASH 编程超时时间
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_WaitForLastBank1Operation(uint32_t Timeout)
 { 
   FLASH_Status status = FLASH_COMPLETE;
    
-  /* Check for the Flash Status */
+  /* 检查 Flash 状态 */
   status = FLASH_GetBank1Status();
-  /* Wait for a Flash operation to complete or a TIMEOUT to occur */
+  /* 等待 Flash 操作完成或发生超时 */
   while((status == FLASH_FLAG_BANK1_BSY) && (Timeout != 0x00))
   {
     status = FLASH_GetBank1Status();
@@ -1636,25 +1635,25 @@ FLASH_Status FLASH_WaitForLastBank1Operation(uint32_t Timeout)
   {
     status = FLASH_TIMEOUT;
   }
-  /* Return the operation status */
+  /* 返回操作状态 */
   return status;
 }
 
 #ifdef STM32F10X_XL
 /**
-  * @brief  Waits for a Flash operation on Bank2 to complete or a TIMEOUT to occur.
-  * @note   This function can be used only for STM32F10x_XL density devices.
-  * @param  Timeout: FLASH programming Timeout
-  * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
-  *         FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+  * @brief  等待 Bank2 上的 Flash 操作完成或发生超时。
+  * @note   本函数仅可用于 STM32F10x_XL 密度器件。
+  * @param  Timeout: FLASH 编程超时时间
+  * @retval FLASH 状态：返回值可以是 FLASH_ERROR_PG、
+  *         FLASH_ERROR_WRP、FLASH_COMPLETE 或 FLASH_TIMEOUT。
   */
 FLASH_Status FLASH_WaitForLastBank2Operation(uint32_t Timeout)
 { 
   FLASH_Status status = FLASH_COMPLETE;
    
-  /* Check for the Flash Status */
+  /* 检查 Flash 状态 */
   status = FLASH_GetBank2Status();
-  /* Wait for a Flash operation to complete or a TIMEOUT to occur */
+  /* 等待 Flash 操作完成或发生超时 */
   while((status == (FLASH_FLAG_BANK2_BSY & 0x7FFFFFFF)) && (Timeout != 0x00))
   {
     status = FLASH_GetBank2Status();
@@ -1664,7 +1663,7 @@ FLASH_Status FLASH_WaitForLastBank2Operation(uint32_t Timeout)
   {
     status = FLASH_TIMEOUT;
   }
-  /* Return the operation status */
+  /* 返回操作状态 */
   return status;
 }
 #endif /* STM32F10X_XL */
@@ -1681,4 +1680,4 @@ FLASH_Status FLASH_WaitForLastBank2Operation(uint32_t Timeout)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

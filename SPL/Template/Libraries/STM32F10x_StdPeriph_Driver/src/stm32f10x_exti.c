@@ -4,52 +4,32 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file provides all the EXTI firmware functions.
+  * @brief   本文件提供所有 EXTI 固件函数。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供参考，旨在为客户提供有关其产品的编码信息，以便客户节省时间。
+  * 因此，对于因本固件的内容和/或客户将本文所含编码信息用于其产品
+  * 而产生的任何索赔所导致的任何直接、间接或后果性损害，
+  * 意法半导体概不承担责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x_exti.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @defgroup EXTI 
-  * @brief EXTI driver modules
+/** @defgroup EXTI
+  * @brief EXTI 驱动模块
   * @{
   */
 
-/** @defgroup EXTI_Private_TypesDefinitions
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @defgroup EXTI_Private_Defines
-  * @{
-  */
-
-#define EXTI_LINENONE    ((uint32_t)0x00000)  /* No interrupt selected */
-
-/**
-  * @}
-  */
-
-/** @defgroup EXTI_Private_Macros
+/** @defgroup EXTI_Private_TypesDefinitions   EXTI 私有类型定义
   * @{
   */
 
@@ -57,7 +37,17 @@
   * @}
   */
 
-/** @defgroup EXTI_Private_Variables
+/** @defgroup EXTI_Private_Defines   EXTI 私有宏定义
+  * @{
+  */
+
+#define EXTI_LINENONE    ((uint32_t)0x00000)  /* 未选择中断 */
+
+/**
+  * @}
+  */
+
+/** @defgroup EXTI_Private_Macros   EXTI 私有宏
   * @{
   */
 
@@ -65,7 +55,7 @@
   * @}
   */
 
-/** @defgroup EXTI_Private_FunctionPrototypes
+/** @defgroup EXTI_Private_Variables   EXTI 私有变量
   * @{
   */
 
@@ -73,14 +63,22 @@
   * @}
   */
 
-/** @defgroup EXTI_Private_Functions
+/** @defgroup EXTI_Private_FunctionPrototypes   EXTI 私有函数原型
   * @{
   */
 
 /**
-  * @brief  Deinitializes the EXTI peripheral registers to their default reset values.
-  * @param  None
-  * @retval None
+  * @}
+  */
+
+/** @defgroup EXTI_Private_Functions   EXTI 私有函数
+  * @{
+  */
+
+/**
+  * @brief  将 EXTI 外设寄存器反初始化为默认复位值。
+  * @param  无
+  * @retval 无
   */
 void EXTI_DeInit(void)
 {
@@ -92,17 +90,16 @@ void EXTI_DeInit(void)
 }
 
 /**
-  * @brief  Initializes the EXTI peripheral according to the specified
-  *         parameters in the EXTI_InitStruct.
-  * @param  EXTI_InitStruct: pointer to a EXTI_InitTypeDef structure
-  *         that contains the configuration information for the EXTI peripheral.
-  * @retval None
+  * @brief  根据 EXTI_InitStruct 中指定的参数初始化 EXTI 外设。
+  * @param  EXTI_InitStruct: 指向 EXTI_InitTypeDef 结构的指针，
+  *         该结构包含 EXTI 外设的配置信息。
+  * @retval 无
   */
 void EXTI_Init(EXTI_InitTypeDef* EXTI_InitStruct)
 {
   uint32_t tmp = 0;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_EXTI_MODE(EXTI_InitStruct->EXTI_Mode));
   assert_param(IS_EXTI_TRIGGER(EXTI_InitStruct->EXTI_Trigger));
   assert_param(IS_EXTI_LINE(EXTI_InitStruct->EXTI_Line));  
@@ -112,7 +109,7 @@ void EXTI_Init(EXTI_InitTypeDef* EXTI_InitStruct)
      
   if (EXTI_InitStruct->EXTI_LineCmd != DISABLE)
   {
-    /* Clear EXTI line configuration */
+    /* 清除 EXTI 线配置 */
     EXTI->IMR &= ~EXTI_InitStruct->EXTI_Line;
     EXTI->EMR &= ~EXTI_InitStruct->EXTI_Line;
     
@@ -120,14 +117,14 @@ void EXTI_Init(EXTI_InitTypeDef* EXTI_InitStruct)
 
     *(__IO uint32_t *) tmp |= EXTI_InitStruct->EXTI_Line;
 
-    /* Clear Rising Falling edge configuration */
+    /* 清除上升沿下降沿配置 */
     EXTI->RTSR &= ~EXTI_InitStruct->EXTI_Line;
     EXTI->FTSR &= ~EXTI_InitStruct->EXTI_Line;
     
-    /* Select the trigger for the selected external interrupts */
+    /* 为所选外部中断选择触发方式 */
     if (EXTI_InitStruct->EXTI_Trigger == EXTI_Trigger_Rising_Falling)
     {
-      /* Rising Falling edge */
+      /* 上升沿下降沿 */
       EXTI->RTSR |= EXTI_InitStruct->EXTI_Line;
       EXTI->FTSR |= EXTI_InitStruct->EXTI_Line;
     }
@@ -143,16 +140,15 @@ void EXTI_Init(EXTI_InitTypeDef* EXTI_InitStruct)
   {
     tmp += EXTI_InitStruct->EXTI_Mode;
 
-    /* Disable the selected external lines */
+    /* 关闭所选外部中断线 */
     *(__IO uint32_t *) tmp &= ~EXTI_InitStruct->EXTI_Line;
   }
 }
 
 /**
-  * @brief  Fills each EXTI_InitStruct member with its reset value.
-  * @param  EXTI_InitStruct: pointer to a EXTI_InitTypeDef structure which will
-  *         be initialized.
-  * @retval None
+  * @brief  将 EXTI_InitStruct 的每个成员填充为复位值。
+  * @param  EXTI_InitStruct: 指向将被初始化的 EXTI_InitTypeDef 结构的指针。
+  * @retval 无
   */
 void EXTI_StructInit(EXTI_InitTypeDef* EXTI_InitStruct)
 {
@@ -163,30 +159,30 @@ void EXTI_StructInit(EXTI_InitTypeDef* EXTI_InitStruct)
 }
 
 /**
-  * @brief  Generates a Software interrupt.
-  * @param  EXTI_Line: specifies the EXTI lines to be enabled or disabled.
-  *   This parameter can be any combination of EXTI_Linex where x can be (0..19).
-  * @retval None
+  * @brief  产生一个软件中断。
+  * @param  EXTI_Line: 指定要使能或关闭的 EXTI 线。
+  *   该参数可以是 EXTI_Linex 的任意组合，其中 x 可取 (0..19)。
+  * @retval 无
   */
 void EXTI_GenerateSWInterrupt(uint32_t EXTI_Line)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_EXTI_LINE(EXTI_Line));
   
   EXTI->SWIER |= EXTI_Line;
 }
 
 /**
-  * @brief  Checks whether the specified EXTI line flag is set or not.
-  * @param  EXTI_Line: specifies the EXTI line flag to check.
-  *   This parameter can be:
-  *     @arg EXTI_Linex: External interrupt line x where x(0..19)
-  * @retval The new state of EXTI_Line (SET or RESET).
+  * @brief  检查指定的 EXTI 线标志是否被置位。
+  * @param  EXTI_Line: 指定要检查的 EXTI 线标志。
+  *   该参数可取：
+  *     @arg EXTI_Linex: 外部中断线 x，其中 x(0..19)
+  * @retval EXTI_Line 的新状态 (SET 或 RESET)。
   */
 FlagStatus EXTI_GetFlagStatus(uint32_t EXTI_Line)
 {
   FlagStatus bitstatus = RESET;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GET_EXTI_LINE(EXTI_Line));
   
   if ((EXTI->PR & EXTI_Line) != (uint32_t)RESET)
@@ -201,31 +197,31 @@ FlagStatus EXTI_GetFlagStatus(uint32_t EXTI_Line)
 }
 
 /**
-  * @brief  Clears the EXTI's line pending flags.
-  * @param  EXTI_Line: specifies the EXTI lines flags to clear.
-  *   This parameter can be any combination of EXTI_Linex where x can be (0..19).
-  * @retval None
+  * @brief  清除 EXTI 线的挂起标志。
+  * @param  EXTI_Line: 指定要清除的 EXTI 线标志。
+  *   该参数可以是 EXTI_Linex 的任意组合，其中 x 可取 (0..19)。
+  * @retval 无
   */
 void EXTI_ClearFlag(uint32_t EXTI_Line)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_EXTI_LINE(EXTI_Line));
   
   EXTI->PR = EXTI_Line;
 }
 
 /**
-  * @brief  Checks whether the specified EXTI line is asserted or not.
-  * @param  EXTI_Line: specifies the EXTI line to check.
-  *   This parameter can be:
-  *     @arg EXTI_Linex: External interrupt line x where x(0..19)
-  * @retval The new state of EXTI_Line (SET or RESET).
+  * @brief  检查指定的 EXTI 线是否被触发。
+  * @param  EXTI_Line: 指定要检查的 EXTI 线。
+  *   该参数可取：
+  *     @arg EXTI_Linex: 外部中断线 x，其中 x(0..19)
+  * @retval EXTI_Line 的新状态 (SET 或 RESET)。
   */
 ITStatus EXTI_GetITStatus(uint32_t EXTI_Line)
 {
   ITStatus bitstatus = RESET;
   uint32_t enablestatus = 0;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GET_EXTI_LINE(EXTI_Line));
   
   enablestatus =  EXTI->IMR & EXTI_Line;
@@ -241,14 +237,14 @@ ITStatus EXTI_GetITStatus(uint32_t EXTI_Line)
 }
 
 /**
-  * @brief  Clears the EXTI's line pending bits.
-  * @param  EXTI_Line: specifies the EXTI lines to clear.
-  *   This parameter can be any combination of EXTI_Linex where x can be (0..19).
-  * @retval None
+  * @brief  清除 EXTI 线的挂起位。
+  * @param  EXTI_Line: 指定要清除的 EXTI 线。
+  *   该参数可以是 EXTI_Linex 的任意组合，其中 x 可取 (0..19)。
+  * @retval 无
   */
 void EXTI_ClearITPendingBit(uint32_t EXTI_Line)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_EXTI_LINE(EXTI_Line));
   
   EXTI->PR = EXTI_Line;
@@ -266,4 +262,4 @@ void EXTI_ClearITPendingBit(uint32_t EXTI_Line)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

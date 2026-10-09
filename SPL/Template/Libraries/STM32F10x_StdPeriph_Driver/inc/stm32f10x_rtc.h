@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the RTC firmware 
-  *          library.
+  * @brief   本文件包含 RTC 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指导之用，旨在为客户提供有关其产品的编码信息，以节省他们的时间。
+  * 因此，对于因本固件的内容和/或客户将此处包含的编码信息
+  * 与其产品结合使用而提出的任何索赔所造成的任何直接、间接或后果性损害，
+  * STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_RTC_H
 #define __STM32F10x_RTC_H
 
@@ -28,18 +25,18 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup RTC
+/** @addtogroup RTC   RTC 外设
   * @{
   */ 
 
-/** @defgroup RTC_Exported_Types
+/** @defgroup RTC_Exported_Types   RTC 导出类型
   * @{
   */ 
 
@@ -47,17 +44,17 @@
   * @}
   */ 
 
-/** @defgroup RTC_Exported_Constants
+/** @defgroup RTC_Exported_Constants   RTC 导出常量
   * @{
   */
 
-/** @defgroup RTC_interrupts_define 
+/** @defgroup RTC_interrupts_define   RTC 中断定义
   * @{
   */
 
-#define RTC_IT_OW            ((uint16_t)0x0004)  /*!< Overflow interrupt */
-#define RTC_IT_ALR           ((uint16_t)0x0002)  /*!< Alarm interrupt */
-#define RTC_IT_SEC           ((uint16_t)0x0001)  /*!< Second interrupt */
+#define RTC_IT_OW            ((uint16_t)0x0004)  /*!< 溢出中断 */
+#define RTC_IT_ALR           ((uint16_t)0x0002)  /*!< 闹钟中断 */
+#define RTC_IT_SEC           ((uint16_t)0x0001)  /*!< 秒中断 */
 #define IS_RTC_IT(IT) ((((IT) & (uint16_t)0xFFF8) == 0x00) && ((IT) != 0x00))
 #define IS_RTC_GET_IT(IT) (((IT) == RTC_IT_OW) || ((IT) == RTC_IT_ALR) || \
                            ((IT) == RTC_IT_SEC))
@@ -65,15 +62,15 @@
   * @}
   */ 
 
-/** @defgroup RTC_interrupts_flags 
+/** @defgroup RTC_interrupts_flags   RTC 中断标志
   * @{
   */
 
-#define RTC_FLAG_RTOFF       ((uint16_t)0x0020)  /*!< RTC Operation OFF flag */
-#define RTC_FLAG_RSF         ((uint16_t)0x0008)  /*!< Registers Synchronized flag */
-#define RTC_FLAG_OW          ((uint16_t)0x0004)  /*!< Overflow flag */
-#define RTC_FLAG_ALR         ((uint16_t)0x0002)  /*!< Alarm flag */
-#define RTC_FLAG_SEC         ((uint16_t)0x0001)  /*!< Second flag */
+#define RTC_FLAG_RTOFF       ((uint16_t)0x0020)  /*!< RTC 操作关闭标志 */
+#define RTC_FLAG_RSF         ((uint16_t)0x0008)  /*!< 寄存器同步标志 */
+#define RTC_FLAG_OW          ((uint16_t)0x0004)  /*!< 溢出标志 */
+#define RTC_FLAG_ALR         ((uint16_t)0x0002)  /*!< 闹钟标志 */
+#define RTC_FLAG_SEC         ((uint16_t)0x0001)  /*!< 秒标志 */
 #define IS_RTC_CLEAR_FLAG(FLAG) ((((FLAG) & (uint16_t)0xFFF0) == 0x00) && ((FLAG) != 0x00))
 #define IS_RTC_GET_FLAG(FLAG) (((FLAG) == RTC_FLAG_RTOFF) || ((FLAG) == RTC_FLAG_RSF) || \
                                ((FLAG) == RTC_FLAG_OW) || ((FLAG) == RTC_FLAG_ALR) || \
@@ -88,7 +85,7 @@
   * @}
   */
 
-/** @defgroup RTC_Exported_Macros
+/** @defgroup RTC_Exported_Macros   RTC 导出宏
   * @{
   */
 
@@ -96,7 +93,7 @@
   * @}
   */
 
-/** @defgroup RTC_Exported_Functions
+/** @defgroup RTC_Exported_Functions   RTC 导出函数
   * @{
   */
 
@@ -132,4 +129,4 @@ void RTC_ClearITPendingBit(uint16_t RTC_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

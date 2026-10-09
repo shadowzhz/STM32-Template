@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the IWDG 
-  *          firmware library.
+  * @brief   本文件包含 IWDG 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指导之用，旨在为客户提供有关其产品的编码信息，以节省他们的时间。
+  * 因此，对于因本固件的内容和/或客户将此处包含的编码信息
+  * 与其产品结合使用而提出的任何索赔所造成的任何直接、间接或后果性损害，
+  * STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_IWDG_H
 #define __STM32F10x_IWDG_H
 
@@ -28,18 +25,18 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup IWDG
+/** @addtogroup IWDG   IWDG 外设
   * @{
   */
 
-/** @defgroup IWDG_Exported_Types
+/** @defgroup IWDG_Exported_Types   IWDG 导出类型
   * @{
   */
 
@@ -47,11 +44,11 @@
   * @}
   */
 
-/** @defgroup IWDG_Exported_Constants
+/** @defgroup IWDG_Exported_Constants   IWDG 导出常量
   * @{
   */
 
-/** @defgroup IWDG_WriteAccess
+/** @defgroup IWDG_WriteAccess   IWDG 写访问
   * @{
   */
 
@@ -63,7 +60,7 @@
   * @}
   */
 
-/** @defgroup IWDG_prescaler 
+/** @defgroup IWDG_prescaler   IWDG 预分频器
   * @{
   */
 
@@ -85,7 +82,7 @@
   * @}
   */
 
-/** @defgroup IWDG_Flag 
+/** @defgroup IWDG_Flag   IWDG 标志
   * @{
   */
 
@@ -101,7 +98,7 @@
   * @}
   */
 
-/** @defgroup IWDG_Exported_Macros
+/** @defgroup IWDG_Exported_Macros   IWDG 导出宏
   * @{
   */
 
@@ -109,7 +106,7 @@
   * @}
   */
 
-/** @defgroup IWDG_Exported_Functions
+/** @defgroup IWDG_Exported_Functions   IWDG 导出函数
   * @{
   */
 
@@ -137,4 +134,4 @@ FlagStatus IWDG_GetFlagStatus(uint16_t IWDG_FLAG);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

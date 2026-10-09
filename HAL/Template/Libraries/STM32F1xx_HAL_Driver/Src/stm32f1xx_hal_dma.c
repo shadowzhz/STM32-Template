@@ -2,69 +2,61 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_dma.c
   * @author  MCD Application Team
-  * @brief   DMA HAL module driver.
-  *         This file provides firmware functions to manage the following
-  *         functionalities of the Direct Memory Access (DMA) peripheral:
-  *           + Initialization and de-initialization functions
-  *           + IO operation functions
-  *           + Peripheral State and errors functions
+  * @brief   DMA HAL 模块驱动程序。
+  *          本文件提供用于管理直接内存访问（DMA）外设以下功能的固件函数：
+  *           + 初始化和反初始化函数
+  *           + IO 操作函数
+  *           + 外设状态与错误管理函数
   @verbatim
   ==============================================================================
-                        ##### How to use this driver #####
+                        ##### 如何使用此驱动程序 #####
   ==============================================================================
   [..]
-   (#) Enable and configure the peripheral to be connected to the DMA Channel
-       (except for internal SRAM / FLASH memories: no initialization is 
-       necessary). Please refer to the Reference manual for connection between peripherals
-       and DMA requests.
+   (#) 使能并配置连接到对应 DMA 通道的外设
+       （内部 SRAM / FLASH 存储器除外：无需进行初始化）。
+       有关外设与 DMA 请求之间的映射关系，请参阅参考手册。
 
-   (#) For a given Channel, program the required configuration through the following parameters:
-       Channel request, Transfer Direction, Source and Destination data formats,
-       Circular or Normal mode, Channel Priority level, Source and Destination Increment mode
-       using HAL_DMA_Init() function.
+   (#) 针对指定的通道，使用 HAL_DMA_Init() 函数配置以下所需参数：
+       通道请求、传输方向、源与目标数据宽度、
+       循环模式或普通模式、通道优先级、源与目标地址递增模式。
 
-   (#) Use HAL_DMA_GetState() function to return the DMA state and HAL_DMA_GetError() in case of error 
-       detection.
+   (#) 使用 HAL_DMA_GetState() 函数获取 DMA 状态，并在检测到错误时使用 HAL_DMA_GetError() 获取错误码。
                     
-   (#) Use HAL_DMA_Abort() function to abort the current transfer
+   (#) 使用 HAL_DMA_Abort() 函数中止当前的传输。
                    
-     -@-   In Memory-to-Memory transfer mode, Circular mode is not allowed.
-     *** Polling mode IO operation ***
+     -@-   在内存到内存传输模式下，不允许使用循环模式。
+     *** 轮询模式 IO 操作 ***
      =================================
     [..]
-          (+) Use HAL_DMA_Start() to start DMA transfer after the configuration of Source
-              address and destination address and the Length of data to be transferred
-          (+) Use HAL_DMA_PollForTransfer() to poll for the end of current transfer, in this
-              case a fixed Timeout can be configured by User depending from his application.
+          (+) 在配置好源地址、目标地址以及待传输的数据长度后，使用 HAL_DMA_Start() 启动 DMA 传输。
+          (+) 使用 HAL_DMA_PollForTransfer() 轮询等待当前传输完成，在此情况下，用户可根据具体应用需求配置固定的超时时间。
 
-     *** Interrupt mode IO operation ***
+     *** 中断模式 IO 操作 ***
      ===================================
     [..]
-          (+) Configure the DMA interrupt priority using HAL_NVIC_SetPriority()
-          (+) Enable the DMA IRQ handler using HAL_NVIC_EnableIRQ()
-          (+) Use HAL_DMA_Start_IT() to start DMA transfer after the configuration of
-              Source address and destination address and the Length of data to be transferred.
-              In this case the DMA interrupt is configured
-          (+) Use HAL_DMA_IRQHandler() called under DMA_IRQHandler() Interrupt subroutine
-          (+) At the end of data transfer HAL_DMA_IRQHandler() function is executed and user can
-              add his own function by customization of function pointer XferCpltCallback and
-              XferErrorCallback (i.e. a member of DMA handle structure).
+          (+) 使用 HAL_NVIC_SetPriority() 配置 DMA 中断优先级。
+          (+) 使用 HAL_NVIC_EnableIRQ() 使能 DMA 中断处理程序。
+          (+) 在配置好源地址、目标地址以及待传输的数据长度后，使用 HAL_DMA_Start_IT() 启动 DMA 传输。
+              此时将配置并使能 DMA 中断。
+          (+) 在 DMA_IRQHandler() 中断服务例程中调用 HAL_DMA_IRQHandler()。
+          (+) 数据传输完成时将执行 HAL_DMA_IRQHandler() 函数，用户可以通过自定义函数指针 XferCpltCallback 和
+              XferErrorCallback（即 DMA 句柄结构体的成员）来添加自己的回调函数。
 
-     *** DMA HAL driver macros list ***
+     *** DMA HAL 驱动宏列表 ***
      ============================================= 
       [..]
-       Below the list of most used macros in DMA HAL driver.
+       以下是 DMA HAL 驱动中最常用的宏列表：
 
-       (+) __HAL_DMA_ENABLE: Enable the specified DMA Channel.
-       (+) __HAL_DMA_DISABLE: Disable the specified DMA Channel.
-       (+) __HAL_DMA_GET_FLAG: Get the DMA Channel pending flags.
-       (+) __HAL_DMA_CLEAR_FLAG: Clear the DMA Channel pending flags.
-       (+) __HAL_DMA_ENABLE_IT: Enable the specified DMA Channel interrupts.
-       (+) __HAL_DMA_DISABLE_IT: Disable the specified DMA Channel interrupts.
-       (+) __HAL_DMA_GET_IT_SOURCE: Check whether the specified DMA Channel interrupt has occurred or not. 
+       (+) __HAL_DMA_ENABLE: 使能指定的 DMA 通道。
+       (+) __HAL_DMA_DISABLE: 禁用指定的 DMA 通道。
+       (+) __HAL_DMA_GET_FLAG: 获取指定的 DMA 通道挂起标志位。
+       (+) __HAL_DMA_CLEAR_FLAG: 清除指定的 DMA 通道挂起标志位。
+       (+) __HAL_DMA_ENABLE_IT: 使能指定的 DMA 通道中断。
+       (+) __HAL_DMA_DISABLE_IT: 禁用指定的 DMA 通道中断。
+       (+) __HAL_DMA_GET_IT_SOURCE: 检查指定的 DMA 通道中断是否发生。
 
      [..] 
-      (@) You can refer to the DMA HAL driver header file for more useful macros  
+      (@) 您可以参考 DMA HAL 驱动头文件获取更多有用的宏。
 
   @endverbatim
   ******************************************************************************
@@ -80,7 +72,7 @@
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -88,18 +80,18 @@
   */
 
 /** @defgroup DMA DMA
-  * @brief DMA HAL module driver
+  * @brief DMA HAL 模块驱动
   * @{
   */
 
 #ifdef HAL_DMA_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/** @defgroup DMA_Private_Functions DMA Private Functions
+/* 私有类型定义 -----------------------------------------------------------*/
+/* 私有宏定义 ------------------------------------------------------------*/
+/* 私有宏 -----------------------------------------------------------------*/
+/* 私有变量 -------------------------------------------------------------*/
+/* 私有函数原型 -----------------------------------------------------------*/
+/** @defgroup DMA_Private_Functions DMA 私有函数
   * @{
   */
 static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
@@ -107,49 +99,47 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
   * @}
   */
 
-/* Exported functions ---------------------------------------------------------*/
+/* 导出函数 ---------------------------------------------------------*/
 
-/** @defgroup DMA_Exported_Functions DMA Exported Functions
+/** @defgroup DMA_Exported_Functions DMA 导出函数
   * @{
   */
 
-/** @defgroup DMA_Exported_Functions_Group1 Initialization and de-initialization functions
-  *  @brief   Initialization and de-initialization functions 
+/** @defgroup DMA_Exported_Functions_Group1 初始化和反初始化函数
+  *  @brief   初始化和反初始化函数 
   *
 @verbatim
  ===============================================================================
-             ##### Initialization and de-initialization functions  #####
+             ##### 初始化和反初始化函数  #####
  ===============================================================================
     [..]
-    This section provides functions allowing to initialize the DMA Channel source
-    and destination addresses, incrementation and data sizes, transfer direction, 
-    circular/normal mode selection, memory-to-memory mode selection and Channel priority value.
+    本节提供的函数用于初始化 DMA 通道的源地址与目标地址、
+    地址递增模式与数据宽度、传输方向、循环/普通模式选择、
+    内存到内存模式选择以及通道优先级值。
     [..]
-    The HAL_DMA_Init() function follows the DMA configuration procedures as described in
-    reference manual.  
+    HAL_DMA_Init() 函数遵循参考手册中描述的 DMA 配置流程。
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Initialize the DMA according to the specified
-  *         parameters in the DMA_InitTypeDef and initialize the associated handle.
-  * @param  hdma: Pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA Channel.
-  * @retval HAL status
+  * @brief  根据 DMA_InitTypeDef 中指定的参数初始化 DMA，
+  *         并初始化关联的句柄。
+  * @param  hdma: 指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
 {
   uint32_t tmp = 0U;
 
-  /* Check the DMA handle allocation */
+  /* 检查 DMA 句柄分配 */
   if(hdma == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_DMA_ALL_INSTANCE(hdma->Instance));
   assert_param(IS_DMA_DIRECTION(hdma->Init.Direction));
   assert_param(IS_DMA_PERIPHERAL_INC_STATE(hdma->Init.PeriphInc));
@@ -160,7 +150,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   assert_param(IS_DMA_PRIORITY(hdma->Init.Priority));
 
 #if defined (DMA2)
-  /* calculation of the channel index */
+  /* 计算通道索引 */
   if ((uint32_t)(hdma->Instance) < (uint32_t)(DMA2_Channel1))
   {
     /* DMA1 */
@@ -179,71 +169,70 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   hdma->DmaBaseAddress = DMA1;
 #endif /* DMA2 */
 
-  /* Change DMA peripheral state */
+  /* 更改 DMA 外设状态 */
   hdma->State = HAL_DMA_STATE_BUSY;
 
-  /* Get the CR register value */
+  /* 获取 CR 寄存器的值 */
   tmp = hdma->Instance->CCR;
 
-  /* Clear PL, MSIZE, PSIZE, MINC, PINC, CIRC and DIR bits */
+  /* 清除 PL、MSIZE、PSIZE、MINC、PINC、CIRC 和 DIR 位 */
   tmp &= ((uint32_t)~(DMA_CCR_PL    | DMA_CCR_MSIZE  | DMA_CCR_PSIZE  | \
                       DMA_CCR_MINC  | DMA_CCR_PINC   | DMA_CCR_CIRC   | \
                       DMA_CCR_DIR));
 
-  /* Prepare the DMA Channel configuration */
+  /* 准备 DMA 通道配置 */
   tmp |=  hdma->Init.Direction        |
           hdma->Init.PeriphInc           | hdma->Init.MemInc           |
           hdma->Init.PeriphDataAlignment | hdma->Init.MemDataAlignment |
           hdma->Init.Mode                | hdma->Init.Priority;
 
-  /* Write to DMA Channel CR register */
+  /* 写入 DMA 通道 CR 寄存器 */
   hdma->Instance->CCR = tmp;
 
-  /* Initialise the error code */
+  /* 初始化错误代码 */
   hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
-  /* Initialize the DMA state*/
+  /* 初始化 DMA 状态 */
   hdma->State = HAL_DMA_STATE_READY;
-  /* Allocate lock resource and initialize it */
+  /* 分配锁资源并进行初始化 */
   hdma->Lock = HAL_UNLOCKED;
 
   return HAL_OK;
 }
 
 /**
-  * @brief  DeInitialize the DMA peripheral.
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA Channel.
-  * @retval HAL status
+  * @brief  反初始化 DMA 外设。
+  * @param  hdma: 指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
 {
-  /* Check the DMA handle allocation */
+  /* 检查 DMA 句柄分配 */
   if(hdma == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_DMA_ALL_INSTANCE(hdma->Instance));
 
-  /* Disable the selected DMA Channelx */
+  /* 禁用选定的 DMA Channelx */
   __HAL_DMA_DISABLE(hdma);
 
-  /* Reset DMA Channel control register */
+  /* 复位 DMA 通道控制寄存器 */
   hdma->Instance->CCR  = 0U;
 
-  /* Reset DMA Channel Number of Data to Transfer register */
+  /* 复位 DMA 通道数据传输数量寄存器 */
   hdma->Instance->CNDTR = 0U;
 
-  /* Reset DMA Channel peripheral address register */
+  /* 复位 DMA 通道外设地址寄存器 */
   hdma->Instance->CPAR  = 0U;
 
-  /* Reset DMA Channel memory address register */
+  /* 复位 DMA 通道内存地址寄存器 */
   hdma->Instance->CMAR = 0U;
 
 #if defined (DMA2)
-  /* calculation of the channel index */
+  /* 计算通道索引 */
   if ((uint32_t)(hdma->Instance) < (uint32_t)(DMA2_Channel1))
   {
     /* DMA1 */
@@ -262,22 +251,22 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   hdma->DmaBaseAddress = DMA1;
 #endif /* DMA2 */
 
-  /* Clear all flags */
+  /* 清除所有标志位 */
   hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << (hdma->ChannelIndex));
 
-  /* Clean all callbacks */
+  /* 清除所有回调函数 */
   hdma->XferCpltCallback = NULL;
   hdma->XferHalfCpltCallback = NULL;
   hdma->XferErrorCallback = NULL;
   hdma->XferAbortCallback = NULL;
 
-  /* Reset the error code */
+  /* 复位错误代码 */
   hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
-  /* Reset the DMA state */
+  /* 复位 DMA 状态 */
   hdma->State = HAL_DMA_STATE_RESET;
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(hdma);
 
   return HAL_OK;
@@ -287,62 +276,62 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup DMA_Exported_Functions_Group2 Input and Output operation functions
-  *  @brief   Input and Output operation functions
+/** @defgroup DMA_Exported_Functions_Group2 输入和输出操作函数
+  *  @brief   输入和输出操作函数
   *
 @verbatim
  ===============================================================================
-                      #####  IO operation functions  #####
+                      #####  IO 操作函数  #####
  ===============================================================================
-    [..]  This section provides functions allowing to:
-      (+) Configure the source, destination address and data length and Start DMA transfer
-      (+) Configure the source, destination address and data length and
-          Start DMA transfer with interrupt
-      (+) Abort DMA transfer
-      (+) Poll for transfer complete
-      (+) Handle DMA interrupt request
+    [..]  本节提供的函数允许：
+      (+) 配置源地址、目的地址和数据长度，并启动 DMA 传输
+      (+) 配置源地址、目的地址和数据长度，并
+          在开启中断的情况下启动 DMA 传输
+      (+) 中止 DMA 传输
+      (+) 轮询传输完成状态
+      (+) 处理 DMA 中断请求
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Start the DMA Transfer.
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA Channel.
-  * @param  SrcAddress: The source memory Buffer address
-  * @param  DstAddress: The destination memory Buffer address
-  * @param  DataLength: The length of data to be transferred from source to destination
-  * @retval HAL status
+  * @brief  启动 DMA 传输。
+  * @param  hdma: 指向 DMA_HandleTypeDef 结构体的指针，该结构体包含
+  *               指定 DMA 通道的配置信息。
+  * @param  SrcAddress: 源内存缓冲区地址
+  * @param  DstAddress: 目的内存缓冲区地址
+  * @param  DataLength: 从源传输到目的的数据长度
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_DMA_Start(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_DMA_BUFFER_SIZE(DataLength));
 
-  /* Process locked */
+  /* 进程加锁 */
   __HAL_LOCK(hdma);
 
   if(HAL_DMA_STATE_READY == hdma->State)
   {
-    /* Change DMA peripheral state */
+    /* 改变 DMA 外设状态 */
     hdma->State = HAL_DMA_STATE_BUSY;
     hdma->ErrorCode = HAL_DMA_ERROR_NONE;
             
-    /* Disable the peripheral */
+    /* 禁用外设 */
     __HAL_DMA_DISABLE(hdma);
     
-    /* Configure the source, destination address and the data length & clear flags*/
+    /* 配置源地址、目的地址和数据长度并清除标志位 */
     DMA_SetConfig(hdma, SrcAddress, DstAddress, DataLength);
     
-    /* Enable the Peripheral */
+    /* 使能外设 */
     __HAL_DMA_ENABLE(hdma);
   }
   else
   {
-   /* Process Unlocked */
+   /* 进程解锁 */
    __HAL_UNLOCK(hdma);  
    status = HAL_BUSY;
   }  
@@ -350,41 +339,41 @@ HAL_StatusTypeDef HAL_DMA_Start(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, ui
 }
 
 /**
-  * @brief  Start the DMA Transfer with interrupt enabled.
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA Channel.
-  * @param  SrcAddress: The source memory Buffer address
-  * @param  DstAddress: The destination memory Buffer address
-  * @param  DataLength: The length of data to be transferred from source to destination
-  * @retval HAL status
+  * @brief  在开启中断的情况下启动 DMA 传输。
+  * @param  hdma: 指向 DMA_HandleTypeDef 结构体的指针，该结构体包含
+  *               指定 DMA 通道的配置信息。
+  * @param  SrcAddress: 源内存缓冲区地址
+  * @param  DstAddress: 目的内存缓冲区地址
+  * @param  DataLength: 从源传输到目的的数据长度
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_DMA_BUFFER_SIZE(DataLength));
 
-  /* Process locked */
+  /* 进程已上锁 */
   __HAL_LOCK(hdma);
   
   if(HAL_DMA_STATE_READY == hdma->State)
   {
-    /* Change DMA peripheral state */
+    /* 改变 DMA 外设状态 */
     hdma->State = HAL_DMA_STATE_BUSY;
     hdma->ErrorCode = HAL_DMA_ERROR_NONE;
     
-    /* Disable the peripheral */
+    /* 禁用外设 */
     __HAL_DMA_DISABLE(hdma);
     
-    /* Configure the source, destination address and the data length & clear flags*/
+    /* 配置源地址、目的地址和数据传输长度并清除标志位 */
     DMA_SetConfig(hdma, SrcAddress, DstAddress, DataLength);
     
-    /* Enable the transfer complete interrupt */
-    /* Enable the transfer Error interrupt */
+    /* 使能传输完成中断 */
+    /* 使能传输错误中断 */
     if(NULL != hdma->XferHalfCpltCallback)
     {
-      /* Enable the Half transfer complete interrupt as well */
+      /* 同时也使能半传输完成中断 */
       __HAL_DMA_ENABLE_IT(hdma, (DMA_IT_TC | DMA_IT_HT | DMA_IT_TE));
     }
     else
@@ -392,25 +381,24 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
       __HAL_DMA_DISABLE_IT(hdma, DMA_IT_HT);
       __HAL_DMA_ENABLE_IT(hdma, (DMA_IT_TC | DMA_IT_TE));
     }
-    /* Enable the Peripheral */
+    /* 使能外设 */
     __HAL_DMA_ENABLE(hdma);
   }
   else
   {      
-    /* Process Unlocked */
+    /* 进程已解锁 */
     __HAL_UNLOCK(hdma); 
 
-    /* Remain BUSY */
+    /* 保持 BUSY 状态 */
     status = HAL_BUSY;
   }    
   return status;
 }
 
 /**
-  * @brief  Abort the DMA Transfer.
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA Channel.
-  * @retval HAL status
+  * @brief  终止 DMA 传输。
+  * @param  hdma: 指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
 {
@@ -418,10 +406,10 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
   
   if(hdma->State != HAL_DMA_STATE_BUSY)
   {
-    /* no transfer ongoing */
+    /* 当前无正在进行的传输 */
     hdma->ErrorCode = HAL_DMA_ERROR_NO_XFER;
     
-    /* Process Unlocked */
+    /* 进程已解锁 */
     __HAL_UNLOCK(hdma);
     
     return HAL_ERROR;
@@ -429,29 +417,28 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
   else
 
   {
-    /* Disable DMA IT */
+    /* 禁用 DMA 中断 */
     __HAL_DMA_DISABLE_IT(hdma, (DMA_IT_TC | DMA_IT_HT | DMA_IT_TE));
       
-    /* Disable the channel */
+    /* 禁用通道 */
     __HAL_DMA_DISABLE(hdma);
       
-    /* Clear all flags */
+    /* 清除所有标志位 */
     hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma->ChannelIndex);
   }
-  /* Change the DMA state */
+  /* 更改 DMA 状态 */
   hdma->State = HAL_DMA_STATE_READY;
 
-  /* Process Unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hdma);      
   
   return status; 
 }
 
 /**
-  * @brief  Aborts the DMA Transfer in Interrupt mode.
-  * @param  hdma  : pointer to a DMA_HandleTypeDef structure that contains
-  *                 the configuration information for the specified DMA Channel.
-  * @retval HAL status
+  * @brief  以中断模式中止 DMA 传输。
+  * @param  hdma  : 指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma)
 {  
@@ -459,29 +446,29 @@ HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma)
   
   if(HAL_DMA_STATE_BUSY != hdma->State)
   {
-    /* no transfer ongoing */
+    /* 无正在进行的传输 */
     hdma->ErrorCode = HAL_DMA_ERROR_NO_XFER;
         
     status = HAL_ERROR;
   }
   else
   { 
-    /* Disable DMA IT */
+    /* 禁用 DMA 中断 */
     __HAL_DMA_DISABLE_IT(hdma, (DMA_IT_TC | DMA_IT_HT | DMA_IT_TE));
 
-    /* Disable the channel */
+    /* 禁用该通道 */
     __HAL_DMA_DISABLE(hdma);
 
-    /* Clear all flags */
+    /* 清除所有标志位 */
     __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_GI_FLAG_INDEX(hdma));
 
-    /* Change the DMA state */
+    /* 更改 DMA 状态 */
     hdma->State = HAL_DMA_STATE_READY;
 
-    /* Process Unlocked */
+    /* 进程解锁 */
     __HAL_UNLOCK(hdma);
 
-    /* Call User Abort callback */
+    /* 调用用户中止回调函数 */
     if(hdma->XferAbortCallback != NULL)
     {
       hdma->XferAbortCallback(hdma);
@@ -491,12 +478,11 @@ HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  Polling for transfer complete.
-  * @param  hdma:    pointer to a DMA_HandleTypeDef structure that contains
-  *                  the configuration information for the specified DMA Channel.
-  * @param  CompleteLevel: Specifies the DMA level complete.
-  * @param  Timeout:       Timeout duration.
-  * @retval HAL status
+  * @brief  轮询等待传输完成。
+  * @param  hdma:    指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构的指针。
+  * @param  CompleteLevel: 指定 DMA 传输完成级别。
+  * @param  Timeout:       超时时间。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout)
 {
@@ -505,66 +491,66 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
 
   if(HAL_DMA_STATE_BUSY != hdma->State)
   {
-    /* no transfer ongoing */
+    /* 无正在进行的传输 */
     hdma->ErrorCode = HAL_DMA_ERROR_NO_XFER;
     __HAL_UNLOCK(hdma);
     return HAL_ERROR;
   }
 
-  /* Polling mode not supported in circular mode */
+  /* 循环模式下不支持轮询模式 */
   if (RESET != (hdma->Instance->CCR & DMA_CCR_CIRC))
   {
     hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
     return HAL_ERROR;
   }
   
-  /* Get the level transfer complete flag */
+  /* 获取对应级别的传输完成标志位 */
   if(CompleteLevel == HAL_DMA_FULL_TRANSFER)
   {
-    /* Transfer Complete flag */
+    /* 传输完成标志 */
     temp = __HAL_DMA_GET_TC_FLAG_INDEX(hdma);
   }
   else
   {
-    /* Half Transfer Complete flag */
+    /* 半传输完成标志 */
     temp = __HAL_DMA_GET_HT_FLAG_INDEX(hdma);
   }
 
-  /* Get tick */
+  /* 获取滴答计数值 */
   tickstart = HAL_GetTick();
 
   while(__HAL_DMA_GET_FLAG(hdma, temp) == RESET)
   {
     if((__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma)) != RESET))
     {
-      /* When a DMA transfer error occurs */
-      /* A hardware clear of its EN bits is performed */
-      /* Clear all flags */
+      /* 当发生 DMA 传输错误时 */
+      /* 硬件自动清零其 EN 位 */
+      /* 清除所有标志位 */
       hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma->ChannelIndex);
 
-      /* Update error code */
+      /* 更新错误代码 */
       SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TE);
 
-      /* Change the DMA state */
+      /* 改变 DMA 状态 */
       hdma->State= HAL_DMA_STATE_READY;
 
-      /* Process Unlocked */
+      /* 进程解锁 */
       __HAL_UNLOCK(hdma);
 
       return HAL_ERROR;
     }
-    /* Check for the Timeout */
+    /* 检查是否超时 */
     if(Timeout != HAL_MAX_DELAY)
     {
       if((Timeout == 0U) || ((HAL_GetTick() - tickstart) > Timeout))
       {
-        /* Update error code */
+        /* 更新错误代码 */
         SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TIMEOUT);
 
-        /* Change the DMA state */
+        /* 改变 DMA 状态 */
         hdma->State = HAL_DMA_STATE_READY;
 
-        /* Process Unlocked */
+        /* 进程解锁 */
         __HAL_UNLOCK(hdma);
 
         return HAL_ERROR;
@@ -574,105 +560,104 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
 
   if(CompleteLevel == HAL_DMA_FULL_TRANSFER)
   {
-    /* Clear the transfer complete flag */
+    /* 清除传输完成标志 */
     __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TC_FLAG_INDEX(hdma));
 
-    /* The selected Channelx EN bit is cleared (DMA is disabled and
-    all transfers are complete) */
+    /* 所选 Channelx 的 EN 位被清零（DMA 已禁用且
+    所有传输均已完成） */
     hdma->State = HAL_DMA_STATE_READY;
   }
   else
   {
-    /* Clear the half transfer complete flag */
+    /* 清除半传输完成标志 */
     __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));
   }
   
-  /* Process unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hdma);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Handles DMA interrupt request.
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA Channel.  
-  * @retval None
+  * @brief  处理 DMA 中断请求。
+  * @param  hdma: 指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
 {
   uint32_t flag_it = hdma->DmaBaseAddress->ISR;
   uint32_t source_it = hdma->Instance->CCR;
   
-  /* Half Transfer Complete Interrupt management ******************************/
+  /* 半传输完成中断管理 ********************************************************/
   if (((flag_it & (DMA_FLAG_HT1 << hdma->ChannelIndex)) != RESET) && ((source_it & DMA_IT_HT) != RESET))
   {
-    /* Disable the half transfer interrupt if the DMA mode is not CIRCULAR */
+    /* 若 DMA 模式非循环模式 (CIRCULAR)，则禁用半传输中断 */
     if((hdma->Instance->CCR & DMA_CCR_CIRC) == 0U)
     {
-      /* Disable the half transfer interrupt */
+      /* 禁用半传输中断 */
       __HAL_DMA_DISABLE_IT(hdma, DMA_IT_HT);
     }
-    /* Clear the half transfer complete flag */
+    /* 清除半传输完成标志 */
     __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));
 
-    /* DMA peripheral state is not updated in Half Transfer */
-    /* but in Transfer Complete case */
+    /* DMA 外设状态在半传输时不更新，*/
+    /* 而是在传输完成时更新 */
 
     if(hdma->XferHalfCpltCallback != NULL)
     {
-      /* Half transfer callback */
+      /* 半传输回调函数 */
       hdma->XferHalfCpltCallback(hdma);
     }
   }
 
-  /* Transfer Complete Interrupt management ***********************************/
+  /* 传输完成中断管理 *********************************************************/
   else if (((flag_it & (DMA_FLAG_TC1 << hdma->ChannelIndex)) != RESET) && ((source_it & DMA_IT_TC) != RESET))
   {
     if((hdma->Instance->CCR & DMA_CCR_CIRC) == 0U)
     {
-      /* Disable the transfer complete and error interrupt */
+      /* 禁用传输完成和错误中断 */
       __HAL_DMA_DISABLE_IT(hdma, DMA_IT_TE | DMA_IT_TC);  
 
-      /* Change the DMA state */
+      /* 改变 DMA 状态 */
       hdma->State = HAL_DMA_STATE_READY;
     }
-    /* Clear the transfer complete flag */
+    /* 清除传输完成标志 */
       __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TC_FLAG_INDEX(hdma));
 
-    /* Process Unlocked */
+    /* 进程解锁 */
     __HAL_UNLOCK(hdma);
 
     if(hdma->XferCpltCallback != NULL)
     {
-      /* Transfer complete callback */
+      /* 传输完成回调函数 */
       hdma->XferCpltCallback(hdma);
     }
   }
 
-  /* Transfer Error Interrupt management **************************************/
+  /* 传输错误中断管理 **************************************/
   else if (( RESET != (flag_it & (DMA_FLAG_TE1 << hdma->ChannelIndex))) && (RESET != (source_it & DMA_IT_TE)))
   {
-    /* When a DMA transfer error occurs */
-    /* A hardware clear of its EN bits is performed */
-    /* Disable ALL DMA IT */
+    /* 当发生 DMA 传输错误时 */
+    /* 硬件将自动清除其 EN 位 */
+    /* 禁用所有 DMA 中断 */
     __HAL_DMA_DISABLE_IT(hdma, (DMA_IT_TC | DMA_IT_HT | DMA_IT_TE));
 
-    /* Clear all flags */
+    /* 清除所有标志位 */
     hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma->ChannelIndex);
 
-    /* Update error code */
+    /* 更新错误代码 */
     hdma->ErrorCode = HAL_DMA_ERROR_TE;
 
-    /* Change the DMA state */
+    /* 更改 DMA 状态 */
     hdma->State = HAL_DMA_STATE_READY;
 
-    /* Process Unlocked */
+    /* 进程解锁 */
     __HAL_UNLOCK(hdma);
 
     if (hdma->XferErrorCallback != NULL)
     {
-      /* Transfer error callback */
+      /* 传输错误回调函数 */
       hdma->XferErrorCallback(hdma);
     }
   }
@@ -680,20 +665,19 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief Register callbacks
-  * @param hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *              the configuration information for the specified DMA Channel.
-  * @param CallbackID: User Callback identifier
-  *                    a HAL_DMA_CallbackIDTypeDef ENUM as parameter.
-  * @param pCallback: pointer to private callback function which has pointer to 
-  *                   a DMA_HandleTypeDef structure as parameter.
-  * @retval HAL status
+  * @brief 注册回调函数
+  * @param hdma: 指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @param CallbackID: 用户回调函数标识符
+  *                    为 HAL_DMA_CallbackIDTypeDef 枚举类型参数。
+  * @param pCallback: 指向私有回调函数的指针，该函数以
+  *                   DMA_HandleTypeDef 结构体指针作为参数。
+  * @retval HAL 状态
   */                          
 HAL_StatusTypeDef HAL_DMA_RegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_CallbackIDTypeDef CallbackID, void (* pCallback)( DMA_HandleTypeDef * _hdma))
 {
   HAL_StatusTypeDef status = HAL_OK;
   
-  /* Process locked */
+  /* 进程加锁 */
   __HAL_LOCK(hdma);
   
   if(HAL_DMA_STATE_READY == hdma->State)
@@ -726,25 +710,24 @@ HAL_StatusTypeDef HAL_DMA_RegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_Call
     status = HAL_ERROR;
   } 
   
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(hdma);
   
   return status;
 }
 
 /**
-  * @brief UnRegister callbacks
-  * @param hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *              the configuration information for the specified DMA Channel.
-  * @param CallbackID: User Callback identifier
-  *                    a HAL_DMA_CallbackIDTypeDef ENUM as parameter.
-  * @retval HAL status
+  * @brief 注销回调函数
+  * @param hdma: 指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @param CallbackID: 用户回调函数标识符
+  *                    为 HAL_DMA_CallbackIDTypeDef 枚举类型参数。
+  * @retval HAL 状态
   */              
 HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_CallbackIDTypeDef CallbackID)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Process locked */
+  /* 进程加锁 */
   __HAL_LOCK(hdma);
   
   if(HAL_DMA_STATE_READY == hdma->State)
@@ -784,7 +767,7 @@ HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_Ca
     status = HAL_ERROR;
   } 
   
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(hdma);
   
   return status;
@@ -794,39 +777,37 @@ HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_Ca
   * @}
   */
 
-/** @defgroup DMA_Exported_Functions_Group3 Peripheral State and Errors functions
-  *  @brief    Peripheral State and Errors functions
+/** @defgroup DMA_Exported_Functions_Group3 外设状态和错误处理函数
+  *  @brief    外设状态和错误处理函数
   *
 @verbatim
  ===============================================================================
-            ##### Peripheral State and Errors functions #####
+            ##### 外设状态和错误处理函数 #####
  ===============================================================================  
     [..]
-    This subsection provides functions allowing to
-      (+) Check the DMA state
-      (+) Get error code
+    本节提供的函数可用于：
+      (+) 检查 DMA 状态
+      (+) 获取错误代码
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Return the DMA handle state.
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA Channel.
-  * @retval HAL state
+  * @brief  返回 DMA 句柄状态。
+  * @param  hdma: 指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_DMA_StateTypeDef HAL_DMA_GetState(DMA_HandleTypeDef *hdma)
 {
-  /* Return DMA handle state */
+  /* 返回 DMA 句柄状态 */
   return hdma->State;
 }
 
 /**
-  * @brief  Return the DMA error code.
-  * @param  hdma : pointer to a DMA_HandleTypeDef structure that contains
-  *              the configuration information for the specified DMA Channel.
-  * @retval DMA Error Code
+  * @brief  返回 DMA 错误代码。
+  * @param  hdma : 指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval DMA 错误代码
   */
 uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
 {
@@ -846,38 +827,37 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
   */
 
 /**
-  * @brief  Sets the DMA Transfer parameter.
-  * @param  hdma:       pointer to a DMA_HandleTypeDef structure that contains
-  *                     the configuration information for the specified DMA Channel.
-  * @param  SrcAddress: The source memory Buffer address
-  * @param  DstAddress: The destination memory Buffer address
-  * @param  DataLength: The length of data to be transferred from source to destination
-  * @retval HAL status
+  * @brief  设置 DMA 传输参数。
+  * @param  hdma:       指向包含指定 DMA 通道配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @param  SrcAddress: 源内存缓冲区地址
+  * @param  DstAddress: 目的内存缓冲区地址
+  * @param  DataLength: 从源传输到目的的数据长度
+  * @retval HAL 状态
   */
 static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength)
 {
-  /* Clear all flags */
+  /* 清除所有标志位 */
   hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma->ChannelIndex);
 
-  /* Configure DMA Channel data length */
+  /* 配置 DMA 通道数据长度 */
   hdma->Instance->CNDTR = DataLength;
 
-  /* Memory to Peripheral */
+  /* 内存到外设 */
   if((hdma->Init.Direction) == DMA_MEMORY_TO_PERIPH)
   {
-    /* Configure DMA Channel destination address */
+    /* 配置 DMA 通道目的地址 */
     hdma->Instance->CPAR = DstAddress;
 
-    /* Configure DMA Channel source address */
+    /* 配置 DMA 通道源地址 */
     hdma->Instance->CMAR = SrcAddress;
   }
-  /* Peripheral to Memory */
+  /* 外设到内存 */
   else
   {
-    /* Configure DMA Channel source address */
+    /* 配置 DMA 通道源地址 */
     hdma->Instance->CPAR = SrcAddress;
 
-    /* Configure DMA Channel destination address */
+    /* 配置 DMA 通道目的地址 */
     hdma->Instance->CMAR = DstAddress;
   }
 }

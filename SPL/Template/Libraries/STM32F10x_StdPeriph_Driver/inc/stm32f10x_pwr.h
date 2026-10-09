@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the PWR firmware 
-  *          library.
+  * @brief   本文件包含 PWR 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指导之用，旨在为客户提供有关其产品的编码信息，以节省他们的时间。
+  * 因此，对于因本固件的内容和/或客户将此处包含的编码信息
+  * 与其产品结合使用而提出的任何索赔所造成的任何直接、间接或后果性损害，
+  * STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_PWR_H
 #define __STM32F10x_PWR_H
 
@@ -28,18 +25,18 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup PWR
+/** @addtogroup PWR   PWR 外设
   * @{
   */ 
 
-/** @defgroup PWR_Exported_Types
+/** @defgroup PWR_Exported_Types   PWR 导出类型
   * @{
   */ 
 
@@ -47,11 +44,11 @@
   * @}
   */ 
 
-/** @defgroup PWR_Exported_Constants
+/** @defgroup PWR_Exported_Constants   PWR 导出常量
   * @{
   */ 
 
-/** @defgroup PVD_detection_level 
+/** @defgroup PVD_detection_level   PVD 检测电平
   * @{
   */ 
 
@@ -71,7 +68,7 @@
   * @}
   */
 
-/** @defgroup Regulator_state_is_STOP_mode 
+/** @defgroup Regulator_state_is_STOP_mode   STOP 模式下的稳压器状态
   * @{
   */
 
@@ -83,7 +80,7 @@
   * @}
   */
 
-/** @defgroup STOP_mode_entry 
+/** @defgroup STOP_mode_entry   STOP 模式进入方式
   * @{
   */
 
@@ -95,7 +92,7 @@
   * @}
   */
 
-/** @defgroup PWR_Flag 
+/** @defgroup PWR_Flag   PWR 标志
   * @{
   */
 
@@ -114,7 +111,7 @@
   * @}
   */
 
-/** @defgroup PWR_Exported_Macros
+/** @defgroup PWR_Exported_Macros   PWR 导出宏
   * @{
   */
 
@@ -122,7 +119,7 @@
   * @}
   */
 
-/** @defgroup PWR_Exported_Functions
+/** @defgroup PWR_Exported_Functions   PWR 导出函数
   * @{
   */
 
@@ -153,4 +150,4 @@ void PWR_ClearFlag(uint32_t PWR_FLAG);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

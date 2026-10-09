@@ -4,35 +4,33 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file provides all the GPIO firmware functions.
+  * @brief   本文件提供所有 GPIO 固件函数。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指引之用，旨在为客户提供有关其产品的编码信息，
+  * 以便客户节省时间。因此，对于因本固件内容及/或客户将本文
+  * 所含编码信息用于其产品而产生的任何索赔所导致的任何直接、
+  * 间接或后果性损害，STMicroelectronics 概不负责。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @defgroup GPIO 
-  * @brief GPIO driver modules
+/** @defgroup GPIO
+  * @brief GPIO 驱动模块
   * @{
   */ 
 
-/** @defgroup GPIO_Private_TypesDefinitions
+/** @defgroup GPIO_Private_TypesDefinitions   GPIO 私有类型定义
   * @{
   */
 
@@ -40,23 +38,23 @@
   * @}
   */
 
-/** @defgroup GPIO_Private_Defines
+/** @defgroup GPIO_Private_Defines   GPIO 私有宏定义
   * @{
   */
 
-/* ------------ RCC registers bit address in the alias region ----------------*/
+/* ------------ 别名区中 RCC 寄存器位地址 ----------------*/
 #define AFIO_OFFSET                 (AFIO_BASE - PERIPH_BASE)
 
-/* --- EVENTCR Register -----*/
+/* --- EVENTCR 寄存器 -----*/
 
-/* Alias word address of EVOE bit */
+/* EVOE 位的别名字地址 */
 #define EVCR_OFFSET                 (AFIO_OFFSET + 0x00)
 #define EVOE_BitNumber              ((uint8_t)0x07)
 #define EVCR_EVOE_BB                (PERIPH_BB_BASE + (EVCR_OFFSET * 32) + (EVOE_BitNumber * 4))
 
 
-/* ---  MAPR Register ---*/ 
-/* Alias word address of MII_RMII_SEL bit */ 
+/* ---  MAPR 寄存器 ---*/ 
+/* MII_RMII_SEL 位的别名字地址 */ 
 #define MAPR_OFFSET                 (AFIO_OFFSET + 0x04) 
 #define MII_RMII_SEL_BitNumber      ((u8)0x17) 
 #define MAPR_MII_RMII_SEL_BB        (PERIPH_BB_BASE + (MAPR_OFFSET * 32) + (MII_RMII_SEL_BitNumber * 4))
@@ -72,7 +70,7 @@
   * @}
   */
 
-/** @defgroup GPIO_Private_Macros
+/** @defgroup GPIO_Private_Macros   GPIO 私有宏
   * @{
   */
 
@@ -80,7 +78,7 @@
   * @}
   */
 
-/** @defgroup GPIO_Private_Variables
+/** @defgroup GPIO_Private_Variables   GPIO 私有变量
   * @{
   */
 
@@ -88,7 +86,7 @@
   * @}
   */
 
-/** @defgroup GPIO_Private_FunctionPrototypes
+/** @defgroup GPIO_Private_FunctionPrototypes   GPIO 私有函数原型
   * @{
   */
 
@@ -96,18 +94,18 @@
   * @}
   */
 
-/** @defgroup GPIO_Private_Functions
+/** @defgroup GPIO_Private_Functions   GPIO 私有函数
   * @{
   */
 
 /**
-  * @brief  Deinitializes the GPIOx peripheral registers to their default reset values.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @retval None
+  * @brief  将 GPIOx 外设寄存器反初始化为其默认复位值。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @retval 无
   */
 void GPIO_DeInit(GPIO_TypeDef* GPIOx)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   
   if (GPIOx == GPIOA)
@@ -151,10 +149,10 @@ void GPIO_DeInit(GPIO_TypeDef* GPIOx)
 }
 
 /**
-  * @brief  Deinitializes the Alternate Functions (remap, event control
-  *   and EXTI configuration) registers to their default reset values.
-  * @param  None
-  * @retval None
+  * @brief  将复用功能（重映射、事件控制和
+  *   EXTI 配置）寄存器反初始化为其默认复位值。
+  * @param  无
+  * @retval 无
   */
 void GPIO_AFIODeInit(void)
 {
@@ -163,57 +161,57 @@ void GPIO_AFIODeInit(void)
 }
 
 /**
-  * @brief  Initializes the GPIOx peripheral according to the specified
-  *         parameters in the GPIO_InitStruct.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @param  GPIO_InitStruct: pointer to a GPIO_InitTypeDef structure that
-  *         contains the configuration information for the specified GPIO peripheral.
-  * @retval None
+  * @brief  根据 GPIO_InitStruct 中指定的参数
+  *         初始化 GPIOx 外设。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @param  GPIO_InitStruct: 指向 GPIO_InitTypeDef 结构的指针，
+  *         该结构包含指定 GPIO 外设的配置信息。
+  * @retval 无
   */
 void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
 {
   uint32_t currentmode = 0x00, currentpin = 0x00, pinpos = 0x00, pos = 0x00;
   uint32_t tmpreg = 0x00, pinmask = 0x00;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   assert_param(IS_GPIO_MODE(GPIO_InitStruct->GPIO_Mode));
   assert_param(IS_GPIO_PIN(GPIO_InitStruct->GPIO_Pin));  
   
-/*---------------------------- GPIO Mode Configuration -----------------------*/
+/*---------------------------- GPIO 模式配置 -----------------------*/
   currentmode = ((uint32_t)GPIO_InitStruct->GPIO_Mode) & ((uint32_t)0x0F);
   if ((((uint32_t)GPIO_InitStruct->GPIO_Mode) & ((uint32_t)0x10)) != 0x00)
   { 
-    /* Check the parameters */
+    /* 检查参数 */
     assert_param(IS_GPIO_SPEED(GPIO_InitStruct->GPIO_Speed));
-    /* Output mode */
+    /* 输出模式 */
     currentmode |= (uint32_t)GPIO_InitStruct->GPIO_Speed;
   }
-/*---------------------------- GPIO CRL Configuration ------------------------*/
-  /* Configure the eight low port pins */
+/*---------------------------- GPIO CRL 配置 ------------------------*/
+  /* 配置 8 个低端端口引脚 */
   if (((uint32_t)GPIO_InitStruct->GPIO_Pin & ((uint32_t)0x00FF)) != 0x00)
   {
     tmpreg = GPIOx->CRL;
     for (pinpos = 0x00; pinpos < 0x08; pinpos++)
     {
       pos = ((uint32_t)0x01) << pinpos;
-      /* Get the port pins position */
+      /* 获取端口引脚位置 */
       currentpin = (GPIO_InitStruct->GPIO_Pin) & pos;
       if (currentpin == pos)
       {
         pos = pinpos << 2;
-        /* Clear the corresponding low control register bits */
+        /* 清零相应的低控制寄存器位 */
         pinmask = ((uint32_t)0x0F) << pos;
         tmpreg &= ~pinmask;
-        /* Write the mode configuration in the corresponding bits */
+        /* 在相应位中写入模式配置 */
         tmpreg |= (currentmode << pos);
-        /* Reset the corresponding ODR bit */
+        /* 清零相应的 ODR 位 */
         if (GPIO_InitStruct->GPIO_Mode == GPIO_Mode_IPD)
         {
           GPIOx->BRR = (((uint32_t)0x01) << pinpos);
         }
         else
         {
-          /* Set the corresponding ODR bit */
+          /* 置位相应的 ODR 位 */
           if (GPIO_InitStruct->GPIO_Mode == GPIO_Mode_IPU)
           {
             GPIOx->BSRR = (((uint32_t)0x01) << pinpos);
@@ -223,30 +221,30 @@ void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
     }
     GPIOx->CRL = tmpreg;
   }
-/*---------------------------- GPIO CRH Configuration ------------------------*/
-  /* Configure the eight high port pins */
+/*---------------------------- GPIO CRH 配置 ------------------------*/
+  /* 配置 8 个高端端口引脚 */
   if (GPIO_InitStruct->GPIO_Pin > 0x00FF)
   {
     tmpreg = GPIOx->CRH;
     for (pinpos = 0x00; pinpos < 0x08; pinpos++)
     {
       pos = (((uint32_t)0x01) << (pinpos + 0x08));
-      /* Get the port pins position */
+      /* 获取端口引脚位置 */
       currentpin = ((GPIO_InitStruct->GPIO_Pin) & pos);
       if (currentpin == pos)
       {
         pos = pinpos << 2;
-        /* Clear the corresponding high control register bits */
+        /* 清零相应的高控制寄存器位 */
         pinmask = ((uint32_t)0x0F) << pos;
         tmpreg &= ~pinmask;
-        /* Write the mode configuration in the corresponding bits */
+        /* 在相应位中写入模式配置 */
         tmpreg |= (currentmode << pos);
-        /* Reset the corresponding ODR bit */
+        /* 清零相应的 ODR 位 */
         if (GPIO_InitStruct->GPIO_Mode == GPIO_Mode_IPD)
         {
           GPIOx->BRR = (((uint32_t)0x01) << (pinpos + 0x08));
         }
-        /* Set the corresponding ODR bit */
+        /* 置位相应的 ODR 位 */
         if (GPIO_InitStruct->GPIO_Mode == GPIO_Mode_IPU)
         {
           GPIOx->BSRR = (((uint32_t)0x01) << (pinpos + 0x08));
@@ -258,31 +256,31 @@ void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
 }
 
 /**
-  * @brief  Fills each GPIO_InitStruct member with its default value.
-  * @param  GPIO_InitStruct : pointer to a GPIO_InitTypeDef structure which will
-  *         be initialized.
-  * @retval None
+  * @brief  将 GPIO_InitStruct 的每个成员填充为默认值。
+  * @param  GPIO_InitStruct : 指向将被初始化的 GPIO_InitTypeDef
+  *         结构的指针。
+  * @retval 无
   */
 void GPIO_StructInit(GPIO_InitTypeDef* GPIO_InitStruct)
 {
-  /* Reset GPIO init structure parameters values */
+  /* 复位 GPIO 初始化结构的参数值 */
   GPIO_InitStruct->GPIO_Pin  = GPIO_Pin_All;
   GPIO_InitStruct->GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStruct->GPIO_Mode = GPIO_Mode_IN_FLOATING;
 }
 
 /**
-  * @brief  Reads the specified input port pin.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @param  GPIO_Pin:  specifies the port bit to read.
-  *   This parameter can be GPIO_Pin_x where x can be (0..15).
-  * @retval The input port pin value.
+  * @brief  读取指定的输入端口引脚。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @param  GPIO_Pin:  指定要读取的端口位。
+  *   该参数可取 GPIO_Pin_x，x 可取 (0..15)。
+  * @retval 输入端口引脚值。
   */
 uint8_t GPIO_ReadInputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
   uint8_t bitstatus = 0x00;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   assert_param(IS_GET_GPIO_PIN(GPIO_Pin)); 
   
@@ -298,29 +296,29 @@ uint8_t GPIO_ReadInputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 }
 
 /**
-  * @brief  Reads the specified GPIO input data port.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @retval GPIO input data port value.
+  * @brief  读取指定的 GPIO 输入数据端口。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @retval GPIO 输入数据端口值。
   */
 uint16_t GPIO_ReadInputData(GPIO_TypeDef* GPIOx)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   
   return ((uint16_t)GPIOx->IDR);
 }
 
 /**
-  * @brief  Reads the specified output data port bit.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @param  GPIO_Pin:  specifies the port bit to read.
-  *   This parameter can be GPIO_Pin_x where x can be (0..15).
-  * @retval The output port pin value.
+  * @brief  读取指定的输出数据端口位。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @param  GPIO_Pin:  指定要读取的端口位。
+  *   该参数可取 GPIO_Pin_x，x 可取 (0..15)。
+  * @retval 输出端口引脚值。
   */
 uint8_t GPIO_ReadOutputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
   uint8_t bitstatus = 0x00;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   assert_param(IS_GET_GPIO_PIN(GPIO_Pin)); 
   
@@ -336,28 +334,28 @@ uint8_t GPIO_ReadOutputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 }
 
 /**
-  * @brief  Reads the specified GPIO output data port.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @retval GPIO output data port value.
+  * @brief  读取指定的 GPIO 输出数据端口。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @retval GPIO 输出数据端口值。
   */
 uint16_t GPIO_ReadOutputData(GPIO_TypeDef* GPIOx)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
     
   return ((uint16_t)GPIOx->ODR);
 }
 
 /**
-  * @brief  Sets the selected data port bits.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @param  GPIO_Pin: specifies the port bits to be written.
-  *   This parameter can be any combination of GPIO_Pin_x where x can be (0..15).
-  * @retval None
+  * @brief  置位选定的数据端口位。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @param  GPIO_Pin: 指定要写入的端口位。
+  *   该参数可为 GPIO_Pin_x 的任意组合，x 可取 (0..15)。
+  * @retval 无
   */
 void GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   assert_param(IS_GPIO_PIN(GPIO_Pin));
   
@@ -365,15 +363,15 @@ void GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 }
 
 /**
-  * @brief  Clears the selected data port bits.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @param  GPIO_Pin: specifies the port bits to be written.
-  *   This parameter can be any combination of GPIO_Pin_x where x can be (0..15).
-  * @retval None
+  * @brief  清零选定的数据端口位。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @param  GPIO_Pin: 指定要写入的端口位。
+  *   该参数可为 GPIO_Pin_x 的任意组合，x 可取 (0..15)。
+  * @retval 无
   */
 void GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   assert_param(IS_GPIO_PIN(GPIO_Pin));
   
@@ -381,19 +379,19 @@ void GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 }
 
 /**
-  * @brief  Sets or clears the selected data port bit.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @param  GPIO_Pin: specifies the port bit to be written.
-  *   This parameter can be one of GPIO_Pin_x where x can be (0..15).
-  * @param  BitVal: specifies the value to be written to the selected bit.
-  *   This parameter can be one of the BitAction enum values:
-  *     @arg Bit_RESET: to clear the port pin
-  *     @arg Bit_SET: to set the port pin
-  * @retval None
+  * @brief  置位或清零选定的数据端口位。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @param  GPIO_Pin: 指定要写入的端口位。
+  *   该参数可取 GPIO_Pin_x 之一，x 可取 (0..15)。
+  * @param  BitVal: 指定要写入所选位的值。
+  *   该参数可取 BitAction 枚举值之一：
+  *     @arg Bit_RESET: 清零端口引脚
+  *     @arg Bit_SET: 置位端口引脚
+  * @retval 无
   */
 void GPIO_WriteBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, BitAction BitVal)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   assert_param(IS_GET_GPIO_PIN(GPIO_Pin));
   assert_param(IS_GPIO_BIT_ACTION(BitVal)); 
@@ -409,65 +407,65 @@ void GPIO_WriteBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, BitAction BitVal)
 }
 
 /**
-  * @brief  Writes data to the specified GPIO data port.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @param  PortVal: specifies the value to be written to the port output data register.
-  * @retval None
+  * @brief  向指定的 GPIO 数据端口写入数据。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @param  PortVal: 指定要写入端口输出数据寄存器的值。
+  * @retval 无
   */
 void GPIO_Write(GPIO_TypeDef* GPIOx, uint16_t PortVal)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   
   GPIOx->ODR = PortVal;
 }
 
 /**
-  * @brief  Locks GPIO Pins configuration registers.
-  * @param  GPIOx: where x can be (A..G) to select the GPIO peripheral.
-  * @param  GPIO_Pin: specifies the port bit to be written.
-  *   This parameter can be any combination of GPIO_Pin_x where x can be (0..15).
-  * @retval None
+  * @brief  锁定 GPIO 引脚配置寄存器。
+  * @param  GPIOx: x 可取 (A..G)，用于选择 GPIO 外设。
+  * @param  GPIO_Pin: 指定要写入的端口位。
+  *   该参数可为 GPIO_Pin_x 的任意组合，x 可取 (0..15)。
+  * @retval 无
   */
 void GPIO_PinLockConfig(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
   uint32_t tmp = 0x00010000;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
   assert_param(IS_GPIO_PIN(GPIO_Pin));
   
   tmp |= GPIO_Pin;
-  /* Set LCKK bit */
+  /* 置位 LCKK 位 */
   GPIOx->LCKR = tmp;
-  /* Reset LCKK bit */
+  /* 清零 LCKK 位 */
   GPIOx->LCKR =  GPIO_Pin;
-  /* Set LCKK bit */
+  /* 置位 LCKK 位 */
   GPIOx->LCKR = tmp;
-  /* Read LCKK bit*/
+  /* 读取 LCKK 位*/
   tmp = GPIOx->LCKR;
-  /* Read LCKK bit*/
+  /* 读取 LCKK 位*/
   tmp = GPIOx->LCKR;
 }
 
 /**
-  * @brief  Selects the GPIO pin used as Event output.
-  * @param  GPIO_PortSource: selects the GPIO port to be used as source
-  *   for Event output.
-  *   This parameter can be GPIO_PortSourceGPIOx where x can be (A..E).
-  * @param  GPIO_PinSource: specifies the pin for the Event output.
-  *   This parameter can be GPIO_PinSourcex where x can be (0..15).
-  * @retval None
+  * @brief  选择用作事件输出的 GPIO 引脚。
+  * @param  GPIO_PortSource: 选择用作事件输出源的
+  *   GPIO 端口。
+  *   该参数可取 GPIO_PortSourceGPIOx，x 可取 (A..E)。
+  * @param  GPIO_PinSource: 指定用于事件输出的引脚。
+  *   该参数可取 GPIO_PinSourcex，x 可取 (0..15)。
+  * @retval 无
   */
 void GPIO_EventOutputConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource)
 {
   uint32_t tmpreg = 0x00;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_EVENTOUT_PORT_SOURCE(GPIO_PortSource));
   assert_param(IS_GPIO_PIN_SOURCE(GPIO_PinSource));
     
   tmpreg = AFIO->EVCR;
-  /* Clear the PORT[6:4] and PIN[3:0] bits */
+  /* 清零 PORT[6:4] 和 PIN[3:0] 位 */
   tmpreg &= EVCR_PORTPINCONFIG_MASK;
   tmpreg |= (uint32_t)GPIO_PortSource << 0x04;
   tmpreg |= GPIO_PinSource;
@@ -475,82 +473,82 @@ void GPIO_EventOutputConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource)
 }
 
 /**
-  * @brief  Enables or disables the Event Output.
-  * @param  NewState: new state of the Event output.
-  *   This parameter can be: ENABLE or DISABLE.
-  * @retval None
+  * @brief  使能或关闭事件输出。
+  * @param  NewState: 事件输出的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
+  * @retval 无
   */
 void GPIO_EventOutputCmd(FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   
   *(__IO uint32_t *) EVCR_EVOE_BB = (uint32_t)NewState;
 }
 
 /**
-  * @brief  Changes the mapping of the specified pin.
-  * @param  GPIO_Remap: selects the pin to remap.
-  *   This parameter can be one of the following values:
-  *     @arg GPIO_Remap_SPI1             : SPI1 Alternate Function mapping
-  *     @arg GPIO_Remap_I2C1             : I2C1 Alternate Function mapping
-  *     @arg GPIO_Remap_USART1           : USART1 Alternate Function mapping
-  *     @arg GPIO_Remap_USART2           : USART2 Alternate Function mapping
-  *     @arg GPIO_PartialRemap_USART3    : USART3 Partial Alternate Function mapping
-  *     @arg GPIO_FullRemap_USART3       : USART3 Full Alternate Function mapping
-  *     @arg GPIO_PartialRemap_TIM1      : TIM1 Partial Alternate Function mapping
-  *     @arg GPIO_FullRemap_TIM1         : TIM1 Full Alternate Function mapping
-  *     @arg GPIO_PartialRemap1_TIM2     : TIM2 Partial1 Alternate Function mapping
-  *     @arg GPIO_PartialRemap2_TIM2     : TIM2 Partial2 Alternate Function mapping
-  *     @arg GPIO_FullRemap_TIM2         : TIM2 Full Alternate Function mapping
-  *     @arg GPIO_PartialRemap_TIM3      : TIM3 Partial Alternate Function mapping
-  *     @arg GPIO_FullRemap_TIM3         : TIM3 Full Alternate Function mapping
-  *     @arg GPIO_Remap_TIM4             : TIM4 Alternate Function mapping
-  *     @arg GPIO_Remap1_CAN1            : CAN1 Alternate Function mapping
-  *     @arg GPIO_Remap2_CAN1            : CAN1 Alternate Function mapping
-  *     @arg GPIO_Remap_PD01             : PD01 Alternate Function mapping
-  *     @arg GPIO_Remap_TIM5CH4_LSI      : LSI connected to TIM5 Channel4 input capture for calibration
-  *     @arg GPIO_Remap_ADC1_ETRGINJ     : ADC1 External Trigger Injected Conversion remapping
-  *     @arg GPIO_Remap_ADC1_ETRGREG     : ADC1 External Trigger Regular Conversion remapping
-  *     @arg GPIO_Remap_ADC2_ETRGINJ     : ADC2 External Trigger Injected Conversion remapping
-  *     @arg GPIO_Remap_ADC2_ETRGREG     : ADC2 External Trigger Regular Conversion remapping
-  *     @arg GPIO_Remap_ETH              : Ethernet remapping (only for Connectivity line devices)
-  *     @arg GPIO_Remap_CAN2             : CAN2 remapping (only for Connectivity line devices)
-  *     @arg GPIO_Remap_SWJ_NoJTRST      : Full SWJ Enabled (JTAG-DP + SW-DP) but without JTRST
-  *     @arg GPIO_Remap_SWJ_JTAGDisable  : JTAG-DP Disabled and SW-DP Enabled
-  *     @arg GPIO_Remap_SWJ_Disable      : Full SWJ Disabled (JTAG-DP + SW-DP)
-  *     @arg GPIO_Remap_SPI3             : SPI3/I2S3 Alternate Function mapping (only for Connectivity line devices)
-  *                                        When the SPI3/I2S3 is remapped using this function, the SWJ is configured
-  *                                        to Full SWJ Enabled (JTAG-DP + SW-DP) but without JTRST.   
-  *     @arg GPIO_Remap_TIM2ITR1_PTP_SOF : Ethernet PTP output or USB OTG SOF (Start of Frame) connected
-  *                                        to TIM2 Internal Trigger 1 for calibration (only for Connectivity line devices)
-  *                                        If the GPIO_Remap_TIM2ITR1_PTP_SOF is enabled the TIM2 ITR1 is connected to 
-  *                                        Ethernet PTP output. When Reset TIM2 ITR1 is connected to USB OTG SOF output.    
-  *     @arg GPIO_Remap_PTP_PPS          : Ethernet MAC PPS_PTS output on PB05 (only for Connectivity line devices)
-  *     @arg GPIO_Remap_TIM15            : TIM15 Alternate Function mapping (only for Value line devices)
-  *     @arg GPIO_Remap_TIM16            : TIM16 Alternate Function mapping (only for Value line devices)
-  *     @arg GPIO_Remap_TIM17            : TIM17 Alternate Function mapping (only for Value line devices)
-  *     @arg GPIO_Remap_CEC              : CEC Alternate Function mapping (only for Value line devices)
-  *     @arg GPIO_Remap_TIM1_DMA         : TIM1 DMA requests mapping (only for Value line devices)
-  *     @arg GPIO_Remap_TIM9             : TIM9 Alternate Function mapping (only for XL-density devices)
-  *     @arg GPIO_Remap_TIM10            : TIM10 Alternate Function mapping (only for XL-density devices)
-  *     @arg GPIO_Remap_TIM11            : TIM11 Alternate Function mapping (only for XL-density devices)
-  *     @arg GPIO_Remap_TIM13            : TIM13 Alternate Function mapping (only for High density Value line and XL-density devices)
-  *     @arg GPIO_Remap_TIM14            : TIM14 Alternate Function mapping (only for High density Value line and XL-density devices)
-  *     @arg GPIO_Remap_FSMC_NADV        : FSMC_NADV Alternate Function mapping (only for High density Value line and XL-density devices)
-  *     @arg GPIO_Remap_TIM67_DAC_DMA    : TIM6/TIM7 and DAC DMA requests remapping (only for High density Value line devices)
-  *     @arg GPIO_Remap_TIM12            : TIM12 Alternate Function mapping (only for High density Value line devices)
-  *     @arg GPIO_Remap_MISC             : Miscellaneous Remap (DMA2 Channel5 Position and DAC Trigger remapping, 
-  *                                        only for High density Value line devices)     
-  * @param  NewState: new state of the port pin remapping.
-  *   This parameter can be: ENABLE or DISABLE.
-  * @retval None
+  * @brief  更改指定引脚的映射。
+  * @param  GPIO_Remap: 选择要重映射的引脚。
+  *   该参数可取以下值之一：
+  *     @arg GPIO_Remap_SPI1             : SPI1 复用功能映射
+  *     @arg GPIO_Remap_I2C1             : I2C1 复用功能映射
+  *     @arg GPIO_Remap_USART1           : USART1 复用功能映射
+  *     @arg GPIO_Remap_USART2           : USART2 复用功能映射
+  *     @arg GPIO_PartialRemap_USART3    : USART3 部分复用功能映射
+  *     @arg GPIO_FullRemap_USART3       : USART3 完全复用功能映射
+  *     @arg GPIO_PartialRemap_TIM1      : TIM1 部分复用功能映射
+  *     @arg GPIO_FullRemap_TIM1         : TIM1 完全复用功能映射
+  *     @arg GPIO_PartialRemap1_TIM2     : TIM2 部分复用功能映射 1
+  *     @arg GPIO_PartialRemap2_TIM2     : TIM2 部分复用功能映射 2
+  *     @arg GPIO_FullRemap_TIM2         : TIM2 完全复用功能映射
+  *     @arg GPIO_PartialRemap_TIM3      : TIM3 部分复用功能映射
+  *     @arg GPIO_FullRemap_TIM3         : TIM3 完全复用功能映射
+  *     @arg GPIO_Remap_TIM4             : TIM4 复用功能映射
+  *     @arg GPIO_Remap1_CAN1            : CAN1 复用功能映射
+  *     @arg GPIO_Remap2_CAN1            : CAN1 复用功能映射
+  *     @arg GPIO_Remap_PD01             : PD01 复用功能映射
+  *     @arg GPIO_Remap_TIM5CH4_LSI      : LSI 连接到 TIM5 通道 4 输入捕获用于校准
+  *     @arg GPIO_Remap_ADC1_ETRGINJ     : ADC1 外部触发注入转换重映射
+  *     @arg GPIO_Remap_ADC1_ETRGREG     : ADC1 外部触发规则转换重映射
+  *     @arg GPIO_Remap_ADC2_ETRGINJ     : ADC2 外部触发注入转换重映射
+  *     @arg GPIO_Remap_ADC2_ETRGREG     : ADC2 外部触发规则转换重映射
+  *     @arg GPIO_Remap_ETH              : 以太网重映射（仅适用于互联型器件）
+  *     @arg GPIO_Remap_CAN2             : CAN2 重映射（仅适用于互联型器件）
+  *     @arg GPIO_Remap_SWJ_NoJTRST      : 使能全部 SWJ（JTAG-DP + SW-DP）但不含 JTRST
+  *     @arg GPIO_Remap_SWJ_JTAGDisable  : 关闭 JTAG-DP 并使能 SW-DP
+  *     @arg GPIO_Remap_SWJ_Disable      : 关闭全部 SWJ（JTAG-DP + SW-DP）
+  *     @arg GPIO_Remap_SPI3             : SPI3/I2S3 复用功能映射（仅适用于互联型器件）
+  *                                        当使用本函数重映射 SPI3/I2S3 时，SWJ 被配置为
+  *                                        使能全部 SWJ（JTAG-DP + SW-DP）但不含 JTRST。
+  *     @arg GPIO_Remap_TIM2ITR1_PTP_SOF : 以太网 PTP 输出或 USB OTG SOF（帧起始）连接到
+  *                                        TIM2 内部触发 1 用于校准（仅适用于互联型器件）
+  *                                        若使能 GPIO_Remap_TIM2ITR1_PTP_SOF，则 TIM2 ITR1 连接到
+  *                                        以太网 PTP 输出。复位时 TIM2 ITR1 连接到 USB OTG SOF 输出。
+  *     @arg GPIO_Remap_PTP_PPS          : PB05 上的以太网 MAC PPS_PTS 输出（仅适用于互联型器件）
+  *     @arg GPIO_Remap_TIM15            : TIM15 复用功能映射（仅适用于超值型器件）
+  *     @arg GPIO_Remap_TIM16            : TIM16 复用功能映射（仅适用于超值型器件）
+  *     @arg GPIO_Remap_TIM17            : TIM17 复用功能映射（仅适用于超值型器件）
+  *     @arg GPIO_Remap_CEC              : CEC 复用功能映射（仅适用于超值型器件）
+  *     @arg GPIO_Remap_TIM1_DMA         : TIM1 DMA 请求映射（仅适用于超值型器件）
+  *     @arg GPIO_Remap_TIM9             : TIM9 复用功能映射（仅适用于超大容量器件）
+  *     @arg GPIO_Remap_TIM10            : TIM10 复用功能映射（仅适用于超大容量器件）
+  *     @arg GPIO_Remap_TIM11            : TIM11 复用功能映射（仅适用于超大容量器件）
+  *     @arg GPIO_Remap_TIM13            : TIM13 复用功能映射（仅适用于高容量超值型和超大容量器件）
+  *     @arg GPIO_Remap_TIM14            : TIM14 复用功能映射（仅适用于高容量超值型和超大容量器件）
+  *     @arg GPIO_Remap_FSMC_NADV        : FSMC_NADV 复用功能映射（仅适用于高容量超值型和超大容量器件）
+  *     @arg GPIO_Remap_TIM67_DAC_DMA    : TIM6/TIM7 和 DAC DMA 请求重映射（仅适用于高容量超值型器件）
+  *     @arg GPIO_Remap_TIM12            : TIM12 复用功能映射（仅适用于高容量超值型器件）
+  *     @arg GPIO_Remap_MISC             : 杂项重映射（DMA2 通道 5 位置和 DAC 触发重映射，
+  *                                        仅适用于高容量超值型器件）
+  * @param  NewState: 端口引脚重映射的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
+  * @retval 无
   */
 void GPIO_PinRemapConfig(uint32_t GPIO_Remap, FunctionalState NewState)
 {
   uint32_t tmp = 0x00, tmp1 = 0x00, tmpreg = 0x00, tmpmask = 0x00;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_REMAP(GPIO_Remap));
   assert_param(IS_FUNCTIONAL_STATE(NewState));  
   
@@ -599,17 +597,17 @@ void GPIO_PinRemapConfig(uint32_t GPIO_Remap, FunctionalState NewState)
 }
 
 /**
-  * @brief  Selects the GPIO pin used as EXTI Line.
-  * @param  GPIO_PortSource: selects the GPIO port to be used as source for EXTI lines.
-  *   This parameter can be GPIO_PortSourceGPIOx where x can be (A..G).
-  * @param  GPIO_PinSource: specifies the EXTI line to be configured.
-  *   This parameter can be GPIO_PinSourcex where x can be (0..15).
-  * @retval None
+  * @brief  选择用作 EXTI 线的 GPIO 引脚。
+  * @param  GPIO_PortSource: 选择用作 EXTI 线源的 GPIO 端口。
+  *   该参数可取 GPIO_PortSourceGPIOx，x 可取 (A..G)。
+  * @param  GPIO_PinSource: 指定要配置的 EXTI 线。
+  *   该参数可取 GPIO_PinSourcex，x 可取 (0..15)。
+  * @retval 无
   */
 void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource)
 {
   uint32_t tmp = 0x00;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_GPIO_EXTI_PORT_SOURCE(GPIO_PortSource));
   assert_param(IS_GPIO_PIN_SOURCE(GPIO_PinSource));
   
@@ -619,19 +617,19 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource)
 }
 
 /**
-  * @brief  Selects the Ethernet media interface.
-  * @note   This function applies only to STM32 Connectivity line devices.  
-  * @param  GPIO_ETH_MediaInterface: specifies the Media Interface mode.
-  *   This parameter can be one of the following values:
-  *     @arg GPIO_ETH_MediaInterface_MII: MII mode
-  *     @arg GPIO_ETH_MediaInterface_RMII: RMII mode    
-  * @retval None
+  * @brief  选择以太网媒体接口。
+  * @note   本函数仅适用于 STM32 互联型器件。
+  * @param  GPIO_ETH_MediaInterface: 指定媒体接口模式。
+  *   该参数可取以下值之一：
+  *     @arg GPIO_ETH_MediaInterface_MII: MII 模式
+  *     @arg GPIO_ETH_MediaInterface_RMII: RMII 模式
+  * @retval 无
   */
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface) 
 { 
   assert_param(IS_GPIO_ETH_MEDIA_INTERFACE(GPIO_ETH_MediaInterface)); 
 
-  /* Configure MII_RMII selection bit */ 
+  /* 配置 MII_RMII 选择位 */ 
   *(__IO uint32_t *) MAPR_MII_RMII_SEL_BB = GPIO_ETH_MediaInterface; 
 }
   
@@ -647,4 +645,4 @@ void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the RCC firmware 
-  *          library.
+  * @brief   本文件包含 RCC 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指导之用，旨在为客户提供有关其产品的编码信息，以节省他们的时间。
+  * 因此，对于因本固件的内容和/或客户将此处包含的编码信息
+  * 与其产品结合使用而提出的任何索赔所造成的任何直接、间接或后果性损害，
+  * STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_RCC_H
 #define __STM32F10x_RCC_H
 
@@ -28,39 +25,39 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup RCC
+/** @addtogroup RCC   RCC 外设
   * @{
   */
 
-/** @defgroup RCC_Exported_Types
+/** @defgroup RCC_Exported_Types   RCC 导出类型
   * @{
   */
 
 typedef struct
 {
-  uint32_t SYSCLK_Frequency;  /*!< returns SYSCLK clock frequency expressed in Hz */
-  uint32_t HCLK_Frequency;    /*!< returns HCLK clock frequency expressed in Hz */
-  uint32_t PCLK1_Frequency;   /*!< returns PCLK1 clock frequency expressed in Hz */
-  uint32_t PCLK2_Frequency;   /*!< returns PCLK2 clock frequency expressed in Hz */
-  uint32_t ADCCLK_Frequency;  /*!< returns ADCCLK clock frequency expressed in Hz */
+  uint32_t SYSCLK_Frequency;  /*!< 返回以 Hz 表示的 SYSCLK 时钟频率 */
+  uint32_t HCLK_Frequency;    /*!< 返回以 Hz 表示的 HCLK 时钟频率 */
+  uint32_t PCLK1_Frequency;   /*!< 返回以 Hz 表示的 PCLK1 时钟频率 */
+  uint32_t PCLK2_Frequency;   /*!< 返回以 Hz 表示的 PCLK2 时钟频率 */
+  uint32_t ADCCLK_Frequency;  /*!< 返回以 Hz 表示的 ADCCLK 时钟频率 */
 }RCC_ClocksTypeDef;
 
 /**
   * @}
   */
 
-/** @defgroup RCC_Exported_Constants
+/** @defgroup RCC_Exported_Constants   RCC 导出常量
   * @{
   */
 
-/** @defgroup HSE_configuration 
+/** @defgroup HSE_configuration   HSE 配置
   * @{
   */
 
@@ -74,7 +71,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup PLL_entry_clock_source 
+/** @defgroup PLL_entry_clock_source   PLL 输入时钟源
   * @{
   */
 
@@ -96,7 +93,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup PLL_multiplication_factor 
+/** @defgroup PLL_multiplication_factor   PLL 倍频系数
   * @{
   */
 #ifndef STM32F10X_CL
@@ -142,7 +139,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup PREDIV1_division_factor
+/** @defgroup PREDIV1_division_factor   PREDIV1 分频系数
   * @{
   */
 #if defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || defined (STM32F10X_HD_VL) || defined (STM32F10X_CL)
@@ -177,18 +174,18 @@ typedef struct
   */
 
 
-/** @defgroup PREDIV1_clock_source
+/** @defgroup PREDIV1_clock_source   PREDIV1 时钟源
   * @{
   */
 #ifdef STM32F10X_CL
-/* PREDIV1 clock source (for STM32 connectivity line devices) */
+/* PREDIV1 时钟源（用于 STM32 互联型器件） */
  #define  RCC_PREDIV1_Source_HSE         ((uint32_t)0x00000000) 
  #define  RCC_PREDIV1_Source_PLL2        ((uint32_t)0x00010000) 
 
  #define IS_RCC_PREDIV1_SOURCE(SOURCE) (((SOURCE) == RCC_PREDIV1_Source_HSE) || \
                                         ((SOURCE) == RCC_PREDIV1_Source_PLL2)) 
 #elif defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) || defined (STM32F10X_HD_VL)
-/* PREDIV1 clock source (for STM32 Value line devices) */
+/* PREDIV1 时钟源（用于 STM32 超值型器件） */
  #define  RCC_PREDIV1_Source_HSE         ((uint32_t)0x00000000) 
 
  #define IS_RCC_PREDIV1_SOURCE(SOURCE) (((SOURCE) == RCC_PREDIV1_Source_HSE)) 
@@ -198,7 +195,7 @@ typedef struct
   */
 
 #ifdef STM32F10X_CL
-/** @defgroup PREDIV2_division_factor
+/** @defgroup PREDIV2_division_factor   PREDIV2 分频系数
   * @{
   */
   
@@ -232,7 +229,7 @@ typedef struct
   */
 
 
-/** @defgroup PLL2_multiplication_factor
+/** @defgroup PLL2_multiplication_factor   PLL2 倍频系数
   * @{
   */
   
@@ -256,7 +253,7 @@ typedef struct
   */
 
 
-/** @defgroup PLL3_multiplication_factor
+/** @defgroup PLL3_multiplication_factor   PLL3 倍频系数
   * @{
   */
 
@@ -282,7 +279,7 @@ typedef struct
 #endif /* STM32F10X_CL */
 
 
-/** @defgroup System_clock_source 
+/** @defgroup System_clock_source   系统时钟源
   * @{
   */
 
@@ -296,7 +293,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup AHB_clock_source 
+/** @defgroup AHB_clock_source   AHB 时钟源
   * @{
   */
 
@@ -318,7 +315,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup APB1_APB2_clock_source 
+/** @defgroup APB1_APB2_clock_source   APB1/APB2 时钟源
   * @{
   */
 
@@ -334,7 +331,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RCC_Interrupt_source 
+/** @defgroup RCC_Interrupt_source   RCC 中断源
   * @{
   */
 
@@ -368,7 +365,7 @@ typedef struct
   */
 
 #ifndef STM32F10X_CL
-/** @defgroup USB_Device_clock_source 
+/** @defgroup USB_Device_clock_source   USB 设备时钟源
   * @{
   */
 
@@ -381,7 +378,7 @@ typedef struct
   * @}
   */
 #else
-/** @defgroup USB_OTG_FS_clock_source 
+/** @defgroup USB_OTG_FS_clock_source   USB OTG FS 时钟源
   * @{
   */
  #define RCC_OTGFSCLKSource_PLLVCO_Div3    ((uint8_t)0x00)
@@ -396,7 +393,7 @@ typedef struct
 
 
 #ifdef STM32F10X_CL
-/** @defgroup I2S2_clock_source 
+/** @defgroup I2S2_clock_source   I2S2 时钟源
   * @{
   */
  #define RCC_I2S2CLKSource_SYSCLK        ((uint8_t)0x00)
@@ -408,7 +405,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup I2S3_clock_source 
+/** @defgroup I2S3_clock_source   I2S3 时钟源
   * @{
   */
  #define RCC_I2S3CLKSource_SYSCLK        ((uint8_t)0x00)
@@ -422,7 +419,7 @@ typedef struct
 #endif /* STM32F10X_CL */  
   
 
-/** @defgroup ADC_clock_source 
+/** @defgroup ADC_clock_source   ADC 时钟源
   * @{
   */
 
@@ -436,7 +433,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup LSE_configuration 
+/** @defgroup LSE_configuration   LSE 配置
   * @{
   */
 
@@ -449,7 +446,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RTC_clock_source 
+/** @defgroup RTC_clock_source   RTC 时钟源
   * @{
   */
 
@@ -463,7 +460,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup AHB_peripheral 
+/** @defgroup AHB_peripheral   AHB 外设
   * @{
   */
 
@@ -490,7 +487,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup APB2_peripheral 
+/** @defgroup APB2_peripheral   APB2 外设
   * @{
   */
 
@@ -521,7 +518,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup APB1_peripheral 
+/** @defgroup APB1_peripheral   APB1 外设
   * @{
   */
 
@@ -557,7 +554,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup Clock_source_to_output_on_MCO_pin 
+/** @defgroup Clock_source_to_output_on_MCO_pin   在 MCO 引脚上输出的时钟源
   * @{
   */
 
@@ -588,7 +585,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RCC_Flag 
+/** @defgroup RCC_Flag   RCC 标志
   * @{
   */
 
@@ -632,7 +629,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RCC_Exported_Macros
+/** @defgroup RCC_Exported_Macros   RCC 导出宏
   * @{
   */
 
@@ -640,7 +637,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup RCC_Exported_Functions
+/** @defgroup RCC_Exported_Functions   RCC 导出函数
   * @{
   */
 
@@ -724,4 +721,4 @@ void RCC_ClearITPendingBit(uint8_t RCC_IT);
   * @}
   */ 
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

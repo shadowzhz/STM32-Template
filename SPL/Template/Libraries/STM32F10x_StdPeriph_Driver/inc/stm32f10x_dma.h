@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the DMA firmware 
-  *          library.
+  * @brief   本文件包含 DMA 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供参考，旨在为客户提供有关其产品的编码信息，以便客户节省时间。
+  * 因此，对于因本固件的内容和/或客户将本文所含编码信息用于其产品
+  * 而产生的任何索赔所导致的任何直接、间接或后果性损害，
+  * 意法半导体概不承担责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_DMA_H
 #define __STM32F10x_DMA_H
 
@@ -28,67 +25,67 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup DMA
+/** @addtogroup DMA   DMA 驱动模块
   * @{
   */
 
-/** @defgroup DMA_Exported_Types
+/** @defgroup DMA_Exported_Types   DMA 导出类型
   * @{
   */
 
-/** 
-  * @brief  DMA Init structure definition
+/**
+  * @brief  DMA 初始化结构体定义
   */
 
 typedef struct
 {
-  uint32_t DMA_PeripheralBaseAddr; /*!< Specifies the peripheral base address for DMAy Channelx. */
+  uint32_t DMA_PeripheralBaseAddr; /*!< 指定 DMAy 通道 x 的外设基地址。 */
 
-  uint32_t DMA_MemoryBaseAddr;     /*!< Specifies the memory base address for DMAy Channelx. */
+  uint32_t DMA_MemoryBaseAddr;     /*!< 指定 DMAy 通道 x 的存储器基地址。 */
 
-  uint32_t DMA_DIR;                /*!< Specifies if the peripheral is the source or destination.
-                                        This parameter can be a value of @ref DMA_data_transfer_direction */
+  uint32_t DMA_DIR;                /*!< 指定外设是源还是目标。
+                                        该参数可以是 @ref DMA_data_transfer_direction 的值 */
 
-  uint32_t DMA_BufferSize;         /*!< Specifies the buffer size, in data unit, of the specified Channel. 
-                                        The data unit is equal to the configuration set in DMA_PeripheralDataSize
-                                        or DMA_MemoryDataSize members depending in the transfer direction. */
+  uint32_t DMA_BufferSize;         /*!< 指定所选通道的缓冲区大小（以数据单元为单位）。
+                                        该数据单元等于 DMA_PeripheralDataSize
+                                        或 DMA_MemoryDataSize 成员中配置的值，取决于传输方向。 */
 
-  uint32_t DMA_PeripheralInc;      /*!< Specifies whether the Peripheral address register is incremented or not.
-                                        This parameter can be a value of @ref DMA_peripheral_incremented_mode */
+  uint32_t DMA_PeripheralInc;      /*!< 指定外设地址寄存器是否递增。
+                                        该参数可以是 @ref DMA_peripheral_incremented_mode 的值 */
 
-  uint32_t DMA_MemoryInc;          /*!< Specifies whether the memory address register is incremented or not.
-                                        This parameter can be a value of @ref DMA_memory_incremented_mode */
+  uint32_t DMA_MemoryInc;          /*!< 指定存储器地址寄存器是否递增。
+                                        该参数可以是 @ref DMA_memory_incremented_mode 的值 */
 
-  uint32_t DMA_PeripheralDataSize; /*!< Specifies the Peripheral data width.
-                                        This parameter can be a value of @ref DMA_peripheral_data_size */
+  uint32_t DMA_PeripheralDataSize; /*!< 指定外设数据宽度。
+                                        该参数可以是 @ref DMA_peripheral_data_size 的值 */
 
-  uint32_t DMA_MemoryDataSize;     /*!< Specifies the Memory data width.
-                                        This parameter can be a value of @ref DMA_memory_data_size */
+  uint32_t DMA_MemoryDataSize;     /*!< 指定存储器数据宽度。
+                                        该参数可以是 @ref DMA_memory_data_size 的值 */
 
-  uint32_t DMA_Mode;               /*!< Specifies the operation mode of the DMAy Channelx.
-                                        This parameter can be a value of @ref DMA_circular_normal_mode.
-                                        @note: The circular buffer mode cannot be used if the memory-to-memory
-                                              data transfer is configured on the selected Channel */
+  uint32_t DMA_Mode;               /*!< 指定 DMAy 通道 x 的工作模式。
+                                        该参数可以是 @ref DMA_circular_normal_mode 的值。
+                                        @note: 若所选通道配置了存储器到存储器的
+                                              数据传输，则不能使用循环缓冲模式 */
 
-  uint32_t DMA_Priority;           /*!< Specifies the software priority for the DMAy Channelx.
-                                        This parameter can be a value of @ref DMA_priority_level */
+  uint32_t DMA_Priority;           /*!< 指定 DMAy 通道 x 的软件优先级。
+                                        该参数可以是 @ref DMA_priority_level 的值 */
 
-  uint32_t DMA_M2M;                /*!< Specifies if the DMAy Channelx will be used in memory-to-memory transfer.
-                                        This parameter can be a value of @ref DMA_memory_to_memory */
+  uint32_t DMA_M2M;                /*!< 指定 DMAy 通道 x 是否用于存储器到存储器传输。
+                                        该参数可以是 @ref DMA_memory_to_memory 的值 */
 }DMA_InitTypeDef;
 
 /**
   * @}
   */
 
-/** @defgroup DMA_Exported_Constants
+/** @defgroup DMA_Exported_Constants   DMA 导出常量
   * @{
   */
 
@@ -105,7 +102,7 @@ typedef struct
                                    ((PERIPH) == DMA2_Channel4) || \
                                    ((PERIPH) == DMA2_Channel5))
 
-/** @defgroup DMA_data_transfer_direction 
+/** @defgroup DMA_data_transfer_direction   DMA 数据传输方向
   * @{
   */
 
@@ -117,7 +114,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_peripheral_incremented_mode 
+/** @defgroup DMA_peripheral_incremented_mode   DMA 外设递增模式
   * @{
   */
 
@@ -129,7 +126,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_memory_incremented_mode 
+/** @defgroup DMA_memory_incremented_mode   DMA 存储器递增模式
   * @{
   */
 
@@ -141,7 +138,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_peripheral_data_size 
+/** @defgroup DMA_peripheral_data_size   DMA 外设数据大小
   * @{
   */
 
@@ -155,7 +152,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_memory_data_size 
+/** @defgroup DMA_memory_data_size   DMA 存储器数据大小
   * @{
   */
 
@@ -169,7 +166,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_circular_normal_mode 
+/** @defgroup DMA_circular_normal_mode   DMA 循环/正常模式
   * @{
   */
 
@@ -180,7 +177,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_priority_level 
+/** @defgroup DMA_priority_level   DMA 优先级
   * @{
   */
 
@@ -196,7 +193,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_memory_to_memory 
+/** @defgroup DMA_memory_to_memory   DMA 存储器到存储器
   * @{
   */
 
@@ -208,7 +205,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_interrupts_definition 
+/** @defgroup DMA_interrupts_definition   DMA 中断定义
   * @{
   */
 
@@ -298,7 +295,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_flags_definition 
+/** @defgroup DMA_flags_definition   DMA 标志定义
   * @{
   */
 #define DMA1_FLAG_GL1                      ((uint32_t)0x00000001)
@@ -381,7 +378,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_Buffer_Size 
+/** @defgroup DMA_Buffer_Size   DMA 缓冲区大小
   * @{
   */
 
@@ -395,7 +392,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_Exported_Macros
+/** @defgroup DMA_Exported_Macros   DMA 导出宏
   * @{
   */
 
@@ -403,7 +400,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DMA_Exported_Functions
+/** @defgroup DMA_Exported_Functions   DMA 导出函数
   * @{
   */
 
@@ -436,4 +433,4 @@ void DMA_ClearITPendingBit(uint32_t DMAy_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

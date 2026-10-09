@@ -2,21 +2,20 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_exti.h
   * @author  MCD Application Team
-  * @brief   Header file of EXTI HAL module.
+  * @brief   HAL库 EXTI（外部中断线）模块头文件
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.
+  * 版权所有 (c) 2016 STMicroelectronics。
+  * 保留所有权利。
   *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * 本软件根据可以在此软件组件的根目录中找到的 LICENSE 文件中的条款进行许可。
+  * 如果此软件没有附带 LICENSE 文件，则按原样提供。
   *
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义防止递归 -------------------------------------*/
 #ifndef STM32F1xx_HAL_EXTI_H
 #define STM32F1xx_HAL_EXTI_H
 
@@ -24,7 +23,7 @@
 extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件 ------------------------------------------------------------------*/
 #include "stm32f1xx_hal_def.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -32,18 +31,18 @@ extern "C" {
   */
 
 /** @defgroup EXTI EXTI
-  * @brief EXTI HAL module driver
+  * @brief EXTI HAL 模块驱动
   * @{
   */
 
-/* Exported types ------------------------------------------------------------*/
+/* 导出类型 ------------------------------------------------------------*/
 
-/** @defgroup EXTI_Exported_Types EXTI Exported Types
+/** @defgroup EXTI_Exported_Types EXTI 导出类型
   * @{
   */
 
 /**
-  * @brief  HAL EXTI common Callback ID enumeration definition
+  * @brief  HAL EXTI EXTI通用回调ID枚举定义
   */
 typedef enum
 {
@@ -51,88 +50,88 @@ typedef enum
 } EXTI_CallbackIDTypeDef;
 
 /**
-  * @brief  EXTI Handle structure definition
+  * @brief  EXTI 句柄结构体定义
   */
 typedef struct
 {
-  uint32_t Line;                    /*!<  Exti line number */
-  void (* PendingCallback)(void);   /*!<  Exti pending callback */
+  uint32_t Line;                    /*!<  Exti 线编号 */
+  void (* PendingCallback)(void);   /*!<  Exti 挂起回调 */
 } EXTI_HandleTypeDef;
 
 /**
-  * @brief  EXTI Configuration structure definition
+  * @brief  EXTI 配置结构体定义
   */
 typedef struct
 {
-  uint32_t Line;      /*!< The Exti line to be configured. This parameter
-                           can be a value of @ref EXTI_Line */
-  uint32_t Mode;      /*!< The Exit Mode to be configured for a core.
-                           This parameter can be a combination of @ref EXTI_Mode */
-  uint32_t Trigger;   /*!< The Exti Trigger to be configured. This parameter
-                           can be a value of @ref EXTI_Trigger */
-  uint32_t GPIOSel;   /*!< The Exti GPIO multiplexer selection to be configured.
-                           This parameter is only possible for line 0 to 15. It
-                           can be a value of @ref EXTI_GPIOSel */
+  uint32_t Line;      /*!< 需要配置的外部中断线
+                           这个参数可以取值： @ref EXTI_Line */
+  uint32_t Mode;      /*!< EXTI模式
+                           该参数可以是的组合： @ref EXTI_Mode */
+  uint32_t Trigger;   /*!< EXTI触发条件
+                           这个参数可以取值： @ref EXTI_Trigger */
+  uint32_t GPIOSel;   /*!< 要配置的 Exti GPIO 多路复用器选择。
+                           此参数仅适用于线路 0 到 15。
+                           这个参数可以取值： @ref EXTI_GPIOSel */
 } EXTI_ConfigTypeDef;
 
 /**
   * @}
   */
 
-/* Exported constants --------------------------------------------------------*/
-/** @defgroup EXTI_Exported_Constants EXTI Exported Constants
+/* 导出常量 --------------------------------------------------------*/
+/** @defgroup EXTI_Exported_Constants EXTI 导出常量
   * @{
   */
 
-/** @defgroup EXTI_Line  EXTI Line
+/** @defgroup EXTI_Line  EXTI 线
   * @{
   */
-#define EXTI_LINE_0                        (EXTI_GPIO     | 0x00u)    /*!< External interrupt line 0 */
-#define EXTI_LINE_1                        (EXTI_GPIO     | 0x01u)    /*!< External interrupt line 1 */
-#define EXTI_LINE_2                        (EXTI_GPIO     | 0x02u)    /*!< External interrupt line 2 */
-#define EXTI_LINE_3                        (EXTI_GPIO     | 0x03u)    /*!< External interrupt line 3 */
-#define EXTI_LINE_4                        (EXTI_GPIO     | 0x04u)    /*!< External interrupt line 4 */
-#define EXTI_LINE_5                        (EXTI_GPIO     | 0x05u)    /*!< External interrupt line 5 */
-#define EXTI_LINE_6                        (EXTI_GPIO     | 0x06u)    /*!< External interrupt line 6 */
-#define EXTI_LINE_7                        (EXTI_GPIO     | 0x07u)    /*!< External interrupt line 7 */
-#define EXTI_LINE_8                        (EXTI_GPIO     | 0x08u)    /*!< External interrupt line 8 */
-#define EXTI_LINE_9                        (EXTI_GPIO     | 0x09u)    /*!< External interrupt line 9 */
-#define EXTI_LINE_10                       (EXTI_GPIO     | 0x0Au)    /*!< External interrupt line 10 */
-#define EXTI_LINE_11                       (EXTI_GPIO     | 0x0Bu)    /*!< External interrupt line 11 */
-#define EXTI_LINE_12                       (EXTI_GPIO     | 0x0Cu)    /*!< External interrupt line 12 */
-#define EXTI_LINE_13                       (EXTI_GPIO     | 0x0Du)    /*!< External interrupt line 13 */
-#define EXTI_LINE_14                       (EXTI_GPIO     | 0x0Eu)    /*!< External interrupt line 14 */
-#define EXTI_LINE_15                       (EXTI_GPIO     | 0x0Fu)    /*!< External interrupt line 15 */
-#define EXTI_LINE_16                       (EXTI_CONFIG   | 0x10u)    /*!< External interrupt line 16 Connected to the PVD Output */
-#define EXTI_LINE_17                       (EXTI_CONFIG   | 0x11u)    /*!< External interrupt line 17 Connected to the RTC Alarm event */
+#define EXTI_LINE_0                        (EXTI_GPIO     | 0x00u)    /*!< 外部中断线 0 */
+#define EXTI_LINE_1                        (EXTI_GPIO     | 0x01u)    /*!< 外部中断线 1 */
+#define EXTI_LINE_2                        (EXTI_GPIO     | 0x02u)    /*!< 外部中断线 2 */
+#define EXTI_LINE_3                        (EXTI_GPIO     | 0x03u)    /*!< 外部中断线 3 */
+#define EXTI_LINE_4                        (EXTI_GPIO     | 0x04u)    /*!< 外部中断线 4 */
+#define EXTI_LINE_5                        (EXTI_GPIO     | 0x05u)    /*!< 外部中断线 5 */
+#define EXTI_LINE_6                        (EXTI_GPIO     | 0x06u)    /*!< 外部中断线 6 */
+#define EXTI_LINE_7                        (EXTI_GPIO     | 0x07u)    /*!< 外部中断线 7 */
+#define EXTI_LINE_8                        (EXTI_GPIO     | 0x08u)    /*!< 外部中断线 8 */
+#define EXTI_LINE_9                        (EXTI_GPIO     | 0x09u)    /*!< 外部中断线 9 */
+#define EXTI_LINE_10                       (EXTI_GPIO     | 0x0Au)    /*!< 外部中断线 10 */
+#define EXTI_LINE_11                       (EXTI_GPIO     | 0x0Bu)    /*!< 外部中断线 11 */
+#define EXTI_LINE_12                       (EXTI_GPIO     | 0x0Cu)    /*!< 外部中断线 12 */
+#define EXTI_LINE_13                       (EXTI_GPIO     | 0x0Du)    /*!< 外部中断线 13 */
+#define EXTI_LINE_14                       (EXTI_GPIO     | 0x0Eu)    /*!< 外部中断线 14 */
+#define EXTI_LINE_15                       (EXTI_GPIO     | 0x0Fu)    /*!< 外部中断线 15 */
+#define EXTI_LINE_16                       (EXTI_CONFIG   | 0x10u)    /*!< 外部中断线 16 连接到 PVD 输出 */
+#define EXTI_LINE_17                       (EXTI_CONFIG   | 0x11u)    /*!< 外部中断线 17 连接到 RTC 闹钟事件 */
 #if defined(EXTI_IMR_IM18)
-#define EXTI_LINE_18                       (EXTI_CONFIG   | 0x12u)    /*!< External interrupt line 18 Connected to the USB Wakeup from suspend event */
+#define EXTI_LINE_18                       (EXTI_CONFIG   | 0x12u)    /*!< 外部中断线 18 连接到 USB 从挂起状态唤醒事件 */
 #endif /* EXTI_IMR_IM18 */
 #if defined(EXTI_IMR_IM19)
-#define EXTI_LINE_19                       (EXTI_CONFIG   | 0x13u)    /*!< External interrupt line 19 Connected to the Ethernet Wakeup event */
+#define EXTI_LINE_19                       (EXTI_CONFIG   | 0x13u)    /*!< 外部中断线 19 连接到 以太网 唤醒事件 */
 #endif /* EXTI_IMR_IM19 */
 
 /**
   * @}
   */
 
-/** @defgroup EXTI_Mode  EXTI Mode
+/** @defgroup EXTI_Mode  EXTI Mode 模式
   * @{
   */
-#define EXTI_MODE_NONE                      0x00000000u
-#define EXTI_MODE_INTERRUPT                 0x00000001u
-#define EXTI_MODE_EVENT                     0x00000002u
+#define EXTI_MODE_NONE                      0x00000000u   /* 无模式 */
+#define EXTI_MODE_INTERRUPT                 0x00000001u   /* 中断模式 */
+#define EXTI_MODE_EVENT                     0x00000002u   /* 事件模式 */
 /**
   * @}
   */
 
-/** @defgroup EXTI_Trigger  EXTI Trigger
+/** @defgroup EXTI_Trigger  EXTI 触发
   * @{
   */
-#define EXTI_TRIGGER_NONE                   0x00000000u
-#define EXTI_TRIGGER_RISING                 0x00000001u
-#define EXTI_TRIGGER_FALLING                0x00000002u
-#define EXTI_TRIGGER_RISING_FALLING         (EXTI_TRIGGER_RISING | EXTI_TRIGGER_FALLING)
+#define EXTI_TRIGGER_NONE                   0x00000000u   /* 无触发 */
+#define EXTI_TRIGGER_RISING                 0x00000001u   /* 上升沿触发 */
+#define EXTI_TRIGGER_FALLING                0x00000002u   /* 下降沿触发 */
+#define EXTI_TRIGGER_RISING_FALLING         (EXTI_TRIGGER_RISING | EXTI_TRIGGER_FALLING)  /* 上升下降双沿触发 */
 /**
   * @}
   */
@@ -162,8 +161,8 @@ typedef struct
   * @}
   */
 
-/* Exported macro ------------------------------------------------------------*/
-/** @defgroup EXTI_Exported_Macros EXTI Exported Macros
+/* 导出宏 ------------------------------------------------------------*/
+/** @defgroup EXTI_Exported_Macros EXTI 导出宏
   * @{
   */
 
@@ -171,35 +170,35 @@ typedef struct
   * @}
   */
 
-/* Private constants --------------------------------------------------------*/
-/** @defgroup EXTI_Private_Constants EXTI Private Constants
+/* 私有常量 --------------------------------------------------------*/
+/** @defgroup EXTI_Private_Constants EXTI 私有常量
   * @{
   */
 /**
-  * @brief  EXTI Line property definition
+  * @brief  EXTI 线属性定义
   */
-#define EXTI_PROPERTY_SHIFT                 24u
-#define EXTI_CONFIG                         (0x02uL << EXTI_PROPERTY_SHIFT)
-#define EXTI_GPIO                           ((0x04uL << EXTI_PROPERTY_SHIFT) | EXTI_CONFIG)
-#define EXTI_PROPERTY_MASK                  (EXTI_CONFIG | EXTI_GPIO)
+#define EXTI_PROPERTY_SHIFT                 24u   /* 属性偏移 */
+#define EXTI_CONFIG                         (0x02uL << EXTI_PROPERTY_SHIFT) /* 配置 */
+#define EXTI_GPIO                           ((0x04uL << EXTI_PROPERTY_SHIFT) | EXTI_CONFIG) /* GPIO */
+#define EXTI_PROPERTY_MASK                  (EXTI_CONFIG | EXTI_GPIO) /* 属性掩码 */
 
 /**
-  * @brief  EXTI bit usage
+  * @brief  EXTI 引脚掩码
   */
 #define EXTI_PIN_MASK                       0x0000001Fu
 
 /**
-  * @brief  EXTI Mask for interrupt & event mode
+  * @brief  EXTI 中断和事件模式掩码
   */
 #define EXTI_MODE_MASK                      (EXTI_MODE_EVENT | EXTI_MODE_INTERRUPT)
 
 /**
-  * @brief  EXTI Mask for trigger possibilities
+  * @brief  EXTI 触发可能性掩码
   */
 #define EXTI_TRIGGER_MASK                   (EXTI_TRIGGER_RISING | EXTI_TRIGGER_FALLING)
 
 /**
-  * @brief  EXTI Line number
+  * @brief  EXTI 线编号
   */
 #if defined(EXTI_IMR_IM19)
 #define EXTI_LINE_NB                        20UL
@@ -212,8 +211,8 @@ typedef struct
   * @}
   */
 
-/* Private macros ------------------------------------------------------------*/
-/** @defgroup EXTI_Private_Macros EXTI Private Macros
+/* 私有宏 ------------------------------------------------------------*/
+/** @defgroup EXTI_Private_Macros EXTI 私有宏
   * @{
   */
 #define IS_EXTI_LINE(__EXTI_LINE__)          ((((__EXTI_LINE__) & ~(EXTI_PROPERTY_MASK | EXTI_PIN_MASK)) == 0x00u) && \
@@ -264,17 +263,18 @@ typedef struct
   * @}
   */
 
-/* Exported functions --------------------------------------------------------*/
-/** @defgroup EXTI_Exported_Functions EXTI Exported Functions
-  * @brief    EXTI Exported Functions
+/* 导出函数 --------------------------------------------------------*/
+/** @defgroup EXTI_Exported_Functions EXTI 导出函数
+  * @brief    EXTI 导出函数
   * @{
   */
 
-/** @defgroup EXTI_Exported_Functions_Group1 Configuration functions
-  * @brief    Configuration functions
+/** @defgroup EXTI_Exported_Functions_Group1 配置函数
+  * @brief    配置函数
   * @{
   */
-/* Configuration functions ****************************************************/
+/* 配置函数 ****************************************************/
+
 HAL_StatusTypeDef HAL_EXTI_SetConfigLine(EXTI_HandleTypeDef *hexti, EXTI_ConfigTypeDef *pExtiConfig);
 HAL_StatusTypeDef HAL_EXTI_GetConfigLine(EXTI_HandleTypeDef *hexti, EXTI_ConfigTypeDef *pExtiConfig);
 HAL_StatusTypeDef HAL_EXTI_ClearConfigLine(EXTI_HandleTypeDef *hexti);
@@ -284,11 +284,12 @@ HAL_StatusTypeDef HAL_EXTI_GetHandle(EXTI_HandleTypeDef *hexti, uint32_t ExtiLin
   * @}
   */
 
-/** @defgroup EXTI_Exported_Functions_Group2 IO operation functions
-  * @brief    IO operation functions
+/** @defgroup EXTI_Exported_Functions_Group2 IO操作函数
+  * @brief    IO操作函数
   * @{
   */
-/* IO operation functions *****************************************************/
+/* IO操作函数 *****************************************************/
+
 void              HAL_EXTI_IRQHandler(EXTI_HandleTypeDef *hexti);
 uint32_t          HAL_EXTI_GetPending(EXTI_HandleTypeDef *hexti, uint32_t Edge);
 void              HAL_EXTI_ClearPending(EXTI_HandleTypeDef *hexti, uint32_t Edge);

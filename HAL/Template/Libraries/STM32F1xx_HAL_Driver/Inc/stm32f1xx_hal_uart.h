@@ -2,21 +2,20 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_uart.h
   * @author  MCD Application Team
-  * @brief   Header file of UART HAL module.
+  * @brief   UART HAL 模块头文件。
   ******************************************************************************
   * @attention
   *
   * Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.
+  * 保留所有权利。
   *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * 本软件根据可在该软件组件根目录下的 LICENSE 文件中找到的条款获得许可。
+  * 如果本软件未随附 LICENSE 文件，则按“原样 (AS-IS)”提供。
   *
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 防止递归包含的宏定义 ------------------------------------------------------*/
 #ifndef __STM32F1xx_HAL_UART_H
 #define __STM32F1xx_HAL_UART_H
 
@@ -24,7 +23,7 @@
 extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 包含的头文件 --------------------------------------------------------------*/
 #include "stm32f1xx_hal_def.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -35,119 +34,118 @@ extern "C" {
   * @{
   */
 
-/* Exported types ------------------------------------------------------------*/
-/** @defgroup UART_Exported_Types UART Exported Types
+/* 导出类型 ------------------------------------------------------------------*/
+/** @defgroup UART_Exported_Types UART 导出类型
   * @{
   */
 
 /**
-  * @brief UART Init Structure definition
+  * @brief UART 初始化结构体定义
   */
 typedef struct
 {
-  uint32_t BaudRate;                  /*!< This member configures the UART communication baud rate.
-                                           The baud rate is computed using the following formula:
+  uint32_t BaudRate;                  /*!< 该成员用于配置 UART 通信波特率。
+                                           波特率使用以下公式计算：
                                            - IntegerDivider = ((PCLKx) / (16 * (huart->Init.BaudRate)))
                                            - FractionalDivider = ((IntegerDivider - ((uint32_t) IntegerDivider)) * 16) + 0.5 */
 
-  uint32_t WordLength;                /*!< Specifies the number of data bits transmitted or received in a frame.
-                                           This parameter can be a value of @ref UART_Word_Length */
+  uint32_t WordLength;                /*!< 指定一帧中发送或接收的数据位宽。
+                                           该参数可以是 @ref UART_Word_Length 的取值之一 */
 
-  uint32_t StopBits;                  /*!< Specifies the number of stop bits transmitted.
-                                           This parameter can be a value of @ref UART_Stop_Bits */
+  uint32_t StopBits;                  /*!< 指定发送的停止位数量。
+                                           该参数可以是 @ref UART_Stop_Bits 的取值之一 */
 
-  uint32_t Parity;                    /*!< Specifies the parity mode.
-                                           This parameter can be a value of @ref UART_Parity
-                                           @note When parity is enabled, the computed parity is inserted
-                                                 at the MSB position of the transmitted data (9th bit when
-                                                 the word length is set to 9 data bits; 8th bit when the
-                                                 word length is set to 8 data bits). */
+  uint32_t Parity;                    /*!< 指定奇偶校验模式。
+                                           该参数可以是 @ref UART_Parity 的取值之一
+                                           @note 当使能奇偶校验时，计算出的奇偶校验位将插入到
+                                                 发送数据的最高有效位 (MSB) 位置（当字长设置为 9 位数据位时为第 9 位；
+                                                 当字长设置为 8 位数据位时为第 8 位）。 */
 
-  uint32_t Mode;                      /*!< Specifies whether the Receive or Transmit mode is enabled or disabled.
-                                           This parameter can be a value of @ref UART_Mode */
+  uint32_t Mode;                      /*!< 指定是使能还是禁用接收或发送模式。
+                                           该参数可以是 @ref UART_Mode 的取值之一 */
 
-  uint32_t HwFlowCtl;                 /*!< Specifies whether the hardware flow control mode is enabled or disabled.
-                                           This parameter can be a value of @ref UART_Hardware_Flow_Control */
+  uint32_t HwFlowCtl;                 /*!< 指定是使能还是禁用硬件流控制模式。
+                                           该参数可以是 @ref UART_Hardware_Flow_Control 的取值之一 */
 
-  uint32_t OverSampling;              /*!< Specifies whether the Over sampling 8 is enabled or disabled, to achieve higher speed (up to fPCLK/8).
-                                           This parameter can be a value of @ref UART_Over_Sampling. This feature is only available
-                                           on STM32F100xx family, so OverSampling parameter should always be set to 16. */
+  uint32_t OverSampling;              /*!< 指定是使能还是禁用 8 倍过采样，以实现更高的通信速率（最高可达 fPCLK/8）。
+                                           该参数可以是 @ref UART_Over_Sampling 的取值之一。该特性仅在
+                                           STM32F100xx 系列微控制器上可用，因此 OverSampling 参数应始终设置为 16。 */
 } UART_InitTypeDef;
 
 /**
-  * @brief HAL UART State structures definition
-  * @note  HAL UART State value is a combination of 2 different substates: gState and RxState.
-  *        - gState contains UART state information related to global Handle management
-  *          and also information related to Tx operations.
-  *          gState value coding follow below described bitmap :
-  *          b7-b6  Error information
-  *             00 : No Error
-  *             01 : (Not Used)
-  *             10 : Timeout
-  *             11 : Error
-  *          b5     Peripheral initialization status
-  *             0  : Reset (Peripheral not initialized)
-  *             1  : Init done (Peripheral initialized. HAL UART Init function already called)
-  *          b4-b3  (not used)
-  *             xx : Should be set to 00
-  *          b2     Intrinsic process state
-  *             0  : Ready
-  *             1  : Busy (Peripheral busy with some configuration or internal operations)
-  *          b1     (not used)
-  *             x  : Should be set to 0
-  *          b0     Tx state
-  *             0  : Ready (no Tx operation ongoing)
-  *             1  : Busy (Tx operation ongoing)
-  *        - RxState contains information related to Rx operations.
-  *          RxState value coding follow below described bitmap :
-  *          b7-b6  (not used)
-  *             xx : Should be set to 00
-  *          b5     Peripheral initialization status
-  *             0  : Reset (Peripheral not initialized)
-  *             1  : Init done (Peripheral initialized)
-  *          b4-b2  (not used)
-  *            xxx : Should be set to 000
-  *          b1     Rx state
-  *             0  : Ready (no Rx operation ongoing)
-  *             1  : Busy (Rx operation ongoing)
-  *          b0     (not used)
-  *             x  : Should be set to 0.
+  * @brief HAL UART 状态结构体定义
+  * @note  HAL UART 状态值由 2 个不同的子状态组合而成：gState 和 RxState。
+  *        - gState 包含与全局句柄管理相关的 UART 状态信息，
+  *          以及与发送（Tx）操作相关的信息。
+  *          gState 值的编码遵循以下位图描述：
+  *          b7-b6  错误信息
+  *             00 : 无错误
+  *             01 : （未保留/未定义）
+  *             10 : 超时
+  *             11 : 错误
+  *          b5     外设初始化状态
+  *             0  : 复位（外设未初始化）
+  *             1  : 初始化完成（外设已初始化，HAL UART Init 函数已被调用）
+  *          b4-b3  （保留未用）
+  *             xx : 应设置为 00
+  *          b2     内部处理状态
+  *             0  : 就绪
+  *             1  : 忙（外设正忙于某些配置或内部操作）
+  *          b1     （保留未用）
+  *             x  : 应设置为 0
+  *          b0     Tx 状态
+  *             0  : 就绪（无正在进行的 Tx 操作）
+  *             1  : 忙（Tx 操作正在进行）
+  *        - RxState 包含与接收（Rx）操作相关的信息。
+  *          RxState 值的编码遵循以下位图描述：
+  *          b7-b6  （保留未用）
+  *             xx : 应设置为 00
+  *          b5     外设初始化状态
+  *             0  : 复位（外设未初始化）
+  *             1  : 初始化完成（外设已初始化）
+  *          b4-b2  （保留未用）
+  *            xxx : 应设置为 000
+  *          b1     Rx 状态
+  *             0  : 就绪（无正在进行的 Rx 操作）
+  *             1  : 忙（Rx 操作正在进行）
+  *          b0     （保留未用）
+  *             x  : 应设置为 0。
   */
 typedef enum
 {
-  HAL_UART_STATE_RESET             = 0x00U,    /*!< Peripheral is not yet Initialized
-                                                   Value is allowed for gState and RxState */
-  HAL_UART_STATE_READY             = 0x20U,    /*!< Peripheral Initialized and ready for use
-                                                   Value is allowed for gState and RxState */
-  HAL_UART_STATE_BUSY              = 0x24U,    /*!< an internal process is ongoing
-                                                   Value is allowed for gState only */
-  HAL_UART_STATE_BUSY_TX           = 0x21U,    /*!< Data Transmission process is ongoing
-                                                   Value is allowed for gState only */
-  HAL_UART_STATE_BUSY_RX           = 0x22U,    /*!< Data Reception process is ongoing
-                                                   Value is allowed for RxState only */
-  HAL_UART_STATE_BUSY_TX_RX        = 0x23U,    /*!< Data Transmission and Reception process is ongoing
-                                                   Not to be used for neither gState nor RxState.
-                                                   Value is result of combination (Or) between gState and RxState values */
-  HAL_UART_STATE_TIMEOUT           = 0xA0U,    /*!< Timeout state
-                                                   Value is allowed for gState only */
-  HAL_UART_STATE_ERROR             = 0xE0U     /*!< Error
-                                                   Value is allowed for gState only */
+  HAL_UART_STATE_RESET             = 0x00U,    /*!< 外设尚未初始化
+                                                   此值适用于 gState 和 RxState */
+  HAL_UART_STATE_READY             = 0x20U,    /*!< 外设已初始化并就绪可用
+                                                   此值适用于 gState 和 RxState */
+  HAL_UART_STATE_BUSY              = 0x24U,    /*!< 内部处理正在进行中
+                                                   此值仅适用于 gState */
+  HAL_UART_STATE_BUSY_TX           = 0x21U,    /*!< 数据发送处理正在进行中
+                                                   此值仅适用于 gState */
+  HAL_UART_STATE_BUSY_RX           = 0x22U,    /*!< 数据接收处理正在进行中
+                                                   此值仅适用于 RxState */
+  HAL_UART_STATE_BUSY_TX_RX        = 0x23U,    /*!< 数据发送和接收处理均在进行中
+                                                   不能单独用于 gState 或 RxState。
+                                                   该值是 gState 和 RxState 值按位或（Or）组合的结果 */
+  HAL_UART_STATE_TIMEOUT           = 0xA0U,    /*!< 超时状态
+                                                   此值仅适用于 gState */
+  HAL_UART_STATE_ERROR             = 0xE0U     /*!< 错误状态
+                                                   此值仅适用于 gState */
 } HAL_UART_StateTypeDef;
 
 /**
-  * @brief HAL UART Reception type definition
-  * @note  HAL UART Reception type value aims to identify which type of Reception is ongoing.
-  *        This parameter can be a value of @ref UART_Reception_Type_Values :
+  * @brief HAL UART 接收类型定义
+  * @note  HAL UART 接收类型值用于标识当前正在进行的接收类型。
+  *        该参数可以是 @ref UART_Reception_Type_Values 的取值之一：
   *           HAL_UART_RECEPTION_STANDARD         = 0x00U,
   *           HAL_UART_RECEPTION_TOIDLE           = 0x01U,
   */
 typedef uint32_t HAL_UART_RxTypeTypeDef;
 
 /**
-  * @brief HAL UART Rx Event type definition
-  * @note  HAL UART Rx Event type value aims to identify which type of Event has occurred
-  *        leading to call of the RxEvent callback.
-  *        This parameter can be a value of @ref UART_RxEvent_Type_Values :
+  * @brief HAL UART 接收事件类型定义
+  * @note  HAL UART 接收事件类型值用于标识触发 RxEvent 回调函数调用的
+  *        事件类型。
+  *        该参数可以是 @ref UART_RxEvent_Type_Values 的取值之一：
   *           HAL_UART_RXEVENT_TC                 = 0x00U,
   *           HAL_UART_RXEVENT_HT                 = 0x01U,
   *           HAL_UART_RXEVENT_IDLE               = 0x02U,
@@ -155,89 +153,88 @@ typedef uint32_t HAL_UART_RxTypeTypeDef;
 typedef uint32_t HAL_UART_RxEventTypeTypeDef;
 
 /**
-  * @brief  UART handle Structure definition
+  * @brief  UART 句柄结构体定义
   */
 typedef struct __UART_HandleTypeDef
 {
-  USART_TypeDef                 *Instance;        /*!< UART registers base address        */
+  USART_TypeDef                 *Instance;        /*!< UART 寄存器基地址                  */
 
-  UART_InitTypeDef              Init;             /*!< UART communication parameters      */
+  UART_InitTypeDef              Init;             /*!< UART 通信参数                      */
 
-  const uint8_t                 *pTxBuffPtr;      /*!< Pointer to UART Tx transfer Buffer */
+  const uint8_t                 *pTxBuffPtr;      /*!< 指向 UART 发送数据缓冲区的指针     */
 
-  uint16_t                      TxXferSize;       /*!< UART Tx Transfer size              */
+  uint16_t                      TxXferSize;       /*!< UART 发送传输大小                  */
 
-  __IO uint16_t                 TxXferCount;      /*!< UART Tx Transfer Counter           */
+  __IO uint16_t                 TxXferCount;      /*!< UART 发送传输计数器                */
 
-  uint8_t                       *pRxBuffPtr;      /*!< Pointer to UART Rx transfer Buffer */
+  uint8_t                       *pRxBuffPtr;      /*!< 指向 UART 接收传输缓冲区的指针     */
 
-  uint16_t                      RxXferSize;       /*!< UART Rx Transfer size              */
+  uint16_t                      RxXferSize;       /*!< UART 接收传输大小                  */
 
-  __IO uint16_t                 RxXferCount;      /*!< UART Rx Transfer Counter           */
+  __IO uint16_t                 RxXferCount;      /*!< UART 接收传输计数器                */
 
-  __IO HAL_UART_RxTypeTypeDef ReceptionType;      /*!< Type of ongoing reception          */
+  __IO HAL_UART_RxTypeTypeDef ReceptionType;      /*!< 当前正在进行的接收类型             */
 
-  __IO HAL_UART_RxEventTypeTypeDef RxEventType;   /*!< Type of Rx Event                   */
+  __IO HAL_UART_RxEventTypeTypeDef RxEventType;   /*!< 接收事件类型                       */
 
-  DMA_HandleTypeDef             *hdmatx;          /*!< UART Tx DMA Handle parameters      */
+  DMA_HandleTypeDef             *hdmatx;          /*!< UART 发送 DMA 句柄参数             */
 
-  DMA_HandleTypeDef             *hdmarx;          /*!< UART Rx DMA Handle parameters      */
+  DMA_HandleTypeDef             *hdmarx;          /*!< UART 接收 DMA 句柄参数             */
 
-  HAL_LockTypeDef               Lock;             /*!< Locking object                     */
+  HAL_LockTypeDef               Lock;             /*!< 锁对象                             */
 
-  __IO HAL_UART_StateTypeDef    gState;           /*!< UART state information related to global Handle management
-                                                       and also related to Tx operations.
-                                                       This parameter can be a value of @ref HAL_UART_StateTypeDef */
+  __IO HAL_UART_StateTypeDef    gState;           /*!< 与全局句柄管理以及发送操作相关的 UART 状态信息。
+                                                       该参数可以是 @ref HAL_UART_StateTypeDef 的值 */
 
-  __IO HAL_UART_StateTypeDef    RxState;          /*!< UART state information related to Rx operations.
-                                                       This parameter can be a value of @ref HAL_UART_StateTypeDef */
+  __IO HAL_UART_StateTypeDef    RxState;          /*!< 与接收操作相关的 UART 状态信息。
+                                                       该参数可以是 @ref HAL_UART_StateTypeDef 的值 */
 
-  __IO uint32_t                 ErrorCode;        /*!< UART Error code                    */
+  __IO uint32_t                 ErrorCode;        /*!< UART 错误代码                      */
 
 #if (USE_HAL_UART_REGISTER_CALLBACKS == 1)
-  void (* TxHalfCpltCallback)(struct __UART_HandleTypeDef *huart);        /*!< UART Tx Half Complete Callback        */
-  void (* TxCpltCallback)(struct __UART_HandleTypeDef *huart);            /*!< UART Tx Complete Callback             */
-  void (* RxHalfCpltCallback)(struct __UART_HandleTypeDef *huart);        /*!< UART Rx Half Complete Callback        */
-  void (* RxCpltCallback)(struct __UART_HandleTypeDef *huart);            /*!< UART Rx Complete Callback             */
-  void (* ErrorCallback)(struct __UART_HandleTypeDef *huart);             /*!< UART Error Callback                   */
-  void (* AbortCpltCallback)(struct __UART_HandleTypeDef *huart);         /*!< UART Abort Complete Callback          */
-  void (* AbortTransmitCpltCallback)(struct __UART_HandleTypeDef *huart); /*!< UART Abort Transmit Complete Callback */
-  void (* AbortReceiveCpltCallback)(struct __UART_HandleTypeDef *huart);  /*!< UART Abort Receive Complete Callback  */
-  void (* WakeupCallback)(struct __UART_HandleTypeDef *huart);            /*!< UART Wakeup Callback                  */
-  void (* RxEventCallback)(struct __UART_HandleTypeDef *huart, uint16_t Pos); /*!< UART Reception Event Callback     */
+  void (* TxHalfCpltCallback)(struct __UART_HandleTypeDef *huart);        /*!< UART 发送过半完成回调函数          */
+  void (* TxCpltCallback)(struct __UART_HandleTypeDef *huart);            /*!< UART 发送完成回调函数              */
+  void (* RxHalfCpltCallback)(struct __UART_HandleTypeDef *huart);        /*!< UART 接收过半完成回调函数             */
+  void (* RxCpltCallback)(struct __UART_HandleTypeDef *huart);            /*!< UART 接收完成回调函数                 */
+  void (* ErrorCallback)(struct __UART_HandleTypeDef *huart);             /*!< UART 错误回调函数                     */
+  void (* AbortCpltCallback)(struct __UART_HandleTypeDef *huart);         /*!< UART 中止完成回调函数                 */
+  void (* AbortTransmitCpltCallback)(struct __UART_HandleTypeDef *huart); /*!< UART 发送中止完成回调函数             */
+  void (* AbortReceiveCpltCallback)(struct __UART_HandleTypeDef *huart);  /*!< UART 接收中止完成回调函数             */
+  void (* WakeupCallback)(struct __UART_HandleTypeDef *huart);            /*!< UART 唤醒回调函数                     */
+  void (* RxEventCallback)(struct __UART_HandleTypeDef *huart, uint16_t Pos); /*!< UART 接收事件回调函数                 */
 
-  void (* MspInitCallback)(struct __UART_HandleTypeDef *huart);           /*!< UART Msp Init callback                */
-  void (* MspDeInitCallback)(struct __UART_HandleTypeDef *huart);         /*!< UART Msp DeInit callback              */
+  void (* MspInitCallback)(struct __UART_HandleTypeDef *huart);           /*!< UART Msp 初始化回调函数               */
+  void (* MspDeInitCallback)(struct __UART_HandleTypeDef *huart);         /*!< UART Msp 反初始化回调函数             */
 #endif  /* USE_HAL_UART_REGISTER_CALLBACKS */
 
 } UART_HandleTypeDef;
 
 #if (USE_HAL_UART_REGISTER_CALLBACKS == 1)
 /**
-  * @brief  HAL UART Callback ID enumeration definition
+  * @brief  HAL UART 回调函数 ID 枚举定义
   */
 typedef enum
 {
-  HAL_UART_TX_HALFCOMPLETE_CB_ID         = 0x00U,    /*!< UART Tx Half Complete Callback ID        */
-  HAL_UART_TX_COMPLETE_CB_ID             = 0x01U,    /*!< UART Tx Complete Callback ID             */
-  HAL_UART_RX_HALFCOMPLETE_CB_ID         = 0x02U,    /*!< UART Rx Half Complete Callback ID        */
-  HAL_UART_RX_COMPLETE_CB_ID             = 0x03U,    /*!< UART Rx Complete Callback ID             */
-  HAL_UART_ERROR_CB_ID                   = 0x04U,    /*!< UART Error Callback ID                   */
-  HAL_UART_ABORT_COMPLETE_CB_ID          = 0x05U,    /*!< UART Abort Complete Callback ID          */
-  HAL_UART_ABORT_TRANSMIT_COMPLETE_CB_ID = 0x06U,    /*!< UART Abort Transmit Complete Callback ID */
-  HAL_UART_ABORT_RECEIVE_COMPLETE_CB_ID  = 0x07U,    /*!< UART Abort Receive Complete Callback ID  */
-  HAL_UART_WAKEUP_CB_ID                  = 0x08U,    /*!< UART Wakeup Callback ID                  */
+  HAL_UART_TX_HALFCOMPLETE_CB_ID         = 0x00U,    /*!< UART 发送过半完成回调函数 ID             */
+  HAL_UART_TX_COMPLETE_CB_ID             = 0x01U,    /*!< UART 发送完成回调函数 ID                 */
+  HAL_UART_RX_HALFCOMPLETE_CB_ID         = 0x02U,    /*!< UART 接收过半完成回调函数 ID             */
+  HAL_UART_RX_COMPLETE_CB_ID             = 0x03U,    /*!< UART 接收完成回调函数 ID                 */
+  HAL_UART_ERROR_CB_ID                   = 0x04U,    /*!< UART 错误回调函数 ID                     */
+  HAL_UART_ABORT_COMPLETE_CB_ID          = 0x05U,    /*!< UART 中止完成回调函数 ID                 */
+  HAL_UART_ABORT_TRANSMIT_COMPLETE_CB_ID = 0x06U,    /*!< UART 中止发送完成回调函数 ID             */
+  HAL_UART_ABORT_RECEIVE_COMPLETE_CB_ID  = 0x07U,    /*!< UART 中止接收完成回调函数 ID             */
+  HAL_UART_WAKEUP_CB_ID                  = 0x08U,    /*!< UART 唤醒回调函数 ID                     */
 
-  HAL_UART_MSPINIT_CB_ID                 = 0x0BU,    /*!< UART MspInit callback ID                 */
-  HAL_UART_MSPDEINIT_CB_ID               = 0x0CU     /*!< UART MspDeInit callback ID               */
+  HAL_UART_MSPINIT_CB_ID                 = 0x0BU,    /*!< UART MspInit 回调函数 ID                 */
+  HAL_UART_MSPDEINIT_CB_ID               = 0x0CU     /*!< UART MspDeInit 回调函数 ID               */
 
 } HAL_UART_CallbackIDTypeDef;
 
 /**
-  * @brief  HAL UART Callback pointer definition
+  * @brief  HAL UART 回调函数指针定义
   */
-typedef  void (*pUART_CallbackTypeDef)(UART_HandleTypeDef *huart);  /*!< pointer to an UART callback function */
-typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart, uint16_t Pos);   /*!< pointer to a UART Rx Event specific callback function */
+typedef  void (*pUART_CallbackTypeDef)(UART_HandleTypeDef *huart);  /*!< 指向 UART 回调函数的指针 */
+typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart, uint16_t Pos);   /*!< 指向 UART 接收事件专用回调函数的指针 */
 
 #endif /* USE_HAL_UART_REGISTER_CALLBACKS */
 
@@ -245,28 +242,28 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/* Exported constants --------------------------------------------------------*/
-/** @defgroup UART_Exported_Constants UART Exported Constants
+/* 导出常量 ------------------------------------------------------------------*/
+/** @defgroup UART_Exported_Constants UART 导出常量
   * @{
   */
 
-/** @defgroup UART_Error_Code UART Error Code
+/** @defgroup UART_Error_Code UART 错误代码
   * @{
   */
-#define HAL_UART_ERROR_NONE              0x00000000U   /*!< No error            */
-#define HAL_UART_ERROR_PE                0x00000001U   /*!< Parity error        */
-#define HAL_UART_ERROR_NE                0x00000002U   /*!< Noise error         */
-#define HAL_UART_ERROR_FE                0x00000004U   /*!< Frame error         */
-#define HAL_UART_ERROR_ORE               0x00000008U   /*!< Overrun error       */
-#define HAL_UART_ERROR_DMA               0x00000010U   /*!< DMA transfer error  */
+#define HAL_UART_ERROR_NONE              0x00000000U   /*!< 无错误              */
+#define HAL_UART_ERROR_PE                0x00000001U   /*!< 奇偶校验错误        */
+#define HAL_UART_ERROR_NE                0x00000002U   /*!< 噪声错误            */
+#define HAL_UART_ERROR_FE                0x00000004U   /*!< 帧错误              */
+#define HAL_UART_ERROR_ORE               0x00000008U   /*!< 过载错误            */
+#define HAL_UART_ERROR_DMA               0x00000010U   /*!< DMA 传输错误        */
 #if (USE_HAL_UART_REGISTER_CALLBACKS == 1)
-#define  HAL_UART_ERROR_INVALID_CALLBACK 0x00000020U   /*!< Invalid Callback error  */
+#define  HAL_UART_ERROR_INVALID_CALLBACK 0x00000020U   /*!< 无效回调错误        */
 #endif /* USE_HAL_UART_REGISTER_CALLBACKS */
 /**
   * @}
   */
 
-/** @defgroup UART_Word_Length UART Word Length
+/** @defgroup UART_Word_Length UART 数据字长
   * @{
   */
 #define UART_WORDLENGTH_8B                  0x00000000U
@@ -275,7 +272,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_Stop_Bits UART Number of Stop Bits
+/** @defgroup UART_Stop_Bits UART 停止位个数
   * @{
   */
 #define UART_STOPBITS_1                     0x00000000U
@@ -284,7 +281,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_Parity UART Parity
+/** @defgroup UART_Parity UART 奇偶校验
   * @{
   */
 #define UART_PARITY_NONE                    0x00000000U
@@ -294,7 +291,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_Hardware_Flow_Control UART Hardware Flow Control
+/** @defgroup UART_Hardware_Flow_Control UART 硬件流控制
   * @{
   */
 #define UART_HWCONTROL_NONE                  0x00000000U
@@ -305,7 +302,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_Mode UART Transfer Mode
+/** @defgroup UART_Mode UART 传输模式
   * @{
   */
 #define UART_MODE_RX                        ((uint32_t)USART_CR1_RE)
@@ -315,7 +312,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_State UART State
+/** @defgroup UART_State UART 状态
   * @{
   */
 #define UART_STATE_DISABLE                  0x00000000U
@@ -324,7 +321,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_Over_Sampling UART Over Sampling
+/** @defgroup UART_Over_Sampling UART 过采样
   * @{
   */
 #define UART_OVERSAMPLING_16                    0x00000000U
@@ -335,7 +332,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_LIN_Break_Detection_Length  UART LIN Break Detection Length
+/** @defgroup UART_LIN_Break_Detection_Length  UART LIN 断开符检测长度
   * @{
   */
 #define UART_LINBREAKDETECTLENGTH_10B      0x00000000U
@@ -344,7 +341,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_WakeUp_functions  UART Wakeup Functions
+/** @defgroup UART_WakeUp_functions  UART 唤醒功能
   * @{
   */
 #define UART_WAKEUPMETHOD_IDLELINE                0x00000000U
@@ -353,9 +350,9 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_Flags   UART FLags
-  *        Elements values convention: 0xXXXX
-  *           - 0xXXXX  : Flag mask in the SR register
+/** @defgroup UART_Flags   UART 标志位
+  *        元素取值约定：0xXXXX
+  *           - 0xXXXX  : SR 寄存器中的标志位掩码
   * @{
   */
 #define UART_FLAG_CTS                       ((uint32_t)USART_SR_CTS)
@@ -372,13 +369,13 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_Interrupt_definition  UART Interrupt Definitions
-  *        Elements values convention: 0xY000XXXX
-  *           - XXXX  : Interrupt mask (16 bits) in the Y register
-  *           - Y  : Interrupt source register (2bits)
-  *                   - 0001: CR1 register
-  *                   - 0010: CR2 register
-  *                   - 0011: CR3 register
+/** @defgroup UART_Interrupt_definition UART 中断定义
+  *        元素取值约定：0xY000XXXX
+  *           - XXXX  : Y 寄存器中的中断屏蔽位 (16 bits)
+  *           - Y  : 中断源寄存器 (2bits)
+  *                   - 0001: CR1 寄存器
+  *                   - 0010: CR2 寄存器
+  *                   - 0011: CR3 寄存器
   * @{
   */
 
@@ -396,20 +393,20 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/** @defgroup UART_Reception_Type_Values  UART Reception type values
+/** @defgroup UART_Reception_Type_Values UART 接收类型值
   * @{
   */
-#define HAL_UART_RECEPTION_STANDARD          (0x00000000U)             /*!< Standard reception                       */
-#define HAL_UART_RECEPTION_TOIDLE            (0x00000001U)             /*!< Reception till completion or IDLE event  */
+#define HAL_UART_RECEPTION_STANDARD          (0x00000000U)             /*!< 标准接收                                 */
+#define HAL_UART_RECEPTION_TOIDLE            (0x00000001U)             /*!< 接收直至完成或产生空闲 (IDLE) 事件       */
 /**
   * @}
   */
 
-/** @defgroup UART_RxEvent_Type_Values  UART RxEvent type values
+/** @defgroup UART_RxEvent_Type_Values UART 接收事件 (RxEvent) 类型值
   * @{
   */
-#define HAL_UART_RXEVENT_TC                  (0x00000000U)             /*!< RxEvent linked to Transfer Complete event */
-#define HAL_UART_RXEVENT_HT                  (0x00000001U)             /*!< RxEvent linked to Half Transfer event     */
+#define HAL_UART_RXEVENT_TC                  (0x00000000U)             /*!< 关联到传输完成 (Transfer Complete) 事件的 RxEvent */
+#define HAL_UART_RXEVENT_HT                  (0x00000001U)             /*!< 关联到过半传输 (Half Transfer) 事件的 RxEvent     */
 #define HAL_UART_RXEVENT_IDLE                (0x00000002U)
 /**
   * @}
@@ -419,16 +416,16 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @}
   */
 
-/* Exported macro ------------------------------------------------------------*/
-/** @defgroup UART_Exported_Macros UART Exported Macros
+/* 导出宏 --------------------------------------------------------------------*/
+/** @defgroup UART_Exported_Macros UART 导出的宏
   * @{
   */
 
-/** @brief Reset UART handle gstate & RxState
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @retval None
+/** @brief 复位 UART 句柄的 gstate 和 RxState
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         (USART、UART 的可用性以及 x、y 的取值取决于具体器件)。
+  * @retval 无
   */
 #if (USE_HAL_UART_REGISTER_CALLBACKS == 1)
 #define __HAL_UART_RESET_HANDLE_STATE(__HANDLE__)  do{                                                   \
@@ -444,62 +441,61 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
                                                      } while(0U)
 #endif /*USE_HAL_UART_REGISTER_CALLBACKS */
 
-/** @brief  Flushes the UART DR register
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
+/** @brief  刷新（清空）UART DR 寄存器
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
   */
 #define __HAL_UART_FLUSH_DRREGISTER(__HANDLE__) ((__HANDLE__)->Instance->DR)
 
-/** @brief  Checks whether the specified UART flag is set or not.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @param  __FLAG__ specifies the flag to check.
-  *        This parameter can be one of the following values:
-  *            @arg UART_FLAG_CTS:  CTS Change flag (not available for UART4 and UART5)
-  *            @arg UART_FLAG_LBD:  LIN Break detection flag
-  *            @arg UART_FLAG_TXE:  Transmit data register empty flag
-  *            @arg UART_FLAG_TC:   Transmission Complete flag
-  *            @arg UART_FLAG_RXNE: Receive data register not empty flag
-  *            @arg UART_FLAG_IDLE: Idle Line detection flag
-  *            @arg UART_FLAG_ORE:  Overrun Error flag
-  *            @arg UART_FLAG_NE:   Noise Error flag
-  *            @arg UART_FLAG_FE:   Framing Error flag
-  *            @arg UART_FLAG_PE:   Parity Error flag
-  * @retval The new state of __FLAG__ (TRUE or FALSE).
+/** @brief  检查指定的 UART 标志位是否置位。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @param  __FLAG__ 指定要检查的标志位。
+  *        该参数可以是以下值之一：
+  *            @arg UART_FLAG_CTS:  CTS 改变标志（不适用于 UART4 和 UART5）
+  *            @arg UART_FLAG_LBD:  LIN 断开符号检测标志
+  *            @arg UART_FLAG_TXE:  发送数据寄存器空中断标志
+  *            @arg UART_FLAG_TC:   发送完成标志
+  *            @arg UART_FLAG_RXNE: 接收数据寄存器非空标志
+  *            @arg UART_FLAG_IDLE: 空闲总线检测标志
+  *            @arg UART_FLAG_ORE:  过载错误标志
+  *            @arg UART_FLAG_NE:   噪声错误标志
+  *            @arg UART_FLAG_FE:   帧错误标志
+  *            @arg UART_FLAG_PE:   奇偶校验错误标志
+  * @retval __FLAG__ 的新状态（TRUE 或 FALSE）。
   */
 #define __HAL_UART_GET_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->SR & (__FLAG__)) == (__FLAG__))
 
-/** @brief  Clears the specified UART pending flag.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @param  __FLAG__ specifies the flag to check.
-  *          This parameter can be any combination of the following values:
-  *            @arg UART_FLAG_CTS:  CTS Change flag (not available for UART4 and UART5).
-  *            @arg UART_FLAG_LBD:  LIN Break detection flag.
-  *            @arg UART_FLAG_TC:   Transmission Complete flag.
-  *            @arg UART_FLAG_RXNE: Receive data register not empty flag.
+/** @brief  清除指定的 UART 挂起标志位。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @param  __FLAG__ 指定要检查的标志位。
+  *          该参数可以是以下值的任意组合：
+  *            @arg UART_FLAG_CTS:  CTS 改变标志（不适用于 UART4 和 UART5）。
+  *            @arg UART_FLAG_LBD:  LIN 断开符号检测标志。
+  *            @arg UART_FLAG_TC:   发送完成标志。
+  *            @arg UART_FLAG_RXNE: 接收数据寄存器非空标志。
   *
-  * @note   PE (Parity error), FE (Framing error), NE (Noise error), ORE (Overrun
-  *          error) and IDLE (Idle line detected) flags are cleared by software
-  *          sequence: a read operation to USART_SR register followed by a read
-  *          operation to USART_DR register.
-  * @note   RXNE flag can be also cleared by a read to the USART_DR register.
-  * @note   TC flag can be also cleared by software sequence: a read operation to
-  *          USART_SR register followed by a write operation to USART_DR register.
-  * @note   TXE flag is cleared only by a write to the USART_DR register.
+  * @note   PE（奇偶校验错误）、FE（帧错误）、NE（噪声错误）、ORE（过载错误）
+  *          和 IDLE（空闲线路检测）标志通过软件序列清除：先对 USART_SR
+  *          寄存器执行读操作，随后对 USART_DR 寄存器执行读操作。
+  * @note   RXNE 标志也可以通过读取 USART_DR 寄存器来清除。
+  * @note   TC 标志也可以通过软件序列清除：先对 USART_SR 寄存器执行读操作，
+  *          随后对 USART_DR 寄存器执行写操作。
+  * @note   TXE 标志只能通过对 USART_DR 寄存器执行写操作来清除。
   *
-  * @retval None
+  * @retval 无
   */
 #define __HAL_UART_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->SR = ~(__FLAG__))
 
-/** @brief  Clears the UART PE pending flag.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @retval None
+/** @brief  清除 UART PE 挂起标志位。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @retval 无
   */
 #define __HAL_UART_CLEAR_PEFLAG(__HANDLE__)     \
   do{                                           \
@@ -509,109 +505,109 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
     UNUSED(tmpreg);                             \
   } while(0U)
 
-/** @brief  Clears the UART FE pending flag.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @retval None
+/** @brief  清除 UART FE 挂起标志位。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @retval 无
   */
 #define __HAL_UART_CLEAR_FEFLAG(__HANDLE__) __HAL_UART_CLEAR_PEFLAG(__HANDLE__)
 
-/** @brief  Clears the UART NE pending flag.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @retval None
+/** @brief  清除 UART NE 挂起标志位。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @retval 无
   */
 #define __HAL_UART_CLEAR_NEFLAG(__HANDLE__) __HAL_UART_CLEAR_PEFLAG(__HANDLE__)
 
-/** @brief  Clears the UART ORE pending flag.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @retval None
+/** @brief  清除 UART ORE 挂起标志位。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @retval 无
   */
 #define __HAL_UART_CLEAR_OREFLAG(__HANDLE__) __HAL_UART_CLEAR_PEFLAG(__HANDLE__)
 
-/** @brief  Clears the UART IDLE pending flag.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @retval None
+/** @brief  清除 UART IDLE 挂起标志位。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @retval 无
   */
 #define __HAL_UART_CLEAR_IDLEFLAG(__HANDLE__) __HAL_UART_CLEAR_PEFLAG(__HANDLE__)
 
-/** @brief  Enable the specified UART interrupt.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @param  __INTERRUPT__ specifies the UART interrupt source to enable.
-  *          This parameter can be one of the following values:
-  *            @arg UART_IT_CTS:  CTS change interrupt
-  *            @arg UART_IT_LBD:  LIN Break detection interrupt
-  *            @arg UART_IT_TXE:  Transmit Data Register empty interrupt
-  *            @arg UART_IT_TC:   Transmission complete interrupt
-  *            @arg UART_IT_RXNE: Receive Data register not empty interrupt
-  *            @arg UART_IT_IDLE: Idle line detection interrupt
-  *            @arg UART_IT_PE:   Parity Error interrupt
-  *            @arg UART_IT_ERR:  Error interrupt(Frame error, noise error, overrun error)
-  * @retval None
+/** @brief  使能指定的 UART 中断。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @param  __INTERRUPT__ 指定要使能的 UART 中断源。
+  *          该参数可以是以下值之一：
+  *            @arg UART_IT_CTS:  CTS 改变中断
+  *            @arg UART_IT_LBD:  LIN 断开符号检测中断
+  *            @arg UART_IT_TXE:  发送数据寄存器空中断
+  *            @arg UART_IT_TC:   发送完成中断
+  *            @arg UART_IT_RXNE: 接收数据寄存器非空中断
+  *            @arg UART_IT_IDLE: 空闲总线检测中断
+  *            @arg UART_IT_PE:   奇偶校验错误中断
+  *            @arg UART_IT_ERR:  错误中断（帧错误、噪声错误、过载错误）
+  * @retval 无
   */
 #define __HAL_UART_ENABLE_IT(__HANDLE__, __INTERRUPT__)   ((((__INTERRUPT__) >> 28U) == UART_CR1_REG_INDEX)? ((__HANDLE__)->Instance->CR1 |= ((__INTERRUPT__) & UART_IT_MASK)): \
                                                            (((__INTERRUPT__) >> 28U) == UART_CR2_REG_INDEX)? ((__HANDLE__)->Instance->CR2 |= ((__INTERRUPT__) & UART_IT_MASK)): \
                                                            ((__HANDLE__)->Instance->CR3 |= ((__INTERRUPT__) & UART_IT_MASK)))
 
-/** @brief  Disable the specified UART interrupt.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @param  __INTERRUPT__ specifies the UART interrupt source to disable.
-  *          This parameter can be one of the following values:
-  *            @arg UART_IT_CTS:  CTS change interrupt
-  *            @arg UART_IT_LBD:  LIN Break detection interrupt
-  *            @arg UART_IT_TXE:  Transmit Data Register empty interrupt
-  *            @arg UART_IT_TC:   Transmission complete interrupt
-  *            @arg UART_IT_RXNE: Receive Data register not empty interrupt
-  *            @arg UART_IT_IDLE: Idle line detection interrupt
-  *            @arg UART_IT_PE:   Parity Error interrupt
-  *            @arg UART_IT_ERR:  Error interrupt(Frame error, noise error, overrun error)
-  * @retval None
+/** @brief  禁用指定的 UART 中断。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @param  __INTERRUPT__ 指定要禁用的 UART 中断源。
+  *          该参数可以是以下值之一：
+  *            @arg UART_IT_CTS:  CTS 改变中断
+  *            @arg UART_IT_LBD:  LIN 断开符号检测中断
+  *            @arg UART_IT_TXE:  发送数据寄存器空中断
+  *            @arg UART_IT_TC:   发送完成中断
+  *            @arg UART_IT_RXNE: 接收数据寄存器非空中断
+  *            @arg UART_IT_IDLE: 空闲总线检测中断
+  *            @arg UART_IT_PE:   奇偶校验错误中断
+  *            @arg UART_IT_ERR:  错误中断（帧错误、噪声错误、过载错误）
+  * @retval 无
   */
 #define __HAL_UART_DISABLE_IT(__HANDLE__, __INTERRUPT__)  ((((__INTERRUPT__) >> 28U) == UART_CR1_REG_INDEX)? ((__HANDLE__)->Instance->CR1 &= ~((__INTERRUPT__) & UART_IT_MASK)): \
                                                            (((__INTERRUPT__) >> 28U) == UART_CR2_REG_INDEX)? ((__HANDLE__)->Instance->CR2 &= ~((__INTERRUPT__) & UART_IT_MASK)): \
                                                            ((__HANDLE__)->Instance->CR3 &= ~ ((__INTERRUPT__) & UART_IT_MASK)))
 
-/** @brief  Checks whether the specified UART interrupt source is enabled or not.
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         UART Handle selects the USARTx or UARTy peripheral
-  *         (USART,UART availability and x,y values depending on device).
-  * @param  __IT__ specifies the UART interrupt source to check.
-  *          This parameter can be one of the following values:
-  *            @arg UART_IT_CTS: CTS change interrupt (not available for UART4 and UART5)
-  *            @arg UART_IT_LBD: LIN Break detection interrupt
-  *            @arg UART_IT_TXE: Transmit Data Register empty interrupt
-  *            @arg UART_IT_TC:  Transmission complete interrupt
-  *            @arg UART_IT_RXNE: Receive Data register not empty interrupt
-  *            @arg UART_IT_IDLE: Idle line detection interrupt
-  *            @arg UART_IT_ERR: Error interrupt
-  * @retval The new state of __IT__ (TRUE or FALSE).
+/** @brief  检查指定的 UART 中断源是否已使能。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         UART 句柄用于选择 USARTx 或 UARTy 外设
+  *         （USART、UART 的可用性及 x、y 的取值取决于具体器件）。
+  * @param  __IT__ 指定要检查的 UART 中断源。
+  *          该参数可以是以下值之一：
+  *            @arg UART_IT_CTS: CTS 改变中断（不适用于 UART4 和 UART5）
+  *            @arg UART_IT_LBD: LIN 断开符号检测中断
+  *            @arg UART_IT_TXE: 发送数据寄存器空中断
+  *            @arg UART_IT_TC:  发送完成中断
+  *            @arg UART_IT_RXNE: 接收数据寄存器非空中断
+  *            @arg UART_IT_IDLE: 空闲总线检测中断
+  *            @arg UART_IT_ERR: 错误中断
+  * @retval __IT__ 的新状态（TRUE 或 FALSE）。
   */
 #define __HAL_UART_GET_IT_SOURCE(__HANDLE__, __IT__) (((((__IT__) >> 28U) == UART_CR1_REG_INDEX)? (__HANDLE__)->Instance->CR1:(((((uint32_t)(__IT__)) >> 28U) == UART_CR2_REG_INDEX)? \
                                                        (__HANDLE__)->Instance->CR2 : (__HANDLE__)->Instance->CR3)) & (((uint32_t)(__IT__)) & UART_IT_MASK))
 
-/** @brief  Enable CTS flow control
-  * @note   This macro allows to enable CTS hardware flow control for a given UART instance,
-  *         without need to call HAL_UART_Init() function.
-  *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
-  * @note   As macro is expected to be used for modifying CTS Hw flow control feature activation, without need
-  *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
-  *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
-  *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
-  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         The Handle Instance can be any USARTx (supporting the HW Flow control feature).
-  *         It is used to select the USART peripheral (USART availability and x value depending on device).
-  * @retval None
+/** @brief  使能 CTS 流控制
+  * @note   该宏允许为给定的 UART 实例使能 CTS 硬件流控制，
+  *         而无需调用 HAL_UART_Init() 函数。
+  *         由于涉及对 UART 寄存器的直接访问，使用该宏的风险应由用户完全承担。
+  * @note   由于该宏用于修改 CTS 硬件流控制特性的使能状态，而无需
+  *         对 USART 实例执行反初始化/初始化（Deinit/Init），因此调用该宏应满足以下条件：
+  *           - UART 实例应已完成初始化（通过调用 HAL_UART_Init()）
+  *           - 只有在对应的 UART 实例被禁用（即 __HAL_UART_DISABLE(__HANDLE__)）时才可调用该宏，
+  *             并且调用后应紧跟使能宏（即 __HAL_UART_ENABLE(__HANDLE__)）。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         句柄实例可以是任意 USARTx（支持硬件流控制特性）。
+  *         用于选择 USART 外设（USART 的可用性及 x 的取值取决于具体器件）。
+  * @retval 无
   */
 #define __HAL_UART_HWCONTROL_CTS_ENABLE(__HANDLE__)        \
   do{                                                      \
@@ -619,19 +615,19 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
     (__HANDLE__)->Init.HwFlowCtl |= USART_CR3_CTSE;        \
   } while(0U)
 
-/** @brief  Disable CTS flow control
-  * @note   This macro allows to disable CTS hardware flow control for a given UART instance,
-  *         without need to call HAL_UART_Init() function.
-  *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
-  * @note   As macro is expected to be used for modifying CTS Hw flow control feature activation, without need
-  *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
-  *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
-  *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
-  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         The Handle Instance can be any USARTx (supporting the HW Flow control feature).
-  *         It is used to select the USART peripheral (USART availability and x value depending on device).
-  * @retval None
+/** @brief  禁用 CTS 流控制
+  * @note   该宏允许为给定的 UART 实例禁用 CTS 硬件流控制，
+  *         而无需调用 HAL_UART_Init() 函数。
+  *         由于涉及对 UART 寄存器的直接访问，使用该宏的风险应由用户完全承担。
+  * @note   由于该宏用于修改 CTS 硬件流控制特性的使能状态，而无需
+  *         对 USART 实例执行反初始化/初始化（Deinit/Init），因此调用该宏应满足以下条件：
+  *           - UART 实例应已完成初始化（通过调用 HAL_UART_Init()）
+  *           - 只有在对应的 UART 实例被禁用（即 __HAL_UART_DISABLE(__HANDLE__)）时才可调用该宏，
+  *             并且调用后应紧跟使能宏（即 __HAL_UART_ENABLE(__HANDLE__)）。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         句柄实例可以是任意 USARTx（支持硬件流控制特性）。
+  *         用于选择 USART 外设（USART 的可用性及 x 的取值取决于具体器件）。
+  * @retval 无
   */
 #define __HAL_UART_HWCONTROL_CTS_DISABLE(__HANDLE__)        \
   do{                                                       \
@@ -639,19 +635,19 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
     (__HANDLE__)->Init.HwFlowCtl &= ~(USART_CR3_CTSE);      \
   } while(0U)
 
-/** @brief  Enable RTS flow control
-  *         This macro allows to enable RTS hardware flow control for a given UART instance,
-  *         without need to call HAL_UART_Init() function.
-  *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
-  * @note   As macro is expected to be used for modifying RTS Hw flow control feature activation, without need
-  *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
-  *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
-  *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
-  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         The Handle Instance can be any USARTx (supporting the HW Flow control feature).
-  *         It is used to select the USART peripheral (USART availability and x value depending on device).
-  * @retval None
+/** @brief  使能 RTS 流控制
+  *         该宏允许为给定的 UART 实例使能 RTS 硬件流控制，
+  *         而无需调用 HAL_UART_Init() 函数。
+  *         由于涉及对 UART 寄存器的直接访问，使用该宏的风险应由用户完全承担。
+  * @note   由于该宏用于修改 RTS 硬件流控制特性的使能状态，而无需
+  *         对 USART 实例执行反初始化/初始化（Deinit/Init），因此调用该宏应满足以下条件：
+  *           - UART 实例应已完成初始化（通过调用 HAL_UART_Init()）
+  *           - 只有在对应的 UART 实例被禁用（即 __HAL_UART_DISABLE(__HANDLE__)）时才可调用该宏，
+  *             并且调用后应紧跟使能宏（即 __HAL_UART_ENABLE(__HANDLE__)）。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         句柄实例可以是任意 USARTx（支持硬件流控制特性）。
+  *         用于选择 USART 外设（USART 的可用性及 x 的取值取决于具体器件）。
+  * @retval 无
   */
 #define __HAL_UART_HWCONTROL_RTS_ENABLE(__HANDLE__)       \
   do{                                                     \
@@ -659,19 +655,19 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
     (__HANDLE__)->Init.HwFlowCtl |= USART_CR3_RTSE;       \
   } while(0U)
 
-/** @brief  Disable RTS flow control
-  *         This macro allows to disable RTS hardware flow control for a given UART instance,
-  *         without need to call HAL_UART_Init() function.
-  *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
-  * @note   As macro is expected to be used for modifying RTS Hw flow control feature activation, without need
-  *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
-  *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
-  *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
-  *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
-  * @param  __HANDLE__ specifies the UART Handle.
-  *         The Handle Instance can be any USARTx (supporting the HW Flow control feature).
-  *         It is used to select the USART peripheral (USART availability and x value depending on device).
-  * @retval None
+/** @brief  禁用 RTS 流控制
+  *         该宏允许在给定的 UART 实例上禁用 RTS 硬件流控制，
+  *         而无需调用 HAL_UART_Init() 函数。
+  *         由于涉及对 UART 寄存器的直接访问，用户需自行承担使用该宏的风险。
+  * @note   由于该宏旨在修改 RTS 硬件流控制功能的激活状态，且无需
+  *         对 USART 实例执行反初始化/初始化（Deinit/Init），因此调用该宏需满足以下条件：
+  *           - UART 实例必须已经完成初始化（通过调用 HAL_UART_Init()）
+  *           - 仅当对应的 UART 实例被禁用（即 __HAL_UART_DISABLE(__HANDLE__)）时才能调用该宏，
+  *             且调用后应紧跟使能宏（即 __HAL_UART_ENABLE(__HANDLE__)）。
+  * @param  __HANDLE__ 指定 UART 句柄。
+  *         句柄实例可以是任意支持硬件流控制功能的 USARTx。
+  *         用于选择 USART 外设（USART 可用性及 x 的取值取决于具体器件型号）。
+  * @retval 无
   */
 #define __HAL_UART_HWCONTROL_RTS_DISABLE(__HANDLE__)       \
   do{                                                      \
@@ -680,45 +676,45 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   } while(0U)
 #if defined(USART_CR3_ONEBIT)
 
-/** @brief  Macro to enable the UART's one bit sample method
-  * @param  __HANDLE__ specifies the UART Handle.
-  * @retval None
+/** @brief  用于使能 UART 单位采样（one bit sample）方法的宏
+  * @param  __HANDLE__ 指定 UART 句柄。
+  * @retval 无
   */
 #define __HAL_UART_ONE_BIT_SAMPLE_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3|= USART_CR3_ONEBIT)
 
-/** @brief  Macro to disable the UART's one bit sample method
-  * @param  __HANDLE__ specifies the UART Handle.
-  * @retval None
+/** @brief  用于禁用 UART 单位采样（one bit sample）方法的宏
+  * @param  __HANDLE__ 指定 UART 句柄。
+  * @retval 无
   */
 #define __HAL_UART_ONE_BIT_SAMPLE_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3\
                                                        &= (uint16_t)~((uint16_t)USART_CR3_ONEBIT))
 #endif /* UART_ONE_BIT_SAMPLE_Feature */
 
-/** @brief  Enable UART
-  * @param  __HANDLE__ specifies the UART Handle.
-  * @retval None
+/** @brief  使能 UART
+  * @param  __HANDLE__ 指定 UART 句柄。
+  * @retval 无
   */
 #define __HAL_UART_ENABLE(__HANDLE__)               ((__HANDLE__)->Instance->CR1 |=  USART_CR1_UE)
 
-/** @brief  Disable UART
-  * @param  __HANDLE__ specifies the UART Handle.
-  * @retval None
+/** @brief  禁用 UART
+  * @param  __HANDLE__ 指定 UART 句柄。
+  * @retval 无
   */
 #define __HAL_UART_DISABLE(__HANDLE__)              ((__HANDLE__)->Instance->CR1 &=  ~USART_CR1_UE)
 /**
   * @}
   */
 
-/* Exported functions --------------------------------------------------------*/
+/* 导出函数 --------------------------------------------------------*/
 /** @addtogroup UART_Exported_Functions
   * @{
   */
 
-/** @addtogroup UART_Exported_Functions_Group1 Initialization and de-initialization functions
+/** @addtogroup UART_Exported_Functions_Group1 初始化与反初始化函数
   * @{
   */
 
-/* Initialization/de-initialization functions  **********************************/
+/* 初始化/反初始化函数  **********************************/
 HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLength);
@@ -727,7 +723,7 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart);
 void HAL_UART_MspInit(UART_HandleTypeDef *huart);
 void HAL_UART_MspDeInit(UART_HandleTypeDef *huart);
 
-/* Callbacks Register/UnRegister functions  ***********************************/
+/* 回调注册/注销函数  ***********************************/
 #if (USE_HAL_UART_REGISTER_CALLBACKS == 1)
 HAL_StatusTypeDef HAL_UART_RegisterCallback(UART_HandleTypeDef *huart, HAL_UART_CallbackIDTypeDef CallbackID,
                                             pUART_CallbackTypeDef pCallback);
@@ -741,11 +737,11 @@ HAL_StatusTypeDef HAL_UART_UnRegisterRxEventCallback(UART_HandleTypeDef *huart);
   * @}
   */
 
-/** @addtogroup UART_Exported_Functions_Group2 IO operation functions
+/** @addtogroup UART_Exported_Functions_Group2 IO 操作函数
   * @{
   */
 
-/* IO operation functions *******************************************************/
+/* IO 操作函数 *******************************************************/
 HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, const uint8_t *pData, uint16_t Size);
@@ -763,7 +759,7 @@ HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle_DMA(UART_HandleTypeDef *huart, uint8_
 
 HAL_UART_RxEventTypeTypeDef HAL_UARTEx_GetRxEventType(UART_HandleTypeDef *huart);
 
-/* Transfer Abort functions */
+/* 传输中止函数 */
 HAL_StatusTypeDef HAL_UART_Abort(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_AbortTransmit(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_AbortReceive(UART_HandleTypeDef *huart);
@@ -790,7 +786,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
 /** @addtogroup UART_Exported_Functions_Group3
   * @{
   */
-/* Peripheral Control functions  ************************************************/
+/* 外设控制函数  ************************************************/
 HAL_StatusTypeDef HAL_LIN_SendBreak(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_MultiProcessor_EnterMuteMode(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_MultiProcessor_ExitMuteMode(UART_HandleTypeDef *huart);
@@ -803,7 +799,7 @@ HAL_StatusTypeDef HAL_HalfDuplex_EnableReceiver(UART_HandleTypeDef *huart);
 /** @addtogroup UART_Exported_Functions_Group4
   * @{
   */
-/* Peripheral State functions  **************************************************/
+/* 外设状态函数  **************************************************/
 HAL_UART_StateTypeDef HAL_UART_GetState(const UART_HandleTypeDef *huart);
 uint32_t              HAL_UART_GetError(const UART_HandleTypeDef *huart);
 /**
@@ -813,13 +809,13 @@ uint32_t              HAL_UART_GetError(const UART_HandleTypeDef *huart);
 /**
   * @}
   */
-/* Private types -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private constants ---------------------------------------------------------*/
-/** @defgroup UART_Private_Constants UART Private Constants
+/* 私有类型 -------------------------------------------------------------*/
+/* 私有变量 ---------------------------------------------------------*/
+/* 私有常量 ---------------------------------------------------------*/
+/** @defgroup UART_Private_Constants UART 私有常量
   * @{
   */
-/** @brief UART interruptions flag mask
+/** @brief UART 中断标志掩码
   *
   */
 #define UART_IT_MASK                     0x0000FFFFU
@@ -831,8 +827,8 @@ uint32_t              HAL_UART_GetError(const UART_HandleTypeDef *huart);
   * @}
   */
 
-/* Private macros ------------------------------------------------------------*/
-/** @defgroup UART_Private_Macros UART Private Macros
+/* 私有宏 ------------------------------------------------------------*/
+/** @defgroup UART_Private_Macros UART 私有宏
   * @{
   */
 #define IS_UART_WORD_LENGTH(LENGTH) (((LENGTH) == UART_WORDLENGTH_8B) || \
@@ -867,7 +863,7 @@ uint32_t              HAL_UART_GetError(const UART_HandleTypeDef *huart);
 #define UART_DIVMANT_SAMPLING16(_PCLK_, _BAUD_)        (UART_DIV_SAMPLING16((_PCLK_), (_BAUD_))/100U)
 #define UART_DIVFRAQ_SAMPLING16(_PCLK_, _BAUD_)        ((((UART_DIV_SAMPLING16((_PCLK_), (_BAUD_)) - (UART_DIVMANT_SAMPLING16((_PCLK_), (_BAUD_)) * 100U)) * 16U)\
                                                          + 50U) / 100U)
-/* UART BRR = mantissa + overflow + fraction
+/* UART BRR = 尾数 + 溢出位 + 小数
             = (UART DIVMANT << 4) + (UART DIVFRAQ & 0xF0) + (UART DIVFRAQ & 0x0FU) */
 #define UART_BRR_SAMPLING16(_PCLK_, _BAUD_)            (((UART_DIVMANT_SAMPLING16((_PCLK_), (_BAUD_)) << 4U) + \
                                                          (UART_DIVFRAQ_SAMPLING16((_PCLK_), (_BAUD_)) & 0xF0U)) + \
@@ -877,7 +873,7 @@ uint32_t              HAL_UART_GetError(const UART_HandleTypeDef *huart);
 #define UART_DIVMANT_SAMPLING8(_PCLK_, _BAUD_)         (UART_DIV_SAMPLING8((_PCLK_), (_BAUD_))/100U)
 #define UART_DIVFRAQ_SAMPLING8(_PCLK_, _BAUD_)         ((((UART_DIV_SAMPLING8((_PCLK_), (_BAUD_)) - (UART_DIVMANT_SAMPLING8((_PCLK_), (_BAUD_)) * 100U)) * 8U)\
                                                          + 50U) / 100U)
-/* UART BRR = mantissa + overflow + fraction
+/* UART BRR = 尾数 + 溢出位 + 小数
             = (UART DIVMANT << 4) + ((UART DIVFRAQ & 0xF8) << 1) + (UART DIVFRAQ & 0x07U) */
 #define UART_BRR_SAMPLING8(_PCLK_, _BAUD_)             (((UART_DIVMANT_SAMPLING8((_PCLK_), (_BAUD_)) << 4U) + \
                                                          ((UART_DIVFRAQ_SAMPLING8((_PCLK_), (_BAUD_)) & 0xF8U) << 1U)) + \
@@ -887,8 +883,8 @@ uint32_t              HAL_UART_GetError(const UART_HandleTypeDef *huart);
   * @}
   */
 
-/* Private functions ---------------------------------------------------------*/
-/** @defgroup UART_Private_Functions UART Private Functions
+/* 私有函数 ---------------------------------------------------------*/
+/** @defgroup UART_Private_Functions UART 私有函数
   * @{
   */
 

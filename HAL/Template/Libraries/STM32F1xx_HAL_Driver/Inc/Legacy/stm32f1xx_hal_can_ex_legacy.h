@@ -1,22 +1,21 @@
 /**
   ******************************************************************************
   * @file    stm32f1xx_hal_can_ex_legacy.h
-  * @author  MCD Application Team
-  * @brief   Header file of CAN HAL Extension module.
+  * @author  MCD 应用团队
+  * @brief   CAN HAL 扩展模块头文件。
   ******************************************************************************
   * @attention
   *
   * Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.
+  * 保留所有权利。
   *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * 本软件根据可在本软件组件根目录下的 LICENSE 文件中找到的条款进行许可。
+  * 如果本软件未随附 LICENSE 文件，则按“原样”提供。
   *
   ******************************************************************************
   */ 
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 防止递归包含的宏定义 -----------------------------------------------------*/
 #ifndef __STM32F1xx_HAL_CAN_EX_LEGACY_H
 #define __STM32F1xx_HAL_CAN_EX_LEGACY_H
 
@@ -27,7 +26,7 @@
 #if defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || \
     defined(STM32F103xG) || defined(STM32F105xC) || defined(STM32F107xC)
 
-/* Includes ------------------------------------------------------------------*/
+/* 包含的头文件 --------------------------------------------------------------*/
 #include "stm32f1xx_hal_def.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -38,63 +37,63 @@
   * @{
   */ 
 
-/* Exported types ------------------------------------------------------------*/
+/* 导出的类型 ----------------------------------------------------------------*/
 
 /** 
-  * @brief  CAN filter configuration structure definition
+  * @brief  CAN 过滤器配置结构体定义
   */
-/* CAN filter banks differences over STM32F1 devices:                         */
-/* - STM32F1 Connectivity line: 28 filter banks shared between CAN1 and CAN2  */
-/* - Other STM32F10x devices:   14 filter banks                               */
+/* 不同 STM32F1 器件之间的 CAN 过滤器组差异：                                 */
+/* - STM32F1 互联型产品：28 个过滤器组，由 CAN1 和 CAN2 共享                  */
+/* - 其他 STM32F10x 器件：14 个过滤器组                                       */
 
 typedef struct
 {
-  uint32_t FilterIdHigh;          /*!< Specifies the filter identification number (MSBs for a 32-bit
-                                       configuration, first one for a 16-bit configuration).
-                                       This parameter must be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF. */ 
+  uint32_t FilterIdHigh;          /*!< 指定过滤器标识符（32 位配置下的高位字 (MSB)，
+                                       16 位配置下的第一个标识符）。
+                                       该参数必须是介于 Min_Data = 0x0000 和 Max_Data = 0xFFFF 之间的数值。 */ 
                                               
-  uint32_t FilterIdLow;           /*!< Specifies the filter identification number (LSBs for a 32-bit
-                                       configuration, second one for a 16-bit configuration).
-                                       This parameter must be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF. */ 
+  uint32_t FilterIdLow;           /*!< 指定过滤器标识符（32 位配置下的低位字 (LSB)，
+                                       16 位配置下的第二个标识符）。
+                                       该参数必须是介于 Min_Data = 0x0000 和 Max_Data = 0xFFFF 之间的数值。 */ 
 
-  uint32_t FilterMaskIdHigh;      /*!< Specifies the filter mask number or identification number,
-                                       according to the mode (MSBs for a 32-bit configuration,
-                                       first one for a 16-bit configuration).
-                                       This parameter must be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF. */ 
+  uint32_t FilterMaskIdHigh;      /*!< 根据配置模式指定过滤器屏蔽码或标识符
+                                       （32 位配置下的高位字 (MSB)，
+                                       16 位配置下的第一个标识符/屏蔽码）。
+                                       该参数必须是介于 Min_Data = 0x0000 和 Max_Data = 0xFFFF 之间的数值。 */ 
 
-  uint32_t FilterMaskIdLow;       /*!< Specifies the filter mask number or identification number,
-                                       according to the mode (LSBs for a 32-bit configuration,
-                                       second one for a 16-bit configuration).
-                                       This parameter must be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF. */ 
+  uint32_t FilterMaskIdLow;       /*!< 根据配置模式指定过滤器屏蔽码或标识符
+                                       （32 位配置下的低位字 (LSB)，
+                                       16 位配置下的第二个标识符/屏蔽码）。
+                                       该参数必须是介于 Min_Data = 0x0000 和 Max_Data = 0xFFFF 之间的数值。 */ 
 
-  uint32_t FilterFIFOAssignment;  /*!< Specifies the FIFO (0 or 1) which will be assigned to the filter.
-                                       This parameter can be a value of @ref CAN_filter_FIFO */
+  uint32_t FilterFIFOAssignment;  /*!< 指定将分配给该过滤器的 FIFO（0 或 1）。
+                                       该参数可以是 @ref CAN_filter_FIFO 的一个值 */
 #if defined(STM32F105xC) || defined(STM32F107xC)
-  uint32_t FilterNumber;          /*!< Specifies the filter which will be initialized. 
-                                       This parameter must be a number between Min_Data = 0 and Max_Data = 27. */
+  uint32_t FilterNumber;          /*!< 指定将要初始化的过滤器。
+                                       此参数必须是介于 Min_Data = 0 到 Max_Data = 27 之间的数值。 */
 #else
-  uint32_t FilterNumber;          /*!< Specifies the filter which will be initialized. 
-                                       This parameter must be a number between Min_Data = 0 and Max_Data = 13. */
+  uint32_t FilterNumber;          /*!< 指定将要初始化的过滤器。
+                                       此参数必须是介于 Min_Data = 0 到 Max_Data = 13 之间的数值。 */
 #endif /* STM32F105xC || STM32F107xC */
-  uint32_t FilterMode;            /*!< Specifies the filter mode to be initialized.
-                                       This parameter can be a value of @ref CAN_filter_mode */
+  uint32_t FilterMode;            /*!< 指定将要初始化的过滤器模式。
+                                       此参数可以是 @ref CAN_filter_mode 中的一个值 */
 
-  uint32_t FilterScale;           /*!< Specifies the filter scale.
-                                       This parameter can be a value of @ref CAN_filter_scale */
+  uint32_t FilterScale;           /*!< 指定过滤器位宽（尺度）。
+                                       此参数可以是 @ref CAN_filter_scale 中的一个值 */
 
-  uint32_t FilterActivation;      /*!< Enable or disable the filter.
-                                       This parameter can be set to ENABLE or DISABLE. */
+  uint32_t FilterActivation;      /*!< 使能或禁止过滤器。
+                                       此参数可设置为 ENABLE 或 DISABLE。 */
                                        
-  uint32_t BankNumber;            /*!< Select the start slave bank filter
-                                       This parameter must be a number between Min_Data = 0 and Max_Data = 28. */ 
+  uint32_t BankNumber;            /*!< 选择从机过滤器组起始编号
+                                       此参数必须是介于 Min_Data = 0 到 Max_Data = 28 之间的数值。 */ 
   
 }CAN_FilterConfTypeDef;
 
-/* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
+/* 导出常量 ------------------------------------------------------------------*/
+/* 导出宏 --------------------------------------------------------------------*/
+/* 私有宏 --------------------------------------------------------------------*/
 
-/** @defgroup CANEx_Private_Macros CAN Extended Private Macros
+/** @defgroup CANEx_Private_Macros CAN 扩展私有宏
   * @{
   */
 #if defined(STM32F105xC) || defined(STM32F107xC)

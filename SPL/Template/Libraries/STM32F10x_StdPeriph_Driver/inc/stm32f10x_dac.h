@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the DAC firmware 
-  *          library.
+  * @brief   本文件包含 DAC 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供参考，旨在为客户提供有关其产品的编码信息，以便客户节省时间。
+  * 因此，对于因本固件的内容和/或客户将本文所含编码信息用于其产品
+  * 而产生的任何索赔所导致的任何直接、间接或后果性损害，
+  * 意法半导体概不承担责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_DAC_H
 #define __STM32F10x_DAC_H
 
@@ -28,69 +25,69 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup DAC
+/** @addtogroup DAC   DAC 驱动模块
   * @{
   */
 
-/** @defgroup DAC_Exported_Types
+/** @defgroup DAC_Exported_Types   DAC 导出类型
   * @{
   */
 
-/** 
-  * @brief  DAC Init structure definition
+/**
+  * @brief  DAC 初始化结构体定义
   */
 
 typedef struct
 {
-  uint32_t DAC_Trigger;                      /*!< Specifies the external trigger for the selected DAC channel.
-                                                  This parameter can be a value of @ref DAC_trigger_selection */
+  uint32_t DAC_Trigger;                      /*!< 指定所选 DAC 通道的外部触发。
+                                                  该参数可以是 @ref DAC_trigger_selection 的值 */
 
-  uint32_t DAC_WaveGeneration;               /*!< Specifies whether DAC channel noise waves or triangle waves
-                                                  are generated, or whether no wave is generated.
-                                                  This parameter can be a value of @ref DAC_wave_generation */
+  uint32_t DAC_WaveGeneration;               /*!< 指定是否生成 DAC 通道噪声波或三角波，
+                                                  或者不生成任何波形。
+                                                  该参数可以是 @ref DAC_wave_generation 的值 */
 
-  uint32_t DAC_LFSRUnmask_TriangleAmplitude; /*!< Specifies the LFSR mask for noise wave generation or
-                                                  the maximum amplitude triangle generation for the DAC channel. 
-                                                  This parameter can be a value of @ref DAC_lfsrunmask_triangleamplitude */
+  uint32_t DAC_LFSRUnmask_TriangleAmplitude; /*!< 指定 DAC 通道噪声波生成的 LFSR 掩码，
+                                                  或 DAC 通道最大幅值三角波生成。
+                                                  该参数可以是 @ref DAC_lfsrunmask_triangleamplitude 的值 */
 
-  uint32_t DAC_OutputBuffer;                 /*!< Specifies whether the DAC channel output buffer is enabled or disabled.
-                                                  This parameter can be a value of @ref DAC_output_buffer */
+  uint32_t DAC_OutputBuffer;                 /*!< 指定 DAC 通道输出缓冲是使能还是关闭。
+                                                  该参数可以是 @ref DAC_output_buffer 的值 */
 }DAC_InitTypeDef;
 
 /**
   * @}
   */
 
-/** @defgroup DAC_Exported_Constants
+/** @defgroup DAC_Exported_Constants   DAC 导出常量
   * @{
   */
 
-/** @defgroup DAC_trigger_selection 
+/** @defgroup DAC_trigger_selection   DAC 触发选择
   * @{
   */
 
-#define DAC_Trigger_None                   ((uint32_t)0x00000000) /*!< Conversion is automatic once the DAC1_DHRxxxx register 
-                                                                       has been loaded, and not by external trigger */
-#define DAC_Trigger_T6_TRGO                ((uint32_t)0x00000004) /*!< TIM6 TRGO selected as external conversion trigger for DAC channel */
-#define DAC_Trigger_T8_TRGO                ((uint32_t)0x0000000C) /*!< TIM8 TRGO selected as external conversion trigger for DAC channel
-                                                                       only in High-density devices*/
-#define DAC_Trigger_T3_TRGO                ((uint32_t)0x0000000C) /*!< TIM8 TRGO selected as external conversion trigger for DAC channel
-                                                                       only in Connectivity line, Medium-density and Low-density Value Line devices */
-#define DAC_Trigger_T7_TRGO                ((uint32_t)0x00000014) /*!< TIM7 TRGO selected as external conversion trigger for DAC channel */
-#define DAC_Trigger_T5_TRGO                ((uint32_t)0x0000001C) /*!< TIM5 TRGO selected as external conversion trigger for DAC channel */
-#define DAC_Trigger_T15_TRGO               ((uint32_t)0x0000001C) /*!< TIM15 TRGO selected as external conversion trigger for DAC channel 
-                                                                       only in Medium-density and Low-density Value Line devices*/
-#define DAC_Trigger_T2_TRGO                ((uint32_t)0x00000024) /*!< TIM2 TRGO selected as external conversion trigger for DAC channel */
-#define DAC_Trigger_T4_TRGO                ((uint32_t)0x0000002C) /*!< TIM4 TRGO selected as external conversion trigger for DAC channel */
-#define DAC_Trigger_Ext_IT9                ((uint32_t)0x00000034) /*!< EXTI Line9 event selected as external conversion trigger for DAC channel */
-#define DAC_Trigger_Software               ((uint32_t)0x0000003C) /*!< Conversion started by software trigger for DAC channel */
+#define DAC_Trigger_None                   ((uint32_t)0x00000000) /*!< 一旦载入 DAC1_DHRxxxx 寄存器，转换便自动开始，
+                                                                       而非由外部触发 */
+#define DAC_Trigger_T6_TRGO                ((uint32_t)0x00000004) /*!< 选择 TIM6 TRGO 作为 DAC 通道的外部转换触发 */
+#define DAC_Trigger_T8_TRGO                ((uint32_t)0x0000000C) /*!< 选择 TIM8 TRGO 作为 DAC 通道的外部转换触发
+                                                                       仅适用于高密度器件 */
+#define DAC_Trigger_T3_TRGO                ((uint32_t)0x0000000C) /*!< 选择 TIM8 TRGO 作为 DAC 通道的外部转换触发
+                                                                       仅适用于互联型、中密度和小容量价值型器件 */
+#define DAC_Trigger_T7_TRGO                ((uint32_t)0x00000014) /*!< 选择 TIM7 TRGO 作为 DAC 通道的外部转换触发 */
+#define DAC_Trigger_T5_TRGO                ((uint32_t)0x0000001C) /*!< 选择 TIM5 TRGO 作为 DAC 通道的外部转换触发 */
+#define DAC_Trigger_T15_TRGO               ((uint32_t)0x0000001C) /*!< 选择 TIM15 TRGO 作为 DAC 通道的外部转换触发
+                                                                       仅适用于中密度和小容量价值型器件 */
+#define DAC_Trigger_T2_TRGO                ((uint32_t)0x00000024) /*!< 选择 TIM2 TRGO 作为 DAC 通道的外部转换触发 */
+#define DAC_Trigger_T4_TRGO                ((uint32_t)0x0000002C) /*!< 选择 TIM4 TRGO 作为 DAC 通道的外部转换触发 */
+#define DAC_Trigger_Ext_IT9                ((uint32_t)0x00000034) /*!< 选择 EXTI 线 9 事件作为 DAC 通道的外部转换触发 */
+#define DAC_Trigger_Software               ((uint32_t)0x0000003C) /*!< DAC 通道由软件触发启动转换 */
 
 #define IS_DAC_TRIGGER(TRIGGER) (((TRIGGER) == DAC_Trigger_None) || \
                                  ((TRIGGER) == DAC_Trigger_T6_TRGO) || \
@@ -106,7 +103,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DAC_wave_generation 
+/** @defgroup DAC_wave_generation   DAC 波形生成
   * @{
   */
 
@@ -120,34 +117,34 @@ typedef struct
   * @}
   */
 
-/** @defgroup DAC_lfsrunmask_triangleamplitude
+/** @defgroup DAC_lfsrunmask_triangleamplitude   DAC LFSR 掩码与三角波幅值
   * @{
   */
 
-#define DAC_LFSRUnmask_Bit0                ((uint32_t)0x00000000) /*!< Unmask DAC channel LFSR bit0 for noise wave generation */
-#define DAC_LFSRUnmask_Bits1_0             ((uint32_t)0x00000100) /*!< Unmask DAC channel LFSR bit[1:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits2_0             ((uint32_t)0x00000200) /*!< Unmask DAC channel LFSR bit[2:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits3_0             ((uint32_t)0x00000300) /*!< Unmask DAC channel LFSR bit[3:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits4_0             ((uint32_t)0x00000400) /*!< Unmask DAC channel LFSR bit[4:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits5_0             ((uint32_t)0x00000500) /*!< Unmask DAC channel LFSR bit[5:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits6_0             ((uint32_t)0x00000600) /*!< Unmask DAC channel LFSR bit[6:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits7_0             ((uint32_t)0x00000700) /*!< Unmask DAC channel LFSR bit[7:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits8_0             ((uint32_t)0x00000800) /*!< Unmask DAC channel LFSR bit[8:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits9_0             ((uint32_t)0x00000900) /*!< Unmask DAC channel LFSR bit[9:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits10_0            ((uint32_t)0x00000A00) /*!< Unmask DAC channel LFSR bit[10:0] for noise wave generation */
-#define DAC_LFSRUnmask_Bits11_0            ((uint32_t)0x00000B00) /*!< Unmask DAC channel LFSR bit[11:0] for noise wave generation */
-#define DAC_TriangleAmplitude_1            ((uint32_t)0x00000000) /*!< Select max triangle amplitude of 1 */
-#define DAC_TriangleAmplitude_3            ((uint32_t)0x00000100) /*!< Select max triangle amplitude of 3 */
-#define DAC_TriangleAmplitude_7            ((uint32_t)0x00000200) /*!< Select max triangle amplitude of 7 */
-#define DAC_TriangleAmplitude_15           ((uint32_t)0x00000300) /*!< Select max triangle amplitude of 15 */
-#define DAC_TriangleAmplitude_31           ((uint32_t)0x00000400) /*!< Select max triangle amplitude of 31 */
-#define DAC_TriangleAmplitude_63           ((uint32_t)0x00000500) /*!< Select max triangle amplitude of 63 */
-#define DAC_TriangleAmplitude_127          ((uint32_t)0x00000600) /*!< Select max triangle amplitude of 127 */
-#define DAC_TriangleAmplitude_255          ((uint32_t)0x00000700) /*!< Select max triangle amplitude of 255 */
-#define DAC_TriangleAmplitude_511          ((uint32_t)0x00000800) /*!< Select max triangle amplitude of 511 */
-#define DAC_TriangleAmplitude_1023         ((uint32_t)0x00000900) /*!< Select max triangle amplitude of 1023 */
-#define DAC_TriangleAmplitude_2047         ((uint32_t)0x00000A00) /*!< Select max triangle amplitude of 2047 */
-#define DAC_TriangleAmplitude_4095         ((uint32_t)0x00000B00) /*!< Select max triangle amplitude of 4095 */
+#define DAC_LFSRUnmask_Bit0                ((uint32_t)0x00000000) /*!< 不屏蔽 DAC 通道 LFSR bit0 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits1_0             ((uint32_t)0x00000100) /*!< 不屏蔽 DAC 通道 LFSR bit[1:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits2_0             ((uint32_t)0x00000200) /*!< 不屏蔽 DAC 通道 LFSR bit[2:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits3_0             ((uint32_t)0x00000300) /*!< 不屏蔽 DAC 通道 LFSR bit[3:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits4_0             ((uint32_t)0x00000400) /*!< 不屏蔽 DAC 通道 LFSR bit[4:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits5_0             ((uint32_t)0x00000500) /*!< 不屏蔽 DAC 通道 LFSR bit[5:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits6_0             ((uint32_t)0x00000600) /*!< 不屏蔽 DAC 通道 LFSR bit[6:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits7_0             ((uint32_t)0x00000700) /*!< 不屏蔽 DAC 通道 LFSR bit[7:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits8_0             ((uint32_t)0x00000800) /*!< 不屏蔽 DAC 通道 LFSR bit[8:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits9_0             ((uint32_t)0x00000900) /*!< 不屏蔽 DAC 通道 LFSR bit[9:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits10_0            ((uint32_t)0x00000A00) /*!< 不屏蔽 DAC 通道 LFSR bit[10:0] 以生成噪声波 */
+#define DAC_LFSRUnmask_Bits11_0            ((uint32_t)0x00000B00) /*!< 不屏蔽 DAC 通道 LFSR bit[11:0] 以生成噪声波 */
+#define DAC_TriangleAmplitude_1            ((uint32_t)0x00000000) /*!< 选择最大三角波幅值为 1 */
+#define DAC_TriangleAmplitude_3            ((uint32_t)0x00000100) /*!< 选择最大三角波幅值为 3 */
+#define DAC_TriangleAmplitude_7            ((uint32_t)0x00000200) /*!< 选择最大三角波幅值为 7 */
+#define DAC_TriangleAmplitude_15           ((uint32_t)0x00000300) /*!< 选择最大三角波幅值为 15 */
+#define DAC_TriangleAmplitude_31           ((uint32_t)0x00000400) /*!< 选择最大三角波幅值为 31 */
+#define DAC_TriangleAmplitude_63           ((uint32_t)0x00000500) /*!< 选择最大三角波幅值为 63 */
+#define DAC_TriangleAmplitude_127          ((uint32_t)0x00000600) /*!< 选择最大三角波幅值为 127 */
+#define DAC_TriangleAmplitude_255          ((uint32_t)0x00000700) /*!< 选择最大三角波幅值为 255 */
+#define DAC_TriangleAmplitude_511          ((uint32_t)0x00000800) /*!< 选择最大三角波幅值为 511 */
+#define DAC_TriangleAmplitude_1023         ((uint32_t)0x00000900) /*!< 选择最大三角波幅值为 1023 */
+#define DAC_TriangleAmplitude_2047         ((uint32_t)0x00000A00) /*!< 选择最大三角波幅值为 2047 */
+#define DAC_TriangleAmplitude_4095         ((uint32_t)0x00000B00) /*!< 选择最大三角波幅值为 4095 */
 
 #define IS_DAC_LFSR_UNMASK_TRIANGLE_AMPLITUDE(VALUE) (((VALUE) == DAC_LFSRUnmask_Bit0) || \
                                                       ((VALUE) == DAC_LFSRUnmask_Bits1_0) || \
@@ -177,7 +174,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DAC_output_buffer 
+/** @defgroup DAC_output_buffer   DAC 输出缓冲
   * @{
   */
 
@@ -189,7 +186,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DAC_Channel_selection 
+/** @defgroup DAC_Channel_selection   DAC 通道选择
   * @{
   */
 
@@ -201,7 +198,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DAC_data_alignment 
+/** @defgroup DAC_data_alignment   DAC 数据对齐
   * @{
   */
 
@@ -215,7 +212,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DAC_wave_generation 
+/** @defgroup DAC_wave_generation   DAC 波形生成
   * @{
   */
 
@@ -227,7 +224,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DAC_data 
+/** @defgroup DAC_data   DAC 数据
   * @{
   */
 
@@ -236,7 +233,7 @@ typedef struct
   * @}
   */
 #if defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL)  || defined (STM32F10X_HD_VL)
-/** @defgroup DAC_interrupts_definition 
+/** @defgroup DAC_interrupts_definition   DAC 中断定义
   * @{
   */ 
   
@@ -247,7 +244,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup DAC_flags_definition 
+/** @defgroup DAC_flags_definition   DAC 标志定义
   * @{
   */ 
   
@@ -263,7 +260,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DAC_Exported_Macros
+/** @defgroup DAC_Exported_Macros   DAC 导出宏
   * @{
   */
 
@@ -271,7 +268,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DAC_Exported_Functions
+/** @defgroup DAC_Exported_Functions   DAC 导出函数
   * @{
   */
 
@@ -314,4 +311,4 @@ void DAC_ClearITPendingBit(uint32_t DAC_Channel, uint32_t DAC_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

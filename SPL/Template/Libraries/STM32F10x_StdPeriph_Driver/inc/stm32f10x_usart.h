@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the USART 
-  *          firmware library.
+  * @brief   本文件包含 USART 固件库所有函数的原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指导之用，旨在为客户提供与其产品相关的编码信息，
+  * 以帮助客户节省时间。因此，对于因本固件的内容和/或客户将其中所含
+  * 编码信息用于其产品而产生的任何索赔所导致的任何直接、间接或
+  * 后果性损害，STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_USART_H
 #define __STM32F10x_USART_H
 
@@ -28,79 +25,77 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup USART
+/** @addtogroup USART  USART 外设
   * @{
   */ 
 
-/** @defgroup USART_Exported_Types
+/** @defgroup USART_Exported_Types  USART 导出类型
   * @{
   */ 
 
-/** 
-  * @brief  USART Init Structure definition  
+/**
+  * @brief  USART 初始化结构体定义
   */ 
   
 typedef struct
 {
-  uint32_t USART_BaudRate;            /*!< This member configures the USART communication baud rate.
-                                           The baud rate is computed using the following formula:
+  uint32_t USART_BaudRate;            /*!< 该成员配置 USART 通信波特率。
+                                           波特率按以下公式计算：
                                             - IntegerDivider = ((PCLKx) / (16 * (USART_InitStruct->USART_BaudRate)))
                                             - FractionalDivider = ((IntegerDivider - ((u32) IntegerDivider)) * 16) + 0.5 */
 
-  uint16_t USART_WordLength;          /*!< Specifies the number of data bits transmitted or received in a frame.
-                                           This parameter can be a value of @ref USART_Word_Length */
+  uint16_t USART_WordLength;          /*!< 指定一帧中发送或接收的数据位数。
+                                           该参数可为 @ref USART_Word_Length 中的取值 */
 
-  uint16_t USART_StopBits;            /*!< Specifies the number of stop bits transmitted.
-                                           This parameter can be a value of @ref USART_Stop_Bits */
+  uint16_t USART_StopBits;            /*!< 指定发送的停止位数。
+                                           该参数可为 @ref USART_Stop_Bits 中的取值 */
 
-  uint16_t USART_Parity;              /*!< Specifies the parity mode.
-                                           This parameter can be a value of @ref USART_Parity
-                                           @note When parity is enabled, the computed parity is inserted
-                                                 at the MSB position of the transmitted data (9th bit when
-                                                 the word length is set to 9 data bits; 8th bit when the
-                                                 word length is set to 8 data bits). */
+  uint16_t USART_Parity;              /*!< 指定校验模式。
+                                           该参数可为 @ref USART_Parity 中的取值
+                                           @note 使能校验时，计算出的校验位插入到
+                                                 所发送数据的 MSB 位置（字长设为 9 个数据位时为
+                                                 第 9 位；字长设为 8 个数据位时为第 8 位）。 */
  
-  uint16_t USART_Mode;                /*!< Specifies wether the Receive or Transmit mode is enabled or disabled.
-                                           This parameter can be a value of @ref USART_Mode */
+  uint16_t USART_Mode;                /*!< 指定接收或发送模式是使能还是关闭。
+                                           该参数可为 @ref USART_Mode 中的取值 */
 
-  uint16_t USART_HardwareFlowControl; /*!< Specifies wether the hardware flow control mode is enabled
-                                           or disabled.
-                                           This parameter can be a value of @ref USART_Hardware_Flow_Control */
+  uint16_t USART_HardwareFlowControl; /*!< 指定硬件流控制模式是使能还是关闭。
+                                           该参数可为 @ref USART_Hardware_Flow_Control 中的取值 */
 } USART_InitTypeDef;
 
-/** 
-  * @brief  USART Clock Init Structure definition  
+/**
+  * @brief  USART 时钟初始化结构体定义
   */ 
   
 typedef struct
 {
 
-  uint16_t USART_Clock;   /*!< Specifies whether the USART clock is enabled or disabled.
-                               This parameter can be a value of @ref USART_Clock */
+  uint16_t USART_Clock;   /*!< 指定 USART 时钟是使能还是关闭。
+                               该参数可为 @ref USART_Clock 中的取值 */
 
-  uint16_t USART_CPOL;    /*!< Specifies the steady state value of the serial clock.
-                               This parameter can be a value of @ref USART_Clock_Polarity */
+  uint16_t USART_CPOL;    /*!< 指定串行时钟的稳态值。
+                               该参数可为 @ref USART_Clock_Polarity 中的取值 */
 
-  uint16_t USART_CPHA;    /*!< Specifies the clock transition on which the bit capture is made.
-                               This parameter can be a value of @ref USART_Clock_Phase */
+  uint16_t USART_CPHA;    /*!< 指定进行位捕获的时钟跳变沿。
+                               该参数可为 @ref USART_Clock_Phase 中的取值 */
 
-  uint16_t USART_LastBit; /*!< Specifies whether the clock pulse corresponding to the last transmitted
-                               data bit (MSB) has to be output on the SCLK pin in synchronous mode.
-                               This parameter can be a value of @ref USART_Last_Bit */
+  uint16_t USART_LastBit; /*!< 指定在同步模式下，最后一个发送数据位（MSB）对应的时钟脉冲
+                               是否需要在 SCLK 引脚上输出。
+                               该参数可为 @ref USART_Last_Bit 中的取值 */
 } USART_ClockInitTypeDef;
 
 /**
   * @}
   */ 
 
-/** @defgroup USART_Exported_Constants
+/** @defgroup USART_Exported_Constants  USART 导出常量
   * @{
   */ 
   
@@ -118,7 +113,7 @@ typedef struct
                                       ((PERIPH) == USART2) || \
                                       ((PERIPH) == USART3) || \
                                       ((PERIPH) == UART4))
-/** @defgroup USART_Word_Length 
+/** @defgroup USART_Word_Length  USART 字长
   * @{
   */ 
   
@@ -131,7 +126,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Stop_Bits 
+/** @defgroup USART_Stop_Bits  USART 停止位
   * @{
   */ 
   
@@ -147,7 +142,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Parity 
+/** @defgroup USART_Parity  USART 校验位
   * @{
   */ 
   
@@ -161,7 +156,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Mode 
+/** @defgroup USART_Mode  USART 模式
   * @{
   */ 
   
@@ -172,7 +167,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Hardware_Flow_Control 
+/** @defgroup USART_Hardware_Flow_Control  USART 硬件流控制
   * @{
   */ 
 #define USART_HardwareFlowControl_None       ((uint16_t)0x0000)
@@ -188,7 +183,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Clock 
+/** @defgroup USART_Clock  USART 时钟
   * @{
   */ 
 #define USART_Clock_Disable                  ((uint16_t)0x0000)
@@ -199,7 +194,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Clock_Polarity 
+/** @defgroup USART_Clock_Polarity  USART 时钟极性
   * @{
   */
   
@@ -211,7 +206,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Clock_Phase
+/** @defgroup USART_Clock_Phase  USART 时钟相位
   * @{
   */
 
@@ -223,7 +218,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup USART_Last_Bit
+/** @defgroup USART_Last_Bit  USART 最后一位
   * @{
   */
 
@@ -235,7 +230,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Interrupt_definition 
+/** @defgroup USART_Interrupt_definition  USART 中断定义
   * @{
   */
   
@@ -265,7 +260,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup USART_DMA_Requests 
+/** @defgroup USART_DMA_Requests  USART DMA 请求
   * @{
   */
 
@@ -277,7 +272,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_WakeUp_methods
+/** @defgroup USART_WakeUp_methods  USART 唤醒方式
   * @{
   */
 
@@ -289,7 +284,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup USART_LIN_Break_Detection_Length 
+/** @defgroup USART_LIN_Break_Detection_Length  USART LIN 断开检测长度
   * @{
   */
   
@@ -302,7 +297,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup USART_IrDA_Low_Power 
+/** @defgroup USART_IrDA_Low_Power  USART IrDA 低功耗
   * @{
   */
 
@@ -314,7 +309,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Flags 
+/** @defgroup USART_Flags  USART 标志
   * @{
   */
 
@@ -350,7 +345,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Exported_Macros
+/** @defgroup USART_Exported_Macros  USART 导出宏
   * @{
   */ 
 
@@ -358,7 +353,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup USART_Exported_Functions
+/** @defgroup USART_Exported_Functions  USART 导出函数
   * @{
   */
 
@@ -409,4 +404,4 @@ void USART_ClearITPendingBit(USART_TypeDef* USARTx, uint16_t USART_IT);
   * @}
   */ 
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

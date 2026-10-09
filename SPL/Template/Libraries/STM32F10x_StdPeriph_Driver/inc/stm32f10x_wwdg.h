@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the WWDG firmware
-  *          library.
+  * @brief   本文件包含 WWDG 固件库所有函数的原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指导之用，旨在为客户提供与其产品相关的编码信息，
+  * 以帮助客户节省时间。因此，对于因本固件的内容和/或客户将其中所含
+  * 编码信息用于其产品而产生的任何索赔所导致的任何直接、间接或
+  * 后果性损害，STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_WWDG_H
 #define __STM32F10x_WWDG_H
 
@@ -28,18 +25,18 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup WWDG
+/** @addtogroup WWDG  WWDG 外设
   * @{
   */ 
 
-/** @defgroup WWDG_Exported_Types
+/** @defgroup WWDG_Exported_Types  WWDG 导出类型
   * @{
   */ 
   
@@ -47,11 +44,11 @@
   * @}
   */ 
 
-/** @defgroup WWDG_Exported_Constants
+/** @defgroup WWDG_Exported_Constants  WWDG 导出常量
   * @{
   */ 
   
-/** @defgroup WWDG_Prescaler 
+/** @defgroup WWDG_Prescaler  WWDG 预分频器
   * @{
   */ 
   
@@ -74,14 +71,14 @@
   * @}
   */ 
 
-/** @defgroup WWDG_Exported_Macros
+/** @defgroup WWDG_Exported_Macros  WWDG 导出宏
   * @{
   */ 
 /**
   * @}
   */ 
 
-/** @defgroup WWDG_Exported_Functions
+/** @defgroup WWDG_Exported_Functions  WWDG 导出函数
   * @{
   */ 
   
@@ -112,4 +109,4 @@ void WWDG_ClearFlag(void);
   * @}
   */ 
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

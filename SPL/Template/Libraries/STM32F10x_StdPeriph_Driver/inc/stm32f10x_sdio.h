@@ -4,8 +4,7 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the SDIO firmware
-  *          library.
+  * @brief   本文件包含 SDIO 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
@@ -20,7 +19,7 @@
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_SDIO_H
 #define __STM32F10x_SDIO_H
 
@@ -28,95 +27,89 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup SDIO
+/** @addtogroup SDIO  SDIO 外设驱动模块
   * @{
   */
 
-/** @defgroup SDIO_Exported_Types
+/** @defgroup SDIO_Exported_Types  SDIO 导出的类型定义
   * @{
   */
 
 typedef struct
 {
-  uint32_t SDIO_ClockEdge;            /*!< Specifies the clock transition on which the bit capture is made.
-                                           This parameter can be a value of @ref SDIO_Clock_Edge */
+  uint32_t SDIO_ClockEdge;            /*!< 指定进行位采样时所依据的时钟跳变。
+                                           该参数可取 @ref SDIO_Clock_Edge 的值 */
 
-  uint32_t SDIO_ClockBypass;          /*!< Specifies whether the SDIO Clock divider bypass is
-                                           enabled or disabled.
-                                           This parameter can be a value of @ref SDIO_Clock_Bypass */
+  uint32_t SDIO_ClockBypass;          /*!< 指定 SDIO 时钟分频旁路是使能还是关闭。
+                                           该参数可取 @ref SDIO_Clock_Bypass 的值 */
 
-  uint32_t SDIO_ClockPowerSave;       /*!< Specifies whether SDIO Clock output is enabled or
-                                           disabled when the bus is idle.
-                                           This parameter can be a value of @ref SDIO_Clock_Power_Save */
+  uint32_t SDIO_ClockPowerSave;       /*!< 指定总线空闲时 SDIO 时钟输出是使能还是关闭。
+                                           该参数可取 @ref SDIO_Clock_Power_Save 的值 */
 
-  uint32_t SDIO_BusWide;              /*!< Specifies the SDIO bus width.
-                                           This parameter can be a value of @ref SDIO_Bus_Wide */
+  uint32_t SDIO_BusWide;              /*!< 指定 SDIO 总线宽度。
+                                           该参数可取 @ref SDIO_Bus_Wide 的值 */
 
-  uint32_t SDIO_HardwareFlowControl;  /*!< Specifies whether the SDIO hardware flow control is enabled or disabled.
-                                           This parameter can be a value of @ref SDIO_Hardware_Flow_Control */
+  uint32_t SDIO_HardwareFlowControl;  /*!< 指定 SDIO 硬件流控制是使能还是关闭。
+                                           该参数可取 @ref SDIO_Hardware_Flow_Control 的值 */
 
-  uint8_t SDIO_ClockDiv;              /*!< Specifies the clock frequency of the SDIO controller.
-                                           This parameter can be a value between 0x00 and 0xFF. */
+  uint8_t SDIO_ClockDiv;              /*!< 指定 SDIO 控制器的时钟频率。
+                                           该参数可取 0x00 到 0xFF 之间的值。 */
                                            
 } SDIO_InitTypeDef;
 
 typedef struct
 {
-  uint32_t SDIO_Argument;  /*!< Specifies the SDIO command argument which is sent
-                                to a card as part of a command message. If a command
-                                contains an argument, it must be loaded into this register
-                                before writing the command to the command register */
+  uint32_t SDIO_Argument;  /*!< 指定作为命令消息一部分发送给卡的 SDIO 命令参数。
+                                如果命令带有参数，必须在将命令写入命令寄存器
+                                之前把该参数装载到此寄存器中 */
 
-  uint32_t SDIO_CmdIndex;  /*!< Specifies the SDIO command index. It must be lower than 0x40. */
+  uint32_t SDIO_CmdIndex;  /*!< 指定 SDIO 命令索引。它必须小于 0x40。 */
 
-  uint32_t SDIO_Response;  /*!< Specifies the SDIO response type.
-                                This parameter can be a value of @ref SDIO_Response_Type */
+  uint32_t SDIO_Response;  /*!< 指定 SDIO 响应类型。
+                                该参数可取 @ref SDIO_Response_Type 的值 */
 
-  uint32_t SDIO_Wait;      /*!< Specifies whether SDIO wait-for-interrupt request is enabled or disabled.
-                                This parameter can be a value of @ref SDIO_Wait_Interrupt_State */
+  uint32_t SDIO_Wait;      /*!< 指定 SDIO 等待中断请求是使能还是关闭。
+                                该参数可取 @ref SDIO_Wait_Interrupt_State 的值 */
 
-  uint32_t SDIO_CPSM;      /*!< Specifies whether SDIO Command path state machine (CPSM)
-                                is enabled or disabled.
-                                This parameter can be a value of @ref SDIO_CPSM_State */
+  uint32_t SDIO_CPSM;      /*!< 指定 SDIO 命令通路状态机（CPSM）是使能还是关闭。
+                                该参数可取 @ref SDIO_CPSM_State 的值 */
 } SDIO_CmdInitTypeDef;
 
 typedef struct
 {
-  uint32_t SDIO_DataTimeOut;    /*!< Specifies the data timeout period in card bus clock periods. */
+  uint32_t SDIO_DataTimeOut;    /*!< 指定以卡总线时钟周期为单位的数据超时时间。 */
 
-  uint32_t SDIO_DataLength;     /*!< Specifies the number of data bytes to be transferred. */
+  uint32_t SDIO_DataLength;     /*!< 指定待传输的数据字节数。 */
  
-  uint32_t SDIO_DataBlockSize;  /*!< Specifies the data block size for block transfer.
-                                     This parameter can be a value of @ref SDIO_Data_Block_Size */
+  uint32_t SDIO_DataBlockSize;  /*!< 指定块传输的数据块大小。
+                                     该参数可取 @ref SDIO_Data_Block_Size 的值 */
  
-  uint32_t SDIO_TransferDir;    /*!< Specifies the data transfer direction, whether the transfer
-                                     is a read or write.
-                                     This parameter can be a value of @ref SDIO_Transfer_Direction */
+  uint32_t SDIO_TransferDir;    /*!< 指定数据传输方向，即传输是读还是写。
+                                     该参数可取 @ref SDIO_Transfer_Direction 的值 */
  
-  uint32_t SDIO_TransferMode;   /*!< Specifies whether data transfer is in stream or block mode.
-                                     This parameter can be a value of @ref SDIO_Transfer_Type */
+  uint32_t SDIO_TransferMode;   /*!< 指定数据传输采用流模式还是块模式。
+                                     该参数可取 @ref SDIO_Transfer_Type 的值 */
  
-  uint32_t SDIO_DPSM;           /*!< Specifies whether SDIO Data path state machine (DPSM)
-                                     is enabled or disabled.
-                                     This parameter can be a value of @ref SDIO_DPSM_State */
+  uint32_t SDIO_DPSM;           /*!< 指定 SDIO 数据通路状态机（DPSM）是使能还是关闭。
+                                     该参数可取 @ref SDIO_DPSM_State 的值 */
 } SDIO_DataInitTypeDef;
 
 /**
   * @}
   */ 
 
-/** @defgroup SDIO_Exported_Constants
+/** @defgroup SDIO_Exported_Constants  SDIO 导出的常量
   * @{
   */
 
-/** @defgroup SDIO_Clock_Edge 
+/** @defgroup SDIO_Clock_Edge  SDIO 时钟边沿
   * @{
   */
 
@@ -128,7 +121,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Clock_Bypass 
+/** @defgroup SDIO_Clock_Bypass  SDIO 时钟分频旁路
   * @{
   */
 
@@ -140,7 +133,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup SDIO_Clock_Power_Save 
+/** @defgroup SDIO_Clock_Power_Save  SDIO 时钟省电
   * @{
   */
 
@@ -152,7 +145,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Bus_Wide 
+/** @defgroup SDIO_Bus_Wide  SDIO 总线宽度
   * @{
   */
 
@@ -166,7 +159,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Hardware_Flow_Control 
+/** @defgroup SDIO_Hardware_Flow_Control  SDIO 硬件流控制
   * @{
   */
 
@@ -178,7 +171,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Power_State 
+/** @defgroup SDIO_Power_State  SDIO 电源状态
   * @{
   */
 
@@ -190,7 +183,7 @@ typedef struct
   */ 
 
 
-/** @defgroup SDIO_Interrupt_sources 
+/** @defgroup SDIO_Interrupt_sources  SDIO 中断源
   * @{
   */
 
@@ -223,7 +216,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup SDIO_Command_Index
+/** @defgroup SDIO_Command_Index  SDIO 命令索引
   * @{
   */
 
@@ -232,7 +225,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Response_Type 
+/** @defgroup SDIO_Response_Type  SDIO 响应类型
   * @{
   */
 
@@ -246,20 +239,20 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Wait_Interrupt_State 
+/** @defgroup SDIO_Wait_Interrupt_State  SDIO 等待中断状态
   * @{
   */
 
-#define SDIO_Wait_No                        ((uint32_t)0x00000000) /*!< SDIO No Wait, TimeOut is enabled */
-#define SDIO_Wait_IT                        ((uint32_t)0x00000100) /*!< SDIO Wait Interrupt Request */
-#define SDIO_Wait_Pend                      ((uint32_t)0x00000200) /*!< SDIO Wait End of transfer */
+#define SDIO_Wait_No                        ((uint32_t)0x00000000) /*!< SDIO 不等待，使能超时 */
+#define SDIO_Wait_IT                        ((uint32_t)0x00000100) /*!< SDIO 等待中断请求 */
+#define SDIO_Wait_Pend                      ((uint32_t)0x00000200) /*!< SDIO 等待传输结束 */
 #define IS_SDIO_WAIT(WAIT) (((WAIT) == SDIO_Wait_No) || ((WAIT) == SDIO_Wait_IT) || \
                             ((WAIT) == SDIO_Wait_Pend))
 /**
   * @}
   */
 
-/** @defgroup SDIO_CPSM_State 
+/** @defgroup SDIO_CPSM_State  SDIO 命令通路状态机状态
   * @{
   */
 
@@ -270,7 +263,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup SDIO_Response_Registers 
+/** @defgroup SDIO_Response_Registers  SDIO 响应寄存器
   * @{
   */
 
@@ -284,7 +277,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Data_Length 
+/** @defgroup SDIO_Data_Length  SDIO 数据长度
   * @{
   */
 
@@ -293,7 +286,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Data_Block_Size 
+/** @defgroup SDIO_Data_Block_Size  SDIO 数据块大小
   * @{
   */
 
@@ -331,7 +324,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Transfer_Direction 
+/** @defgroup SDIO_Transfer_Direction  SDIO 传输方向
   * @{
   */
 
@@ -343,7 +336,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Transfer_Type 
+/** @defgroup SDIO_Transfer_Type  SDIO 传输类型
   * @{
   */
 
@@ -355,7 +348,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_DPSM_State 
+/** @defgroup SDIO_DPSM_State  SDIO 数据通路状态机状态
   * @{
   */
 
@@ -366,7 +359,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Flags 
+/** @defgroup SDIO_Flags  SDIO 标志
   * @{
   */
 
@@ -452,7 +445,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Read_Wait_Mode 
+/** @defgroup SDIO_Read_Wait_Mode  SDIO 读等待模式
   * @{
   */
 
@@ -468,7 +461,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Exported_Macros
+/** @defgroup SDIO_Exported_Macros  SDIO 导出的宏
   * @{
   */
 
@@ -476,7 +469,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDIO_Exported_Functions
+/** @defgroup SDIO_Exported_Functions  SDIO 导出的函数
   * @{
   */
 
@@ -528,4 +521,4 @@ void SDIO_ClearITPendingBit(uint32_t SDIO_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

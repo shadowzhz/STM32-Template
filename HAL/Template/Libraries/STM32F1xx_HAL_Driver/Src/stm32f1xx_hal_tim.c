@@ -2,33 +2,32 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_tim.c
   * @author  MCD Application Team
-  * @brief   TIM HAL module driver.
-  *          This file provides firmware functions to manage the following
-  *          functionalities of the Timer (TIM) peripheral:
-  *           + TIM Time Base Initialization
-  *           + TIM Time Base Start
-  *           + TIM Time Base Start Interruption
-  *           + TIM Time Base Start DMA
-  *           + TIM Output Compare/PWM Initialization
-  *           + TIM Output Compare/PWM Channel Configuration
-  *           + TIM Output Compare/PWM  Start
-  *           + TIM Output Compare/PWM  Start Interruption
-  *           + TIM Output Compare/PWM Start DMA
-  *           + TIM Input Capture Initialization
-  *           + TIM Input Capture Channel Configuration
-  *           + TIM Input Capture Start
-  *           + TIM Input Capture Start Interruption
-  *           + TIM Input Capture Start DMA
-  *           + TIM One Pulse Initialization
-  *           + TIM One Pulse Channel Configuration
-  *           + TIM One Pulse Start
-  *           + TIM Encoder Interface Initialization
-  *           + TIM Encoder Interface Start
-  *           + TIM Encoder Interface Start Interruption
-  *           + TIM Encoder Interface Start DMA
-  *           + Commutation Event configuration with Interruption and DMA
-  *           + TIM OCRef clear configuration
-  *           + TIM External Clock configuration
+  * @brief   TIM HAL 模块驱动程序。
+  *          本文件提供了用于管理定时器 (TIM) 外设以下功能的固件函数：
+  *           + TIM 时基初始化
+  *           + 启动 TIM 时基
+  *           + 启动 TIM 时基中断
+  *           + 启动 TIM 时基 DMA
+  *           + TIM 输出比较/PWM 初始化
+  *           + TIM 输出比较/PWM 通道配置
+  *           + 启动 TIM 输出比较/PWM
+  *           + 启动 TIM 输出比较/PWM 中断
+  *           + 启动 TIM 输出比较/PWM DMA
+  *           + TIM 输入捕获初始化
+  *           + TIM 输入捕获通道配置
+  *           + 启动 TIM 输入捕获
+  *           + 启动 TIM 输入捕获中断
+  *           + 启动 TIM 输入捕获 DMA
+  *           + TIM 单脉冲初始化
+  *           + TIM 单脉冲通道配置
+  *           + 启动 TIM 单脉冲
+  *           + TIM 编码器接口初始化
+  *           + 启动 TIM 编码器接口
+  *           + 启动 TIM 编码器接口中断
+  *           + 启动 TIM 编码器接口 DMA
+  *           + 带中断和 DMA 的换相事件配置
+  *           + TIM OCRef 清除配置
+  *           + TIM 外部时钟配置
   ******************************************************************************
   * @attention
   *
@@ -42,141 +41,127 @@
   ******************************************************************************
   @verbatim
   ==============================================================================
-                      ##### TIMER Generic features #####
+                      ##### 定时器通用特性 #####
   ==============================================================================
-  [..] The Timer features include:
-       (#) 16-bit up, down, up/down auto-reload counter.
-       (#) 16-bit programmable prescaler allowing dividing (also on the fly) the
-           counter clock frequency either by any factor between 1 and 65536.
-       (#) Up to 4 independent channels for:
-           (++) Input Capture
-           (++) Output Compare
-           (++) PWM generation (Edge and Center-aligned Mode)
-           (++) One-pulse mode output
-       (#) Synchronization circuit to control the timer with external signals and to interconnect
-            several timers together.
-       (#) Supports incremental encoder for positioning purposes
+  [..] 定时器特性包括：
+       (#) 16 位递增、递减、中心对齐（递增/递减）自动重装载计数器。
+       (#) 16 位可编程预分频器，允许将计数器时钟频率按 1 到 65536 之间的任意系数进行分频（亦支持运行中实时修改）。
+       (#) 多达 4 个独立通道，用于：
+           (++) 输入捕获
+           (++) 输出比较
+           (++) PWM 生成（边沿对齐和中心对齐模式）
+           (++) 单脉冲模式输出
+       (#) 同步电路，可使用外部信号控制定时器并将多个定时器互联互通。
+       (#) 支持增量式编码器用于定位
 
-            ##### How to use this driver #####
+            ##### 如何使用本驱动程序 #####
   ==============================================================================
     [..]
-     (#) Initialize the TIM low level resources by implementing the following functions
-         depending on the selected feature:
-           (++) Time Base : HAL_TIM_Base_MspInit()
-           (++) Input Capture : HAL_TIM_IC_MspInit()
-           (++) Output Compare : HAL_TIM_OC_MspInit()
-           (++) PWM generation : HAL_TIM_PWM_MspInit()
-           (++) One-pulse mode output : HAL_TIM_OnePulse_MspInit()
-           (++) Encoder mode output : HAL_TIM_Encoder_MspInit()
+     (#) 根据所选功能，通过实现以下函数来初始化 TIM 底层资源：
+           (++) 时基 : HAL_TIM_Base_MspInit()
+           (++) 输入捕获 : HAL_TIM_IC_MspInit()
+           (++) 输出比较 : HAL_TIM_OC_MspInit()
+           (++) PWM 生成 : HAL_TIM_PWM_MspInit()
+           (++) 单脉冲模式输出 : HAL_TIM_OnePulse_MspInit()
+           (++) 编码器模式输出 : HAL_TIM_Encoder_MspInit()
 
-     (#) Initialize the TIM low level resources :
-        (##) Enable the TIM interface clock using __HAL_RCC_TIMx_CLK_ENABLE();
-        (##) TIM pins configuration
-            (+++) Enable the clock for the TIM GPIOs using the following function:
+     (#) 初始化 TIM 底层资源：
+        (##) 使用 __HAL_RCC_TIMx_CLK_ENABLE() 使能 TIM 接口时钟；
+        (##) TIM 引脚配置
+            (+++) 使用以下函数使能 TIM GPIO 的时钟：
              __HAL_RCC_GPIOx_CLK_ENABLE();
-            (+++) Configure these TIM pins in Alternate function mode using HAL_GPIO_Init();
+            (+++) 使用 HAL_GPIO_Init() 将这些 TIM 引脚配置为复用功能模式；
 
-     (#) The external Clock can be configured, if needed (the default clock is the
-         internal clock from the APBx), using the following function:
-         HAL_TIM_ConfigClockSource, the clock configuration should be done before
-         any start function.
+     (#) 如有需要，可以使用以下函数配置外部时钟（默认时钟为来自 APBx 的内部时钟）：
+         HAL_TIM_ConfigClockSource，时钟配置应在任何启动函数之前完成。
 
-     (#) Configure the TIM in the desired functioning mode using one of the
-       Initialization function of this driver:
-       (++) HAL_TIM_Base_Init: to use the Timer to generate a simple time base
-       (++) HAL_TIM_OC_Init and HAL_TIM_OC_ConfigChannel: to use the Timer to generate an
-            Output Compare signal.
-       (++) HAL_TIM_PWM_Init and HAL_TIM_PWM_ConfigChannel: to use the Timer to generate a
-            PWM signal.
-       (++) HAL_TIM_IC_Init and HAL_TIM_IC_ConfigChannel: to use the Timer to measure an
-            external signal.
-       (++) HAL_TIM_OnePulse_Init and HAL_TIM_OnePulse_ConfigChannel: to use the Timer
-            in One Pulse Mode.
-       (++) HAL_TIM_Encoder_Init: to use the Timer Encoder Interface.
+     (#) 使用本驱动程序的初始化函数之一将 TIM 配置为所需的工作模式：
+       (++) HAL_TIM_Base_Init: 用于使用定时器生成简单时基
+       (++) HAL_TIM_OC_Init 和 HAL_TIM_OC_ConfigChannel: 用于使用定时器生成输出比较信号。
+       (++) HAL_TIM_PWM_Init 和 HAL_TIM_PWM_ConfigChannel: 用于使用定时器生成 PWM 信号。
+       (++) HAL_TIM_IC_Init 和 HAL_TIM_IC_ConfigChannel: 用于使用定时器测量外部信号。
+       (++) HAL_TIM_OnePulse_Init 和 HAL_TIM_OnePulse_ConfigChannel: 用于在单脉冲模式下使用定时器。
+       (++) HAL_TIM_Encoder_Init: 用于使用定时器编码器接口。
 
-     (#) Activate the TIM peripheral using one of the start functions depending from the feature used:
-           (++) Time Base : HAL_TIM_Base_Start(), HAL_TIM_Base_Start_DMA(), HAL_TIM_Base_Start_IT()
-           (++) Input Capture :  HAL_TIM_IC_Start(), HAL_TIM_IC_Start_DMA(), HAL_TIM_IC_Start_IT()
-           (++) Output Compare : HAL_TIM_OC_Start(), HAL_TIM_OC_Start_DMA(), HAL_TIM_OC_Start_IT()
-           (++) PWM generation : HAL_TIM_PWM_Start(), HAL_TIM_PWM_Start_DMA(), HAL_TIM_PWM_Start_IT()
-           (++) One-pulse mode output : HAL_TIM_OnePulse_Start(), HAL_TIM_OnePulse_Start_IT()
-           (++) Encoder mode output : HAL_TIM_Encoder_Start(), HAL_TIM_Encoder_Start_DMA(), HAL_TIM_Encoder_Start_IT().
+     (#) 根据所使用的功能，调用相应的启动函数之一来使能 TIM 外设：
+           (++) 时基 : HAL_TIM_Base_Start(), HAL_TIM_Base_Start_DMA(), HAL_TIM_Base_Start_IT()
+           (++) 输入捕获 :  HAL_TIM_IC_Start(), HAL_TIM_IC_Start_DMA(), HAL_TIM_IC_Start_IT()
+           (++) 输出比较 : HAL_TIM_OC_Start(), HAL_TIM_OC_Start_DMA(), HAL_TIM_OC_Start_IT()
+           (++) PWM 生成 : HAL_TIM_PWM_Start(), HAL_TIM_PWM_Start_DMA(), HAL_TIM_PWM_Start_IT()
+           (++) 单脉冲模式输出 : HAL_TIM_OnePulse_Start(), HAL_TIM_OnePulse_Start_IT()
+           (++) 编码器模式输出 : HAL_TIM_Encoder_Start(), HAL_TIM_Encoder_Start_DMA(), HAL_TIM_Encoder_Start_IT()。
 
-     (#) The DMA Burst is managed with the two following functions:
+     (#) DMA 突发模式通过以下两个函数进行管理：
          HAL_TIM_DMABurst_WriteStart()
          HAL_TIM_DMABurst_ReadStart()
 
-    *** Callback registration ***
+    *** 回调函数注册 ***
   =============================================
 
   [..]
-  The compilation define  USE_HAL_TIM_REGISTER_CALLBACKS when set to 1
-  allows the user to configure dynamically the driver callbacks.
+  当编译宏 USE_HAL_TIM_REGISTER_CALLBACKS 设置为 1 时，
+  允许用户动态配置驱动程序回调函数。
 
   [..]
-  Use Function HAL_TIM_RegisterCallback() to register a callback.
-  HAL_TIM_RegisterCallback() takes as parameters the HAL peripheral handle,
-  the Callback ID and a pointer to the user callback function.
+  使用函数 HAL_TIM_RegisterCallback() 注册回调函数。
+  HAL_TIM_RegisterCallback() 的入参包括 HAL 外设句柄、
+  回调函数 ID 以及指向用户回调函数的指针。
 
   [..]
-  Use function HAL_TIM_UnRegisterCallback() to reset a callback to the default
-  weak function.
-  HAL_TIM_UnRegisterCallback takes as parameters the HAL peripheral handle,
-  and the Callback ID.
+  使用函数 HAL_TIM_UnRegisterCallback() 将回调函数重置为默认的 weak 函数。
+  HAL_TIM_UnRegisterCallback 的入参包括 HAL 外设句柄
+  和回调函数 ID。
 
   [..]
-  These functions allow to register/unregister following callbacks:
-    (+) Base_MspInitCallback              : TIM Base Msp Init Callback.
-    (+) Base_MspDeInitCallback            : TIM Base Msp DeInit Callback.
-    (+) IC_MspInitCallback                : TIM IC Msp Init Callback.
-    (+) IC_MspDeInitCallback              : TIM IC Msp DeInit Callback.
-    (+) OC_MspInitCallback                : TIM OC Msp Init Callback.
-    (+) OC_MspDeInitCallback              : TIM OC Msp DeInit Callback.
-    (+) PWM_MspInitCallback               : TIM PWM Msp Init Callback.
-    (+) PWM_MspDeInitCallback             : TIM PWM Msp DeInit Callback.
-    (+) OnePulse_MspInitCallback          : TIM One Pulse Msp Init Callback.
-    (+) OnePulse_MspDeInitCallback        : TIM One Pulse Msp DeInit Callback.
-    (+) Encoder_MspInitCallback           : TIM Encoder Msp Init Callback.
-    (+) Encoder_MspDeInitCallback         : TIM Encoder Msp DeInit Callback.
-    (+) HallSensor_MspInitCallback        : TIM Hall Sensor Msp Init Callback.
-    (+) HallSensor_MspDeInitCallback      : TIM Hall Sensor Msp DeInit Callback.
-    (+) PeriodElapsedCallback             : TIM Period Elapsed Callback.
-    (+) PeriodElapsedHalfCpltCallback     : TIM Period Elapsed half complete Callback.
-    (+) TriggerCallback                   : TIM Trigger Callback.
-    (+) TriggerHalfCpltCallback           : TIM Trigger half complete Callback.
-    (+) IC_CaptureCallback                : TIM Input Capture Callback.
-    (+) IC_CaptureHalfCpltCallback        : TIM Input Capture half complete Callback.
-    (+) OC_DelayElapsedCallback           : TIM Output Compare Delay Elapsed Callback.
-    (+) PWM_PulseFinishedCallback         : TIM PWM Pulse Finished Callback.
-    (+) PWM_PulseFinishedHalfCpltCallback : TIM PWM Pulse Finished half complete Callback.
-    (+) ErrorCallback                     : TIM Error Callback.
-    (+) CommutationCallback               : TIM Commutation Callback.
-    (+) CommutationHalfCpltCallback       : TIM Commutation half complete Callback.
-    (+) BreakCallback                     : TIM Break Callback.
+  这些函数允许注册/注销以下回调函数：
+    (+) Base_MspInitCallback              : TIM 时基 Msp 初始化回调函数。
+    (+) Base_MspDeInitCallback            : TIM 时基 Msp 反初始化回调函数。
+    (+) IC_MspInitCallback                : TIM 输入捕获 Msp 初始化回调函数。
+    (+) IC_MspDeInitCallback              : TIM 输入捕获 Msp 反初始化回调函数。
+    (+) OC_MspInitCallback                : TIM 输出比较 Msp 初始化回调函数。
+    (+) OC_MspDeInitCallback              : TIM 输出比较 Msp 反初始化回调函数。
+    (+) PWM_MspInitCallback               : TIM PWM Msp 初始化回调函数。
+    (+) PWM_MspDeInitCallback             : TIM PWM Msp 反初始化回调函数。
+    (+) OnePulse_MspInitCallback          : TIM 单脉冲 Msp 初始化回调函数。
+    (+) OnePulse_MspDeInitCallback        : TIM 单脉冲 Msp 反初始化回调函数。
+    (+) Encoder_MspInitCallback           : TIM 编码器 Msp 初始化回调函数。
+    (+) Encoder_MspDeInitCallback         : TIM 编码器 Msp 反初始化回调函数。
+    (+) HallSensor_MspInitCallback        : TIM 霍尔传感器 Msp 初始化回调函数。
+    (+) HallSensor_MspDeInitCallback      : TIM 霍尔传感器 Msp 反初始化回调函数。
+    (+) PeriodElapsedCallback             : TIM 周期溢出回调函数。
+    (+) PeriodElapsedHalfCpltCallback     : TIM 周期溢出过半完成回调函数。
+    (+) TriggerCallback                   : TIM 触发回调函数。
+    (+) TriggerHalfCpltCallback           : TIM 触发半传输完成回调函数。
+    (+) IC_CaptureCallback                : TIM 输入捕获回调函数。
+    (+) IC_CaptureHalfCpltCallback        : TIM 输入捕获半传输完成回调函数。
+    (+) OC_DelayElapsedCallback           : TIM 输出比较延迟到达回调函数。
+    (+) PWM_PulseFinishedCallback         : TIM PWM 脉冲完成回调函数。
+    (+) PWM_PulseFinishedHalfCpltCallback : TIM PWM 脉冲半完成回调函数。
+    (+) ErrorCallback                     : TIM 错误回调函数。
+    (+) CommutationCallback               : TIM 换相回调函数。
+    (+) CommutationHalfCpltCallback       : TIM 换相半完成回调函数。
+    (+) BreakCallback                     : TIM 刹车回调函数。
 
   [..]
-By default, after the Init and when the state is HAL_TIM_STATE_RESET
-all interrupt callbacks are set to the corresponding weak functions:
-  examples HAL_TIM_TriggerCallback(), HAL_TIM_ErrorCallback().
+默认情况下，在 Init 之后且状态为 HAL_TIM_STATE_RESET 时，
+所有中断回调函数均被设置为对应的 weak 函数：
+  例如 HAL_TIM_TriggerCallback()、HAL_TIM_ErrorCallback()。
 
   [..]
-  Exception done for MspInit and MspDeInit functions that are reset to the legacy weak
-  functionalities in the Init / DeInit only when these callbacks are null
-  (not registered beforehand). If not, MspInit or MspDeInit are not null, the Init / DeInit
-    keep and use the user MspInit / MspDeInit callbacks(registered beforehand)
+  MspInit 和 MspDeInit 函数例外，仅当这些回调函数为空（事先未注册）时，
+  才会在 Init / DeInit 中被重置为传统的 weak 实现。
+  若 MspInit 或 MspDeInit 不为空，则 Init / DeInit 将保留并使用用户（事先注册的）MspInit / MspDeInit 回调函数。
 
   [..]
-    Callbacks can be registered / unregistered in HAL_TIM_STATE_READY state only.
-    Exception done MspInit / MspDeInit that can be registered / unregistered
-    in HAL_TIM_STATE_READY or HAL_TIM_STATE_RESET state,
-    thus registered(user) MspInit / DeInit callbacks can be used during the Init / DeInit.
-  In that case first register the MspInit/MspDeInit user callbacks
-      using HAL_TIM_RegisterCallback() before calling DeInit or Init function.
+    回调函数仅能在 HAL_TIM_STATE_READY 状态下进行注册/注销。
+    MspInit / MspDeInit 例外，它们可以在 HAL_TIM_STATE_READY 或 HAL_TIM_STATE_RESET 状态下进行注册/注销，
+    因此已注册的（用户）MspInit / DeInit 回调函数可在 Init / DeInit 期间使用。
+    在此情况下，应在调用 DeInit 或 Init 函数之前，
+    首先使用 HAL_TIM_RegisterCallback() 注册 MspInit/MspDeInit 用户回调函数。
 
   [..]
-      When The compilation define USE_HAL_TIM_REGISTER_CALLBACKS is set to 0 or
-      not defined, the callback registration feature is not available and all callbacks
-      are set to the corresponding weak functions.
+      当编译宏 USE_HAL_TIM_REGISTER_CALLBACKS 设置为 0 或未定义时，
+      回调函数注册功能不可用，所有回调函数均被设置为对应的 weak 函数。
 
   @endverbatim
   ******************************************************************************
@@ -190,7 +175,7 @@ all interrupt callbacks are set to the corresponding weak functions:
   */
 
 /** @defgroup TIM TIM
-  * @brief TIM HAL module driver
+  * @brief TIM HAL 模块驱动程序
   * @{
   */
 
@@ -233,45 +218,44 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
   */
 
 /** @defgroup TIM_Exported_Functions_Group1 TIM Time Base functions
-  *  @brief    Time Base functions
+  *  @brief    时基函数
   *
 @verbatim
   ==============================================================================
-              ##### Time Base functions #####
+              ##### 时基函数 #####
   ==============================================================================
   [..]
-    This section provides functions allowing to:
-    (+) Initialize and configure the TIM base.
-    (+) De-initialize the TIM base.
-    (+) Start the Time Base.
-    (+) Stop the Time Base.
-    (+) Start the Time Base and enable interrupt.
-    (+) Stop the Time Base and disable interrupt.
-    (+) Start the Time Base and enable DMA transfer.
-    (+) Stop the Time Base and disable DMA transfer.
+    本节提供的函数可实现：
+    (+) 初始化并配置 TIM 时基单元。
+    (+) 反初始化 TIM 时基单元。
+    (+) 启动时基。
+    (+) 停止时基。
+    (+) 启动时基并使能中断。
+    (+) 停止时基并禁用中断。
+    (+) 启动时基并使能 DMA 传输。
+    (+) 停止时基并禁用 DMA 传输。
 
 @endverbatim
   * @{
   */
 /**
-  * @brief  Initializes the TIM Time base Unit according to the specified
-  *         parameters in the TIM_HandleTypeDef and initialize the associated handle.
-  * @note   Switching from Center Aligned counter mode to Edge counter mode (or reverse)
-  *         requires a timer reset to avoid unexpected direction
-  *         due to DIR bit readonly in center aligned mode.
-  *         Ex: call @ref HAL_TIM_Base_DeInit() before HAL_TIM_Base_Init()
-  * @param  htim TIM Base handle
-  * @retval HAL status
+  * @brief  根据 TIM_HandleTypeDef 中指定的参数初始化 TIM 时基单元，
+  *         并初始化关联的句柄。
+  * @note   从中心对齐计数模式切换到边沿计数模式（或反向切换）时，
+  *         需要复位定时器，以避免因 DIR 位在中心对齐模式下只读而导致计数方向异常。
+  *         例如：在调用 HAL_TIM_Base_Init() 之前先调用 @ref HAL_TIM_Base_DeInit()
+  * @param  htim TIM 时基句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
 {
-  /* Check the TIM handle allocation */
+  /* 检查 TIM 句柄是否有效分配 */
   if (htim == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
   assert_param(IS_TIM_COUNTER_MODE(htim->Init.CounterMode));
   assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
@@ -280,57 +264,57 @@ HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
 
   if (htim->State == HAL_TIM_STATE_RESET)
   {
-    /* Allocate lock resource and initialize it */
+    /* 分配锁资源并进行初始化 */
     htim->Lock = HAL_UNLOCKED;
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
-    /* Reset interrupt callbacks to legacy weak callbacks */
+    /* 将中断回调函数重置为传统的弱定义回调函数 */
     TIM_ResetCallback(htim);
 
     if (htim->Base_MspInitCallback == NULL)
     {
       htim->Base_MspInitCallback = HAL_TIM_Base_MspInit;
     }
-    /* Init the low level hardware : GPIO, CLOCK, NVIC */
+    /* 初始化底层硬件：GPIO、时钟、NVIC */
     htim->Base_MspInitCallback(htim);
 #else
-    /* Init the low level hardware : GPIO, CLOCK, NVIC */
+    /* 初始化底层硬件：GPIO、时钟、NVIC */
     HAL_TIM_Base_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Set the Time Base configuration */
+  /* 设置时基单元配置 */
   TIM_Base_SetConfig(htim->Instance, &htim->Init);
 
-  /* Initialize the DMA burst operation state */
+  /* 初始化 DMA 突发传输操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
 
-  /* Initialize the TIM channels state */
+  /* 初始化 TIM 各通道状态 */
   TIM_CHANNEL_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Initialize the TIM state*/
+  /* 初始化 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
   return HAL_OK;
 }
 
 /**
-  * @brief  DeInitializes the TIM Base peripheral
-  * @param  htim TIM Base handle
-  * @retval HAL status
+  * @brief  反初始化 TIM Base 外设
+  * @param  htim TIM Base 句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Base_DeInit(TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Disable the TIM Peripheral Clock */
+  /* 禁用 TIM 外设时钟 */
   __HAL_TIM_DISABLE(htim);
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -338,82 +322,82 @@ HAL_StatusTypeDef HAL_TIM_Base_DeInit(TIM_HandleTypeDef *htim)
   {
     htim->Base_MspDeInitCallback = HAL_TIM_Base_MspDeInit;
   }
-  /* DeInit the low level hardware */
+  /* 反初始化底层硬件 */
   htim->Base_MspDeInitCallback(htim);
 #else
-  /* DeInit the low level hardware: GPIO, CLOCK, NVIC */
+  /* 反初始化底层硬件：GPIO、CLOCK、NVIC */
   HAL_TIM_Base_MspDeInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 
-  /* Change the DMA burst operation state */
+  /* 改变 DMA 突发传输操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_RESET;
 
-  /* Change the TIM channels state */
+  /* 改变 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_N_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_RESET);
 
-  /* Change TIM state */
+  /* 改变 TIM 状态 */
   htim->State = HAL_TIM_STATE_RESET;
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(htim);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Initializes the TIM Base MSP.
-  * @param  htim TIM Base handle
-  * @retval None
+  * @brief  初始化 TIM Base MSP。
+  * @param  htim TIM Base 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用参数引起的编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_Base_MspInit could be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调函数时，
+            可以在用户文件中实现 HAL_TIM_Base_MspInit
    */
 }
 
 /**
-  * @brief  DeInitializes TIM Base MSP.
-  * @param  htim TIM Base handle
-  * @retval None
+  * @brief  反初始化 TIM Base MSP。
+  * @param  htim TIM Base 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用参数引起的编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_Base_MspDeInit could be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调函数时，
+            可以在用户文件中实现 HAL_TIM_Base_MspDeInit
    */
 }
 
 
 /**
-  * @brief  Starts the TIM Base generation.
-  * @param  htim TIM Base handle
-  * @retval HAL status
+  * @brief  启动 TIM Base 定时生成。
+  * @param  htim TIM Base 句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim)
 {
   uint32_t tmpsmcr;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
-  /* Check the TIM state */
+  /* 检查 TIM 状态 */
   if (htim->State != HAL_TIM_STATE_READY)
   {
     return HAL_ERROR;
   }
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  /* 使能外设，但在触发模式下除外（触发模式下会自动使能） */
   if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
   {
     tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -427,55 +411,55 @@ HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim)
     __HAL_TIM_ENABLE(htim);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM Base generation.
-  * @param  htim TIM Base handle
-  * @retval HAL status
+  * @brief  停止 TIM 基本定时产生。
+  * @param  htim TIM 基本定时句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Base_Stop(TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Starts the TIM Base generation in interrupt mode.
-  * @param  htim TIM Base handle
-  * @retval HAL status
+  * @brief  以中断模式启动 TIM 基本定时产生。
+  * @param  htim TIM 基本定时句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Base_Start_IT(TIM_HandleTypeDef *htim)
 {
   uint32_t tmpsmcr;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
-  /* Check the TIM state */
+  /* 检查 TIM 状态 */
   if (htim->State != HAL_TIM_STATE_READY)
   {
     return HAL_ERROR;
   }
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Enable the TIM Update interrupt */
+  /* 使能 TIM 更新中断 */
   __HAL_TIM_ENABLE_IT(htim, TIM_IT_UPDATE);
 
-  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  /* 使能外设，但在触发模式下除外（触发模式下会自动使能） */
   if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
   {
     tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -489,48 +473,48 @@ HAL_StatusTypeDef HAL_TIM_Base_Start_IT(TIM_HandleTypeDef *htim)
     __HAL_TIM_ENABLE(htim);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM Base generation in interrupt mode.
-  * @param  htim TIM Base handle
-  * @retval HAL status
+  * @brief  停止中断模式下的 TIM 基本定时计数。
+  * @param  htim TIM 基本定时器句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Base_Stop_IT(TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
-  /* Disable the TIM Update interrupt */
+  /* 禁用 TIM 更新中断 */
   __HAL_TIM_DISABLE_IT(htim, TIM_IT_UPDATE);
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Starts the TIM Base generation in DMA mode.
-  * @param  htim TIM Base handle
-  * @param  pData The source Buffer address.
-  * @param  Length The length of data to be transferred from memory to peripheral.
-  * @retval HAL status
+  * @brief  启动 DMA 模式下的 TIM 基本定时计数。
+  * @param  htim TIM 基本定时器句柄
+  * @param  pData 源数据缓冲区地址。
+  * @param  Length 从内存传输到外设的数据长度。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Base_Start_DMA(TIM_HandleTypeDef *htim, const uint32_t *pData, uint16_t Length)
 {
   uint32_t tmpsmcr;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_DMA_INSTANCE(htim->Instance));
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   if (htim->State == HAL_TIM_STATE_BUSY)
   {
     return HAL_BUSY;
@@ -551,25 +535,25 @@ HAL_StatusTypeDef HAL_TIM_Base_Start_DMA(TIM_HandleTypeDef *htim, const uint32_t
     return HAL_ERROR;
   }
 
-  /* Set the DMA Period elapsed callbacks */
+  /* 设置 DMA 周期完成回调函数 */
   htim->hdma[TIM_DMA_ID_UPDATE]->XferCpltCallback = TIM_DMAPeriodElapsedCplt;
   htim->hdma[TIM_DMA_ID_UPDATE]->XferHalfCpltCallback = TIM_DMAPeriodElapsedHalfCplt;
 
-  /* Set the DMA error callback */
+  /* 设置 DMA 错误回调函数 */
   htim->hdma[TIM_DMA_ID_UPDATE]->XferErrorCallback = TIM_DMAError ;
 
-  /* Enable the DMA channel */
+  /* 使能 DMA 通道 */
   if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_UPDATE], (uint32_t)pData, (uint32_t)&htim->Instance->ARR,
                        Length) != HAL_OK)
   {
-    /* Return error status */
+    /* 返回错误状态 */
     return HAL_ERROR;
   }
 
-  /* Enable the TIM Update DMA request */
+  /* 使能 TIM 更新 DMA 请求 */
   __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_UPDATE);
 
-  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  /* 使能外设，触发模式除外（该模式下由触发信号自动使能） */
   if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
   {
     tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -583,32 +567,32 @@ HAL_StatusTypeDef HAL_TIM_Base_Start_DMA(TIM_HandleTypeDef *htim, const uint32_t
     __HAL_TIM_ENABLE(htim);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM Base generation in DMA mode.
-  * @param  htim TIM Base handle
-  * @retval HAL status
+  * @brief  停止 DMA 模式下的 TIM 基本定时计数。
+  * @param  htim TIM 基本定时句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Base_Stop_DMA(TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_DMA_INSTANCE(htim->Instance));
 
-  /* Disable the TIM Update DMA request */
+  /* 禁用 TIM 更新 DMA 请求 */
   __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_UPDATE);
 
   (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_UPDATE]);
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
@@ -616,46 +600,46 @@ HAL_StatusTypeDef HAL_TIM_Base_Stop_DMA(TIM_HandleTypeDef *htim)
   * @}
   */
 
-/** @defgroup TIM_Exported_Functions_Group2 TIM Output Compare functions
-  *  @brief    TIM Output Compare functions
+/** @defgroup TIM_Exported_Functions_Group2 TIM 输出比较函数
+  *  @brief    TIM 输出比较函数
   *
 @verbatim
   ==============================================================================
-                  ##### TIM Output Compare functions #####
+                  ##### TIM 输出比较函数 #####
   ==============================================================================
   [..]
-    This section provides functions allowing to:
-    (+) Initialize and configure the TIM Output Compare.
-    (+) De-initialize the TIM Output Compare.
-    (+) Start the TIM Output Compare.
-    (+) Stop the TIM Output Compare.
-    (+) Start the TIM Output Compare and enable interrupt.
-    (+) Stop the TIM Output Compare and disable interrupt.
-    (+) Start the TIM Output Compare and enable DMA transfer.
-    (+) Stop the TIM Output Compare and disable DMA transfer.
+    本节提供的函数可实现：
+    (+) 初始化并配置 TIM 输出比较。
+    (+) 反初始化 TIM 输出比较。
+    (+) 启动 TIM 输出比较。
+    (+) 停止 TIM 输出比较。
+    (+) 启动 TIM 输出比较并使能中断。
+    (+) 停止 TIM 输出比较并禁用中断。
+    (+) 启动 TIM 输出比较并使能 DMA 传输。
+    (+) 停止 TIM 输出比较并禁用 DMA 传输。
 
 @endverbatim
   * @{
   */
 /**
-  * @brief  Initializes the TIM Output Compare according to the specified
-  *         parameters in the TIM_HandleTypeDef and initializes the associated handle.
-  * @note   Switching from Center Aligned counter mode to Edge counter mode (or reverse)
-  *         requires a timer reset to avoid unexpected direction
-  *         due to DIR bit readonly in center aligned mode.
-  *         Ex: call @ref HAL_TIM_OC_DeInit() before HAL_TIM_OC_Init()
-  * @param  htim TIM Output Compare handle
-  * @retval HAL status
+  * @brief  根据 TIM_HandleTypeDef 中指定的参数初始化 TIM 输出比较，
+  *         并初始化关联的句柄。
+  * @note   从中央对齐计数模式切换到边沿计数模式（或反向切换）
+  *         需要复位定时器，以避免因中央对齐模式下 DIR 位为只读
+  *         而导致的非预期计数方向异常。
+  *         例如：在调用 HAL_TIM_OC_Init() 之前先调用 @ref HAL_TIM_OC_DeInit()
+  * @param  htim TIM 输出比较句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OC_Init(TIM_HandleTypeDef *htim)
 {
-  /* Check the TIM handle allocation */
+  /* 检查 TIM 句柄是否已分配 */
   if (htim == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
   assert_param(IS_TIM_COUNTER_MODE(htim->Init.CounterMode));
   assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
@@ -664,57 +648,57 @@ HAL_StatusTypeDef HAL_TIM_OC_Init(TIM_HandleTypeDef *htim)
 
   if (htim->State == HAL_TIM_STATE_RESET)
   {
-    /* Allocate lock resource and initialize it */
+    /* 分配锁资源并初始化 */
     htim->Lock = HAL_UNLOCKED;
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
-    /* Reset interrupt callbacks to legacy weak callbacks */
+    /* 将中断回调函数重置为传统的弱定义回调函数 */
     TIM_ResetCallback(htim);
 
     if (htim->OC_MspInitCallback == NULL)
     {
       htim->OC_MspInitCallback = HAL_TIM_OC_MspInit;
     }
-    /* Init the low level hardware : GPIO, CLOCK, NVIC */
+    /* 初始化底层硬件：GPIO、时钟、NVIC */
     htim->OC_MspInitCallback(htim);
 #else
-    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* 初始化底层硬件：GPIO、时钟、NVIC 和 DMA */
     HAL_TIM_OC_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Init the base time for the Output Compare */
+  /* 初始化输出比较的时基单元 */
   TIM_Base_SetConfig(htim->Instance,  &htim->Init);
 
-  /* Initialize the DMA burst operation state */
+  /* 初始化 DMA 突发传输操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
 
-  /* Initialize the TIM channels state */
+  /* 初始化 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Initialize the TIM state*/
+  /* 初始化 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
   return HAL_OK;
 }
 
 /**
-  * @brief  DeInitializes the TIM peripheral
-  * @param  htim TIM Output Compare handle
-  * @retval HAL status
+  * @brief  反初始化 TIM 外设
+  * @param  htim TIM 输出比较句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OC_DeInit(TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Disable the TIM Peripheral Clock */
+  /* 禁用 TIM 外设时钟 */
   __HAL_TIM_DISABLE(htim);
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -722,96 +706,96 @@ HAL_StatusTypeDef HAL_TIM_OC_DeInit(TIM_HandleTypeDef *htim)
   {
     htim->OC_MspDeInitCallback = HAL_TIM_OC_MspDeInit;
   }
-  /* DeInit the low level hardware */
+  /* 反初始化底层硬件 */
   htim->OC_MspDeInitCallback(htim);
 #else
-  /* DeInit the low level hardware: GPIO, CLOCK, NVIC and DMA */
+  /* 反初始化底层硬件：GPIO、时钟、NVIC 和 DMA */
   HAL_TIM_OC_MspDeInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 
-  /* Change the DMA burst operation state */
+  /* 改变 DMA 突发传输操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_RESET;
 
-  /* Change the TIM channels state */
+  /* 改变 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_N_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_RESET);
 
-  /* Change TIM state */
+  /* 改变 TIM 状态 */
   htim->State = HAL_TIM_STATE_RESET;
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(htim);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Initializes the TIM Output Compare MSP.
-  * @param  htim TIM Output Compare handle
-  * @retval None
+  * @brief  初始化 TIM 输出比较 MSP。
+  * @param  htim TIM 输出比较句柄
+  * @retval 无
   */
 __weak void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_OC_MspInit could be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调时，
+            可以在用户文件中实现 HAL_TIM_OC_MspInit
    */
 }
 
 /**
-  * @brief  DeInitializes TIM Output Compare MSP.
-  * @param  htim TIM Output Compare handle
-  * @retval None
+  * @brief  反初始化 TIM 输出比较 MSP。
+  * @param  htim TIM 输出比较句柄
+  * @retval 无
   */
 __weak void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_OC_MspDeInit could be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调时，
+            可以在用户文件中实现 HAL_TIM_OC_MspDeInit
    */
 }
 
 /**
-  * @brief  Starts the TIM Output Compare signal generation.
-  * @param  htim TIM Output Compare handle
-  * @param  Channel TIM Channel to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  启动 TIM 输出比较信号生成。
+  * @param  htim TIM 输出比较句柄
+  * @param  Channel 要使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OC_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   uint32_t tmpsmcr;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Check the TIM channel state */
+  /* 检查 TIM 通道状态 */
   if (TIM_CHANNEL_STATE_GET(htim, Channel) != HAL_TIM_CHANNEL_STATE_READY)
   {
     return HAL_ERROR;
   }
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
 
-  /* Enable the Output compare channel */
+  /* 使能输出比较通道 */
   TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_ENABLE);
 
   if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
   {
-    /* Enable the main output */
+    /* 使能主输出 */
     __HAL_TIM_MOE_ENABLE(htim);
   }
 
-  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  /* 使能外设，但在触发模式下除外，该模式下使能会随触发自动完成 */
   if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
   {
     tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -825,99 +809,99 @@ HAL_StatusTypeDef HAL_TIM_OC_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
     __HAL_TIM_ENABLE(htim);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM Output Compare signal generation.
-  * @param  htim TIM Output Compare handle
-  * @param  Channel TIM Channel to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  停止 TIM 输出比较信号生成。
+  * @param  htim TIM 输出比较句柄
+  * @param  Channel 要禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OC_Stop(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Disable the Output compare channel */
+  /* 禁用输出比较通道 */
   TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_DISABLE);
 
   if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
   {
-    /* Disable the Main Output */
+    /* 禁用主输出 */
     __HAL_TIM_MOE_DISABLE(htim);
   }
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Starts the TIM Output Compare signal generation in interrupt mode.
-  * @param  htim TIM Output Compare handle
-  * @param  Channel TIM Channel to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  以中断模式启动 TIM 输出比较信号生成。
+  * @param  htim TIM 输出比较句柄
+  * @param  Channel 要使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OC_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t tmpsmcr;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Check the TIM channel state */
+  /* 检查 TIM 通道状态 */
   if (TIM_CHANNEL_STATE_GET(htim, Channel) != HAL_TIM_CHANNEL_STATE_READY)
   {
     return HAL_ERROR;
   }
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Enable the TIM Capture/Compare 1 interrupt */
+      /* 使能 TIM 捕获/比较 1 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC1);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Enable the TIM Capture/Compare 2 interrupt */
+      /* 使能 TIM 捕获/比较 2 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Enable the TIM Capture/Compare 3 interrupt */
+      /* 使能 TIM 捕获/比较 3 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC3);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Enable the TIM Capture/Compare 4 interrupt */
+      /* 使能 TIM 捕获/比较 4 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC4);
       break;
     }
@@ -929,16 +913,16 @@ HAL_StatusTypeDef HAL_TIM_OC_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 
   if (status == HAL_OK)
   {
-    /* Enable the Output compare channel */
+    /* 使能输出比较通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_ENABLE);
 
     if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
     {
-      /* Enable the main output */
+      /* 使能主输出 */
       __HAL_TIM_MOE_ENABLE(htim);
     }
 
-    /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+    /* 使能外设，但在触发模式下除外（触发模式下由触发信号自动使能） */
     if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
     {
       tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -953,54 +937,54 @@ HAL_StatusTypeDef HAL_TIM_OC_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
     }
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Stops the TIM Output Compare signal generation in interrupt mode.
-  * @param  htim TIM Output Compare handle
-  * @param  Channel TIM Channel to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  在中断模式下停止 TIM 输出比较信号生成。
+  * @param  htim TIM 输出比较句柄
+  * @param  Channel 要禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Disable the TIM Capture/Compare 1 interrupt */
+      /* 禁用 TIM 捕获/比较 1 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Disable the TIM Capture/Compare 2 interrupt */
+      /* 禁用 TIM 捕获/比较 2 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Disable the TIM Capture/Compare 3 interrupt */
+      /* 禁用 TIM 捕获/比较 3 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC3);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Disable the TIM Capture/Compare 4 interrupt */
+      /* 禁用 TIM 捕获/比较 4 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC4);
       break;
     }
@@ -1012,38 +996,38 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 
   if (status == HAL_OK)
   {
-    /* Disable the Output compare channel */
+    /* 禁用输出比较通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_DISABLE);
 
     if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
     {
-      /* Disable the Main Output */
+      /* 禁用主输出 */
       __HAL_TIM_MOE_DISABLE(htim);
     }
 
-    /* Disable the Peripheral */
+    /* 禁用外设 */
     __HAL_TIM_DISABLE(htim);
 
-    /* Set the TIM channel state */
+    /* 设置 TIM 通道状态 */
     TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Starts the TIM Output Compare signal generation in DMA mode.
-  * @param  htim TIM Output Compare handle
-  * @param  Channel TIM Channel to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @param  pData The source Buffer address.
-  * @param  Length The length of data to be transferred from memory to TIM peripheral
-  * @retval HAL status
+  * @brief  在 DMA 模式下启动 TIM 输出比较信号生成。
+  * @param  htim TIM 输出比较句柄
+  * @param  Channel 要使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @param  pData 源缓冲区地址。
+  * @param  Length 从内存传输到 TIM 外设的数据长度
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, const uint32_t *pData,
                                        uint16_t Length)
@@ -1051,10 +1035,10 @@ HAL_StatusTypeDef HAL_TIM_OC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t tmpsmcr;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   if (TIM_CHANNEL_STATE_GET(htim, Channel) == HAL_TIM_CHANNEL_STATE_BUSY)
   {
     return HAL_BUSY;
@@ -1079,86 +1063,86 @@ HAL_StatusTypeDef HAL_TIM_OC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
   {
     case TIM_CHANNEL_1:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)pData, (uint32_t)&htim->Instance->CCR1,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
 
-      /* Enable the TIM Capture/Compare 1 DMA request */
+      /* 使能 TIM 捕获/比较 1 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC1);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC2]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)pData, (uint32_t)&htim->Instance->CCR2,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
 
-      /* Enable the TIM Capture/Compare 2 DMA request */
+      /* 使能 TIM 捕获/比较 2 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC2);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC3]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)pData, (uint32_t)&htim->Instance->CCR3,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Capture/Compare 3 DMA request */
+      /* 使能 TIM 捕获/比较 3 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC3);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC4]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC4], (uint32_t)pData, (uint32_t)&htim->Instance->CCR4,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Capture/Compare 4 DMA request */
+      /* 使能 TIM 捕获/比较 4 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC4);
       break;
     }
@@ -1170,16 +1154,16 @@ HAL_StatusTypeDef HAL_TIM_OC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
 
   if (status == HAL_OK)
   {
-    /* Enable the Output compare channel */
+    /* 使能输出比较通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_ENABLE);
 
     if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
     {
-      /* Enable the main output */
+      /* 使能主输出 */
       __HAL_TIM_MOE_ENABLE(htim);
     }
 
-    /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+    /* 使能外设，但在触发模式下除外（触发模式下由触发信号自动使能） */
     if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
     {
       tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -1194,33 +1178,33 @@ HAL_StatusTypeDef HAL_TIM_OC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
     }
   }
 
-  /* Return function status */
+  /* 返回函数执行状态 */
   return status;
 }
 
 /**
-  * @brief  Stops the TIM Output Compare signal generation in DMA mode.
-  * @param  htim TIM Output Compare handle
-  * @param  Channel TIM Channel to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  停止以 DMA 模式生成 TIM 输出比较信号。
+  * @param  htim TIM 输出比较句柄
+  * @param  Channel 要禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Disable the TIM Capture/Compare 1 DMA request */
+      /* 禁用 TIM 捕获/比较 1 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC1);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC1]);
       break;
@@ -1228,7 +1212,7 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 
     case TIM_CHANNEL_2:
     {
-      /* Disable the TIM Capture/Compare 2 DMA request */
+      /* 禁用 TIM 捕获/比较 2 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC2);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC2]);
       break;
@@ -1236,7 +1220,7 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 
     case TIM_CHANNEL_3:
     {
-      /* Disable the TIM Capture/Compare 3 DMA request */
+      /* 禁用 TIM 捕获/比较 3 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC3);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC3]);
       break;
@@ -1244,7 +1228,7 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 
     case TIM_CHANNEL_4:
     {
-      /* Disable the TIM Capture/Compare 4 interrupt */
+      /* 禁用 TIM 捕获/比较 4 中断 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC4);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC4]);
       break;
@@ -1257,23 +1241,23 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 
   if (status == HAL_OK)
   {
-    /* Disable the Output compare channel */
+    /* 禁用输出比较通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_DISABLE);
 
     if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
     {
-      /* Disable the Main Output */
+      /* 禁用主输出 */
       __HAL_TIM_MOE_DISABLE(htim);
     }
 
-    /* Disable the Peripheral */
+    /* 禁用外设 */
     __HAL_TIM_DISABLE(htim);
 
-    /* Set the TIM channel state */
+    /* 设置 TIM 通道状态 */
     TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
@@ -1282,45 +1266,45 @@ HAL_StatusTypeDef HAL_TIM_OC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
   */
 
 /** @defgroup TIM_Exported_Functions_Group3 TIM PWM functions
-  *  @brief    TIM PWM functions
+  *  @brief    TIM PWM 功能函数
   *
 @verbatim
   ==============================================================================
-                          ##### TIM PWM functions #####
+                          ##### TIM PWM 功能函数 #####
   ==============================================================================
   [..]
-    This section provides functions allowing to:
-    (+) Initialize and configure the TIM PWM.
-    (+) De-initialize the TIM PWM.
-    (+) Start the TIM PWM.
-    (+) Stop the TIM PWM.
-    (+) Start the TIM PWM and enable interrupt.
-    (+) Stop the TIM PWM and disable interrupt.
-    (+) Start the TIM PWM and enable DMA transfer.
-    (+) Stop the TIM PWM and disable DMA transfer.
+    本节提供的函数允许实现：
+    (+) 初始化并配置 TIM PWM。
+    (+) 反初始化 TIM PWM。
+    (+) 启动 TIM PWM。
+    (+) 停止 TIM PWM。
+    (+) 启动 TIM PWM 并使能中断。
+    (+) 停止 TIM PWM 并禁用中断。
+    (+) 启动 TIM PWM 并使能 DMA 传输。
+    (+) 停止 TIM PWM 并禁用 DMA 传输。
 
 @endverbatim
   * @{
   */
 /**
-  * @brief  Initializes the TIM PWM Time Base according to the specified
-  *         parameters in the TIM_HandleTypeDef and initializes the associated handle.
-  * @note   Switching from Center Aligned counter mode to Edge counter mode (or reverse)
-  *         requires a timer reset to avoid unexpected direction
-  *         due to DIR bit readonly in center aligned mode.
-  *         Ex: call @ref HAL_TIM_PWM_DeInit() before HAL_TIM_PWM_Init()
-  * @param  htim TIM PWM handle
-  * @retval HAL status
+  * @brief  根据 TIM_HandleTypeDef 中指定的参数初始化 TIM PWM 时基单元，
+  *         并初始化相关句柄。
+  * @note   从中央对齐计数模式切换到边沿计数模式（或反之）
+  *         需要复位定时器，以避免因中央对齐模式下 DIR 位为只读
+  *         而导致的异常计数方向。
+  *         例如：在调用 HAL_TIM_PWM_Init() 之前先调用 @ref HAL_TIM_PWM_DeInit()
+  * @param  htim TIM PWM 句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_PWM_Init(TIM_HandleTypeDef *htim)
 {
-  /* Check the TIM handle allocation */
+  /* 检查 TIM 句柄分配有效性 */
   if (htim == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
   assert_param(IS_TIM_COUNTER_MODE(htim->Init.CounterMode));
   assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
@@ -1329,57 +1313,57 @@ HAL_StatusTypeDef HAL_TIM_PWM_Init(TIM_HandleTypeDef *htim)
 
   if (htim->State == HAL_TIM_STATE_RESET)
   {
-    /* Allocate lock resource and initialize it */
+    /* 分配锁资源并进行初始化 */
     htim->Lock = HAL_UNLOCKED;
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
-    /* Reset interrupt callbacks to legacy weak callbacks */
+    /* 将中断回调函数重置为传统的弱定义回调函数 */
     TIM_ResetCallback(htim);
 
     if (htim->PWM_MspInitCallback == NULL)
     {
       htim->PWM_MspInitCallback = HAL_TIM_PWM_MspInit;
     }
-    /* Init the low level hardware : GPIO, CLOCK, NVIC */
+    /* 初始化底层硬件：GPIO、时钟、NVIC */
     htim->PWM_MspInitCallback(htim);
 #else
-    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* 初始化底层硬件：GPIO、时钟、NVIC 和 DMA */
     HAL_TIM_PWM_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Init the base time for the PWM */
+  /* 初始化 PWM 时基 */
   TIM_Base_SetConfig(htim->Instance, &htim->Init);
 
-  /* Initialize the DMA burst operation state */
+  /* 初始化 DMA 突发传输操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
 
-  /* Initialize the TIM channels state */
+  /* 初始化 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Initialize the TIM state*/
+  /* 初始化 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
   return HAL_OK;
 }
 
 /**
-  * @brief  DeInitializes the TIM peripheral
-  * @param  htim TIM PWM handle
-  * @retval HAL status
+  * @brief  反初始化 TIM 外设
+  * @param  htim TIM PWM 句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_PWM_DeInit(TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Disable the TIM Peripheral Clock */
+  /* 禁用 TIM 外设时钟 */
   __HAL_TIM_DISABLE(htim);
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -1387,96 +1371,96 @@ HAL_StatusTypeDef HAL_TIM_PWM_DeInit(TIM_HandleTypeDef *htim)
   {
     htim->PWM_MspDeInitCallback = HAL_TIM_PWM_MspDeInit;
   }
-  /* DeInit the low level hardware */
+  /* 反初始化底层硬件 */
   htim->PWM_MspDeInitCallback(htim);
 #else
-  /* DeInit the low level hardware: GPIO, CLOCK, NVIC and DMA */
+  /* 反初始化底层硬件：GPIO、时钟、NVIC 和 DMA */
   HAL_TIM_PWM_MspDeInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 
-  /* Change the DMA burst operation state */
+  /* 改变 DMA 突发传输操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_RESET;
 
-  /* Change the TIM channels state */
+  /* 改变 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_N_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_RESET);
 
-  /* Change TIM state */
+  /* 改变 TIM 状态 */
   htim->State = HAL_TIM_STATE_RESET;
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(htim);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Initializes the TIM PWM MSP.
-  * @param  htim TIM PWM handle
-  * @retval None
+  * @brief  初始化 TIM PWM MSP。
+  * @param  htim TIM PWM 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_PWM_MspInit could be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调函数时，
+            可以在用户文件中实现 HAL_TIM_PWM_MspInit
    */
 }
 
 /**
-  * @brief  DeInitializes TIM PWM MSP.
-  * @param  htim TIM PWM handle
-  * @retval None
+  * @brief  反初始化 TIM PWM MSP。
+  * @param  htim TIM PWM 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_PWM_MspDeInit could be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调函数时，
+            可以在用户文件中实现 HAL_TIM_PWM_MspDeInit
    */
 }
 
 /**
-  * @brief  Starts the PWM signal generation.
-  * @param  htim TIM handle
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  启动 PWM 信号生成。
+  * @param  htim TIM 句柄
+  * @param  Channel 待使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_PWM_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   uint32_t tmpsmcr;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Check the TIM channel state */
+  /* 检查 TIM 通道状态 */
   if (TIM_CHANNEL_STATE_GET(htim, Channel) != HAL_TIM_CHANNEL_STATE_READY)
   {
     return HAL_ERROR;
   }
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
 
-  /* Enable the Capture compare channel */
+  /* 使能捕获/比较通道 */
   TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_ENABLE);
 
   if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
   {
-    /* Enable the main output */
+    /* 使能主输出 */
     __HAL_TIM_MOE_ENABLE(htim);
   }
 
-  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  /* 使能外设，但在触发模式下除外，该模式下外设会随触发信号自动使能 */
   if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
   {
     tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -1490,99 +1474,99 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
     __HAL_TIM_ENABLE(htim);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the PWM signal generation.
-  * @param  htim TIM PWM handle
-  * @param  Channel TIM Channels to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  停止 PWM 信号生成。
+  * @param  htim TIM PWM 句柄
+  * @param  Channel 要禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选中 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选中 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选中 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选中 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_PWM_Stop(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Disable the Capture compare channel */
+  /* 禁用捕获/比较通道 */
   TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_DISABLE);
 
   if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
   {
-    /* Disable the Main Output */
+    /* 禁用主输出 */
     __HAL_TIM_MOE_DISABLE(htim);
   }
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Starts the PWM signal generation in interrupt mode.
-  * @param  htim TIM PWM handle
-  * @param  Channel TIM Channel to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  以中断模式启动 PWM 信号生成。
+  * @param  htim TIM PWM 句柄
+  * @param  Channel 要使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选中 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选中 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选中 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选中 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_PWM_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t tmpsmcr;
 
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Check the TIM channel state */
+  /* 检查 TIM 通道状态 */
   if (TIM_CHANNEL_STATE_GET(htim, Channel) != HAL_TIM_CHANNEL_STATE_READY)
   {
     return HAL_ERROR;
   }
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Enable the TIM Capture/Compare 1 interrupt */
+      /* 使能 TIM 捕获/比较 1 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC1);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Enable the TIM Capture/Compare 2 interrupt */
+      /* 使能 TIM 捕获/比较 2 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Enable the TIM Capture/Compare 3 interrupt */
+      /* 使能 TIM 捕获/比较 3 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC3);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Enable the TIM Capture/Compare 4 interrupt */
+      /* 使能 TIM 捕获/比较 4 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC4);
       break;
     }
@@ -1594,16 +1578,16 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel
 
   if (status == HAL_OK)
   {
-    /* Enable the Capture compare channel */
+    /* 使能捕获/比较通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_ENABLE);
 
     if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
     {
-      /* Enable the main output */
+      /* 使能主输出 */
       __HAL_TIM_MOE_ENABLE(htim);
     }
 
-    /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+    /* 使能外设，但在触发模式下除外，该模式下会通过触发信号自动使能 */
     if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
     {
       tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -1618,54 +1602,54 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel
     }
   }
 
-  /* Return function status */
+  /* 返回函数执行状态 */
   return status;
 }
 
 /**
-  * @brief  Stops the PWM signal generation in interrupt mode.
-  * @param  htim TIM PWM handle
-  * @param  Channel TIM Channels to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  在中断模式下停止 PWM 信号生成。
+  * @param  htim TIM PWM 句柄
+  * @param  Channel 待禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_PWM_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Disable the TIM Capture/Compare 1 interrupt */
+      /* 禁用 TIM 捕获/比较 1 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Disable the TIM Capture/Compare 2 interrupt */
+      /* 禁用 TIM 捕获/比较 2 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Disable the TIM Capture/Compare 3 interrupt */
+      /* 禁用 TIM 捕获/比较 3 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC3);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Disable the TIM Capture/Compare 4 interrupt */
+      /* 禁用 TIM 捕获/比较 4 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC4);
       break;
     }
@@ -1677,38 +1661,38 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 
   if (status == HAL_OK)
   {
-    /* Disable the Capture compare channel */
+    /* 禁用捕获/比较通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_DISABLE);
 
     if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
     {
-      /* Disable the Main Output */
+      /* 禁用主输出 */
       __HAL_TIM_MOE_DISABLE(htim);
     }
 
-    /* Disable the Peripheral */
+    /* 禁用外设 */
     __HAL_TIM_DISABLE(htim);
 
-    /* Set the TIM channel state */
+    /* 设置 TIM 通道状态 */
     TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Starts the TIM PWM signal generation in DMA mode.
-  * @param  htim TIM PWM handle
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @param  pData The source Buffer address.
-  * @param  Length The length of data to be transferred from memory to TIM peripheral
-  * @retval HAL status
+  * @brief  以 DMA 模式启动 TIM PWM 信号生成。
+  * @param  htim TIM PWM 句柄
+  * @param  Channel 待使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @param  pData 源缓冲区地址。
+  * @param  Length 从内存传输到 TIM 外设的数据长度
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_PWM_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, const uint32_t *pData,
                                         uint16_t Length)
@@ -1716,10 +1700,10 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channe
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t tmpsmcr;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   if (TIM_CHANNEL_STATE_GET(htim, Channel) == HAL_TIM_CHANNEL_STATE_BUSY)
   {
     return HAL_BUSY;
@@ -1744,85 +1728,85 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channe
   {
     case TIM_CHANNEL_1:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)pData, (uint32_t)&htim->Instance->CCR1,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
 
-      /* Enable the TIM Capture/Compare 1 DMA request */
+      /* 使能 TIM 捕获/比较 1 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC1);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC2]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)pData, (uint32_t)&htim->Instance->CCR2,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Capture/Compare 2 DMA request */
+      /* 使能 TIM 捕获/比较 2 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC2);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC3]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)pData, (uint32_t)&htim->Instance->CCR3,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Output Capture/Compare 3 request */
+      /* 使能 TIM 输出捕获/比较 3 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC3);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC4]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC4], (uint32_t)pData, (uint32_t)&htim->Instance->CCR4,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Capture/Compare 4 DMA request */
+      /* 使能 TIM 捕获/比较 4 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC4);
       break;
     }
@@ -1834,16 +1818,16 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channe
 
   if (status == HAL_OK)
   {
-    /* Enable the Capture compare channel */
+    /* 使能捕获比较通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_ENABLE);
 
     if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
     {
-      /* Enable the main output */
+      /* 使能主输出 */
       __HAL_TIM_MOE_ENABLE(htim);
     }
 
-    /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+    /* 使能外设，但在触发模式下除外，此时将通过触发自动完成使能 */
     if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
     {
       tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -1858,33 +1842,33 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channe
     }
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Stops the TIM PWM signal generation in DMA mode.
-  * @param  htim TIM PWM handle
-  * @param  Channel TIM Channels to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  停止 DMA 模式下的 TIM PWM 信号生成。
+  * @param  htim TIM PWM 句柄
+  * @param  Channel 待禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Disable the TIM Capture/Compare 1 DMA request */
+      /* 禁用 TIM 捕获/比较 1 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC1);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC1]);
       break;
@@ -1892,7 +1876,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
 
     case TIM_CHANNEL_2:
     {
-      /* Disable the TIM Capture/Compare 2 DMA request */
+      /* 禁用 TIM 捕获/比较 2 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC2);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC2]);
       break;
@@ -1900,7 +1884,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
 
     case TIM_CHANNEL_3:
     {
-      /* Disable the TIM Capture/Compare 3 DMA request */
+      /* 禁用 TIM 捕获/比较 3 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC3);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC3]);
       break;
@@ -1908,7 +1892,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
 
     case TIM_CHANNEL_4:
     {
-      /* Disable the TIM Capture/Compare 4 interrupt */
+      /* 禁用 TIM 捕获/比较 4 中断 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC4);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC4]);
       break;
@@ -1921,23 +1905,23 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
 
   if (status == HAL_OK)
   {
-    /* Disable the Capture compare channel */
+    /* 禁用捕获/比较通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_DISABLE);
 
     if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
     {
-      /* Disable the Main Output */
+      /* 禁用主输出 */
       __HAL_TIM_MOE_DISABLE(htim);
     }
 
-    /* Disable the Peripheral */
+    /* 禁用外设 */
     __HAL_TIM_DISABLE(htim);
 
-    /* Set the TIM channel state */
+    /* 设置 TIM 通道状态 */
     TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
@@ -1945,46 +1929,46 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
   * @}
   */
 
-/** @defgroup TIM_Exported_Functions_Group4 TIM Input Capture functions
-  *  @brief    TIM Input Capture functions
+/** @defgroup TIM_Exported_Functions_Group4 TIM 输入捕获函数
+  *  @brief    TIM 输入捕获函数
   *
 @verbatim
   ==============================================================================
-              ##### TIM Input Capture functions #####
+              ##### TIM 输入捕获函数 #####
   ==============================================================================
  [..]
-   This section provides functions allowing to:
-   (+) Initialize and configure the TIM Input Capture.
-   (+) De-initialize the TIM Input Capture.
-   (+) Start the TIM Input Capture.
-   (+) Stop the TIM Input Capture.
-   (+) Start the TIM Input Capture and enable interrupt.
-   (+) Stop the TIM Input Capture and disable interrupt.
-   (+) Start the TIM Input Capture and enable DMA transfer.
-   (+) Stop the TIM Input Capture and disable DMA transfer.
+   本节提供的函数允许实现：
+   (+) 初始化并配置 TIM 输入捕获。
+   (+) 反初始化 TIM 输入捕获。
+   (+) 启动 TIM 输入捕获。
+   (+) 停止 TIM 输入捕获。
+   (+) 启动 TIM 输入捕获并使能中断。
+   (+) 停止 TIM 输入捕获并禁用中断。
+   (+) 启动 TIM 输入捕获并使能 DMA 传输。
+   (+) 停止 TIM 输入捕获并禁用 DMA 传输。
 
 @endverbatim
   * @{
   */
 /**
-  * @brief  Initializes the TIM Input Capture Time base according to the specified
-  *         parameters in the TIM_HandleTypeDef and initializes the associated handle.
-  * @note   Switching from Center Aligned counter mode to Edge counter mode (or reverse)
-  *         requires a timer reset to avoid unexpected direction
-  *         due to DIR bit readonly in center aligned mode.
-  *         Ex: call @ref HAL_TIM_IC_DeInit() before HAL_TIM_IC_Init()
-  * @param  htim TIM Input Capture handle
-  * @retval HAL status
+  * @brief  根据 TIM_HandleTypeDef 中指定的参数初始化 TIM 输入捕获时基，
+  *         并初始化相关联的句柄。
+  * @note   从中央对齐计数模式切换到边沿计数模式（或反向切换）
+  *         需要复位定时器，以避免因中央对齐模式下 DIR 位只读
+  *         而导致的异常计数方向。
+  *         例如：在调用 @ref HAL_TIM_IC_Init() 之前先调用 @ref HAL_TIM_IC_DeInit()
+  * @param  htim TIM 输入捕获句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_IC_Init(TIM_HandleTypeDef *htim)
 {
-  /* Check the TIM handle allocation */
+  /* 检查 TIM 句柄分配 */
   if (htim == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
   assert_param(IS_TIM_COUNTER_MODE(htim->Init.CounterMode));
   assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
@@ -1993,57 +1977,57 @@ HAL_StatusTypeDef HAL_TIM_IC_Init(TIM_HandleTypeDef *htim)
 
   if (htim->State == HAL_TIM_STATE_RESET)
   {
-    /* Allocate lock resource and initialize it */
+    /* 分配锁资源并进行初始化 */
     htim->Lock = HAL_UNLOCKED;
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
-    /* Reset interrupt callbacks to legacy weak callbacks */
+    /* 将中断回调函数重置为传统的弱定义回调函数 */
     TIM_ResetCallback(htim);
 
     if (htim->IC_MspInitCallback == NULL)
     {
       htim->IC_MspInitCallback = HAL_TIM_IC_MspInit;
     }
-    /* Init the low level hardware : GPIO, CLOCK, NVIC */
+    /* 初始化底层硬件：GPIO、时钟、NVIC */
     htim->IC_MspInitCallback(htim);
 #else
-    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* 初始化底层硬件：GPIO、时钟、NVIC 和 DMA */
     HAL_TIM_IC_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Init the base time for the input capture */
+  /* 初始化输入捕获的时基单元 */
   TIM_Base_SetConfig(htim->Instance, &htim->Init);
 
-  /* Initialize the DMA burst operation state */
+  /* 初始化 DMA 突发传输操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
 
-  /* Initialize the TIM channels state */
+  /* 初始化 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Initialize the TIM state*/
+  /* 初始化 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
   return HAL_OK;
 }
 
 /**
-  * @brief  DeInitializes the TIM peripheral
-  * @param  htim TIM Input Capture handle
-  * @retval HAL status
+  * @brief  反初始化 TIM 外设
+  * @param  htim TIM 输入捕获句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_IC_DeInit(TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Disable the TIM Peripheral Clock */
+  /* 禁用 TIM 外设时钟 */
   __HAL_TIM_DISABLE(htim);
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -2051,69 +2035,69 @@ HAL_StatusTypeDef HAL_TIM_IC_DeInit(TIM_HandleTypeDef *htim)
   {
     htim->IC_MspDeInitCallback = HAL_TIM_IC_MspDeInit;
   }
-  /* DeInit the low level hardware */
+  /* 反初始化底层硬件 */
   htim->IC_MspDeInitCallback(htim);
 #else
-  /* DeInit the low level hardware: GPIO, CLOCK, NVIC and DMA */
+  /* 反初始化底层硬件：GPIO、时钟、NVIC 和 DMA */
   HAL_TIM_IC_MspDeInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 
-  /* Change the DMA burst operation state */
+  /* 改变 DMA 突发操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_RESET;
 
-  /* Change the TIM channels state */
+  /* 改变 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_N_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_RESET);
 
-  /* Change TIM state */
+  /* 改变 TIM 状态 */
   htim->State = HAL_TIM_STATE_RESET;
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(htim);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Initializes the TIM Input Capture MSP.
-  * @param  htim TIM Input Capture handle
-  * @retval None
+  * @brief  初始化 TIM 输入捕获 MSP。
+  * @param  htim TIM 输入捕获句柄
+  * @retval 无
   */
 __weak void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_IC_MspInit could be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调函数时，
+            可以在用户文件中实现 HAL_TIM_IC_MspInit
    */
 }
 
 /**
-  * @brief  DeInitializes TIM Input Capture MSP.
-  * @param  htim TIM handle
-  * @retval None
+  * @brief  反初始化 TIM 输入捕获 MSP。
+  * @param  htim TIM 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_IC_MspDeInit could be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调函数时，
+            可以在用户文件中实现 HAL_TIM_IC_MspDeInit
    */
 }
 
 /**
-  * @brief  Starts the TIM Input Capture measurement.
-  * @param  htim TIM Input Capture handle
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  启动 TIM 输入捕获测量。
+  * @param  htim TIM 输入捕获句柄
+  * @param  Channel 待使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_IC_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
@@ -2121,24 +2105,24 @@ HAL_StatusTypeDef HAL_TIM_IC_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
   HAL_TIM_ChannelStateTypeDef channel_state = TIM_CHANNEL_STATE_GET(htim, Channel);
   HAL_TIM_ChannelStateTypeDef complementary_channel_state = TIM_CHANNEL_N_STATE_GET(htim, Channel);
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Check the TIM channel state */
+  /* 检查 TIM 通道状态 */
   if ((channel_state != HAL_TIM_CHANNEL_STATE_READY)
       || (complementary_channel_state != HAL_TIM_CHANNEL_STATE_READY))
   {
     return HAL_ERROR;
   }
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
   TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
 
-  /* Enable the Input Capture channel */
+  /* 使能输入捕获通道 */
   TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_ENABLE);
 
-  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  /* 使能外设，但在触发模式下除外，该模式下会通过触发自动使能 */
   if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
   {
     tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -2152,50 +2136,50 @@ HAL_StatusTypeDef HAL_TIM_IC_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
     __HAL_TIM_ENABLE(htim);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM Input Capture measurement.
-  * @param  htim TIM Input Capture handle
-  * @param  Channel TIM Channels to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  停止 TIM 输入捕获测量。
+  * @param  htim TIM 输入捕获句柄
+  * @param  Channel 待禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_IC_Stop(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Disable the Input Capture channel */
+  /* 禁用输入捕获通道 */
   TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_DISABLE);
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Starts the TIM Input Capture measurement in interrupt mode.
-  * @param  htim TIM Input Capture handle
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  在中断模式下启动 TIM 输入捕获测量。
+  * @param  htim TIM 输入捕获句柄
+  * @param  Channel 待使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_IC_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
@@ -2205,17 +2189,17 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
   HAL_TIM_ChannelStateTypeDef channel_state = TIM_CHANNEL_STATE_GET(htim, Channel);
   HAL_TIM_ChannelStateTypeDef complementary_channel_state = TIM_CHANNEL_N_STATE_GET(htim, Channel);
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
-  /* Check the TIM channel state */
+  /* 检查 TIM 通道状态 */
   if ((channel_state != HAL_TIM_CHANNEL_STATE_READY)
       || (complementary_channel_state != HAL_TIM_CHANNEL_STATE_READY))
   {
     return HAL_ERROR;
   }
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
   TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
 
@@ -2223,28 +2207,28 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Enable the TIM Capture/Compare 1 interrupt */
+      /* 使能 TIM 捕获/比较 1 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC1);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Enable the TIM Capture/Compare 2 interrupt */
+      /* 使能 TIM 捕获/比较 2 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Enable the TIM Capture/Compare 3 interrupt */
+      /* 使能 TIM 捕获/比较 3 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC3);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Enable the TIM Capture/Compare 4 interrupt */
+      /* 使能 TIM 捕获/比较 4 中断 */
       __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC4);
       break;
     }
@@ -2256,10 +2240,10 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 
   if (status == HAL_OK)
   {
-    /* Enable the Input Capture channel */
+    /* 使能输入捕获通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_ENABLE);
 
-    /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+    /* 使能外设，触发模式除外（该模式下由触发信号自动使能） */
     if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
     {
       tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -2274,54 +2258,54 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
     }
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Stops the TIM Input Capture measurement in interrupt mode.
-  * @param  htim TIM Input Capture handle
-  * @param  Channel TIM Channels to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  以中断模式停止 TIM 输入捕获测量。
+  * @param  htim TIM 输入捕获句柄
+  * @param  Channel 要禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_IC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Disable the TIM Capture/Compare 1 interrupt */
+      /* 禁用 TIM 捕获/比较 1 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Disable the TIM Capture/Compare 2 interrupt */
+      /* 禁用 TIM 捕获/比较 2 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Disable the TIM Capture/Compare 3 interrupt */
+      /* 禁用 TIM 捕获/比较 3 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC3);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Disable the TIM Capture/Compare 4 interrupt */
+      /* 禁用 TIM 捕获/比较 4 中断 */
       __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC4);
       break;
     }
@@ -2333,33 +2317,33 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 
   if (status == HAL_OK)
   {
-    /* Disable the Input Capture channel */
+    /* 禁用输入捕获通道 */
     TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_DISABLE);
 
-    /* Disable the Peripheral */
+    /* 禁用外设 */
     __HAL_TIM_DISABLE(htim);
 
-    /* Set the TIM channel state */
+    /* 设置 TIM 通道状态 */
     TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
     TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Starts the TIM Input Capture measurement in DMA mode.
-  * @param  htim TIM Input Capture handle
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @param  pData The destination Buffer address.
-  * @param  Length The length of data to be transferred from TIM peripheral to memory.
-  * @retval HAL status
+  * @brief  以 DMA 模式启动 TIM 输入捕获测量。
+  * @param  htim TIM 输入捕获句柄
+  * @param  Channel 要启用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @param  pData 目标缓冲区地址。
+  * @param  Length 从 TIM 外设传输到内存的数据长度。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_IC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData, uint16_t Length)
 {
@@ -2369,11 +2353,11 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
   HAL_TIM_ChannelStateTypeDef channel_state = TIM_CHANNEL_STATE_GET(htim, Channel);
   HAL_TIM_ChannelStateTypeDef complementary_channel_state = TIM_CHANNEL_N_STATE_GET(htim, Channel);
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
   assert_param(IS_TIM_DMA_CC_INSTANCE(htim->Instance));
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   if ((channel_state == HAL_TIM_CHANNEL_STATE_BUSY)
       || (complementary_channel_state == HAL_TIM_CHANNEL_STATE_BUSY))
   {
@@ -2397,91 +2381,91 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
     return HAL_ERROR;
   }
 
-  /* Enable the Input Capture channel */
+  /* 使能输入捕获通道 */
   TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_ENABLE);
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)&htim->Instance->CCR1, (uint32_t)pData,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Capture/Compare 1 DMA request */
+      /* 使能 TIM 捕获/比较 1 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC1);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC2]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)&htim->Instance->CCR2, (uint32_t)pData,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Capture/Compare 2  DMA request */
+      /* 使能 TIM 捕获/比较 2 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC2);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC3]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)&htim->Instance->CCR3, (uint32_t)pData,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Capture/Compare 3  DMA request */
+      /* 使能 TIM 捕获/比较 3 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC3);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC4]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC4], (uint32_t)&htim->Instance->CCR4, (uint32_t)pData,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Capture/Compare 4  DMA request */
+      /* 使能 TIM 捕获/比较 4 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC4);
       break;
     }
@@ -2491,7 +2475,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
       break;
   }
 
-  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  /* 使能外设，但在触发模式下除外（触发模式下会随触发信号自动使能） */
   if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
   {
     tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
@@ -2505,37 +2489,37 @@ HAL_StatusTypeDef HAL_TIM_IC_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel
     __HAL_TIM_ENABLE(htim);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Stops the TIM Input Capture measurement in DMA mode.
-  * @param  htim TIM Input Capture handle
-  * @param  Channel TIM Channels to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  停止 DMA 模式下的 TIM 输入捕获测量。
+  * @param  htim TIM 输入捕获句柄
+  * @param  Channel 要禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
   assert_param(IS_TIM_DMA_CC_INSTANCE(htim->Instance));
 
-  /* Disable the Input Capture channel */
+  /* 禁用输入捕获通道 */
   TIM_CCxChannelCmd(htim->Instance, Channel, TIM_CCx_DISABLE);
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Disable the TIM Capture/Compare 1 DMA request */
+      /* 禁用 TIM 捕获/比较 1 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC1);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC1]);
       break;
@@ -2543,7 +2527,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 
     case TIM_CHANNEL_2:
     {
-      /* Disable the TIM Capture/Compare 2 DMA request */
+      /* 禁用 TIM 捕获/比较 2 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC2);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC2]);
       break;
@@ -2551,7 +2535,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 
     case TIM_CHANNEL_3:
     {
-      /* Disable the TIM Capture/Compare 3  DMA request */
+      /* 禁用 TIM 捕获/比较 3 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC3);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC3]);
       break;
@@ -2559,7 +2543,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 
     case TIM_CHANNEL_4:
     {
-      /* Disable the TIM Capture/Compare 4  DMA request */
+      /* 禁用 TIM 捕获/比较 4 DMA 请求 */
       __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC4);
       (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC4]);
       break;
@@ -2572,15 +2556,15 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 
   if (status == HAL_OK)
   {
-    /* Disable the Peripheral */
+    /* 禁用外设 */
     __HAL_TIM_DISABLE(htim);
 
-    /* Set the TIM channel state */
+    /* 设置 TIM 通道状态 */
     TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
     TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 /**
@@ -2588,52 +2572,52 @@ HAL_StatusTypeDef HAL_TIM_IC_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
   */
 
 /** @defgroup TIM_Exported_Functions_Group5 TIM One Pulse functions
-  *  @brief    TIM One Pulse functions
+  *  @brief    TIM 单脉冲功能函数
   *
 @verbatim
   ==============================================================================
-                        ##### TIM One Pulse functions #####
+                        ##### TIM 单脉冲功能函数 #####
   ==============================================================================
   [..]
-    This section provides functions allowing to:
-    (+) Initialize and configure the TIM One Pulse.
-    (+) De-initialize the TIM One Pulse.
-    (+) Start the TIM One Pulse.
-    (+) Stop the TIM One Pulse.
-    (+) Start the TIM One Pulse and enable interrupt.
-    (+) Stop the TIM One Pulse and disable interrupt.
-    (+) Start the TIM One Pulse and enable DMA transfer.
-    (+) Stop the TIM One Pulse and disable DMA transfer.
+    本节提供的函数允许实现以下操作：
+    (+) 初始化并配置 TIM 单脉冲模式。
+    (+) 反初始化 TIM 单脉冲模式。
+    (+) 启动 TIM 单脉冲模式。
+    (+) 停止 TIM 单脉冲模式。
+    (+) 启动 TIM 单脉冲模式并使能中断。
+    (+) 停止 TIM 单脉冲模式并禁用中断。
+    (+) 启动 TIM 单脉冲模式并使能 DMA 传输。
+    (+) 停止 TIM 单脉冲模式并禁用 DMA 传输。
 
 @endverbatim
   * @{
   */
 /**
-  * @brief  Initializes the TIM One Pulse Time Base according to the specified
-  *         parameters in the TIM_HandleTypeDef and initializes the associated handle.
-  * @note   Switching from Center Aligned counter mode to Edge counter mode (or reverse)
-  *         requires a timer reset to avoid unexpected direction
-  *         due to DIR bit readonly in center aligned mode.
-  *         Ex: call @ref HAL_TIM_OnePulse_DeInit() before HAL_TIM_OnePulse_Init()
-  * @note   When the timer instance is initialized in One Pulse mode, timer
-  *         channels 1 and channel 2 are reserved and cannot be used for other
-  *         purpose.
-  * @param  htim TIM One Pulse handle
-  * @param  OnePulseMode Select the One pulse mode.
-  *         This parameter can be one of the following values:
-  *            @arg TIM_OPMODE_SINGLE: Only one pulse will be generated.
-  *            @arg TIM_OPMODE_REPETITIVE: Repetitive pulses will be generated.
-  * @retval HAL status
+  * @brief  根据 TIM_HandleTypeDef 中指定的参数初始化 TIM 单脉冲时基，
+  *         并初始化相关联的句柄。
+  * @note   从中央对齐计数模式切换到边沿计数模式（或反之），
+  *         需要复位定时器以避免由于中央对齐模式下 DIR 位为只读
+  *         而导致的非预期计数方向。
+  *         例如：在调用 HAL_TIM_OnePulse_Init() 之前先调用 @ref HAL_TIM_OnePulse_DeInit()
+  * @note   当定时器实例被初始化为单脉冲模式时，定时器
+  *         通道 1 和通道 2 将被保留，不可用于其他
+  *         用途。
+  * @param  htim TIM 单脉冲句柄
+  * @param  OnePulseMode 选择单脉冲模式。
+  *         该参数可以是以下值之一：
+  *            @arg TIM_OPMODE_SINGLE: 仅产生一个脉冲。
+  *            @arg TIM_OPMODE_REPETITIVE: 产生重复脉冲。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OnePulse_Init(TIM_HandleTypeDef *htim, uint32_t OnePulseMode)
 {
-  /* Check the TIM handle allocation */
+  /* 检查 TIM 句柄分配 */
   if (htim == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
   assert_param(IS_TIM_COUNTER_MODE(htim->Init.CounterMode));
   assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
@@ -2643,65 +2627,65 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Init(TIM_HandleTypeDef *htim, uint32_t OnePul
 
   if (htim->State == HAL_TIM_STATE_RESET)
   {
-    /* Allocate lock resource and initialize it */
+    /* 分配锁资源并进行初始化 */
     htim->Lock = HAL_UNLOCKED;
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
-    /* Reset interrupt callbacks to legacy weak callbacks */
+    /* 将中断回调函数重置为传统的弱定义回调函数 */
     TIM_ResetCallback(htim);
 
     if (htim->OnePulse_MspInitCallback == NULL)
     {
       htim->OnePulse_MspInitCallback = HAL_TIM_OnePulse_MspInit;
     }
-    /* Init the low level hardware : GPIO, CLOCK, NVIC */
+    /* 初始化底层硬件：GPIO、时钟、NVIC */
     htim->OnePulse_MspInitCallback(htim);
 #else
-    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* 初始化底层硬件：GPIO、时钟、NVIC 和 DMA */
     HAL_TIM_OnePulse_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Configure the Time base in the One Pulse Mode */
+  /* 配置单脉冲模式下的时基单元 */
   TIM_Base_SetConfig(htim->Instance, &htim->Init);
 
-  /* Reset the OPM Bit */
+  /* 复位 OPM 位 */
   htim->Instance->CR1 &= ~TIM_CR1_OPM;
 
-  /* Configure the OPM Mode */
+  /* 配置 OPM 模式 */
   htim->Instance->CR1 |= OnePulseMode;
 
-  /* Initialize the DMA burst operation state */
+  /* 初始化 DMA 突发传输操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
 
-  /* Initialize the TIM channels state */
+  /* 初始化 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Initialize the TIM state*/
+  /* 初始化 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
   return HAL_OK;
 }
 
 /**
-  * @brief  DeInitializes the TIM One Pulse
-  * @param  htim TIM One Pulse handle
-  * @retval HAL status
+  * @brief  反初始化 TIM 单脉冲模式
+  * @param  htim TIM 单脉冲句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OnePulse_DeInit(TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Disable the TIM Peripheral Clock */
+  /* 禁用 TIM 外设时钟 */
   __HAL_TIM_DISABLE(htim);
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -2709,70 +2693,70 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_DeInit(TIM_HandleTypeDef *htim)
   {
     htim->OnePulse_MspDeInitCallback = HAL_TIM_OnePulse_MspDeInit;
   }
-  /* DeInit the low level hardware */
+  /* 反初始化底层硬件 */
   htim->OnePulse_MspDeInitCallback(htim);
 #else
-  /* DeInit the low level hardware: GPIO, CLOCK, NVIC */
+  /* 反初始化底层硬件：GPIO、时钟、NVIC */
   HAL_TIM_OnePulse_MspDeInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 
-  /* Change the DMA burst operation state */
+  /* 改变 DMA 突发操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_RESET;
 
-  /* Set the TIM channel state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_RESET);
 
-  /* Change TIM state */
+  /* 改变 TIM 状态 */
   htim->State = HAL_TIM_STATE_RESET;
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(htim);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Initializes the TIM One Pulse MSP.
-  * @param  htim TIM One Pulse handle
-  * @retval None
+  * @brief  初始化 TIM 单脉冲 MSP。
+  * @param  htim TIM 单脉冲句柄
+  * @retval 无
   */
 __weak void HAL_TIM_OnePulse_MspInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_OnePulse_MspInit could be implemented in the user file
+  /* 注意：不应修改此函数。当需要该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_OnePulse_MspInit
    */
 }
 
 /**
-  * @brief  DeInitializes TIM One Pulse MSP.
-  * @param  htim TIM One Pulse handle
-  * @retval None
+  * @brief  反初始化 TIM 单脉冲 MSP。
+  * @param  htim TIM 单脉冲句柄
+  * @retval 无
   */
 __weak void HAL_TIM_OnePulse_MspDeInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_OnePulse_MspDeInit could be implemented in the user file
+  /* 注意：不应修改此函数。当需要该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_OnePulse_MspDeInit
    */
 }
 
 /**
-  * @brief  Starts the TIM One Pulse signal generation.
-  * @note Though OutputChannel parameter is deprecated and ignored by the function
-  *        it has been kept to avoid HAL_TIM API compatibility break.
-  * @note The pulse output channel is determined when calling
-  *       @ref HAL_TIM_OnePulse_ConfigChannel().
-  * @param  htim TIM One Pulse handle
-  * @param  OutputChannel See note above
-  * @retval HAL status
+  * @brief  启动 TIM 单脉冲信号生成。
+  * @note 尽管 OutputChannel 参数已被弃用且被该函数忽略，
+  *        但保留该参数是为了避免破坏 HAL_TIM API 兼容性。
+  * @note 脉冲输出通道在调用
+  *       @ref HAL_TIM_OnePulse_ConfigChannel() 时确定。
+  * @param  htim TIM 单脉冲句柄
+  * @param  OutputChannel 参见上述注意说明
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OnePulse_Start(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
 {
@@ -2781,10 +2765,10 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Start(TIM_HandleTypeDef *htim, uint32_t Outpu
   HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
   HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
 
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(OutputChannel);
 
-  /* Check the TIM channels state */
+  /* 检查 TIM 各通道状态 */
   if ((channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
       || (channel_2_state != HAL_TIM_CHANNEL_STATE_READY)
       || (complementary_channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
@@ -2793,86 +2777,86 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Start(TIM_HandleTypeDef *htim, uint32_t Outpu
     return HAL_ERROR;
   }
 
-  /* Set the TIM channels state */
+  /* 设置 TIM 各通道状态 */
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
 
-  /* Enable the Capture compare and the Input Capture channels
-    (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
-    if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
-    if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
-    whatever the combination, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be enabled together
+  /* 使能输出比较和输入捕获通道
+    (在 OPM 模式下，仅有两个可用通道分别为 TIM_CHANNEL_1 和 TIM_CHANNEL_2)
+    若 TIM_CHANNEL_1 用作输出，则 TIM_CHANNEL_2 将用作输入；
+    若 TIM_CHANNEL_1 用作输入，则 TIM_CHANNEL_2 将用作输出；
+    无论哪种组合，TIM_CHANNEL_1 和 TIM_CHANNEL_2 都应同时使能
 
-    No need to enable the counter, it's enabled automatically by hardware
-    (the counter starts in response to a stimulus and generate a pulse */
+    无需使能计数器，硬件会自动使其使能
+    (计数器响应激励信号启动并生成脉冲) */
 
   TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
   TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
 
   if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
   {
-    /* Enable the main output */
+    /* 使能主输出 */
     __HAL_TIM_MOE_ENABLE(htim);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM One Pulse signal generation.
-  * @note Though OutputChannel parameter is deprecated and ignored by the function
-  *        it has been kept to avoid HAL_TIM API compatibility break.
-  * @note The pulse output channel is determined when calling
-  *       @ref HAL_TIM_OnePulse_ConfigChannel().
-  * @param  htim TIM One Pulse handle
-  * @param  OutputChannel See note above
-  * @retval HAL status
+  * @brief  停止 TIM 单脉冲信号生成。
+  * @note 尽管 OutputChannel 参数已被弃用且会被函数忽略，
+  *        但保留该参数是为了避免破坏 HAL_TIM API 兼容性。
+  * @note 脉冲输出通道在调用
+  *       @ref HAL_TIM_OnePulse_ConfigChannel() 时确定。
+  * @param  htim TIM 单脉冲句柄
+  * @param  OutputChannel 参见上述注意说明
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OnePulse_Stop(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(OutputChannel);
 
-  /* Disable the Capture compare and the Input Capture channels
-  (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
-  if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
-  if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
-  whatever the combination, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be disabled together */
+  /* 禁用输出比较和输入捕获通道
+  (在 OPM 模式下，仅有两个可用通道分别为 TIM_CHANNEL_1 和 TIM_CHANNEL_2)
+  若 TIM_CHANNEL_1 用作输出，则 TIM_CHANNEL_2 将用作输入；
+  若 TIM_CHANNEL_1 用作输入，则 TIM_CHANNEL_2 将用作输出；
+  无论哪种组合，TIM_CHANNEL_1 和 TIM_CHANNEL_2 都应同时禁用 */
 
   TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
   TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
 
   if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
   {
-    /* Disable the Main Output */
+    /* 禁用主输出 */
     __HAL_TIM_MOE_DISABLE(htim);
   }
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM channels state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Starts the TIM One Pulse signal generation in interrupt mode.
-  * @note Though OutputChannel parameter is deprecated and ignored by the function
-  *        it has been kept to avoid HAL_TIM API compatibility break.
-  * @note The pulse output channel is determined when calling
-  *       @ref HAL_TIM_OnePulse_ConfigChannel().
-  * @param  htim TIM One Pulse handle
-  * @param  OutputChannel See note above
-  * @retval HAL status
+  * @brief  在中断模式下启动 TIM 单脉冲信号生成。
+  * @note 尽管 OutputChannel 参数已被弃用且会被函数忽略，
+  *        但保留该参数是为了避免破坏 HAL_TIM API 兼容性。
+  * @note 脉冲输出通道在调用
+  *       @ref HAL_TIM_OnePulse_ConfigChannel() 时确定。
+  * @param  htim TIM 单脉冲句柄
+  * @param  OutputChannel 参见上述注意说明
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OnePulse_Start_IT(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
 {
@@ -2881,10 +2865,10 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Start_IT(TIM_HandleTypeDef *htim, uint32_t Ou
   HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
   HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
 
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(OutputChannel);
 
-  /* Check the TIM channels state */
+  /* 检查 TIM 通道状态 */
   if ((channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
       || (channel_2_state != HAL_TIM_CHANNEL_STATE_READY)
       || (complementary_channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
@@ -2893,25 +2877,25 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Start_IT(TIM_HandleTypeDef *htim, uint32_t Ou
     return HAL_ERROR;
   }
 
-  /* Set the TIM channels state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
 
-  /* Enable the Capture compare and the Input Capture channels
-    (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
-    if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
-    if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
-    whatever the combination, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be enabled together
+  /* 使能输出比较和输入捕获通道
+    (在 OPM 模式下，仅有两个可用通道分别为 TIM_CHANNEL_1 和 TIM_CHANNEL_2)
+    若 TIM_CHANNEL_1 用作输出，则 TIM_CHANNEL_2 将用作输入；
+    若 TIM_CHANNEL_1 用作输入，则 TIM_CHANNEL_2 将用作输出；
+    无论哪种组合，TIM_CHANNEL_1 和 TIM_CHANNEL_2 都应同时使能
 
-    No need to enable the counter, it's enabled automatically by hardware
-    (the counter starts in response to a stimulus and generate a pulse */
+    无需使能计数器，硬件会自动使其使能
+    (计数器响应激励信号启动并生成脉冲) */
 
-  /* Enable the TIM Capture/Compare 1 interrupt */
+  /* 使能 TIM 捕获/比较 1 中断 */
   __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC1);
 
-  /* Enable the TIM Capture/Compare 2 interrupt */
+  /* 使能 TIM 捕获/比较 2 中断 */
   __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
 
   TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
@@ -2919,59 +2903,59 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Start_IT(TIM_HandleTypeDef *htim, uint32_t Ou
 
   if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
   {
-    /* Enable the main output */
+    /* 使能主输出 */
     __HAL_TIM_MOE_ENABLE(htim);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM One Pulse signal generation in interrupt mode.
-  * @note Though OutputChannel parameter is deprecated and ignored by the function
-  *        it has been kept to avoid HAL_TIM API compatibility break.
-  * @note The pulse output channel is determined when calling
-  *       @ref HAL_TIM_OnePulse_ConfigChannel().
-  * @param  htim TIM One Pulse handle
-  * @param  OutputChannel See note above
-  * @retval HAL status
+  * @brief  在中断模式下停止 TIM 单脉冲信号生成。
+  * @note 尽管 OutputChannel 参数已弃用且被函数忽略，
+  *        但保留该参数以避免破坏 HAL_TIM API 的兼容性。
+  * @note 脉冲输出通道在调用
+  *       @ref HAL_TIM_OnePulse_ConfigChannel() 时确定。
+  * @param  htim TIM 单脉冲句柄
+  * @param  OutputChannel 参见上述说明
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OnePulse_Stop_IT(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(OutputChannel);
 
-  /* Disable the TIM Capture/Compare 1 interrupt */
+  /* 禁用 TIM 捕获/比较 1 中断 */
   __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
 
-  /* Disable the TIM Capture/Compare 2 interrupt */
+  /* 禁用 TIM 捕获/比较 2 中断 */
   __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
 
-  /* Disable the Capture compare and the Input Capture channels
-  (in the OPM Mode the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2)
-  if TIM_CHANNEL_1 is used as output, the TIM_CHANNEL_2 will be used as input and
-  if TIM_CHANNEL_1 is used as input, the TIM_CHANNEL_2 will be used as output
-  whatever the combination, the TIM_CHANNEL_1 and TIM_CHANNEL_2 should be disabled together */
+  /* 禁用捕获比较和输入捕获通道
+  （在 OPM 模式下，两个可用的通道是 TIM_CHANNEL_1 和 TIM_CHANNEL_2）
+  如果 TIM_CHANNEL_1 用作输出，则 TIM_CHANNEL_2 将用作输入；
+  如果 TIM_CHANNEL_1 用作输入，则 TIM_CHANNEL_2 将用作输出；
+  无论哪种组合，TIM_CHANNEL_1 和 TIM_CHANNEL_2 都应同时禁用 */
   TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
   TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
 
   if (IS_TIM_BREAK_INSTANCE(htim->Instance) != RESET)
   {
-    /* Disable the Main Output */
+    /* 禁用主输出 */
     __HAL_TIM_MOE_DISABLE(htim);
   }
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM channels state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
@@ -2980,41 +2964,41 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Out
   */
 
 /** @defgroup TIM_Exported_Functions_Group6 TIM Encoder functions
-  *  @brief    TIM Encoder functions
+  *  @brief    TIM 编码器功能函数
   *
 @verbatim
   ==============================================================================
-                          ##### TIM Encoder functions #####
+                          ##### TIM 编码器功能函数 #####
   ==============================================================================
   [..]
-    This section provides functions allowing to:
-    (+) Initialize and configure the TIM Encoder.
-    (+) De-initialize the TIM Encoder.
-    (+) Start the TIM Encoder.
-    (+) Stop the TIM Encoder.
-    (+) Start the TIM Encoder and enable interrupt.
-    (+) Stop the TIM Encoder and disable interrupt.
-    (+) Start the TIM Encoder and enable DMA transfer.
-    (+) Stop the TIM Encoder and disable DMA transfer.
+    本节提供的函数支持：
+    (+) 初始化并配置 TIM 编码器。
+    (+) 反初始化 TIM 编码器。
+    (+) 启动 TIM 编码器。
+    (+) 停止 TIM 编码器。
+    (+) 启动 TIM 编码器并使能中断。
+    (+) 停止 TIM 编码器并禁用中断。
+    (+) 启动 TIM 编码器并使能 DMA 传输。
+    (+) 停止 TIM 编码器并禁用 DMA 传输。
 
 @endverbatim
   * @{
   */
 /**
-  * @brief  Initializes the TIM Encoder Interface and initialize the associated handle.
-  * @note   Switching from Center Aligned counter mode to Edge counter mode (or reverse)
-  *         requires a timer reset to avoid unexpected direction
-  *         due to DIR bit readonly in center aligned mode.
-  *         Ex: call @ref HAL_TIM_Encoder_DeInit() before HAL_TIM_Encoder_Init()
-  * @note   Encoder mode and External clock mode 2 are not compatible and must not be selected together
-  *         Ex: A call for @ref HAL_TIM_Encoder_Init will erase the settings of @ref HAL_TIM_ConfigClockSource
-  *         using TIM_CLOCKSOURCE_ETRMODE2 and vice versa
-  * @note   When the timer instance is initialized in Encoder mode, timer
-  *         channels 1 and channel 2 are reserved and cannot be used for other
-  *         purpose.
-  * @param  htim TIM Encoder Interface handle
-  * @param  sConfig TIM Encoder Interface configuration structure
-  * @retval HAL status
+  * @brief  初始化 TIM 编码器接口并初始化关联的句柄。
+  * @note   从中央对齐计数模式切换到边沿计数模式（或反向切换）
+  *         需要复位定时器，以避免由于中央对齐模式下 DIR 位只读
+  *         而导致的异常计数方向。
+  *         例如：在调用 HAL_TIM_Encoder_Init() 之前先调用 @ref HAL_TIM_Encoder_DeInit()
+  * @note   编码器模式与外部时钟模式 2 不兼容，切勿同时选择
+  *         例如：调用 @ref HAL_TIM_Encoder_Init 将会清除使用 TIM_CLOCKSOURCE_ETRMODE2 的
+  *         @ref HAL_TIM_ConfigClockSource 配置，反之亦然
+  * @note   当定时器实例在编码器模式下初始化时，定时器
+  *         通道 1 和通道 2 将被保留，不能用于其他
+  *         用途。
+  * @param  htim TIM 编码器接口句柄
+  * @param  sConfig TIM 编码器接口配置结构体
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim, const TIM_Encoder_InitTypeDef *sConfig)
 {
@@ -3022,13 +3006,13 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim, const TIM_Encode
   uint32_t tmpccmr1;
   uint32_t tmpccer;
 
-  /* Check the TIM handle allocation */
+  /* 检查 TIM 句柄分配 */
   if (htim == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_TIM_ENCODER_INTERFACE_INSTANCE(htim->Instance));
   assert_param(IS_TIM_COUNTER_MODE(htim->Init.CounterMode));
   assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
@@ -3046,79 +3030,79 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim, const TIM_Encode
 
   if (htim->State == HAL_TIM_STATE_RESET)
   {
-    /* Allocate lock resource and initialize it */
+    /* 分配互斥锁资源并进行初始化 */
     htim->Lock = HAL_UNLOCKED;
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
-    /* Reset interrupt callbacks to legacy weak callbacks */
+    /* 将中断回调函数重置为传统的弱定义回调函数 */
     TIM_ResetCallback(htim);
 
     if (htim->Encoder_MspInitCallback == NULL)
     {
       htim->Encoder_MspInitCallback = HAL_TIM_Encoder_MspInit;
     }
-    /* Init the low level hardware : GPIO, CLOCK, NVIC */
+    /* 初始化底层硬件：GPIO、CLOCK、NVIC */
     htim->Encoder_MspInitCallback(htim);
 #else
-    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* 初始化底层硬件：GPIO、CLOCK、NVIC 和 DMA */
     HAL_TIM_Encoder_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
 
-  /* Set the TIM state */
+  /* 设置 TIM 状态 */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Reset the SMS and ECE bits */
+  /* 复位 SMS 和 ECE 位 */
   htim->Instance->SMCR &= ~(TIM_SMCR_SMS | TIM_SMCR_ECE);
 
-  /* Configure the Time base in the Encoder Mode */
+  /* 配置编码器模式下的时基单元 */
   TIM_Base_SetConfig(htim->Instance, &htim->Init);
 
-  /* Get the TIMx SMCR register value */
+  /* 获取 TIMx SMCR 寄存器的值 */
   tmpsmcr = htim->Instance->SMCR;
 
-  /* Get the TIMx CCMR1 register value */
+  /* 获取 TIMx CCMR1 寄存器的值 */
   tmpccmr1 = htim->Instance->CCMR1;
 
-  /* Get the TIMx CCER register value */
+  /* 获取 TIMx CCER 寄存器的值 */
   tmpccer = htim->Instance->CCER;
 
-  /* Set the encoder Mode */
+  /* 设置编码器模式 */
   tmpsmcr |= sConfig->EncoderMode;
 
-  /* Select the Capture Compare 1 and the Capture Compare 2 as input */
+  /* 将捕获/比较 1 和捕获/比较 2 选择为输入 */
   tmpccmr1 &= ~(TIM_CCMR1_CC1S | TIM_CCMR1_CC2S);
   tmpccmr1 |= (sConfig->IC1Selection | (sConfig->IC2Selection << 8U));
 
-  /* Set the Capture Compare 1 and the Capture Compare 2 prescalers and filters */
+  /* 设置捕获/比较 1 和捕获/比较 2 的预分频器及滤波器 */
   tmpccmr1 &= ~(TIM_CCMR1_IC1PSC | TIM_CCMR1_IC2PSC);
   tmpccmr1 &= ~(TIM_CCMR1_IC1F | TIM_CCMR1_IC2F);
   tmpccmr1 |= sConfig->IC1Prescaler | (sConfig->IC2Prescaler << 8U);
   tmpccmr1 |= (sConfig->IC1Filter << 4U) | (sConfig->IC2Filter << 12U);
 
-  /* Set the TI1 and the TI2 Polarities */
+  /* 设置 TI1 和 TI2 的极性 */
   tmpccer &= ~(TIM_CCER_CC1P | TIM_CCER_CC2P);
   tmpccer |= sConfig->IC1Polarity | (sConfig->IC2Polarity << 4U);
 
-  /* Write to TIMx SMCR */
+  /* 写入 TIMx SMCR 寄存器 */
   htim->Instance->SMCR = tmpsmcr;
 
-  /* Write to TIMx CCMR1 */
+  /* 写入 TIMx CCMR1 寄存器 */
   htim->Instance->CCMR1 = tmpccmr1;
 
-  /* Write to TIMx CCER */
+  /* 写入 TIMx CCER 寄存器 */
   htim->Instance->CCER = tmpccer;
 
-  /* Initialize the DMA burst operation state */
+  /* 初始化 DMA 突发操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
 
-  /* Set the TIM channels state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
 
-  /* Initialize the TIM state*/
+  /* 初始化 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
   return HAL_OK;
@@ -3126,18 +3110,18 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim, const TIM_Encode
 
 
 /**
-  * @brief  DeInitializes the TIM Encoder interface
-  * @param  htim TIM Encoder Interface handle
-  * @retval HAL status
+  * @brief  反初始化 TIM 编码器接口
+  * @param  htim TIM 编码器接口句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Encoder_DeInit(TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Disable the TIM Peripheral Clock */
+  /* 禁用 TIM 外设时钟 */
   __HAL_TIM_DISABLE(htim);
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -3145,70 +3129,70 @@ HAL_StatusTypeDef HAL_TIM_Encoder_DeInit(TIM_HandleTypeDef *htim)
   {
     htim->Encoder_MspDeInitCallback = HAL_TIM_Encoder_MspDeInit;
   }
-  /* DeInit the low level hardware */
+  /* 反初始化底层硬件 */
   htim->Encoder_MspDeInitCallback(htim);
 #else
-  /* DeInit the low level hardware: GPIO, CLOCK, NVIC */
+  /* 反初始化底层硬件：GPIO、时钟、NVIC */
   HAL_TIM_Encoder_MspDeInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 
-  /* Change the DMA burst operation state */
+  /* 改变 DMA 突发传输操作状态 */
   htim->DMABurstState = HAL_DMA_BURST_STATE_RESET;
 
-  /* Set the TIM channels state */
+  /* 设置 TIM 通道状态 */
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_RESET);
   TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_RESET);
 
-  /* Change TIM state */
+  /* 改变 TIM 状态 */
   htim->State = HAL_TIM_STATE_RESET;
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(htim);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Initializes the TIM Encoder Interface MSP.
-  * @param  htim TIM Encoder Interface handle
-  * @retval None
+  * @brief  初始化 TIM 编码器接口 MSP。
+  * @param  htim TIM 编码器接口句柄
+  * @retval 无
   */
 __weak void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用参数引起的编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_Encoder_MspInit could be implemented in the user file
+  /* NOTE : 不应修改此函数，当需要回调函数时，
+            可以在用户文件中实现 HAL_TIM_Encoder_MspInit
    */
 }
 
 /**
-  * @brief  DeInitializes TIM Encoder Interface MSP.
-  * @param  htim TIM Encoder Interface handle
-  * @retval None
+  * @brief  反初始化 TIM 编码器接口 MSP。
+  * @param  htim TIM 编码器接口句柄
+  * @retval 无
   */
 __weak void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用参数引起的编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_Encoder_MspDeInit could be implemented in the user file
+  /* NOTE : 不应修改此函数，当需要回调函数时，
+            可以在用户文件中实现 HAL_TIM_Encoder_MspDeInit
    */
 }
 
 /**
-  * @brief  Starts the TIM Encoder Interface.
-  * @param  htim TIM Encoder Interface handle
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_ALL: TIM Channel 1 and TIM Channel 2 are selected
-  * @retval HAL status
+  * @brief  启动 TIM 编码器接口。
+  * @param  htim TIM 编码器接口句柄
+  * @param  Channel 要使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_ALL: 同时选择 TIM 通道 1 和 TIM 通道 2
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Encoder_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
@@ -3217,10 +3201,10 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start(TIM_HandleTypeDef *htim, uint32_t Channe
   HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
   HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_ENCODER_INTERFACE_INSTANCE(htim->Instance));
 
-  /* Set the TIM channel(s) state */
+  /* 设置 TIM 通道状态 */
   if (Channel == TIM_CHANNEL_1)
   {
     if ((channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
@@ -3265,7 +3249,7 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start(TIM_HandleTypeDef *htim, uint32_t Channe
     }
   }
 
-  /* Enable the encoder interface channels */
+  /* 使能编码器接口通道 */
   switch (Channel)
   {
     case TIM_CHANNEL_1:
@@ -3287,30 +3271,30 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start(TIM_HandleTypeDef *htim, uint32_t Channe
       break;
     }
   }
-  /* Enable the Peripheral */
+  /* 使能外设 */
   __HAL_TIM_ENABLE(htim);
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM Encoder Interface.
-  * @param  htim TIM Encoder Interface handle
-  * @param  Channel TIM Channels to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_ALL: TIM Channel 1 and TIM Channel 2 are selected
-  * @retval HAL status
+  * @brief  停止 TIM 编码器接口。
+  * @param  htim TIM 编码器接口句柄
+  * @param  Channel 要禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_ALL: 选择 TIM 通道 1 和 TIM 通道 2
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Encoder_Stop(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_ENCODER_INTERFACE_INSTANCE(htim->Instance));
 
-  /* Disable the Input Capture channels 1 and 2
-    (in the EncoderInterface the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2) */
+  /* 禁用输入捕获通道 1 和 2
+    （在编码器接口中，可使用的两个通道为 TIM_CHANNEL_1 和 TIM_CHANNEL_2） */
   switch (Channel)
   {
     case TIM_CHANNEL_1:
@@ -3333,10 +3317,10 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop(TIM_HandleTypeDef *htim, uint32_t Channel
     }
   }
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM channel(s) state */
+  /* 设置 TIM 通道状态 */
   if ((Channel == TIM_CHANNEL_1) || (Channel == TIM_CHANNEL_2))
   {
     TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
@@ -3350,19 +3334,19 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop(TIM_HandleTypeDef *htim, uint32_t Channel
     TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Starts the TIM Encoder Interface in interrupt mode.
-  * @param  htim TIM Encoder Interface handle
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_ALL: TIM Channel 1 and TIM Channel 2 are selected
-  * @retval HAL status
+  * @brief  以中断模式启动 TIM 编码器接口。
+  * @param  htim TIM 编码器接口句柄
+  * @param  Channel 要启用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_ALL: 选择 TIM 通道 1 和 TIM 通道 2
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Encoder_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
@@ -3371,10 +3355,10 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start_IT(TIM_HandleTypeDef *htim, uint32_t Cha
   HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
   HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_ENCODER_INTERFACE_INSTANCE(htim->Instance));
 
-  /* Set the TIM channel(s) state */
+  /* 设置 TIM 通道状态 */
   if (Channel == TIM_CHANNEL_1)
   {
     if ((channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
@@ -3419,8 +3403,8 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start_IT(TIM_HandleTypeDef *htim, uint32_t Cha
     }
   }
 
-  /* Enable the encoder interface channels */
-  /* Enable the capture compare Interrupts 1 and/or 2 */
+  /* 使能编码器接口通道 */
+  /* 使能捕获比较中断 1 和/或 2 */
   switch (Channel)
   {
     case TIM_CHANNEL_1:
@@ -3447,42 +3431,42 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start_IT(TIM_HandleTypeDef *htim, uint32_t Cha
     }
   }
 
-  /* Enable the Peripheral */
+  /* 使能外设 */
   __HAL_TIM_ENABLE(htim);
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM Encoder Interface in interrupt mode.
-  * @param  htim TIM Encoder Interface handle
-  * @param  Channel TIM Channels to be disabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_ALL: TIM Channel 1 and TIM Channel 2 are selected
-  * @retval HAL status
+  * @brief  以中断模式停止 TIM 编码器接口。
+  * @param  htim TIM 编码器接口句柄
+  * @param  Channel 要禁用的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_ALL: 选择 TIM 通道 1 和 TIM 通道 2
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Encoder_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_ENCODER_INTERFACE_INSTANCE(htim->Instance));
 
-  /* Disable the Input Capture channels 1 and 2
-    (in the EncoderInterface the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2) */
+  /* 禁用输入捕获通道 1 和 2
+    （在编码器接口中，可使用的两个通道为 TIM_CHANNEL_1 和 TIM_CHANNEL_2） */
   if (Channel == TIM_CHANNEL_1)
   {
     TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
 
-    /* Disable the capture compare Interrupts 1 */
+    /* 禁用捕获/比较中断 1 */
     __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
   }
   else if (Channel == TIM_CHANNEL_2)
   {
     TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
 
-    /* Disable the capture compare Interrupts 2 */
+    /* 禁用捕获/比较中断 2 */
     __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
   }
   else
@@ -3490,15 +3474,15 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Chan
     TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
     TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
 
-    /* Disable the capture compare Interrupts 1 and 2 */
+    /* 禁用捕获/比较中断 1 和 2 */
     __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
     __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
   }
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM channel(s) state */
+  /* 设置 TIM 通道状态 */
   if ((Channel == TIM_CHANNEL_1) || (Channel == TIM_CHANNEL_2))
   {
     TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
@@ -3512,22 +3496,22 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Chan
     TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
   }
 
-  /* Return function status */
+  /* 返回函数执行状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Starts the TIM Encoder Interface in DMA mode.
-  * @param  htim TIM Encoder Interface handle
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_ALL: TIM Channel 1 and TIM Channel 2 are selected
-  * @param  pData1 The destination Buffer address for IC1.
-  * @param  pData2 The destination Buffer address for IC2.
-  * @param  Length The length of data to be transferred from TIM peripheral to memory.
-  * @retval HAL status
+  * @brief  以 DMA 模式启动 TIM 编码器接口。
+  * @param  htim TIM 编码器接口句柄
+  * @param  Channel 要使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_ALL: 同时选择 TIM 通道 1 和 TIM 通道 2
+  * @param  pData1 IC1 的目标缓冲区地址。
+  * @param  pData2 IC2 的目标缓冲区地址。
+  * @param  Length 从 TIM 外设传输到内存的数据长度。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Encoder_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData1,
                                             uint32_t *pData2, uint16_t Length)
@@ -3537,10 +3521,10 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Ch
   HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
   HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_ENCODER_INTERFACE_INSTANCE(htim->Instance));
 
-  /* Set the TIM channel(s) state */
+  /* 设置 TIM 通道状态 */
   if (Channel == TIM_CHANNEL_1)
   {
     if ((channel_1_state == HAL_TIM_CHANNEL_STATE_BUSY)
@@ -3627,27 +3611,27 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Ch
   {
     case TIM_CHANNEL_1:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)&htim->Instance->CCR1, (uint32_t)pData1,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Input Capture DMA request */
+      /* 使能 TIM 输入捕获 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC1);
 
-      /* Enable the Capture compare channel */
+      /* 使能捕获/比较通道 */
       TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
 
-      /* Enable the Peripheral */
+      /* 使能外设 */
       __HAL_TIM_ENABLE(htim);
 
       break;
@@ -3655,26 +3639,26 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Ch
 
     case TIM_CHANNEL_2:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC2]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAError;
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)&htim->Instance->CCR2, (uint32_t)pData2,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
-      /* Enable the TIM Input Capture  DMA request */
+      /* 使能 TIM 输入捕获 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC2);
 
-      /* Enable the Capture compare channel */
+      /* 使能捕获/比较通道 */
       TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
 
-      /* Enable the Peripheral */
+      /* 使能外设 */
       __HAL_TIM_ENABLE(htim);
 
       break;
@@ -3682,78 +3666,78 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Ch
 
     default:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)&htim->Instance->CCR1, (uint32_t)pData1,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
 
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC2]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)&htim->Instance->CCR2, (uint32_t)pData2,
                            Length) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
 
-      /* Enable the TIM Input Capture  DMA request */
+      /* 使能 TIM 输入捕获 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC1);
-      /* Enable the TIM Input Capture  DMA request */
+      /* 使能 TIM 输入捕获 DMA 请求 */
       __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC2);
 
-      /* Enable the Capture compare channel */
+      /* 使能捕获/比较通道 */
       TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
       TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
 
-      /* Enable the Peripheral */
+      /* 使能外设 */
       __HAL_TIM_ENABLE(htim);
 
       break;
     }
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Stops the TIM Encoder Interface in DMA mode.
-  * @param  htim TIM Encoder Interface handle
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_ALL: TIM Channel 1 and TIM Channel 2 are selected
-  * @retval HAL status
+  * @brief  以 DMA 模式停止 TIM 编码器接口。
+  * @param  htim TIM 编码器接口句柄
+  * @param  Channel 要使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_ALL: 同时选择 TIM 通道 1 和 TIM 通道 2
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_Encoder_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_ENCODER_INTERFACE_INSTANCE(htim->Instance));
 
-  /* Disable the Input Capture channels 1 and 2
-    (in the EncoderInterface the two possible channels that can be used are TIM_CHANNEL_1 and TIM_CHANNEL_2) */
+  /* 禁用输入捕获通道 1 和通道 2
+    (在编码器接口中，允许使用的两个通道为 TIM_CHANNEL_1 和 TIM_CHANNEL_2) */
   if (Channel == TIM_CHANNEL_1)
   {
     TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
 
-    /* Disable the capture compare DMA Request 1 */
+    /* 禁用捕获/比较 DMA 请求 1 */
     __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC1);
     (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC1]);
   }
@@ -3761,7 +3745,7 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Cha
   {
     TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
 
-    /* Disable the capture compare DMA Request 2 */
+    /* 禁用捕获/比较 DMA 请求 2 */
     __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC2);
     (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC2]);
   }
@@ -3770,17 +3754,17 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Cha
     TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
     TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
 
-    /* Disable the capture compare DMA Request 1 and 2 */
+    /* 禁用捕获/比较 DMA 请求 1 和 2 */
     __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC1);
     __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC2);
     (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC1]);
     (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC2]);
   }
 
-  /* Disable the Peripheral */
+  /* 禁用外设 */
   __HAL_TIM_DISABLE(htim);
 
-  /* Set the TIM channel(s) state */
+  /* 设置 TIM 通道状态 */
   if ((Channel == TIM_CHANNEL_1) || (Channel == TIM_CHANNEL_2))
   {
     TIM_CHANNEL_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
@@ -3794,37 +3778,37 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Cha
     TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
   * @}
   */
-/** @defgroup TIM_Exported_Functions_Group7 TIM IRQ handler management
-  *  @brief    TIM IRQ handler management
+/** @defgroup TIM_Exported_Functions_Group7 TIM 中断处理程序管理
+  *  @brief    TIM 中断处理程序管理
   *
 @verbatim
   ==============================================================================
-                        ##### IRQ handler management #####
+                        ##### 中断处理程序管理 #####
   ==============================================================================
   [..]
-    This section provides Timer IRQ handler function.
+    本节提供定时器中断处理函数。
 
 @endverbatim
   * @{
   */
 /**
-  * @brief  This function handles TIM interrupts requests.
-  * @param  htim TIM  handle
-  * @retval None
+  * @brief  此函数用于处理 TIM 中断请求。
+  * @param  htim TIM 句柄
+  * @retval 无
   */
 void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
 {
   uint32_t itsource = htim->Instance->DIER;
   uint32_t itflag   = htim->Instance->SR;
 
-  /* Capture compare 1 event */
+  /* 捕获/比较 1 事件 */
   if ((itflag & (TIM_FLAG_CC1)) == (TIM_FLAG_CC1))
   {
     if ((itsource & (TIM_IT_CC1)) == (TIM_IT_CC1))
@@ -3833,7 +3817,7 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
         __HAL_TIM_CLEAR_FLAG(htim, TIM_FLAG_CC1);
         htim->Channel = HAL_TIM_ACTIVE_CHANNEL_1;
 
-        /* Input capture event */
+        /* 输入捕获事件 */
         if ((htim->Instance->CCMR1 & TIM_CCMR1_CC1S) != 0x00U)
         {
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -3842,7 +3826,7 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
           HAL_TIM_IC_CaptureCallback(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
         }
-        /* Output compare event */
+        /* 输出比较事件 */
         else
         {
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -3857,14 +3841,14 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
       }
     }
   }
-  /* Capture compare 2 event */
+  /* 捕获/比较 2 事件 */
   if ((itflag & (TIM_FLAG_CC2)) == (TIM_FLAG_CC2))
   {
     if ((itsource & (TIM_IT_CC2)) == (TIM_IT_CC2))
     {
       __HAL_TIM_CLEAR_FLAG(htim, TIM_FLAG_CC2);
       htim->Channel = HAL_TIM_ACTIVE_CHANNEL_2;
-      /* Input capture event */
+      /* 输入捕获事件 */
       if ((htim->Instance->CCMR1 & TIM_CCMR1_CC2S) != 0x00U)
       {
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -3873,7 +3857,7 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
         HAL_TIM_IC_CaptureCallback(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
       }
-      /* Output compare event */
+      /* 输出比较事件 */
       else
       {
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -3986,7 +3970,7 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
     }
   }
-  /* TIM commutation event */
+  /* TIM 换向事件 */
   if ((itflag & (TIM_FLAG_COM)) == (TIM_FLAG_COM))
   {
     if ((itsource & (TIM_IT_COM)) == (TIM_IT_COM))
@@ -4006,36 +3990,35 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
   */
 
 /** @defgroup TIM_Exported_Functions_Group8 TIM Peripheral Control functions
-  *  @brief    TIM Peripheral Control functions
+  *  @brief    TIM 外设控制函数
   *
 @verbatim
   ==============================================================================
-                   ##### Peripheral Control functions #####
+                   ##### 外设控制函数 #####
   ==============================================================================
  [..]
-   This section provides functions allowing to:
-      (+) Configure The Input Output channels for OC, PWM, IC or One Pulse mode.
-      (+) Configure External Clock source.
-      (+) Configure Complementary channels, break features and dead time.
-      (+) Configure Master and the Slave synchronization.
-      (+) Configure the DMA Burst Mode.
+   本节提供的函数可用于：
+      (+) 配置输入/输出通道以用于 OC、PWM、IC 或单脉冲模式。
+      (+) 配置外部时钟源。
+      (+) 配置互补通道、刹车特性以及死区时间。
+      (+) 配置主从模式同步。
+      (+) 配置 DMA 突发模式。
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Initializes the TIM Output Compare Channels according to the specified
-  *         parameters in the TIM_OC_InitTypeDef.
-  * @param  htim TIM Output Compare handle
-  * @param  sConfig TIM Output Compare configuration structure
-  * @param  Channel TIM Channels to configure
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  根据 TIM_OC_InitTypeDef 中指定的参数初始化 TIM 输出比较通道。
+  * @param  htim TIM 输出比较句柄
+  * @param  sConfig TIM 输出比较配置结构体
+  * @param  Channel 待配置的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OC_ConfigChannel(TIM_HandleTypeDef *htim,
                                            const TIM_OC_InitTypeDef *sConfig,
@@ -4043,52 +4026,52 @@ HAL_StatusTypeDef HAL_TIM_OC_ConfigChannel(TIM_HandleTypeDef *htim,
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CHANNELS(Channel));
   assert_param(IS_TIM_OC_MODE(sConfig->OCMode));
   assert_param(IS_TIM_OC_POLARITY(sConfig->OCPolarity));
 
-  /* Process Locked */
+  /* 进程锁定 */
   __HAL_LOCK(htim);
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC1_INSTANCE(htim->Instance));
 
-      /* Configure the TIM Channel 1 in Output Compare */
+      /* 将 TIM 通道 1 配置为输出比较模式 */
       TIM_OC1_SetConfig(htim->Instance, sConfig);
       break;
     }
 
     case TIM_CHANNEL_2:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC2_INSTANCE(htim->Instance));
 
-      /* Configure the TIM Channel 2 in Output Compare */
+      /* 将 TIM 通道 2 配置为输出比较模式 */
       TIM_OC2_SetConfig(htim->Instance, sConfig);
       break;
     }
 
     case TIM_CHANNEL_3:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC3_INSTANCE(htim->Instance));
 
-      /* Configure the TIM Channel 3 in Output Compare */
+      /* 将 TIM 通道 3 配置为输出比较模式 */
       TIM_OC3_SetConfig(htim->Instance, sConfig);
       break;
     }
 
     case TIM_CHANNEL_4:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC4_INSTANCE(htim->Instance));
 
-      /* Configure the TIM Channel 4 in Output Compare */
+      /* 将 TIM 通道 4 配置为输出比较模式 */
       TIM_OC4_SetConfig(htim->Instance, sConfig);
       break;
     }
@@ -4104,49 +4087,48 @@ HAL_StatusTypeDef HAL_TIM_OC_ConfigChannel(TIM_HandleTypeDef *htim,
 }
 
 /**
-  * @brief  Initializes the TIM Input Capture Channels according to the specified
-  *         parameters in the TIM_IC_InitTypeDef.
-  * @param  htim TIM IC handle
-  * @param  sConfig TIM Input Capture configuration structure
-  * @param  Channel TIM Channel to configure
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  根据 TIM_IC_InitTypeDef 中指定的参数初始化 TIM 输入捕获通道。
+  * @param  htim TIM IC 句柄
+  * @param  sConfig TIM 输入捕获配置结构体
+  * @param  Channel 要配置的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_IC_ConfigChannel(TIM_HandleTypeDef *htim, const TIM_IC_InitTypeDef *sConfig, uint32_t Channel)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CC1_INSTANCE(htim->Instance));
   assert_param(IS_TIM_IC_POLARITY(sConfig->ICPolarity));
   assert_param(IS_TIM_IC_SELECTION(sConfig->ICSelection));
   assert_param(IS_TIM_IC_PRESCALER(sConfig->ICPrescaler));
   assert_param(IS_TIM_IC_FILTER(sConfig->ICFilter));
 
-  /* Process Locked */
+  /* 进程锁定 */
   __HAL_LOCK(htim);
 
   if (Channel == TIM_CHANNEL_1)
   {
-    /* TI1 Configuration */
+    /* TI1 配置 */
     TIM_TI1_SetConfig(htim->Instance,
                       sConfig->ICPolarity,
                       sConfig->ICSelection,
                       sConfig->ICFilter);
 
-    /* Reset the IC1PSC Bits */
+    /* 复位 IC1PSC 位 */
     htim->Instance->CCMR1 &= ~TIM_CCMR1_IC1PSC;
 
-    /* Set the IC1PSC value */
+    /* 设置 IC1PSC 值 */
     htim->Instance->CCMR1 |= sConfig->ICPrescaler;
   }
   else if (Channel == TIM_CHANNEL_2)
   {
-    /* TI2 Configuration */
+    /* TI2 配置 */
     assert_param(IS_TIM_CC2_INSTANCE(htim->Instance));
 
     TIM_TI2_SetConfig(htim->Instance,
@@ -4154,15 +4136,15 @@ HAL_StatusTypeDef HAL_TIM_IC_ConfigChannel(TIM_HandleTypeDef *htim, const TIM_IC
                       sConfig->ICSelection,
                       sConfig->ICFilter);
 
-    /* Reset the IC2PSC Bits */
+    /* 复位 IC2PSC 位 */
     htim->Instance->CCMR1 &= ~TIM_CCMR1_IC2PSC;
 
-    /* Set the IC2PSC value */
+    /* 设置 IC2PSC 值 */
     htim->Instance->CCMR1 |= (sConfig->ICPrescaler << 8U);
   }
   else if (Channel == TIM_CHANNEL_3)
   {
-    /* TI3 Configuration */
+    /* TI3 配置 */
     assert_param(IS_TIM_CC3_INSTANCE(htim->Instance));
 
     TIM_TI3_SetConfig(htim->Instance,
@@ -4170,15 +4152,15 @@ HAL_StatusTypeDef HAL_TIM_IC_ConfigChannel(TIM_HandleTypeDef *htim, const TIM_IC
                       sConfig->ICSelection,
                       sConfig->ICFilter);
 
-    /* Reset the IC3PSC Bits */
+    /* 复位 IC3PSC 位 */
     htim->Instance->CCMR2 &= ~TIM_CCMR2_IC3PSC;
 
-    /* Set the IC3PSC value */
+    /* 设置 IC3PSC 值 */
     htim->Instance->CCMR2 |= sConfig->ICPrescaler;
   }
   else if (Channel == TIM_CHANNEL_4)
   {
-    /* TI4 Configuration */
+    /* TI4 配置 */
     assert_param(IS_TIM_CC4_INSTANCE(htim->Instance));
 
     TIM_TI4_SetConfig(htim->Instance,
@@ -4186,10 +4168,10 @@ HAL_StatusTypeDef HAL_TIM_IC_ConfigChannel(TIM_HandleTypeDef *htim, const TIM_IC
                       sConfig->ICSelection,
                       sConfig->ICFilter);
 
-    /* Reset the IC4PSC Bits */
+    /* 复位 IC4PSC 位 */
     htim->Instance->CCMR2 &= ~TIM_CCMR2_IC4PSC;
 
-    /* Set the IC4PSC value */
+    /* 设置 IC4PSC 值 */
     htim->Instance->CCMR2 |= (sConfig->ICPrescaler << 8U);
   }
   else
@@ -4203,17 +4185,16 @@ HAL_StatusTypeDef HAL_TIM_IC_ConfigChannel(TIM_HandleTypeDef *htim, const TIM_IC
 }
 
 /**
-  * @brief  Initializes the TIM PWM  channels according to the specified
-  *         parameters in the TIM_OC_InitTypeDef.
-  * @param  htim TIM PWM handle
-  * @param  sConfig TIM PWM configuration structure
-  * @param  Channel TIM Channels to be configured
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval HAL status
+  * @brief  根据 TIM_OC_InitTypeDef 中指定的参数初始化 TIM PWM 通道。
+  * @param  htim TIM PWM 句柄
+  * @param  sConfig TIM PWM 配置结构体
+  * @param  Channel 待配置的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
                                             const TIM_OC_InitTypeDef *sConfig,
@@ -4221,29 +4202,29 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CHANNELS(Channel));
   assert_param(IS_TIM_PWM_MODE(sConfig->OCMode));
   assert_param(IS_TIM_OC_POLARITY(sConfig->OCPolarity));
   assert_param(IS_TIM_FAST_STATE(sConfig->OCFastMode));
 
-  /* Process Locked */
+  /* 进程锁定 */
   __HAL_LOCK(htim);
 
   switch (Channel)
   {
     case TIM_CHANNEL_1:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC1_INSTANCE(htim->Instance));
 
-      /* Configure the Channel 1 in PWM mode */
+      /* 将通道 1 配置为 PWM 模式 */
       TIM_OC1_SetConfig(htim->Instance, sConfig);
 
-      /* Set the Preload enable bit for channel1 */
+      /* 设置通道 1 的预装载使能位 */
       htim->Instance->CCMR1 |= TIM_CCMR1_OC1PE;
 
-      /* Configure the Output Fast mode */
+      /* 配置输出快速模式 */
       htim->Instance->CCMR1 &= ~TIM_CCMR1_OC1FE;
       htim->Instance->CCMR1 |= sConfig->OCFastMode;
       break;
@@ -4251,16 +4232,16 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
 
     case TIM_CHANNEL_2:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC2_INSTANCE(htim->Instance));
 
-      /* Configure the Channel 2 in PWM mode */
+      /* 将通道 2 配置为 PWM 模式 */
       TIM_OC2_SetConfig(htim->Instance, sConfig);
 
-      /* Set the Preload enable bit for channel2 */
+      /* 设置通道 2 的预装载使能位 */
       htim->Instance->CCMR1 |= TIM_CCMR1_OC2PE;
 
-      /* Configure the Output Fast mode */
+      /* 配置输出快速模式 */
       htim->Instance->CCMR1 &= ~TIM_CCMR1_OC2FE;
       htim->Instance->CCMR1 |= sConfig->OCFastMode << 8U;
       break;
@@ -4268,16 +4249,16 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
 
     case TIM_CHANNEL_3:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC3_INSTANCE(htim->Instance));
 
-      /* Configure the Channel 3 in PWM mode */
+      /* 将通道 3 配置为 PWM 模式 */
       TIM_OC3_SetConfig(htim->Instance, sConfig);
 
-      /* Set the Preload enable bit for channel3 */
+      /* 设置通道 3 的预装载使能位 */
       htim->Instance->CCMR2 |= TIM_CCMR2_OC3PE;
 
-      /* Configure the Output Fast mode */
+      /* 配置输出快速模式 */
       htim->Instance->CCMR2 &= ~TIM_CCMR2_OC3FE;
       htim->Instance->CCMR2 |= sConfig->OCFastMode;
       break;
@@ -4285,16 +4266,16 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
 
     case TIM_CHANNEL_4:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC4_INSTANCE(htim->Instance));
 
-      /* Configure the Channel 4 in PWM mode */
+      /* 将通道 4 配置为 PWM 模式 */
       TIM_OC4_SetConfig(htim->Instance, sConfig);
 
-      /* Set the Preload enable bit for channel4 */
+      /* 置位通道 4 的预装载使能位 */
       htim->Instance->CCMR2 |= TIM_CCMR2_OC4PE;
 
-      /* Configure the Output Fast mode */
+      /* 配置输出快速模式 */
       htim->Instance->CCMR2 &= ~TIM_CCMR2_OC4FE;
       htim->Instance->CCMR2 |= sConfig->OCFastMode << 8U;
       break;
@@ -4311,23 +4292,21 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
 }
 
 /**
-  * @brief  Initializes the TIM One Pulse Channels according to the specified
-  *         parameters in the TIM_OnePulse_InitTypeDef.
-  * @param  htim TIM One Pulse handle
-  * @param  sConfig TIM One Pulse configuration structure
-  * @param  OutputChannel TIM output channel to configure
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  * @param  InputChannel TIM input Channel to configure
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  * @note  To output a waveform with a minimum delay user can enable the fast
-  *        mode by calling the @ref __HAL_TIM_ENABLE_OCxFAST macro. Then CCx
-  *        output is forced in response to the edge detection on TIx input,
-  *        without taking in account the comparison.
-  * @retval HAL status
+  * @brief  根据 TIM_OnePulse_InitTypeDef 中指定的参数初始化 TIM 单脉冲通道。
+  * @param  htim TIM 单脉冲句柄
+  * @param  sConfig TIM 单脉冲配置结构体
+  * @param  OutputChannel 要配置的 TIM 输出通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  * @param  InputChannel 要配置的 TIM 输入通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  * @note  若要以最小延时输出波形，用户可通过调用 @ref __HAL_TIM_ENABLE_OCxFAST 宏来使能快速模式。
+  *        此时，一旦在 TIx 输入上检测到有效边沿，CCx 输出将被强制置位/响应，
+  *        而无需等待比较结果。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_OnePulse_InitTypeDef *sConfig,
                                                  uint32_t OutputChannel,  uint32_t InputChannel)
@@ -4335,18 +4314,18 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_O
   HAL_StatusTypeDef status = HAL_OK;
   TIM_OC_InitTypeDef temp1;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_OPM_CHANNELS(OutputChannel));
   assert_param(IS_TIM_OPM_CHANNELS(InputChannel));
 
   if (OutputChannel != InputChannel)
   {
-    /* Process Locked */
+    /* 进程已锁定 */
     __HAL_LOCK(htim);
 
     htim->State = HAL_TIM_STATE_BUSY;
 
-    /* Extract the Output compare configuration from sConfig structure */
+    /* 从 sConfig 结构体中提取输出比较配置 */
     temp1.OCMode = sConfig->OCMode;
     temp1.Pulse = sConfig->Pulse;
     temp1.OCPolarity = sConfig->OCPolarity;
@@ -4388,14 +4367,14 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_O
           TIM_TI1_SetConfig(htim->Instance, sConfig->ICPolarity,
                             sConfig->ICSelection, sConfig->ICFilter);
 
-          /* Reset the IC1PSC Bits */
+          /* 复位 IC1PSC 位 */
           htim->Instance->CCMR1 &= ~TIM_CCMR1_IC1PSC;
 
-          /* Select the Trigger source */
+          /* 选择触发源 */
           htim->Instance->SMCR &= ~TIM_SMCR_TS;
           htim->Instance->SMCR |= TIM_TS_TI1FP1;
 
-          /* Select the Slave Mode */
+          /* 选择从模式 */
           htim->Instance->SMCR &= ~TIM_SMCR_SMS;
           htim->Instance->SMCR |= TIM_SLAVEMODE_TRIGGER;
           break;
@@ -4408,14 +4387,14 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_O
           TIM_TI2_SetConfig(htim->Instance, sConfig->ICPolarity,
                             sConfig->ICSelection, sConfig->ICFilter);
 
-          /* Reset the IC2PSC Bits */
+          /* 复位 IC2PSC 位 */
           htim->Instance->CCMR1 &= ~TIM_CCMR1_IC2PSC;
 
-          /* Select the Trigger source */
+          /* 选择触发源 */
           htim->Instance->SMCR &= ~TIM_SMCR_TS;
           htim->Instance->SMCR |= TIM_TS_TI2FP2;
 
-          /* Select the Slave Mode */
+          /* 选择从模式 */
           htim->Instance->SMCR &= ~TIM_SMCR_SMS;
           htim->Instance->SMCR |= TIM_SLAVEMODE_TRIGGER;
           break;
@@ -4440,10 +4419,10 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_O
 }
 
 /**
-  * @brief  Configure the DMA Burst to transfer Data from the memory to the TIM peripheral
-  * @param  htim TIM handle
-  * @param  BurstBaseAddress TIM Base address from where the DMA  will start the Data write
-  *         This parameter can be one of the following values:
+  * @brief  配置 DMA 突发传输（Burst），将数据从内存传输到 TIM 外设
+  * @param  htim TIM 句柄
+  * @param  BurstBaseAddress TIM 基地址，DMA 将从此地址开始写入数据
+  *         该参数可以是以下值之一：
   *            @arg TIM_DMABASE_CR1
   *            @arg TIM_DMABASE_CR2
   *            @arg TIM_DMABASE_SMCR
@@ -4462,20 +4441,20 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_O
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
-  * @param  BurstRequestSrc TIM DMA Request sources
-  *         This parameter can be one of the following values:
-  *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
-  *            @arg TIM_DMA_CC1: TIM Capture Compare 1 DMA source
-  *            @arg TIM_DMA_CC2: TIM Capture Compare 2 DMA source
-  *            @arg TIM_DMA_CC3: TIM Capture Compare 3 DMA source
-  *            @arg TIM_DMA_CC4: TIM Capture Compare 4 DMA source
-  *            @arg TIM_DMA_COM: TIM Commutation DMA source
-  *            @arg TIM_DMA_TRIGGER: TIM Trigger DMA source
-  * @param  BurstBuffer The Buffer address.
-  * @param  BurstLength DMA Burst length. This parameter can be one value
-  *         between: TIM_DMABURSTLENGTH_1TRANSFER and TIM_DMABURSTLENGTH_18TRANSFERS.
-  * @note   This function should be used only when BurstLength is equal to DMA data transfer length.
-  * @retval HAL status
+  * @param  BurstRequestSrc TIM DMA 请求源
+  *         该参数可以是以下值之一：
+  *            @arg TIM_DMA_UPDATE: TIM 更新中断源
+  *            @arg TIM_DMA_CC1: TIM 捕获/比较 1 DMA 源
+  *            @arg TIM_DMA_CC2: TIM 捕获/比较 2 DMA 源
+  *            @arg TIM_DMA_CC3: TIM 捕获/比较 3 DMA 源
+  *            @arg TIM_DMA_CC4: TIM 捕获/比较 4 DMA 源
+  *            @arg TIM_DMA_COM: TIM 换向 DMA 源
+  *            @arg TIM_DMA_TRIGGER: TIM 触发 DMA 源
+  * @param  BurstBuffer 缓冲区地址。
+  * @param  BurstLength DMA 突发传输长度。该参数可以是以下范围内的值：
+  *         TIM_DMABURSTLENGTH_1TRANSFER 到 TIM_DMABURSTLENGTH_18TRANSFERS。
+  * @note   仅当 BurstLength 等于 DMA 数据传输长度时，才应使用此函数。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress,
                                               uint32_t BurstRequestSrc, const uint32_t *BurstBuffer,
@@ -4491,10 +4470,10 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStart(TIM_HandleTypeDef *htim, uint32_t 
 }
 
 /**
-  * @brief  Configure the DMA Burst to transfer multiple Data from the memory to the TIM peripheral
-  * @param  htim TIM handle
-  * @param  BurstBaseAddress TIM Base address from where the DMA will start the Data write
-  *         This parameter can be one of the following values:
+  * @brief  配置 DMA 突发传输（Burst），将多组数据从内存传输到 TIM 外设
+  * @param  htim TIM 句柄
+  * @param  BurstBaseAddress TIM 基地址，DMA 将从此地址开始写入数据
+  *         该参数可以是以下值之一：
   *            @arg TIM_DMABASE_CR1
   *            @arg TIM_DMABASE_CR2
   *            @arg TIM_DMABASE_SMCR
@@ -4513,21 +4492,20 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStart(TIM_HandleTypeDef *htim, uint32_t 
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
-  * @param  BurstRequestSrc TIM DMA Request sources
-  *         This parameter can be one of the following values:
-  *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
-  *            @arg TIM_DMA_CC1: TIM Capture Compare 1 DMA source
-  *            @arg TIM_DMA_CC2: TIM Capture Compare 2 DMA source
-  *            @arg TIM_DMA_CC3: TIM Capture Compare 3 DMA source
-  *            @arg TIM_DMA_CC4: TIM Capture Compare 4 DMA source
-  *            @arg TIM_DMA_COM: TIM Commutation DMA source
-  *            @arg TIM_DMA_TRIGGER: TIM Trigger DMA source
-  * @param  BurstBuffer The Buffer address.
-  * @param  BurstLength DMA Burst length. This parameter can be one value
-  *         between: TIM_DMABURSTLENGTH_1TRANSFER and TIM_DMABURSTLENGTH_18TRANSFERS.
-  * @param  DataLength Data length. This parameter can be one value
-  *         between 1 and 0xFFFF.
-  * @retval HAL status
+  * @param  BurstRequestSrc TIM DMA 请求源
+  *         该参数可以是以下值之一：
+  *            @arg TIM_DMA_UPDATE: TIM 更新中断源
+  *            @arg TIM_DMA_CC1: TIM 捕获/比较 1 DMA 源
+  *            @arg TIM_DMA_CC2: TIM 捕获/比较 2 DMA 源
+  *            @arg TIM_DMA_CC3: TIM 捕获/比较 3 DMA 源
+  *            @arg TIM_DMA_CC4: TIM 捕获/比较 4 DMA 源
+  *            @arg TIM_DMA_COM: TIM 换向 DMA 源
+  *            @arg TIM_DMA_TRIGGER: TIM 触发 DMA 源
+  * @param  BurstBuffer 缓冲区地址。
+  * @param  BurstLength DMA 突发传输长度。该参数可以是以下范围内的值：
+  *         TIM_DMABURSTLENGTH_1TRANSFER 到 TIM_DMABURSTLENGTH_18TRANSFERS。
+  * @param  DataLength 数据长度。该参数可以是 1 到 0xFFFF 之间的值。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress,
                                                    uint32_t BurstRequestSrc, const uint32_t *BurstBuffer,
@@ -4535,7 +4513,7 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_DMABURST_INSTANCE(htim->Instance));
   assert_param(IS_TIM_DMA_BASE(BurstBaseAddress));
   assert_param(IS_TIM_DMA_SOURCE(BurstRequestSrc));
@@ -4559,133 +4537,133 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
   }
   else
   {
-    /* nothing to do */
+    /* 无需操作 */
   }
 
   switch (BurstRequestSrc)
   {
     case TIM_DMA_UPDATE:
     {
-      /* Set the DMA Period elapsed callbacks */
+      /* 设置 DMA 周期到达（溢出）回调函数 */
       htim->hdma[TIM_DMA_ID_UPDATE]->XferCpltCallback = TIM_DMAPeriodElapsedCplt;
       htim->hdma[TIM_DMA_ID_UPDATE]->XferHalfCpltCallback = TIM_DMAPeriodElapsedHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_UPDATE]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_UPDATE], (uint32_t)BurstBuffer,
                            (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_CC1:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)BurstBuffer,
                            (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_CC2:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC2]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)BurstBuffer,
                            (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_CC3:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC3]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)BurstBuffer,
                            (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_CC4:
     {
-      /* Set the DMA compare callbacks */
+      /* 设置 DMA 比较回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferCpltCallback = TIM_DMADelayPulseCplt;
       htim->hdma[TIM_DMA_ID_CC4]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC4], (uint32_t)BurstBuffer,
                            (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_COM:
     {
-      /* Set the DMA commutation callbacks */
+      /* 设置 DMA 换向回调函数 */
       htim->hdma[TIM_DMA_ID_COMMUTATION]->XferCpltCallback =  TIMEx_DMACommutationCplt;
       htim->hdma[TIM_DMA_ID_COMMUTATION]->XferHalfCpltCallback =  TIMEx_DMACommutationHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_COMMUTATION]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_COMMUTATION], (uint32_t)BurstBuffer,
                            (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_TRIGGER:
     {
-      /* Set the DMA trigger callbacks */
+      /* 设置 DMA 触发回调函数 */
       htim->hdma[TIM_DMA_ID_TRIGGER]->XferCpltCallback = TIM_DMATriggerCplt;
       htim->hdma[TIM_DMA_ID_TRIGGER]->XferHalfCpltCallback = TIM_DMATriggerHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_TRIGGER]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_TRIGGER], (uint32_t)BurstBuffer,
                            (uint32_t)&htim->Instance->DMAR, DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
@@ -4697,30 +4675,30 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiWriteStart(TIM_HandleTypeDef *htim, uint
 
   if (status == HAL_OK)
   {
-    /* Configure the DMA Burst Mode */
+    /* 配置 DMA 突发模式 */
     htim->Instance->DCR = (BurstBaseAddress | BurstLength);
-    /* Enable the TIM DMA Request */
+    /* 使能 TIM DMA 请求 */
     __HAL_TIM_ENABLE_DMA(htim, BurstRequestSrc);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Stops the TIM DMA Burst mode
-  * @param  htim TIM handle
-  * @param  BurstRequestSrc TIM DMA Request sources to disable
-  * @retval HAL status
+  * @brief  停止 TIM DMA 突发模式
+  * @param  htim TIM 句柄
+  * @param  BurstRequestSrc 要禁用的 TIM DMA 请求源
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStop(TIM_HandleTypeDef *htim, uint32_t BurstRequestSrc)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_DMA_SOURCE(BurstRequestSrc));
 
-  /* Abort the DMA transfer (at least disable the DMA channel) */
+  /* 中止 DMA 传输（至少禁用 DMA 通道） */
   switch (BurstRequestSrc)
   {
     case TIM_DMA_UPDATE:
@@ -4765,22 +4743,22 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStop(TIM_HandleTypeDef *htim, uint32_t B
 
   if (status == HAL_OK)
   {
-    /* Disable the TIM Update DMA request */
+    /* 禁用 TIM 更新 DMA 请求 */
     __HAL_TIM_DISABLE_DMA(htim, BurstRequestSrc);
 
-    /* Change the DMA burst operation state */
+    /* 改变 DMA 突发操作状态 */
     htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Configure the DMA Burst to transfer Data from the TIM peripheral to the memory
-  * @param  htim TIM handle
-  * @param  BurstBaseAddress TIM Base address from where the DMA  will start the Data read
-  *         This parameter can be one of the following values:
+  * @brief  配置 DMA 突发模式以将数据从 TIM 外设传输到内存
+  * @param  htim TIM 句柄
+  * @param  BurstBaseAddress DMA 开始读取数据的 TIM 基地址
+  *         该参数可以是以下值之一：
   *            @arg TIM_DMABASE_CR1
   *            @arg TIM_DMABASE_CR2
   *            @arg TIM_DMABASE_SMCR
@@ -4799,20 +4777,20 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStop(TIM_HandleTypeDef *htim, uint32_t B
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
-  * @param  BurstRequestSrc TIM DMA Request sources
-  *         This parameter can be one of the following values:
-  *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
-  *            @arg TIM_DMA_CC1: TIM Capture Compare 1 DMA source
-  *            @arg TIM_DMA_CC2: TIM Capture Compare 2 DMA source
-  *            @arg TIM_DMA_CC3: TIM Capture Compare 3 DMA source
-  *            @arg TIM_DMA_CC4: TIM Capture Compare 4 DMA source
-  *            @arg TIM_DMA_COM: TIM Commutation DMA source
-  *            @arg TIM_DMA_TRIGGER: TIM Trigger DMA source
-  * @param  BurstBuffer The Buffer address.
-  * @param  BurstLength DMA Burst length. This parameter can be one value
-  *         between: TIM_DMABURSTLENGTH_1TRANSFER and TIM_DMABURSTLENGTH_18TRANSFERS.
-  * @note   This function should be used only when BurstLength is equal to DMA data transfer length.
-  * @retval HAL status
+  * @param  BurstRequestSrc TIM DMA 请求源
+  *         该参数可以是以下值之一：
+  *            @arg TIM_DMA_UPDATE: TIM 更新中断源
+  *            @arg TIM_DMA_CC1: TIM 捕获比较 1 DMA 源
+  *            @arg TIM_DMA_CC2: TIM 捕获比较 2 DMA 源
+  *            @arg TIM_DMA_CC3: TIM 捕获比较 3 DMA 源
+  *            @arg TIM_DMA_CC4: TIM 捕获比较 4 DMA 源
+  *            @arg TIM_DMA_COM: TIM 换向 DMA 源
+  *            @arg TIM_DMA_TRIGGER: TIM 触发 DMA 源
+  * @param  BurstBuffer 缓冲区地址。
+  * @param  BurstLength DMA 突发传输长度。该参数可以是介于以下范围的一个值：
+  *         TIM_DMABURSTLENGTH_1TRANSFER 和 TIM_DMABURSTLENGTH_18TRANSFERS。
+  * @note   仅当 BurstLength 等于 DMA 数据传输长度时，才应使用此函数。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress,
                                              uint32_t BurstRequestSrc, uint32_t  *BurstBuffer, uint32_t  BurstLength)
@@ -4827,10 +4805,10 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStart(TIM_HandleTypeDef *htim, uint32_t B
 }
 
 /**
-  * @brief  Configure the DMA Burst to transfer Data from the TIM peripheral to the memory
-  * @param  htim TIM handle
-  * @param  BurstBaseAddress TIM Base address from where the DMA  will start the Data read
-  *         This parameter can be one of the following values:
+  * @brief  配置 DMA 突发模式以将数据从 TIM 外设传输到内存
+  * @param  htim TIM 句柄
+  * @param  BurstBaseAddress DMA 开始读取数据的 TIM 基地址
+  *         该参数可以是以下值之一：
   *            @arg TIM_DMABASE_CR1
   *            @arg TIM_DMABASE_CR2
   *            @arg TIM_DMABASE_SMCR
@@ -4849,21 +4827,20 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStart(TIM_HandleTypeDef *htim, uint32_t B
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
-  * @param  BurstRequestSrc TIM DMA Request sources
-  *         This parameter can be one of the following values:
-  *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
-  *            @arg TIM_DMA_CC1: TIM Capture Compare 1 DMA source
-  *            @arg TIM_DMA_CC2: TIM Capture Compare 2 DMA source
-  *            @arg TIM_DMA_CC3: TIM Capture Compare 3 DMA source
-  *            @arg TIM_DMA_CC4: TIM Capture Compare 4 DMA source
-  *            @arg TIM_DMA_COM: TIM Commutation DMA source
-  *            @arg TIM_DMA_TRIGGER: TIM Trigger DMA source
-  * @param  BurstBuffer The Buffer address.
-  * @param  BurstLength DMA Burst length. This parameter can be one value
-  *         between: TIM_DMABURSTLENGTH_1TRANSFER and TIM_DMABURSTLENGTH_18TRANSFERS.
-  * @param  DataLength Data length. This parameter can be one value
-  *         between 1 and 0xFFFF.
-  * @retval HAL status
+  * @param  BurstRequestSrc TIM DMA 请求源
+  *         该参数可以是以下值之一：
+  *            @arg TIM_DMA_UPDATE: TIM 更新中断源
+  *            @arg TIM_DMA_CC1: TIM 捕获比较 1 DMA 源
+  *            @arg TIM_DMA_CC2: TIM 捕获比较 2 DMA 源
+  *            @arg TIM_DMA_CC3: TIM 捕获比较 3 DMA 源
+  *            @arg TIM_DMA_CC4: TIM 捕获比较 4 DMA 源
+  *            @arg TIM_DMA_COM: TIM 换向 DMA 源
+  *            @arg TIM_DMA_TRIGGER: TIM 触发 DMA 源
+  * @param  BurstBuffer 缓冲区地址。
+  * @param  BurstLength DMA 突发传输长度。该参数可以是介于以下范围的一个值：
+  *         TIM_DMABURSTLENGTH_1TRANSFER 和 TIM_DMABURSTLENGTH_18TRANSFERS。
+  * @param  DataLength 数据长度。该参数可以是介于 1 和 0xFFFF 之间的一个值。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint32_t BurstBaseAddress,
                                                   uint32_t BurstRequestSrc, uint32_t  *BurstBuffer,
@@ -4871,7 +4848,7 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_DMABURST_INSTANCE(htim->Instance));
   assert_param(IS_TIM_DMA_BASE(BurstBaseAddress));
   assert_param(IS_TIM_DMA_SOURCE(BurstRequestSrc));
@@ -4895,132 +4872,132 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
   }
   else
   {
-    /* nothing to do */
+    /* 无需任何操作 */
   }
   switch (BurstRequestSrc)
   {
     case TIM_DMA_UPDATE:
     {
-      /* Set the DMA Period elapsed callbacks */
+      /* 设置 DMA 周期溢出回调函数 */
       htim->hdma[TIM_DMA_ID_UPDATE]->XferCpltCallback = TIM_DMAPeriodElapsedCplt;
       htim->hdma[TIM_DMA_ID_UPDATE]->XferHalfCpltCallback = TIM_DMAPeriodElapsedHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_UPDATE]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_UPDATE], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
                            DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_CC1:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 输入捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
                            DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_CC2:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 输入捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC2]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
                            DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_CC3:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 输入捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC3]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC3]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
                            DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_CC4:
     {
-      /* Set the DMA capture callbacks */
+      /* 设置 DMA 捕获回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferCpltCallback = TIM_DMACaptureCplt;
       htim->hdma[TIM_DMA_ID_CC4]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_CC4]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC4], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
                            DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_COM:
     {
-      /* Set the DMA commutation callbacks */
+      /* 设置 DMA 换向回调函数 */
       htim->hdma[TIM_DMA_ID_COMMUTATION]->XferCpltCallback =  TIMEx_DMACommutationCplt;
       htim->hdma[TIM_DMA_ID_COMMUTATION]->XferHalfCpltCallback =  TIMEx_DMACommutationHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_COMMUTATION]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_COMMUTATION], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
                            DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
     }
     case TIM_DMA_TRIGGER:
     {
-      /* Set the DMA trigger callbacks */
+      /* 设置 DMA 触发回调函数 */
       htim->hdma[TIM_DMA_ID_TRIGGER]->XferCpltCallback = TIM_DMATriggerCplt;
       htim->hdma[TIM_DMA_ID_TRIGGER]->XferHalfCpltCallback = TIM_DMATriggerHalfCplt;
 
-      /* Set the DMA error callback */
+      /* 设置 DMA 错误回调函数 */
       htim->hdma[TIM_DMA_ID_TRIGGER]->XferErrorCallback = TIM_DMAError ;
 
-      /* Enable the DMA channel */
+      /* 使能 DMA 通道 */
       if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_TRIGGER], (uint32_t)&htim->Instance->DMAR, (uint32_t)BurstBuffer,
                            DataLength) != HAL_OK)
       {
-        /* Return error status */
+        /* 返回错误状态 */
         return HAL_ERROR;
       }
       break;
@@ -5032,31 +5009,31 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_MultiReadStart(TIM_HandleTypeDef *htim, uint3
 
   if (status == HAL_OK)
   {
-    /* Configure the DMA Burst Mode */
+    /* 配置 DMA 突发模式 */
     htim->Instance->DCR = (BurstBaseAddress | BurstLength);
 
-    /* Enable the TIM DMA Request */
+    /* 使能 TIM DMA 请求 */
     __HAL_TIM_ENABLE_DMA(htim, BurstRequestSrc);
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Stop the DMA burst reading
-  * @param  htim TIM handle
-  * @param  BurstRequestSrc TIM DMA Request sources to disable.
-  * @retval HAL status
+  * @brief  停止 DMA 突发读取
+  * @param  htim TIM 句柄
+  * @param  BurstRequestSrc 要禁用的 TIM DMA 请求源。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStop(TIM_HandleTypeDef *htim, uint32_t BurstRequestSrc)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_DMA_SOURCE(BurstRequestSrc));
 
-  /* Abort the DMA transfer (at least disable the DMA channel) */
+  /* 中止 DMA 传输（至少禁用 DMA 通道） */
   switch (BurstRequestSrc)
   {
     case TIM_DMA_UPDATE:
@@ -5101,73 +5078,72 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStop(TIM_HandleTypeDef *htim, uint32_t Bu
 
   if (status == HAL_OK)
   {
-    /* Disable the TIM Update DMA request */
+    /* 禁用 TIM 更新 DMA 请求 */
     __HAL_TIM_DISABLE_DMA(htim, BurstRequestSrc);
 
-    /* Change the DMA burst operation state */
+    /* 改变 DMA 突发操作状态 */
     htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return status;
 }
 
 /**
-  * @brief  Generate a software event
-  * @param  htim TIM handle
-  * @param  EventSource specifies the event source.
-  *          This parameter can be one of the following values:
-  *            @arg TIM_EVENTSOURCE_UPDATE: Timer update Event source
-  *            @arg TIM_EVENTSOURCE_CC1: Timer Capture Compare 1 Event source
-  *            @arg TIM_EVENTSOURCE_CC2: Timer Capture Compare 2 Event source
-  *            @arg TIM_EVENTSOURCE_CC3: Timer Capture Compare 3 Event source
-  *            @arg TIM_EVENTSOURCE_CC4: Timer Capture Compare 4 Event source
-  *            @arg TIM_EVENTSOURCE_COM: Timer COM event source
-  *            @arg TIM_EVENTSOURCE_TRIGGER: Timer Trigger Event source
-  *            @arg TIM_EVENTSOURCE_BREAK: Timer Break event source
-  * @note   Basic timers can only generate an update event.
-  * @note   TIM_EVENTSOURCE_COM is relevant only with advanced timer instances.
-  * @note   TIM_EVENTSOURCE_BREAK are relevant only for timer instances
-  *         supporting a break input.
-  * @retval HAL status
+  * @brief  生成软件事件
+  * @param  htim TIM 句柄
+  * @param  EventSource 指定事件源。
+  *          该参数可以是以下值之一：
+  *            @arg TIM_EVENTSOURCE_UPDATE: 定时器更新事件源
+  *            @arg TIM_EVENTSOURCE_CC1: 定时器捕获/比较 1 事件源
+  *            @arg TIM_EVENTSOURCE_CC2: 定时器捕获/比较 2 事件源
+  *            @arg TIM_EVENTSOURCE_CC3: 定时器捕获/比较 3 事件源
+  *            @arg TIM_EVENTSOURCE_CC4: 定时器捕获/比较 4 事件源
+  *            @arg TIM_EVENTSOURCE_COM: 定时器 COM 事件源
+  *            @arg TIM_EVENTSOURCE_TRIGGER: 定时器触发事件源
+  *            @arg TIM_EVENTSOURCE_BREAK: 定时器刹车事件源
+  * @note   基本定时器只能生成更新事件。
+  * @note   TIM_EVENTSOURCE_COM 仅适用于高级定时器实例。
+  * @note   TIM_EVENTSOURCE_BREAK 仅适用于支持刹车输入的定时器实例。
+  * @retval HAL 状态
   */
 
 HAL_StatusTypeDef HAL_TIM_GenerateEvent(TIM_HandleTypeDef *htim, uint32_t EventSource)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
   assert_param(IS_TIM_EVENT_SOURCE(EventSource));
 
-  /* Process Locked */
+  /* 进程加锁 */
   __HAL_LOCK(htim);
 
-  /* Change the TIM state */
+  /* 改变 TIM 状态 */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Set the event sources */
+  /* 设置事件源 */
   htim->Instance->EGR = EventSource;
 
-  /* Change the TIM state */
+  /* 改变 TIM 状态 */
   htim->State = HAL_TIM_STATE_READY;
 
   __HAL_UNLOCK(htim);
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Configures the OCRef clear feature
-  * @param  htim TIM handle
-  * @param  sClearInputConfig pointer to a TIM_ClearInputConfigTypeDef structure that
-  *         contains the OCREF clear feature and parameters for the TIM peripheral.
-  * @param  Channel specifies the TIM Channel
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1
-  *            @arg TIM_CHANNEL_2: TIM Channel 2
-  *            @arg TIM_CHANNEL_3: TIM Channel 3
-  *            @arg TIM_CHANNEL_4: TIM Channel 4
-  * @retval HAL status
+  * @brief  配置 OCRef 清除功能
+  * @param  htim TIM 句柄
+  * @param  sClearInputConfig 指向包含 TIM 外设 OCREF 清除功能及参数的
+  *         TIM_ClearInputConfigTypeDef 结构体的指针。
+  * @param  Channel 指定 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: TIM 通道 1
+  *            @arg TIM_CHANNEL_2: TIM 通道 2
+  *            @arg TIM_CHANNEL_3: TIM 通道 3
+  *            @arg TIM_CHANNEL_4: TIM 通道 4
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
                                            const TIM_ClearInputConfigTypeDef *sClearInputConfig,
@@ -5175,11 +5151,11 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_OCXREF_CLEAR_INSTANCE(htim->Instance));
   assert_param(IS_TIM_CLEARINPUT_SOURCE(sClearInputConfig->ClearInputSource));
 
-  /* Process Locked */
+  /* 进程锁定 */
   __HAL_LOCK(htim);
 
   htim->State = HAL_TIM_STATE_BUSY;
@@ -5188,19 +5164,19 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
   {
     case TIM_CLEARINPUTSOURCE_NONE:
     {
-      /* Clear the OCREF clear selection bit and the the ETR Bits */
+      /* 清除 OCREF 清除选择位以及 ETR 位 */
       CLEAR_BIT(htim->Instance->SMCR, (TIM_SMCR_ETF | TIM_SMCR_ETPS | TIM_SMCR_ECE | TIM_SMCR_ETP));
       break;
     }
 
     case TIM_CLEARINPUTSOURCE_ETR:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CLEARINPUT_POLARITY(sClearInputConfig->ClearInputPolarity));
       assert_param(IS_TIM_CLEARINPUT_PRESCALER(sClearInputConfig->ClearInputPrescaler));
       assert_param(IS_TIM_CLEARINPUT_FILTER(sClearInputConfig->ClearInputFilter));
 
-      /* When OCRef clear feature is used with ETR source, ETR prescaler must be off */
+      /* 当 OCREF 清除功能与 ETR 源一起使用时，必须关闭 ETR 预分频器 */
       if (sClearInputConfig->ClearInputPrescaler != TIM_CLEARINPUTPRESCALER_DIV1)
       {
         htim->State = HAL_TIM_STATE_READY;
@@ -5228,12 +5204,12 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       {
         if (sClearInputConfig->ClearInputState != (uint32_t)DISABLE)
         {
-          /* Enable the OCREF clear feature for Channel 1 */
+          /* 使能通道 1 的 OCREF 清除功能 */
           SET_BIT(htim->Instance->CCMR1, TIM_CCMR1_OC1CE);
         }
         else
         {
-          /* Disable the OCREF clear feature for Channel 1 */
+          /* 禁用通道 1 的 OCREF 清除功能 */
           CLEAR_BIT(htim->Instance->CCMR1, TIM_CCMR1_OC1CE);
         }
         break;
@@ -5242,12 +5218,12 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       {
         if (sClearInputConfig->ClearInputState != (uint32_t)DISABLE)
         {
-          /* Enable the OCREF clear feature for Channel 2 */
+          /* 使能通道 2 的 OCREF 清除功能 */
           SET_BIT(htim->Instance->CCMR1, TIM_CCMR1_OC2CE);
         }
         else
         {
-          /* Disable the OCREF clear feature for Channel 2 */
+          /* 禁用通道 2 的 OCREF 清除功能 */
           CLEAR_BIT(htim->Instance->CCMR1, TIM_CCMR1_OC2CE);
         }
         break;
@@ -5256,12 +5232,12 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       {
         if (sClearInputConfig->ClearInputState != (uint32_t)DISABLE)
         {
-          /* Enable the OCREF clear feature for Channel 3 */
+          /* 使能通道 3 的 OCREF 清除功能 */
           SET_BIT(htim->Instance->CCMR2, TIM_CCMR2_OC3CE);
         }
         else
         {
-          /* Disable the OCREF clear feature for Channel 3 */
+          /* 禁用通道 3 的 OCREF 清除功能 */
           CLEAR_BIT(htim->Instance->CCMR2, TIM_CCMR2_OC3CE);
         }
         break;
@@ -5270,12 +5246,12 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       {
         if (sClearInputConfig->ClearInputState != (uint32_t)DISABLE)
         {
-          /* Enable the OCREF clear feature for Channel 4 */
+          /* 使能通道 4 的 OCREF 清除功能 */
           SET_BIT(htim->Instance->CCMR2, TIM_CCMR2_OC4CE);
         }
         else
         {
-          /* Disable the OCREF clear feature for Channel 4 */
+          /* 禁用通道 4 的 OCREF 清除功能 */
           CLEAR_BIT(htim->Instance->CCMR2, TIM_CCMR2_OC4CE);
         }
         break;
@@ -5293,26 +5269,26 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
 }
 
 /**
-  * @brief   Configures the clock source to be used
-  * @param  htim TIM handle
-  * @param  sClockSourceConfig pointer to a TIM_ClockConfigTypeDef structure that
-  *         contains the clock source information for the TIM peripheral.
-  * @retval HAL status
+  * @brief   配置所使用的时钟源
+  * @param  htim TIM 句柄
+  * @param  sClockSourceConfig 指向包含 TIM 外设时钟源信息的
+  *         TIM_ClockConfigTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, const TIM_ClockConfigTypeDef *sClockSourceConfig)
 {
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t tmpsmcr;
 
-  /* Process Locked */
+  /* 进程锁定 */
   __HAL_LOCK(htim);
 
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CLOCKSOURCE(sClockSourceConfig->ClockSource));
 
-  /* Reset the SMS, TS, ECE, ETPS and ETRF bits */
+  /* 复位 SMS、TS、ECE、ETPS 和 ETRF 位 */
   tmpsmcr = htim->Instance->SMCR;
   tmpsmcr &= ~(TIM_SMCR_SMS | TIM_SMCR_TS);
   tmpsmcr &= ~(TIM_SMCR_ETF | TIM_SMCR_ETPS | TIM_SMCR_ECE | TIM_SMCR_ETP);
@@ -5328,54 +5304,54 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, const TIM_C
 
     case TIM_CLOCKSOURCE_ETRMODE1:
     {
-      /* Check whether or not the timer instance supports external trigger input mode 1 (ETRF)*/
+      /* 检查该定时器实例是否支持外部触发输入模式 1 (ETRF) */
       assert_param(IS_TIM_CLOCKSOURCE_ETRMODE1_INSTANCE(htim->Instance));
 
-      /* Check ETR input conditioning related parameters */
+      /* 检查 ETR 输入信号调理相关参数 */
       assert_param(IS_TIM_CLOCKPRESCALER(sClockSourceConfig->ClockPrescaler));
       assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
       assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
 
-      /* Configure the ETR Clock source */
+      /* 配置 ETR 时钟源 */
       TIM_ETR_SetConfig(htim->Instance,
                         sClockSourceConfig->ClockPrescaler,
                         sClockSourceConfig->ClockPolarity,
                         sClockSourceConfig->ClockFilter);
 
-      /* Select the External clock mode1 and the ETRF trigger */
+      /* 选择外部时钟模式 1 和 ETRF 触发源 */
       tmpsmcr = htim->Instance->SMCR;
       tmpsmcr |= (TIM_SLAVEMODE_EXTERNAL1 | TIM_CLOCKSOURCE_ETRMODE1);
-      /* Write to TIMx SMCR */
+      /* 写入 TIMx SMCR 寄存器 */
       htim->Instance->SMCR = tmpsmcr;
       break;
     }
 
     case TIM_CLOCKSOURCE_ETRMODE2:
     {
-      /* Check whether or not the timer instance supports external trigger input mode 2 (ETRF)*/
+      /* 检查该定时器实例是否支持外部触发输入模式 2 (ETRF) */
       assert_param(IS_TIM_CLOCKSOURCE_ETRMODE2_INSTANCE(htim->Instance));
 
-      /* Check ETR input conditioning related parameters */
+      /* 检查 ETR 输入信号调理相关参数 */
       assert_param(IS_TIM_CLOCKPRESCALER(sClockSourceConfig->ClockPrescaler));
       assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
       assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
 
-      /* Configure the ETR Clock source */
+      /* 配置 ETR 时钟源 */
       TIM_ETR_SetConfig(htim->Instance,
                         sClockSourceConfig->ClockPrescaler,
                         sClockSourceConfig->ClockPolarity,
                         sClockSourceConfig->ClockFilter);
-      /* Enable the External clock mode2 */
+      /* 使能外部时钟模式 2 */
       htim->Instance->SMCR |= TIM_SMCR_ECE;
       break;
     }
 
     case TIM_CLOCKSOURCE_TI1:
     {
-      /* Check whether or not the timer instance supports external clock mode 1 */
+      /* 检查该定时器实例是否支持外部时钟模式 1 */
       assert_param(IS_TIM_CLOCKSOURCE_TIX_INSTANCE(htim->Instance));
 
-      /* Check TI1 input conditioning related parameters */
+      /* 检查 TI1 输入信号调理相关参数 */
       assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
       assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
 
@@ -5388,10 +5364,10 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, const TIM_C
 
     case TIM_CLOCKSOURCE_TI2:
     {
-      /* Check whether or not the timer instance supports external clock mode 1 (ETRF)*/
+      /* 检查该定时器实例是否支持外部时钟模式 1 (ETRF) */
       assert_param(IS_TIM_CLOCKSOURCE_TIX_INSTANCE(htim->Instance));
 
-      /* Check TI2 input conditioning related parameters */
+      /* 检查 TI2 输入信号调理相关参数 */
       assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
       assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
 
@@ -5404,10 +5380,10 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, const TIM_C
 
     case TIM_CLOCKSOURCE_TI1ED:
     {
-      /* Check whether or not the timer instance supports external clock mode 1 */
+      /* 检查定时器实例是否支持外部时钟模式 1 */
       assert_param(IS_TIM_CLOCKSOURCE_TIX_INSTANCE(htim->Instance));
 
-      /* Check TI1 input conditioning related parameters */
+      /* 检查 TI1 输入信号调理相关参数 */
       assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
       assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
 
@@ -5423,7 +5399,7 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, const TIM_C
     case TIM_CLOCKSOURCE_ITR2:
     case TIM_CLOCKSOURCE_ITR3:
     {
-      /* Check whether or not the timer instance supports internal trigger input */
+      /* 检查定时器实例是否支持内部触发输入 */
       assert_param(IS_TIM_CLOCKSOURCE_ITRX_INSTANCE(htim->Instance));
 
       TIM_ITRx_SetConfig(htim->Instance, sClockSourceConfig->ClockSource);
@@ -5442,52 +5418,51 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, const TIM_C
 }
 
 /**
-  * @brief  Selects the signal connected to the TI1 input: direct from CH1_input
-  *         or a XOR combination between CH1_input, CH2_input & CH3_input
-  * @param  htim TIM handle.
-  * @param  TI1_Selection Indicate whether or not channel 1 is connected to the
-  *         output of a XOR gate.
-  *          This parameter can be one of the following values:
-  *            @arg TIM_TI1SELECTION_CH1: The TIMx_CH1 pin is connected to TI1 input
-  *            @arg TIM_TI1SELECTION_XORCOMBINATION: The TIMx_CH1, CH2 and CH3
-  *            pins are connected to the TI1 input (XOR combination)
-  * @retval HAL status
+  * @brief  选择连接到 TI1 输入的信号：直接来自 CH1_input，
+  *         或者来自 CH1_input、CH2_input 与 CH3_input 的异或（XOR）组合
+  * @param  htim TIM 句柄。
+  * @param  TI1_Selection 指示通道 1 是否连接到异或门的输出端。
+  *          该参数可以是以下值之一：
+  *            @arg TIM_TI1SELECTION_CH1: TIMx_CH1 引脚连接到 TI1 输入
+  *            @arg TIM_TI1SELECTION_XORCOMBINATION: TIMx_CH1、CH2 和 CH3
+  *            引脚连接到 TI1 输入（异或组合）
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_ConfigTI1Input(TIM_HandleTypeDef *htim, uint32_t TI1_Selection)
 {
   uint32_t tmpcr2;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_XOR_INSTANCE(htim->Instance));
   assert_param(IS_TIM_TI1SELECTION(TI1_Selection));
 
-  /* Get the TIMx CR2 register value */
+  /* 获取 TIMx CR2 寄存器的值 */
   tmpcr2 = htim->Instance->CR2;
 
-  /* Reset the TI1 selection */
+  /* 复位 TI1 选择配置 */
   tmpcr2 &= ~TIM_CR2_TI1S;
 
-  /* Set the TI1 selection */
+  /* 设置 TI1 选择配置 */
   tmpcr2 |= TI1_Selection;
 
-  /* Write to TIMxCR2 */
+  /* 写入 TIMx CR2 寄存器 */
   htim->Instance->CR2 = tmpcr2;
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Configures the TIM in Slave mode
-  * @param  htim TIM handle.
-  * @param  sSlaveConfig pointer to a TIM_SlaveConfigTypeDef structure that
-  *         contains the selected trigger (internal trigger input, filtered
-  *         timer input or external trigger input) and the Slave mode
-  *         (Disable, Reset, Gated, Trigger, External clock mode 1).
-  * @retval HAL status
+  * @brief  配置定时器为从模式
+  * @param  htim TIM 句柄。
+  * @param  sSlaveConfig 指向 TIM_SlaveConfigTypeDef 结构的指针，该结构
+  *         包含所选的触发源（内部触发输入、滤波后的
+  *         定时器输入或外部触发输入）以及从模式
+  *         （禁用、复位、门控、触发、外部时钟模式 1）。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro(TIM_HandleTypeDef *htim, const TIM_SlaveConfigTypeDef *sSlaveConfig)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_SLAVE_INSTANCE(htim->Instance));
   assert_param(IS_TIM_SLAVE_MODE(sSlaveConfig->SlaveMode));
   assert_param(IS_TIM_TRIGGER_SELECTION(sSlaveConfig->InputTrigger));
@@ -5503,10 +5478,10 @@ HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro(TIM_HandleTypeDef *htim, const TIM_
     return HAL_ERROR;
   }
 
-  /* Disable Trigger Interrupt */
+  /* 禁用触发中断 */
   __HAL_TIM_DISABLE_IT(htim, TIM_IT_TRIGGER);
 
-  /* Disable Trigger DMA request */
+  /* 禁用触发 DMA 请求 */
   __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_TRIGGER);
 
   htim->State = HAL_TIM_STATE_READY;
@@ -5517,18 +5492,18 @@ HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro(TIM_HandleTypeDef *htim, const TIM_
 }
 
 /**
-  * @brief  Configures the TIM in Slave mode in interrupt mode
-  * @param  htim TIM handle.
-  * @param  sSlaveConfig pointer to a TIM_SlaveConfigTypeDef structure that
-  *         contains the selected trigger (internal trigger input, filtered
-  *         timer input or external trigger input) and the Slave mode
-  *         (Disable, Reset, Gated, Trigger, External clock mode 1).
-  * @retval HAL status
+  * @brief  在中断模式下配置定时器为从模式
+  * @param  htim TIM 句柄。
+  * @param  sSlaveConfig 指向 TIM_SlaveConfigTypeDef 结构的指针，该结构
+  *         包含所选的触发源（内部触发输入、滤波后的
+  *         定时器输入或外部触发输入）以及从模式
+  *         （禁用、复位、门控、触发、外部时钟模式 1）。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro_IT(TIM_HandleTypeDef *htim,
                                                 const TIM_SlaveConfigTypeDef *sSlaveConfig)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_SLAVE_INSTANCE(htim->Instance));
   assert_param(IS_TIM_SLAVE_MODE(sSlaveConfig->SlaveMode));
   assert_param(IS_TIM_TRIGGER_SELECTION(sSlaveConfig->InputTrigger));
@@ -5544,10 +5519,10 @@ HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro_IT(TIM_HandleTypeDef *htim,
     return HAL_ERROR;
   }
 
-  /* Enable Trigger Interrupt */
+  /* 使能触发中断 */
   __HAL_TIM_ENABLE_IT(htim, TIM_IT_TRIGGER);
 
-  /* Disable Trigger DMA request */
+  /* 禁用触发 DMA 请求 */
   __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_TRIGGER);
 
   htim->State = HAL_TIM_STATE_READY;
@@ -5558,15 +5533,15 @@ HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro_IT(TIM_HandleTypeDef *htim,
 }
 
 /**
-  * @brief  Read the captured value from Capture Compare unit
-  * @param  htim TIM handle.
-  * @param  Channel TIM Channels to be enabled
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @retval Captured value
+  * @brief  从捕获/比较单元读取捕获值
+  * @param  htim TIM 句柄。
+  * @param  Channel 待使能的 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选择 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选择 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选择 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选择 TIM 通道 4
+  * @retval 捕获值
   */
 uint32_t HAL_TIM_ReadCapturedValue(const TIM_HandleTypeDef *htim, uint32_t Channel)
 {
@@ -5576,20 +5551,20 @@ uint32_t HAL_TIM_ReadCapturedValue(const TIM_HandleTypeDef *htim, uint32_t Chann
   {
     case TIM_CHANNEL_1:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC1_INSTANCE(htim->Instance));
 
-      /* Return the capture 1 value */
+      /* 返回捕获通道 1 的值 */
       tmpreg =  htim->Instance->CCR1;
 
       break;
     }
     case TIM_CHANNEL_2:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC2_INSTANCE(htim->Instance));
 
-      /* Return the capture 2 value */
+      /* 返回捕获通道 2 的值 */
       tmpreg =   htim->Instance->CCR2;
 
       break;
@@ -5597,10 +5572,10 @@ uint32_t HAL_TIM_ReadCapturedValue(const TIM_HandleTypeDef *htim, uint32_t Chann
 
     case TIM_CHANNEL_3:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC3_INSTANCE(htim->Instance));
 
-      /* Return the capture 3 value */
+      /* 返回捕获通道 3 的值 */
       tmpreg =   htim->Instance->CCR3;
 
       break;
@@ -5608,10 +5583,10 @@ uint32_t HAL_TIM_ReadCapturedValue(const TIM_HandleTypeDef *htim, uint32_t Chann
 
     case TIM_CHANNEL_4:
     {
-      /* Check the parameters */
+      /* 检查参数 */
       assert_param(IS_TIM_CC4_INSTANCE(htim->Instance));
 
-      /* Return the capture 4 value */
+      /* 返回捕获通道 4 的值 */
       tmpreg =   htim->Instance->CCR4;
 
       break;
@@ -5629,209 +5604,209 @@ uint32_t HAL_TIM_ReadCapturedValue(const TIM_HandleTypeDef *htim, uint32_t Chann
   */
 
 /** @defgroup TIM_Exported_Functions_Group9 TIM Callbacks functions
-  *  @brief    TIM Callbacks functions
+  *  @brief    TIM 回调函数
   *
 @verbatim
   ==============================================================================
-                        ##### TIM Callbacks functions #####
+                        ##### TIM 回调函数 #####
   ==============================================================================
  [..]
-   This section provides TIM callback functions:
-   (+) TIM Period elapsed callback
-   (+) TIM Output Compare callback
-   (+) TIM Input capture callback
-   (+) TIM Trigger callback
-   (+) TIM Error callback
+   本节提供 TIM 回调函数：
+   (+) TIM 周期溢出更新回调函数
+   (+) TIM 输出比较回调函数
+   (+) TIM 输入捕获回调函数
+   (+) TIM 触发回调函数
+   (+) TIM 错误回调函数
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Period elapsed callback in non-blocking mode
-  * @param  htim TIM handle
+  * @brief  非阻塞模式下的周期溢出更新回调函数
+  * @param  htim TIM 句柄
   * @retval None
   */
 __weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用参数引起的编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_PeriodElapsedCallback
    */
 }
 
 /**
-  * @brief  Period elapsed half complete callback in non-blocking mode
-  * @param  htim TIM handle
-  * @retval None
+  * @brief  非阻塞模式下的周期溢出过半（半完成）回调函数
+  * @param  htim TIM 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_PeriodElapsedHalfCpltCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_PeriodElapsedHalfCpltCallback could be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_PeriodElapsedHalfCpltCallback
    */
 }
 
 /**
-  * @brief  Output Compare callback in non-blocking mode
-  * @param  htim TIM OC handle
-  * @retval None
+  * @brief  非阻塞模式下的输出比较回调函数
+  * @param  htim TIM OC 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_OC_DelayElapsedCallback could be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_OC_DelayElapsedCallback
    */
 }
 
 /**
-  * @brief  Input Capture callback in non-blocking mode
-  * @param  htim TIM IC handle
-  * @retval None
+  * @brief  非阻塞模式下的输入捕获回调函数
+  * @param  htim TIM IC 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_IC_CaptureCallback could be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_IC_CaptureCallback
    */
 }
 
 /**
-  * @brief  Input Capture half complete callback in non-blocking mode
-  * @param  htim TIM IC handle
-  * @retval None
+  * @brief  非阻塞模式下的输入捕获半完成回调函数
+  * @param  htim TIM IC 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_IC_CaptureHalfCpltCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_IC_CaptureHalfCpltCallback could be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_IC_CaptureHalfCpltCallback
    */
 }
 
 /**
-  * @brief  PWM Pulse finished callback in non-blocking mode
-  * @param  htim TIM handle
-  * @retval None
+  * @brief  非阻塞模式下的 PWM 脉冲完成回调函数
+  * @param  htim TIM 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_PWM_PulseFinishedCallback could be implemented in the user file
+  /* 注意：请勿修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_PWM_PulseFinishedCallback
    */
 }
 
 /**
-  * @brief  PWM Pulse finished half complete callback in non-blocking mode
-  * @param  htim TIM handle
-  * @retval None
+  * @brief  非阻塞模式下的 PWM 脉冲半完成回调函数
+  * @param  htim TIM 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_PWM_PulseFinishedHalfCpltCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_PWM_PulseFinishedHalfCpltCallback could be implemented in the user file
+  /* 注意：请勿修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_PWM_PulseFinishedHalfCpltCallback
    */
 }
 
 /**
-  * @brief  Hall Trigger detection callback in non-blocking mode
-  * @param  htim TIM handle
-  * @retval None
+  * @brief  非阻塞模式下的霍尔触发检测回调函数
+  * @param  htim TIM 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_TriggerCallback could be implemented in the user file
+  /* 注意：请勿修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_TriggerCallback
    */
 }
 
 /**
-  * @brief  Hall Trigger detection half complete callback in non-blocking mode
-  * @param  htim TIM handle
-  * @retval None
+  * @brief  非阻塞模式下的霍尔触发检测半完成回调函数
+  * @param  htim TIM 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_TriggerHalfCpltCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_TriggerHalfCpltCallback could be implemented in the user file
+  /* 注意：请勿修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_TriggerHalfCpltCallback
    */
 }
 
 /**
-  * @brief  Timer error callback in non-blocking mode
-  * @param  htim TIM handle
-  * @retval None
+  * @brief  非阻塞模式下的定时器错误回调函数
+  * @param  htim TIM 句柄
+  * @retval 无
   */
 __weak void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_ErrorCallback could be implemented in the user file
+  /* 注意：请勿修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_TIM_ErrorCallback
    */
 }
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
 /**
-  * @brief  Register a User TIM callback to be used instead of the weak predefined callback
-  * @param htim tim handle
-  * @param CallbackID ID of the callback to be registered
-  *        This parameter can be one of the following values:
-  *          @arg @ref HAL_TIM_BASE_MSPINIT_CB_ID Base MspInit Callback ID
-  *          @arg @ref HAL_TIM_BASE_MSPDEINIT_CB_ID Base MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_IC_MSPINIT_CB_ID IC MspInit Callback ID
-  *          @arg @ref HAL_TIM_IC_MSPDEINIT_CB_ID IC MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_OC_MSPINIT_CB_ID OC MspInit Callback ID
-  *          @arg @ref HAL_TIM_OC_MSPDEINIT_CB_ID OC MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_PWM_MSPINIT_CB_ID PWM MspInit Callback ID
-  *          @arg @ref HAL_TIM_PWM_MSPDEINIT_CB_ID PWM MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_ONE_PULSE_MSPINIT_CB_ID One Pulse MspInit Callback ID
-  *          @arg @ref HAL_TIM_ONE_PULSE_MSPDEINIT_CB_ID One Pulse MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_ENCODER_MSPINIT_CB_ID Encoder MspInit Callback ID
-  *          @arg @ref HAL_TIM_ENCODER_MSPDEINIT_CB_ID Encoder MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_HALL_SENSOR_MSPINIT_CB_ID Hall Sensor MspInit Callback ID
-  *          @arg @ref HAL_TIM_HALL_SENSOR_MSPDEINIT_CB_ID Hall Sensor MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_PERIOD_ELAPSED_CB_ID Period Elapsed Callback ID
-  *          @arg @ref HAL_TIM_PERIOD_ELAPSED_HALF_CB_ID Period Elapsed half complete Callback ID
-  *          @arg @ref HAL_TIM_TRIGGER_CB_ID Trigger Callback ID
-  *          @arg @ref HAL_TIM_TRIGGER_HALF_CB_ID Trigger half complete Callback ID
-  *          @arg @ref HAL_TIM_IC_CAPTURE_CB_ID Input Capture Callback ID
-  *          @arg @ref HAL_TIM_IC_CAPTURE_HALF_CB_ID Input Capture half complete Callback ID
-  *          @arg @ref HAL_TIM_OC_DELAY_ELAPSED_CB_ID Output Compare Delay Elapsed Callback ID
-  *          @arg @ref HAL_TIM_PWM_PULSE_FINISHED_CB_ID PWM Pulse Finished Callback ID
-  *          @arg @ref HAL_TIM_PWM_PULSE_FINISHED_HALF_CB_ID PWM Pulse Finished half complete Callback ID
-  *          @arg @ref HAL_TIM_ERROR_CB_ID Error Callback ID
-  *          @arg @ref HAL_TIM_COMMUTATION_CB_ID Commutation Callback ID
-  *          @arg @ref HAL_TIM_COMMUTATION_HALF_CB_ID Commutation half complete Callback ID
-  *          @arg @ref HAL_TIM_BREAK_CB_ID Break Callback ID
-  *          @param pCallback pointer to the callback function
-  *          @retval status
+  * @brief  注册用户 TIM 回调函数以替代预定义的 weak 回调函数
+  * @param htim tim 句柄
+  * @param CallbackID 要注册的回调函数 ID
+  *        该参数可以是以下值之一：
+  *          @arg @ref HAL_TIM_BASE_MSPINIT_CB_ID 基本定时器 MspInit 回调函数 ID
+  *          @arg @ref HAL_TIM_BASE_MSPDEINIT_CB_ID 基本定时器 MspDeInit 回调函数 ID
+  *          @arg @ref HAL_TIM_IC_MSPINIT_CB_ID 输入捕获 MspInit 回调函数 ID
+  *          @arg @ref HAL_TIM_IC_MSPDEINIT_CB_ID 输入捕获 MspDeInit 回调函数 ID
+  *          @arg @ref HAL_TIM_OC_MSPINIT_CB_ID 输出比较 MspInit 回调函数 ID
+  *          @arg @ref HAL_TIM_OC_MSPDEINIT_CB_ID 输出比较 MspDeInit 回调函数 ID
+  *          @arg @ref HAL_TIM_PWM_MSPINIT_CB_ID PWM MspInit 回调函数 ID
+  *          @arg @ref HAL_TIM_PWM_MSPDEINIT_CB_ID PWM MspDeInit 回调函数 ID
+  *          @arg @ref HAL_TIM_ONE_PULSE_MSPINIT_CB_ID 单脉冲 MspInit 回调函数 ID
+  *          @arg @ref HAL_TIM_ONE_PULSE_MSPDEINIT_CB_ID 单脉冲 MspDeInit 回调函数 ID
+  *          @arg @ref HAL_TIM_ENCODER_MSPINIT_CB_ID 编码器 MspInit 回调函数 ID
+  *          @arg @ref HAL_TIM_ENCODER_MSPDEINIT_CB_ID 编码器 MspDeInit 回调函数 ID
+  *          @arg @ref HAL_TIM_HALL_SENSOR_MSPINIT_CB_ID 霍尔传感器 MspInit 回调函数 ID
+  *          @arg @ref HAL_TIM_HALL_SENSOR_MSPDEINIT_CB_ID 霍尔传感器 MspDeInit 回调函数 ID
+  *          @arg @ref HAL_TIM_PERIOD_ELAPSED_CB_ID 周期溢出回调函数 ID
+  *          @arg @ref HAL_TIM_PERIOD_ELAPSED_HALF_CB_ID 周期溢出半完成回调函数 ID
+  *          @arg @ref HAL_TIM_TRIGGER_CB_ID 触发回调函数 ID
+  *          @arg @ref HAL_TIM_TRIGGER_HALF_CB_ID 触发半完成回调函数 ID
+  *          @arg @ref HAL_TIM_IC_CAPTURE_CB_ID 输入捕获回调函数 ID
+  *          @arg @ref HAL_TIM_IC_CAPTURE_HALF_CB_ID 输入捕获半完成回调函数 ID
+  *          @arg @ref HAL_TIM_OC_DELAY_ELAPSED_CB_ID 输出比较延时溢出回调函数 ID
+  *          @arg @ref HAL_TIM_PWM_PULSE_FINISHED_CB_ID PWM 脉冲完成回调函数 ID
+  *          @arg @ref HAL_TIM_PWM_PULSE_FINISHED_HALF_CB_ID PWM 脉冲半完成回调函数 ID
+  *          @arg @ref HAL_TIM_ERROR_CB_ID 错误回调函数 ID
+  *          @arg @ref HAL_TIM_COMMUTATION_CB_ID 换相回调函数 ID
+  *          @arg @ref HAL_TIM_COMMUTATION_HALF_CB_ID 换相半完成回调函数 ID
+  *          @arg @ref HAL_TIM_BREAK_CB_ID 刹车回调函数 ID
+  *          @param pCallback 指向回调函数的指针
+  *          @retval 状态
   */
 HAL_StatusTypeDef HAL_TIM_RegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_CallbackIDTypeDef CallbackID,
                                            pTIM_CallbackTypeDef pCallback)
@@ -5956,7 +5931,7 @@ HAL_StatusTypeDef HAL_TIM_RegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_Call
         break;
 
       default :
-        /* Return error status */
+        /* 返回错误状态 */
         status = HAL_ERROR;
         break;
     }
@@ -6022,14 +5997,14 @@ HAL_StatusTypeDef HAL_TIM_RegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_Call
         break;
 
       default :
-        /* Return error status */
+        /* 返回错误状态 */
         status = HAL_ERROR;
         break;
     }
   }
   else
   {
-    /* Return error status */
+    /* 返回错误状态 */
     status = HAL_ERROR;
   }
 
@@ -6037,39 +6012,39 @@ HAL_StatusTypeDef HAL_TIM_RegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_Call
 }
 
 /**
-  * @brief  Unregister a TIM callback
-  *         TIM callback is redirected to the weak predefined callback
-  * @param htim tim handle
-  * @param CallbackID ID of the callback to be unregistered
-  *        This parameter can be one of the following values:
-  *          @arg @ref HAL_TIM_BASE_MSPINIT_CB_ID Base MspInit Callback ID
-  *          @arg @ref HAL_TIM_BASE_MSPDEINIT_CB_ID Base MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_IC_MSPINIT_CB_ID IC MspInit Callback ID
-  *          @arg @ref HAL_TIM_IC_MSPDEINIT_CB_ID IC MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_OC_MSPINIT_CB_ID OC MspInit Callback ID
-  *          @arg @ref HAL_TIM_OC_MSPDEINIT_CB_ID OC MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_PWM_MSPINIT_CB_ID PWM MspInit Callback ID
-  *          @arg @ref HAL_TIM_PWM_MSPDEINIT_CB_ID PWM MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_ONE_PULSE_MSPINIT_CB_ID One Pulse MspInit Callback ID
-  *          @arg @ref HAL_TIM_ONE_PULSE_MSPDEINIT_CB_ID One Pulse MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_ENCODER_MSPINIT_CB_ID Encoder MspInit Callback ID
-  *          @arg @ref HAL_TIM_ENCODER_MSPDEINIT_CB_ID Encoder MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_HALL_SENSOR_MSPINIT_CB_ID Hall Sensor MspInit Callback ID
-  *          @arg @ref HAL_TIM_HALL_SENSOR_MSPDEINIT_CB_ID Hall Sensor MspDeInit Callback ID
-  *          @arg @ref HAL_TIM_PERIOD_ELAPSED_CB_ID Period Elapsed Callback ID
-  *          @arg @ref HAL_TIM_PERIOD_ELAPSED_HALF_CB_ID Period Elapsed half complete Callback ID
-  *          @arg @ref HAL_TIM_TRIGGER_CB_ID Trigger Callback ID
-  *          @arg @ref HAL_TIM_TRIGGER_HALF_CB_ID Trigger half complete Callback ID
-  *          @arg @ref HAL_TIM_IC_CAPTURE_CB_ID Input Capture Callback ID
-  *          @arg @ref HAL_TIM_IC_CAPTURE_HALF_CB_ID Input Capture half complete Callback ID
-  *          @arg @ref HAL_TIM_OC_DELAY_ELAPSED_CB_ID Output Compare Delay Elapsed Callback ID
-  *          @arg @ref HAL_TIM_PWM_PULSE_FINISHED_CB_ID PWM Pulse Finished Callback ID
-  *          @arg @ref HAL_TIM_PWM_PULSE_FINISHED_HALF_CB_ID PWM Pulse Finished half complete Callback ID
-  *          @arg @ref HAL_TIM_ERROR_CB_ID Error Callback ID
-  *          @arg @ref HAL_TIM_COMMUTATION_CB_ID Commutation Callback ID
-  *          @arg @ref HAL_TIM_COMMUTATION_HALF_CB_ID Commutation half complete Callback ID
-  *          @arg @ref HAL_TIM_BREAK_CB_ID Break Callback ID
-  *          @retval status
+  * @brief  注销 TIM 回调函数
+  *         TIM 回调函数将被重定向到预定义的弱函数（weak）回调
+  * @param htim tim 句柄
+  * @param CallbackID 要注销的回调函数 ID
+  *        该参数可以是以下值之一：
+  *          @arg @ref HAL_TIM_BASE_MSPINIT_CB_ID 基本定时器 MspInit 回调 ID
+  *          @arg @ref HAL_TIM_BASE_MSPDEINIT_CB_ID 基本定时器 MspDeInit 回调 ID
+  *          @arg @ref HAL_TIM_IC_MSPINIT_CB_ID 输入捕获 MspInit 回调 ID
+  *          @arg @ref HAL_TIM_IC_MSPDEINIT_CB_ID 输入捕获 MspDeInit 回调 ID
+  *          @arg @ref HAL_TIM_OC_MSPINIT_CB_ID 输出比较 MspInit 回调 ID
+  *          @arg @ref HAL_TIM_OC_MSPDEINIT_CB_ID 输出比较 MspDeInit 回调 ID
+  *          @arg @ref HAL_TIM_PWM_MSPINIT_CB_ID PWM MspInit 回调 ID
+  *          @arg @ref HAL_TIM_PWM_MSPDEINIT_CB_ID PWM MspDeInit 回调 ID
+  *          @arg @ref HAL_TIM_ONE_PULSE_MSPINIT_CB_ID 单脉冲 MspInit 回调 ID
+  *          @arg @ref HAL_TIM_ONE_PULSE_MSPDEINIT_CB_ID 单脉冲 MspDeInit 回调 ID
+  *          @arg @ref HAL_TIM_ENCODER_MSPINIT_CB_ID 编码器 MspInit 回调 ID
+  *          @arg @ref HAL_TIM_ENCODER_MSPDEINIT_CB_ID 编码器 MspDeInit 回调 ID
+  *          @arg @ref HAL_TIM_HALL_SENSOR_MSPINIT_CB_ID 霍尔传感器 MspInit 回调 ID
+  *          @arg @ref HAL_TIM_HALL_SENSOR_MSPDEINIT_CB_ID 霍尔传感器 MspDeInit 回调 ID
+  *          @arg @ref HAL_TIM_PERIOD_ELAPSED_CB_ID 周期更新完成回调 ID
+  *          @arg @ref HAL_TIM_PERIOD_ELAPSED_HALF_CB_ID 周期更新半完成回调 ID
+  *          @arg @ref HAL_TIM_TRIGGER_CB_ID 触发回调 ID
+  *          @arg @ref HAL_TIM_TRIGGER_HALF_CB_ID 触发半完成回调 ID
+  *          @arg @ref HAL_TIM_IC_CAPTURE_CB_ID 输入捕获回调 ID
+  *          @arg @ref HAL_TIM_IC_CAPTURE_HALF_CB_ID 输入捕获半完成回调 ID
+  *          @arg @ref HAL_TIM_OC_DELAY_ELAPSED_CB_ID 输出比较延时到期回调 ID
+  *          @arg @ref HAL_TIM_PWM_PULSE_FINISHED_CB_ID PWM 脉冲完成回调 ID
+  *          @arg @ref HAL_TIM_PWM_PULSE_FINISHED_HALF_CB_ID PWM 脉冲半完成回调 ID
+  *          @arg @ref HAL_TIM_ERROR_CB_ID 错误回调 ID
+  *          @arg @ref HAL_TIM_COMMUTATION_CB_ID 换相回调 ID
+  *          @arg @ref HAL_TIM_COMMUTATION_HALF_CB_ID 换相半完成回调 ID
+  *          @arg @ref HAL_TIM_BREAK_CB_ID 刹车回调 ID
+  * @retval 状态
   */
 HAL_StatusTypeDef HAL_TIM_UnRegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_CallbackIDTypeDef CallbackID)
 {
@@ -6080,142 +6055,142 @@ HAL_StatusTypeDef HAL_TIM_UnRegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_Ca
     switch (CallbackID)
     {
       case HAL_TIM_BASE_MSPINIT_CB_ID :
-        /* Legacy weak Base MspInit Callback */
+        /* 传统弱定义 Base MspInit 回调函数 */
         htim->Base_MspInitCallback              = HAL_TIM_Base_MspInit;
         break;
 
       case HAL_TIM_BASE_MSPDEINIT_CB_ID :
-        /* Legacy weak Base Msp DeInit Callback */
+        /* 传统弱定义 Base MspDeInit 回调函数 */
         htim->Base_MspDeInitCallback            = HAL_TIM_Base_MspDeInit;
         break;
 
       case HAL_TIM_IC_MSPINIT_CB_ID :
-        /* Legacy weak IC Msp Init Callback */
+        /* 传统弱定义 IC MspInit 回调函数 */
         htim->IC_MspInitCallback                = HAL_TIM_IC_MspInit;
         break;
 
       case HAL_TIM_IC_MSPDEINIT_CB_ID :
-        /* Legacy weak IC Msp DeInit Callback */
+        /* 传统弱定义 IC MspDeInit 回调函数 */
         htim->IC_MspDeInitCallback              = HAL_TIM_IC_MspDeInit;
         break;
 
       case HAL_TIM_OC_MSPINIT_CB_ID :
-        /* Legacy weak OC Msp Init Callback */
+        /* 传统弱定义 OC MspInit 回调函数 */
         htim->OC_MspInitCallback                = HAL_TIM_OC_MspInit;
         break;
 
       case HAL_TIM_OC_MSPDEINIT_CB_ID :
-        /* Legacy weak OC Msp DeInit Callback */
+        /* 传统弱定义 OC MspDeInit 回调函数 */
         htim->OC_MspDeInitCallback              = HAL_TIM_OC_MspDeInit;
         break;
 
       case HAL_TIM_PWM_MSPINIT_CB_ID :
-        /* Legacy weak PWM Msp Init Callback */
+        /* 传统弱定义 PWM MspInit 回调函数 */
         htim->PWM_MspInitCallback               = HAL_TIM_PWM_MspInit;
         break;
 
       case HAL_TIM_PWM_MSPDEINIT_CB_ID :
-        /* Legacy weak PWM Msp DeInit Callback */
+        /* 传统弱定义 PWM MspDeInit 回调函数 */
         htim->PWM_MspDeInitCallback             = HAL_TIM_PWM_MspDeInit;
         break;
 
       case HAL_TIM_ONE_PULSE_MSPINIT_CB_ID :
-        /* Legacy weak One Pulse Msp Init Callback */
+        /* 传统弱定义 One Pulse MspInit 回调函数 */
         htim->OnePulse_MspInitCallback          = HAL_TIM_OnePulse_MspInit;
         break;
 
       case HAL_TIM_ONE_PULSE_MSPDEINIT_CB_ID :
-        /* Legacy weak One Pulse Msp DeInit Callback */
+        /* 传统弱定义 One Pulse MspDeInit 回调函数 */
         htim->OnePulse_MspDeInitCallback        = HAL_TIM_OnePulse_MspDeInit;
         break;
 
       case HAL_TIM_ENCODER_MSPINIT_CB_ID :
-        /* Legacy weak Encoder Msp Init Callback */
+        /* 传统弱定义 Encoder MspInit 回调函数 */
         htim->Encoder_MspInitCallback           = HAL_TIM_Encoder_MspInit;
         break;
 
       case HAL_TIM_ENCODER_MSPDEINIT_CB_ID :
-        /* Legacy weak Encoder Msp DeInit Callback */
+        /* 传统弱定义 Encoder MspDeInit 回调函数 */
         htim->Encoder_MspDeInitCallback         = HAL_TIM_Encoder_MspDeInit;
         break;
 
       case HAL_TIM_HALL_SENSOR_MSPINIT_CB_ID :
-        /* Legacy weak Hall Sensor Msp Init Callback */
+        /* 传统的弱定义霍尔传感器 MSP 初始化回调函数 */
         htim->HallSensor_MspInitCallback        = HAL_TIMEx_HallSensor_MspInit;
         break;
 
       case HAL_TIM_HALL_SENSOR_MSPDEINIT_CB_ID :
-        /* Legacy weak Hall Sensor Msp DeInit Callback */
+        /* 传统的弱定义霍尔传感器 MSP 反初始化回调函数 */
         htim->HallSensor_MspDeInitCallback      = HAL_TIMEx_HallSensor_MspDeInit;
         break;
 
       case HAL_TIM_PERIOD_ELAPSED_CB_ID :
-        /* Legacy weak Period Elapsed Callback */
+        /* 传统的弱定义周期溢出更新回调函数 */
         htim->PeriodElapsedCallback             = HAL_TIM_PeriodElapsedCallback;
         break;
 
       case HAL_TIM_PERIOD_ELAPSED_HALF_CB_ID :
-        /* Legacy weak Period Elapsed half complete Callback */
+        /* 传统的弱定义周期过半完成回调函数 */
         htim->PeriodElapsedHalfCpltCallback     = HAL_TIM_PeriodElapsedHalfCpltCallback;
         break;
 
       case HAL_TIM_TRIGGER_CB_ID :
-        /* Legacy weak Trigger Callback */
+        /* 传统的弱定义触发回调函数 */
         htim->TriggerCallback                   = HAL_TIM_TriggerCallback;
         break;
 
       case HAL_TIM_TRIGGER_HALF_CB_ID :
-        /* Legacy weak Trigger half complete Callback */
+        /* 传统的弱定义触发传输过半回调函数 */
         htim->TriggerHalfCpltCallback           = HAL_TIM_TriggerHalfCpltCallback;
         break;
 
       case HAL_TIM_IC_CAPTURE_CB_ID :
-        /* Legacy weak IC Capture Callback */
+        /* 传统的弱定义输入捕获回调函数 */
         htim->IC_CaptureCallback                = HAL_TIM_IC_CaptureCallback;
         break;
 
       case HAL_TIM_IC_CAPTURE_HALF_CB_ID :
-        /* Legacy weak IC Capture half complete Callback */
+        /* 传统的弱定义输入捕获过半完成回调函数 */
         htim->IC_CaptureHalfCpltCallback        = HAL_TIM_IC_CaptureHalfCpltCallback;
         break;
 
       case HAL_TIM_OC_DELAY_ELAPSED_CB_ID :
-        /* Legacy weak OC Delay Elapsed Callback */
+        /* 传统的弱定义输出比较延时到达回调函数 */
         htim->OC_DelayElapsedCallback           = HAL_TIM_OC_DelayElapsedCallback;
         break;
 
       case HAL_TIM_PWM_PULSE_FINISHED_CB_ID :
-        /* Legacy weak PWM Pulse Finished Callback */
+        /* 传统的弱定义 PWM 脉冲完成回调函数 */
         htim->PWM_PulseFinishedCallback         = HAL_TIM_PWM_PulseFinishedCallback;
         break;
 
       case HAL_TIM_PWM_PULSE_FINISHED_HALF_CB_ID :
-        /* Legacy weak PWM Pulse Finished half complete Callback */
+        /* 传统的弱定义 PWM 脉冲过半完成回调函数 */
         htim->PWM_PulseFinishedHalfCpltCallback = HAL_TIM_PWM_PulseFinishedHalfCpltCallback;
         break;
 
       case HAL_TIM_ERROR_CB_ID :
-        /* Legacy weak Error Callback */
+        /* 传统的弱定义错误回调函数 */
         htim->ErrorCallback                     = HAL_TIM_ErrorCallback;
         break;
 
       case HAL_TIM_COMMUTATION_CB_ID :
-        /* Legacy weak Commutation Callback */
+        /* 传统的弱定义换相回调函数 */
         htim->CommutationCallback               = HAL_TIMEx_CommutCallback;
         break;
 
       case HAL_TIM_COMMUTATION_HALF_CB_ID :
-        /* Legacy weak Commutation half complete Callback */
+        /* 传统的弱定义换相传输过半回调函数 */
         htim->CommutationHalfCpltCallback       = HAL_TIMEx_CommutHalfCpltCallback;
         break;
 
       case HAL_TIM_BREAK_CB_ID :
-        /* Legacy weak Break Callback */
+        /* 传统的弱定义刹车回调函数 */
         htim->BreakCallback                     = HAL_TIMEx_BreakCallback;
         break;
 
       default :
-        /* Return error status */
+        /* 返回错误状态 */
         status = HAL_ERROR;
         break;
     }
@@ -6225,84 +6200,84 @@ HAL_StatusTypeDef HAL_TIM_UnRegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_Ca
     switch (CallbackID)
     {
       case HAL_TIM_BASE_MSPINIT_CB_ID :
-        /* Legacy weak Base MspInit Callback */
+        /* 传统的弱定义基本定时器 MspInit 回调函数 */
         htim->Base_MspInitCallback         = HAL_TIM_Base_MspInit;
         break;
 
       case HAL_TIM_BASE_MSPDEINIT_CB_ID :
-        /* Legacy weak Base Msp DeInit Callback */
+        /* 传统的弱定义基本定时器 Msp DeInit 回调函数 */
         htim->Base_MspDeInitCallback       = HAL_TIM_Base_MspDeInit;
         break;
 
       case HAL_TIM_IC_MSPINIT_CB_ID :
-        /* Legacy weak IC Msp Init Callback */
+        /* 传统的弱定义输入捕获（IC）Msp Init 回调函数 */
         htim->IC_MspInitCallback           = HAL_TIM_IC_MspInit;
         break;
 
       case HAL_TIM_IC_MSPDEINIT_CB_ID :
-        /* Legacy weak IC Msp DeInit Callback */
+        /* 传统的弱定义输入捕获（IC）Msp DeInit 回调函数 */
         htim->IC_MspDeInitCallback         = HAL_TIM_IC_MspDeInit;
         break;
 
       case HAL_TIM_OC_MSPINIT_CB_ID :
-        /* Legacy weak OC Msp Init Callback */
+        /* 传统的弱定义输出比较（OC）Msp Init 回调函数 */
         htim->OC_MspInitCallback           = HAL_TIM_OC_MspInit;
         break;
 
       case HAL_TIM_OC_MSPDEINIT_CB_ID :
-        /* Legacy weak OC Msp DeInit Callback */
+        /* 传统的弱定义输出比较（OC）Msp DeInit 回调函数 */
         htim->OC_MspDeInitCallback         = HAL_TIM_OC_MspDeInit;
         break;
 
       case HAL_TIM_PWM_MSPINIT_CB_ID :
-        /* Legacy weak PWM Msp Init Callback */
+        /* 传统的弱定义 PWM Msp Init 回调函数 */
         htim->PWM_MspInitCallback          = HAL_TIM_PWM_MspInit;
         break;
 
       case HAL_TIM_PWM_MSPDEINIT_CB_ID :
-        /* Legacy weak PWM Msp DeInit Callback */
+        /* 传统的弱定义 PWM Msp DeInit 回调函数 */
         htim->PWM_MspDeInitCallback        = HAL_TIM_PWM_MspDeInit;
         break;
 
       case HAL_TIM_ONE_PULSE_MSPINIT_CB_ID :
-        /* Legacy weak One Pulse Msp Init Callback */
+        /* 传统的弱定义单脉冲模式 Msp Init 回调函数 */
         htim->OnePulse_MspInitCallback     = HAL_TIM_OnePulse_MspInit;
         break;
 
       case HAL_TIM_ONE_PULSE_MSPDEINIT_CB_ID :
-        /* Legacy weak One Pulse Msp DeInit Callback */
+        /* 传统的弱定义单脉冲模式 Msp DeInit 回调函数 */
         htim->OnePulse_MspDeInitCallback   = HAL_TIM_OnePulse_MspDeInit;
         break;
 
       case HAL_TIM_ENCODER_MSPINIT_CB_ID :
-        /* Legacy weak Encoder Msp Init Callback */
+        /* 传统的弱定义编码器模式 Msp Init 回调函数 */
         htim->Encoder_MspInitCallback      = HAL_TIM_Encoder_MspInit;
         break;
 
       case HAL_TIM_ENCODER_MSPDEINIT_CB_ID :
-        /* Legacy weak Encoder Msp DeInit Callback */
+        /* 传统的弱定义编码器模式 Msp DeInit 回调函数 */
         htim->Encoder_MspDeInitCallback    = HAL_TIM_Encoder_MspDeInit;
         break;
 
       case HAL_TIM_HALL_SENSOR_MSPINIT_CB_ID :
-        /* Legacy weak Hall Sensor Msp Init Callback */
+        /* 传统的弱定义霍尔传感器接口 Msp Init 回调函数 */
         htim->HallSensor_MspInitCallback   = HAL_TIMEx_HallSensor_MspInit;
         break;
 
       case HAL_TIM_HALL_SENSOR_MSPDEINIT_CB_ID :
-        /* Legacy weak Hall Sensor Msp DeInit Callback */
+        /* 传统的弱定义霍尔传感器接口 Msp DeInit 回调函数 */
         htim->HallSensor_MspDeInitCallback = HAL_TIMEx_HallSensor_MspDeInit;
         break;
 
       default :
-        /* Return error status */
+        /* 返回错误状态 */
         status = HAL_ERROR;
         break;
     }
   }
   else
   {
-    /* Return error status */
+    /* 返回错误状态 */
     status = HAL_ERROR;
   }
 
@@ -6315,24 +6290,23 @@ HAL_StatusTypeDef HAL_TIM_UnRegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_Ca
   */
 
 /** @defgroup TIM_Exported_Functions_Group10 TIM Peripheral State functions
-  *  @brief   TIM Peripheral State functions
+  *  @brief   TIM 外设状态函数
   *
 @verbatim
   ==============================================================================
-                        ##### Peripheral State functions #####
+                        ##### 外设状态函数 #####
   ==============================================================================
     [..]
-    This subsection permits to get in run-time the status of the peripheral
-    and the data flow.
+    本小节允许在运行时获取外设的状态以及数据流。
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Return the TIM Base handle state.
-  * @param  htim TIM Base handle
-  * @retval HAL state
+  * @brief  返回 TIM 基本定时器句柄状态。
+  * @param  htim TIM 基本定时器句柄
+  * @retval HAL 状态
   */
 HAL_TIM_StateTypeDef HAL_TIM_Base_GetState(const TIM_HandleTypeDef *htim)
 {
@@ -6340,9 +6314,9 @@ HAL_TIM_StateTypeDef HAL_TIM_Base_GetState(const TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief  Return the TIM OC handle state.
-  * @param  htim TIM Output Compare handle
-  * @retval HAL state
+  * @brief  返回 TIM 输出比较 (OC) 句柄状态。
+  * @param  htim TIM 输出比较句柄
+  * @retval HAL 状态
   */
 HAL_TIM_StateTypeDef HAL_TIM_OC_GetState(const TIM_HandleTypeDef *htim)
 {
@@ -6350,9 +6324,9 @@ HAL_TIM_StateTypeDef HAL_TIM_OC_GetState(const TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief  Return the TIM PWM handle state.
-  * @param  htim TIM handle
-  * @retval HAL state
+  * @brief  返回 TIM PWM 句柄状态。
+  * @param  htim TIM 句柄
+  * @retval HAL 状态
   */
 HAL_TIM_StateTypeDef HAL_TIM_PWM_GetState(const TIM_HandleTypeDef *htim)
 {
@@ -6360,9 +6334,9 @@ HAL_TIM_StateTypeDef HAL_TIM_PWM_GetState(const TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief  Return the TIM Input Capture handle state.
-  * @param  htim TIM IC handle
-  * @retval HAL state
+  * @brief  返回 TIM 输入捕获 (IC) 句柄状态。
+  * @param  htim TIM 输入捕获句柄
+  * @retval HAL 状态
   */
 HAL_TIM_StateTypeDef HAL_TIM_IC_GetState(const TIM_HandleTypeDef *htim)
 {
@@ -6370,9 +6344,9 @@ HAL_TIM_StateTypeDef HAL_TIM_IC_GetState(const TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief  Return the TIM One Pulse Mode handle state.
-  * @param  htim TIM OPM handle
-  * @retval HAL state
+  * @brief  返回 TIM 单脉冲模式 (OPM) 句柄状态。
+  * @param  htim TIM 单脉冲模式句柄
+  * @retval HAL 状态
   */
 HAL_TIM_StateTypeDef HAL_TIM_OnePulse_GetState(const TIM_HandleTypeDef *htim)
 {
@@ -6380,9 +6354,9 @@ HAL_TIM_StateTypeDef HAL_TIM_OnePulse_GetState(const TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief  Return the TIM Encoder Mode handle state.
-  * @param  htim TIM Encoder Interface handle
-  * @retval HAL state
+  * @brief  返回 TIM 编码器模式句柄状态。
+  * @param  htim TIM 编码器接口句柄
+  * @retval HAL 状态
   */
 HAL_TIM_StateTypeDef HAL_TIM_Encoder_GetState(const TIM_HandleTypeDef *htim)
 {
@@ -6390,9 +6364,9 @@ HAL_TIM_StateTypeDef HAL_TIM_Encoder_GetState(const TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief  Return the TIM Encoder Mode handle state.
-  * @param  htim TIM handle
-  * @retval Active channel
+  * @brief  返回 TIM 编码器模式句柄状态。
+  * @param  htim TIM 句柄
+  * @retval 活动通道
   */
 HAL_TIM_ActiveChannel HAL_TIM_GetActiveChannel(const TIM_HandleTypeDef *htim)
 {
@@ -6400,23 +6374,23 @@ HAL_TIM_ActiveChannel HAL_TIM_GetActiveChannel(const TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief  Return actual state of the TIM channel.
-  * @param  htim TIM handle
-  * @param  Channel TIM Channel
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1
-  *            @arg TIM_CHANNEL_2: TIM Channel 2
-  *            @arg TIM_CHANNEL_3: TIM Channel 3
-  *            @arg TIM_CHANNEL_4: TIM Channel 4
-  *            @arg TIM_CHANNEL_5: TIM Channel 5
-  *            @arg TIM_CHANNEL_6: TIM Channel 6
-  * @retval TIM Channel state
+  * @brief  返回 TIM 通道的实际状态。
+  * @param  htim TIM 句柄
+  * @param  Channel TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: TIM 通道 1
+  *            @arg TIM_CHANNEL_2: TIM 通道 2
+  *            @arg TIM_CHANNEL_3: TIM 通道 3
+  *            @arg TIM_CHANNEL_4: TIM 通道 4
+  *            @arg TIM_CHANNEL_5: TIM 通道 5
+  *            @arg TIM_CHANNEL_6: TIM 通道 6
+  * @retval TIM 通道状态
   */
 HAL_TIM_ChannelStateTypeDef HAL_TIM_GetChannelState(const TIM_HandleTypeDef *htim,  uint32_t Channel)
 {
   HAL_TIM_ChannelStateTypeDef channel_state;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CCX_INSTANCE(htim->Instance, Channel));
 
   channel_state = TIM_CHANNEL_STATE_GET(htim, Channel);
@@ -6425,13 +6399,13 @@ HAL_TIM_ChannelStateTypeDef HAL_TIM_GetChannelState(const TIM_HandleTypeDef *hti
 }
 
 /**
-  * @brief  Return actual state of a DMA burst operation.
-  * @param  htim TIM handle
-  * @retval DMA burst state
+  * @brief  返回 DMA 突发传输操作的实际状态。
+  * @param  htim TIM 句柄
+  * @retval DMA 突发传输状态
   */
 HAL_TIM_DMABurstStateTypeDef HAL_TIM_DMABurstState(const TIM_HandleTypeDef *htim)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_DMABURST_INSTANCE(htim->Instance));
 
   return htim->DMABurstState;
@@ -6445,14 +6419,14 @@ HAL_TIM_DMABurstStateTypeDef HAL_TIM_DMABurstState(const TIM_HandleTypeDef *htim
   * @}
   */
 
-/** @defgroup TIM_Private_Functions TIM Private Functions
+/** @defgroup TIM_Private_Functions TIM 私有函数
   * @{
   */
 
 /**
-  * @brief  TIM DMA error callback
-  * @param  hdma pointer to DMA handle.
-  * @retval None
+  * @brief  TIM DMA 错误回调函数
+  * @param  hdma 指向 DMA 句柄的指针。
+  * @retval 无
   */
 void TIM_DMAError(DMA_HandleTypeDef *hdma)
 {
@@ -6493,9 +6467,9 @@ void TIM_DMAError(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  TIM DMA Delay Pulse complete callback.
-  * @param  hdma pointer to DMA handle.
-  * @retval None
+  * @brief  TIM DMA 延迟脉冲完成回调函数。
+  * @param  hdma 指向 DMA 句柄的指针。
+  * @retval 无
   */
 static void TIM_DMADelayPulseCplt(DMA_HandleTypeDef *hdma)
 {
@@ -6539,7 +6513,7 @@ static void TIM_DMADelayPulseCplt(DMA_HandleTypeDef *hdma)
   }
   else
   {
-    /* nothing to do */
+    /* 无需操作 */
   }
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -6552,9 +6526,9 @@ static void TIM_DMADelayPulseCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  TIM DMA Delay Pulse half complete callback.
-  * @param  hdma pointer to DMA handle.
-  * @retval None
+  * @brief  TIM DMA 延迟脉冲半传输完成回调函数。
+  * @param  hdma 指向 DMA 句柄的指针。
+  * @retval 无
   */
 void TIM_DMADelayPulseHalfCplt(DMA_HandleTypeDef *hdma)
 {
@@ -6578,7 +6552,7 @@ void TIM_DMADelayPulseHalfCplt(DMA_HandleTypeDef *hdma)
   }
   else
   {
-    /* nothing to do */
+    /* 无需操作 */
   }
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -6591,9 +6565,9 @@ void TIM_DMADelayPulseHalfCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  TIM DMA Capture complete callback.
-  * @param  hdma pointer to DMA handle.
-  * @retval None
+  * @brief  TIM DMA 捕获完成回调函数。
+  * @param  hdma 指向 DMA 句柄的指针。
+  * @retval 无
   */
 void TIM_DMACaptureCplt(DMA_HandleTypeDef *hdma)
 {
@@ -6641,7 +6615,7 @@ void TIM_DMACaptureCplt(DMA_HandleTypeDef *hdma)
   }
   else
   {
-    /* nothing to do */
+    /* 无需操作 */
   }
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -6654,9 +6628,9 @@ void TIM_DMACaptureCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  TIM DMA Capture half complete callback.
-  * @param  hdma pointer to DMA handle.
-  * @retval None
+  * @brief  TIM DMA 输入捕获过半完成回调函数。
+  * @param  hdma 指向 DMA 句柄的指针。
+  * @retval 无
   */
 void TIM_DMACaptureHalfCplt(DMA_HandleTypeDef *hdma)
 {
@@ -6680,7 +6654,7 @@ void TIM_DMACaptureHalfCplt(DMA_HandleTypeDef *hdma)
   }
   else
   {
-    /* nothing to do */
+    /* 无操作 */
   }
 
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
@@ -6693,9 +6667,9 @@ void TIM_DMACaptureHalfCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  TIM DMA Period Elapse complete callback.
-  * @param  hdma pointer to DMA handle.
-  * @retval None
+  * @brief  TIM DMA 周期流逝（更新）完成回调函数。
+  * @param  hdma 指向 DMA 句柄的指针。
+  * @retval 无
   */
 static void TIM_DMAPeriodElapsedCplt(DMA_HandleTypeDef *hdma)
 {
@@ -6714,9 +6688,9 @@ static void TIM_DMAPeriodElapsedCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  TIM DMA Period Elapse half complete callback.
-  * @param  hdma pointer to DMA handle.
-  * @retval None
+  * @brief  TIM DMA 周期流逝（更新）过半完成回调函数。
+  * @param  hdma 指向 DMA 句柄的指针。
+  * @retval 无
   */
 static void TIM_DMAPeriodElapsedHalfCplt(DMA_HandleTypeDef *hdma)
 {
@@ -6730,9 +6704,9 @@ static void TIM_DMAPeriodElapsedHalfCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  TIM DMA Trigger callback.
-  * @param  hdma pointer to DMA handle.
-  * @retval None
+  * @brief  TIM DMA 触发回调函数。
+  * @param  hdma 指向 DMA 句柄的指针。
+  * @retval 无
   */
 static void TIM_DMATriggerCplt(DMA_HandleTypeDef *hdma)
 {
@@ -6751,9 +6725,9 @@ static void TIM_DMATriggerCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  TIM DMA Trigger half complete callback.
-  * @param  hdma pointer to DMA handle.
-  * @retval None
+  * @brief  TIM DMA 触发过半完成回调函数。
+  * @param  hdma 指向 DMA 句柄的指针。
+  * @retval 无
   */
 static void TIM_DMATriggerHalfCplt(DMA_HandleTypeDef *hdma)
 {
@@ -6767,27 +6741,27 @@ static void TIM_DMATriggerHalfCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  Time Base configuration
-  * @param  TIMx TIM peripheral
-  * @param  Structure TIM Base configuration structure
-  * @retval None
+  * @brief  时基配置
+  * @param  TIMx TIM 外设
+  * @param  Structure TIM 基本配置结构体
+  * @retval 无
   */
 void TIM_Base_SetConfig(TIM_TypeDef *TIMx, const TIM_Base_InitTypeDef *Structure)
 {
   uint32_t tmpcr1;
   tmpcr1 = TIMx->CR1;
 
-  /* Set TIM Time Base Unit parameters ---------------------------------------*/
+  /* 设置 TIM 时基单元参数 ----------------------------------------------------*/
   if (IS_TIM_COUNTER_MODE_SELECT_INSTANCE(TIMx))
   {
-    /* Select the Counter Mode */
+    /* 选择计数模式 */
     tmpcr1 &= ~(TIM_CR1_DIR | TIM_CR1_CMS);
     tmpcr1 |= Structure->CounterMode;
   }
 
   if (IS_TIM_CLOCK_DIVISION_INSTANCE(TIMx))
   {
-    /* Set the clock division */
+    /* 设置时钟分频 */
     tmpcr1 &= ~TIM_CR1_CKD;
     tmpcr1 |= (uint32_t)Structure->ClockDivision;
   }
@@ -6855,51 +6829,51 @@ static void TIM_OC1_SetConfig(TIM_TypeDef *TIMx, const TIM_OC_InitTypeDef *OC_Co
 
   if (IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_1))
   {
-    /* Check parameters */
+    /* 检查参数 */
     assert_param(IS_TIM_OCN_POLARITY(OC_Config->OCNPolarity));
 
-    /* Disable the Channel 1N: Reset the CC1NE Bit */
+    /* 禁用通道 1N：复位 CC1NE 位 */
     TIMx->CCER &= ~TIM_CCER_CC1NE;
 
-    /* Reset the Output N Polarity level */
+    /* 复位互补输出极性电平 */
     tmpccer &= ~TIM_CCER_CC1NP;
-    /* Set the Output N Polarity */
+    /* 设置互补输出极性 */
     tmpccer |= OC_Config->OCNPolarity;
   }
 
   if (IS_TIM_BREAK_INSTANCE(TIMx))
   {
-    /* Check parameters */
+    /* 检查参数 */
     assert_param(IS_TIM_OCNIDLE_STATE(OC_Config->OCNIdleState));
     assert_param(IS_TIM_OCIDLE_STATE(OC_Config->OCIdleState));
 
-    /* Reset the Output Compare and Output Compare N IDLE State */
+    /* 复位输出比较及互补输出比较空闲状态 */
     tmpcr2 &= ~TIM_CR2_OIS1;
     tmpcr2 &= ~TIM_CR2_OIS1N;
-    /* Set the Output Idle state */
+    /* 设置输出空闲状态 */
     tmpcr2 |= OC_Config->OCIdleState;
-    /* Set the Output N Idle state */
+    /* 设置互补输出空闲状态 */
     tmpcr2 |= OC_Config->OCNIdleState;
   }
 
-  /* Write to TIMx CR2 */
+  /* 写入 TIMx CR2 寄存器 */
   TIMx->CR2 = tmpcr2;
 
-  /* Write to TIMx CCMR1 */
+  /* 写入 TIMx CCMR1 寄存器 */
   TIMx->CCMR1 = tmpccmrx;
 
-  /* Set the Capture Compare Register value */
+  /* 设置捕获比较寄存器的值 */
   TIMx->CCR1 = OC_Config->Pulse;
 
-  /* Write to TIMx CCER */
+  /* 写入 TIMx CCER 寄存器 */
   TIMx->CCER = tmpccer;
 }
 
 /**
-  * @brief  Timer Output Compare 2 configuration
-  * @param  TIMx to select the TIM peripheral
-  * @param  OC_Config The output configuration structure
-  * @retval None
+  * @brief  定时器输出比较 2 配置
+  * @param  TIMx 选择 TIM 外设
+  * @param  OC_Config 输出配置结构体
+  * @retval 无
   */
 void TIM_OC2_SetConfig(TIM_TypeDef *TIMx, const TIM_OC_InitTypeDef *OC_Config)
 {
@@ -6907,76 +6881,76 @@ void TIM_OC2_SetConfig(TIM_TypeDef *TIMx, const TIM_OC_InitTypeDef *OC_Config)
   uint32_t tmpccer;
   uint32_t tmpcr2;
 
-  /* Get the TIMx CCER register value */
+  /* 获取 TIMx CCER 寄存器的值 */
   tmpccer = TIMx->CCER;
 
-  /* Disable the Channel 2: Reset the CC2E Bit */
+  /* 禁用通道 2：复位 CC2E 位 */
   TIMx->CCER &= ~TIM_CCER_CC2E;
 
-  /* Get the TIMx CR2 register value */
+  /* 获取 TIMx CR2 寄存器的值 */
   tmpcr2 =  TIMx->CR2;
 
-  /* Get the TIMx CCMR1 register value */
+  /* 获取 TIMx CCMR1 寄存器的值 */
   tmpccmrx = TIMx->CCMR1;
 
-  /* Reset the Output Compare mode and Capture/Compare selection Bits */
+  /* 复位输出比较模式和捕获/比较选择位 */
   tmpccmrx &= ~TIM_CCMR1_OC2M;
   tmpccmrx &= ~TIM_CCMR1_CC2S;
 
-  /* Select the Output Compare Mode */
+  /* 选择输出比较模式 */
   tmpccmrx |= (OC_Config->OCMode << 8U);
 
-  /* Reset the Output Polarity level */
+  /* 复位输出极性电平 */
   tmpccer &= ~TIM_CCER_CC2P;
-  /* Set the Output Compare Polarity */
+  /* 设置输出比较极性 */
   tmpccer |= (OC_Config->OCPolarity << 4U);
 
   if (IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_2))
   {
     assert_param(IS_TIM_OCN_POLARITY(OC_Config->OCNPolarity));
 
-    /* Disable the Channel 2N: Reset the CC2NE Bit */
+    /* 禁用通道 2N：复位 CC2NE 位 */
     TIMx->CCER &= ~TIM_CCER_CC2NE;
 
-    /* Reset the Output N Polarity level */
+    /* 复位互补输出 (N) 极性电平 */
     tmpccer &= ~TIM_CCER_CC2NP;
-    /* Set the Output N Polarity */
+    /* 设置互补输出 (N) 极性 */
     tmpccer |= (OC_Config->OCNPolarity << 4U);
   }
 
   if (IS_TIM_BREAK_INSTANCE(TIMx))
   {
-    /* Check parameters */
+    /* 检查参数 */
     assert_param(IS_TIM_OCNIDLE_STATE(OC_Config->OCNIdleState));
     assert_param(IS_TIM_OCIDLE_STATE(OC_Config->OCIdleState));
 
-    /* Reset the Output Compare and Output Compare N IDLE State */
+    /* 复位输出比较及互补输出比较 (N) 空闲状态 */
     tmpcr2 &= ~TIM_CR2_OIS2;
     tmpcr2 &= ~TIM_CR2_OIS2N;
-    /* Set the Output Idle state */
+    /* 设置输出空闲状态 */
     tmpcr2 |= (OC_Config->OCIdleState << 2U);
-    /* Set the Output N Idle state */
+    /* 设置互补输出 (N) 空闲状态 */
     tmpcr2 |= (OC_Config->OCNIdleState << 2U);
   }
 
-  /* Write to TIMx CR2 */
+  /* 写入 TIMx CR2 寄存器 */
   TIMx->CR2 = tmpcr2;
 
-  /* Write to TIMx CCMR1 */
+  /* 写入 TIMx CCMR1 寄存器 */
   TIMx->CCMR1 = tmpccmrx;
 
-  /* Set the Capture Compare Register value */
+  /* 设置捕获/比较寄存器的值 */
   TIMx->CCR2 = OC_Config->Pulse;
 
-  /* Write to TIMx CCER */
+  /* 写入 TIMx CCER 寄存器 */
   TIMx->CCER = tmpccer;
 }
 
 /**
-  * @brief  Timer Output Compare 3 configuration
-  * @param  TIMx to select the TIM peripheral
-  * @param  OC_Config The output configuration structure
-  * @retval None
+  * @brief  定时器输出比较 3 配置
+  * @param  TIMx 用于选择 TIM 外设
+  * @param  OC_Config 输出配置结构体
+  * @retval 无
   */
 static void TIM_OC3_SetConfig(TIM_TypeDef *TIMx, const TIM_OC_InitTypeDef *OC_Config)
 {
@@ -6984,45 +6958,45 @@ static void TIM_OC3_SetConfig(TIM_TypeDef *TIMx, const TIM_OC_InitTypeDef *OC_Co
   uint32_t tmpccer;
   uint32_t tmpcr2;
 
-  /* Get the TIMx CCER register value */
+  /* 获取 TIMx CCER 寄存器的值 */
   tmpccer = TIMx->CCER;
 
-  /* Disable the Channel 3: Reset the CC2E Bit */
+  /* 禁用通道 3：复位 CC2E 位 */
   TIMx->CCER &= ~TIM_CCER_CC3E;
 
-  /* Get the TIMx CR2 register value */
+  /* 获取 TIMx CR2 寄存器的值 */
   tmpcr2 =  TIMx->CR2;
 
-  /* Get the TIMx CCMR2 register value */
+  /* 获取 TIMx CCMR2 寄存器的值 */
   tmpccmrx = TIMx->CCMR2;
 
-  /* Reset the Output Compare mode and Capture/Compare selection Bits */
+  /* 复位输出比较模式及输入捕获/输出比较选择位 */
   tmpccmrx &= ~TIM_CCMR2_OC3M;
   tmpccmrx &= ~TIM_CCMR2_CC3S;
-  /* Select the Output Compare Mode */
+  /* 选择输出比较模式 */
   tmpccmrx |= OC_Config->OCMode;
 
-  /* Reset the Output Polarity level */
+  /* 复位输出极性有效电平 */
   tmpccer &= ~TIM_CCER_CC3P;
-  /* Set the Output Compare Polarity */
+  /* 设置输出比较极性 */
   tmpccer |= (OC_Config->OCPolarity << 8U);
 
   if (IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_3))
   {
     assert_param(IS_TIM_OCN_POLARITY(OC_Config->OCNPolarity));
 
-    /* Disable the Channel 3N: Reset the CC3NE Bit */
+    /* 禁用通道 3N：复位 CC3NE 位 */
     TIMx->CCER &= ~TIM_CCER_CC3NE;
 
-    /* Reset the Output N Polarity level */
+    /* 复位互补输出 N 极性有效电平 */
     tmpccer &= ~TIM_CCER_CC3NP;
-    /* Set the Output N Polarity */
+    /* 设置互补输出 N 极性 */
     tmpccer |= (OC_Config->OCNPolarity << 8U);
   }
 
   if (IS_TIM_BREAK_INSTANCE(TIMx))
   {
-    /* Check parameters */
+    /* 检查参数有效性 */
     assert_param(IS_TIM_OCNIDLE_STATE(OC_Config->OCNIdleState));
     assert_param(IS_TIM_OCIDLE_STATE(OC_Config->OCIdleState));
 
@@ -7081,39 +7055,39 @@ static void TIM_OC4_SetConfig(TIM_TypeDef *TIMx, const TIM_OC_InitTypeDef *OC_Co
 
   /* Reset the Output Polarity level */
   tmpccer &= ~TIM_CCER_CC4P;
-  /* Set the Output Compare Polarity */
+  /* 设置输出比较极性 */
   tmpccer |= (OC_Config->OCPolarity << 12U);
 
   if (IS_TIM_BREAK_INSTANCE(TIMx))
   {
-    /* Check parameters */
+    /* 检查参数 */
     assert_param(IS_TIM_OCIDLE_STATE(OC_Config->OCIdleState));
 
-    /* Reset the Output Compare IDLE State */
+    /* 复位输出比较空闲状态 */
     tmpcr2 &= ~TIM_CR2_OIS4;
 
-    /* Set the Output Idle state */
+    /* 设置输出空闲状态 */
     tmpcr2 |= (OC_Config->OCIdleState << 6U);
   }
 
-  /* Write to TIMx CR2 */
+  /* 写入 TIMx CR2 寄存器 */
   TIMx->CR2 = tmpcr2;
 
-  /* Write to TIMx CCMR2 */
+  /* 写入 TIMx CCMR2 寄存器 */
   TIMx->CCMR2 = tmpccmrx;
 
-  /* Set the Capture Compare Register value */
+  /* 设置捕获比较寄存器的值 */
   TIMx->CCR4 = OC_Config->Pulse;
 
-  /* Write to TIMx CCER */
+  /* 写入 TIMx CCER 寄存器 */
   TIMx->CCER = tmpccer;
 }
 
 /**
-  * @brief  Slave Timer configuration function
-  * @param  htim TIM handle
-  * @param  sSlaveConfig Slave timer configuration
-  * @retval None
+  * @brief  从定时器配置函数
+  * @param  htim TIM 句柄
+  * @param  sSlaveConfig 从定时器配置结构体
+  * @retval 无
   */
 static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
                                                   const TIM_SlaveConfigTypeDef *sSlaveConfig)
@@ -7123,33 +7097,33 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
   uint32_t tmpccmr1;
   uint32_t tmpccer;
 
-  /* Get the TIMx SMCR register value */
+  /* 获取 TIMx SMCR 寄存器的值 */
   tmpsmcr = htim->Instance->SMCR;
 
-  /* Reset the Trigger Selection Bits */
+  /* 复位触发选择位 */
   tmpsmcr &= ~TIM_SMCR_TS;
-  /* Set the Input Trigger source */
+  /* 设置输入触发源 */
   tmpsmcr |= sSlaveConfig->InputTrigger;
 
-  /* Reset the slave mode Bits */
+  /* 复位从模式选择位 */
   tmpsmcr &= ~TIM_SMCR_SMS;
-  /* Set the slave mode */
+  /* 设置从模式 */
   tmpsmcr |= sSlaveConfig->SlaveMode;
 
-  /* Write to TIMx SMCR */
+  /* 写入 TIMx SMCR 寄存器 */
   htim->Instance->SMCR = tmpsmcr;
 
-  /* Configure the trigger prescaler, filter, and polarity */
+  /* 配置触发器预分频器、滤波器以及极性 */
   switch (sSlaveConfig->InputTrigger)
   {
     case TIM_TS_ETRF:
     {
-      /* Check the parameters */
+      /* 检查参数有效性 */
       assert_param(IS_TIM_CLOCKSOURCE_ETRMODE1_INSTANCE(htim->Instance));
       assert_param(IS_TIM_TRIGGERPRESCALER(sSlaveConfig->TriggerPrescaler));
       assert_param(IS_TIM_TRIGGERPOLARITY(sSlaveConfig->TriggerPolarity));
       assert_param(IS_TIM_TRIGGERFILTER(sSlaveConfig->TriggerFilter));
-      /* Configure the ETR Trigger source */
+      /* 配置 ETR 触发源 */
       TIM_ETR_SetConfig(htim->Instance,
                         sSlaveConfig->TriggerPrescaler,
                         sSlaveConfig->TriggerPolarity,
@@ -7159,7 +7133,7 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
 
     case TIM_TS_TI1F_ED:
     {
-      /* Check the parameters */
+      /* 检查参数有效性 */
       assert_param(IS_TIM_CC1_INSTANCE(htim->Instance));
       assert_param(IS_TIM_TRIGGERFILTER(sSlaveConfig->TriggerFilter));
 
@@ -7168,16 +7142,16 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
         return HAL_ERROR;
       }
 
-      /* Disable the Channel 1: Reset the CC1E Bit */
+      /* 禁用通道 1：复位 CC1E 位 */
       tmpccer = htim->Instance->CCER;
       htim->Instance->CCER &= ~TIM_CCER_CC1E;
       tmpccmr1 = htim->Instance->CCMR1;
 
-      /* Set the filter */
+      /* 设置滤波器 */
       tmpccmr1 &= ~TIM_CCMR1_IC1F;
       tmpccmr1 |= ((sSlaveConfig->TriggerFilter) << 4U);
 
-      /* Write to TIMx CCMR1 and CCER registers */
+      /* 写入 TIMx CCMR1 和 CCER 寄存器 */
       htim->Instance->CCMR1 = tmpccmr1;
       htim->Instance->CCER = tmpccer;
       break;
@@ -7185,12 +7159,12 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
 
     case TIM_TS_TI1FP1:
     {
-      /* Check the parameters */
+      /* 检查参数有效性 */
       assert_param(IS_TIM_CC1_INSTANCE(htim->Instance));
       assert_param(IS_TIM_TRIGGERPOLARITY(sSlaveConfig->TriggerPolarity));
       assert_param(IS_TIM_TRIGGERFILTER(sSlaveConfig->TriggerFilter));
 
-      /* Configure TI1 Filter and Polarity */
+      /* 配置 TI1 滤波器和极性 */
       TIM_TI1_ConfigInputStage(htim->Instance,
                                sSlaveConfig->TriggerPolarity,
                                sSlaveConfig->TriggerFilter);
@@ -7199,12 +7173,12 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
 
     case TIM_TS_TI2FP2:
     {
-      /* Check the parameters */
+      /* 检查参数有效性 */
       assert_param(IS_TIM_CC2_INSTANCE(htim->Instance));
       assert_param(IS_TIM_TRIGGERPOLARITY(sSlaveConfig->TriggerPolarity));
       assert_param(IS_TIM_TRIGGERFILTER(sSlaveConfig->TriggerFilter));
 
-      /* Configure TI2 Filter and Polarity */
+      /* 配置 TI2 滤波器和极性 */
       TIM_TI2_ConfigInputStage(htim->Instance,
                                sSlaveConfig->TriggerPolarity,
                                sSlaveConfig->TriggerFilter);
@@ -7216,7 +7190,7 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
     case TIM_TS_ITR2:
     case TIM_TS_ITR3:
     {
-      /* Check the parameter */
+      /* 检查参数有效性 */
       assert_param(IS_TIM_CC2_INSTANCE(htim->Instance));
       break;
     }
@@ -7230,24 +7204,24 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
 }
 
 /**
-  * @brief  Configure the TI1 as Input.
-  * @param  TIMx to select the TIM peripheral.
-  * @param  TIM_ICPolarity The Input Polarity.
-  *          This parameter can be one of the following values:
+  * @brief  将 TI1 配置为输入。
+  * @param  TIMx 用于选择 TIM 外设。
+  * @param  TIM_ICPolarity 输入极性。
+  *          该参数可以是以下值之一：
   *            @arg TIM_ICPOLARITY_RISING
   *            @arg TIM_ICPOLARITY_FALLING
   *            @arg TIM_ICPOLARITY_BOTHEDGE
-  * @param  TIM_ICSelection specifies the input to be used.
-  *          This parameter can be one of the following values:
-  *            @arg TIM_ICSELECTION_DIRECTTI: TIM Input 1 is selected to be connected to IC1.
-  *            @arg TIM_ICSELECTION_INDIRECTTI: TIM Input 1 is selected to be connected to IC2.
-  *            @arg TIM_ICSELECTION_TRC: TIM Input 1 is selected to be connected to TRC.
-  * @param  TIM_ICFilter Specifies the Input Capture Filter.
-  *          This parameter must be a value between 0x00 and 0x0F.
-  * @retval None
-  * @note TIM_ICFilter and TIM_ICPolarity are not used in INDIRECT mode as TI2FP1
-  *       (on channel2 path) is used as the input signal. Therefore CCMR1 must be
-  *        protected against un-initialized filter and polarity values.
+  * @param  TIM_ICSelection 指定所使用的输入源。
+  *          该参数可以是以下值之一：
+  *            @arg TIM_ICSELECTION_DIRECTTI: 选择 TIM 输入 1 连接至 IC1。
+  *            @arg TIM_ICSELECTION_INDIRECTTI: 选择 TIM 输入 1 连接至 IC2。
+  *            @arg TIM_ICSELECTION_TRC: 选择 TIM 输入 1 连接至 TRC。
+  * @param  TIM_ICFilter 指定输入捕获滤波器。
+  *          该参数必须是介于 0x00 和 0x0F 之间的值。
+  * @retval 无
+  * @note 在 INDIRECT 模式下不使用 TIM_ICFilter 和 TIM_ICPolarity，
+  *       因为使用 TI2FP1（通道 2 路径上）作为输入信号。
+  *       因此必须保护 CCMR1 免受未初始化的滤波器和极性值的影响。
   */
 void TIM_TI1_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICSelection,
                        uint32_t TIM_ICFilter)
@@ -7255,21 +7229,21 @@ void TIM_TI1_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_
   uint32_t tmpccmr1;
   uint32_t tmpccer;
 
-  /* Get the TIMx CCER register value */
+  /* 获取 TIMx CCER 寄存器的值 */
   tmpccer = TIMx->CCER;
 
-  /* Disable the Channel 1: Reset the CC1E Bit */
+  /* 禁用通道 1：复位 CC1E 位 */
   TIMx->CCER &= ~TIM_CCER_CC1E;
-  /* Disable the Channel 1N: Reset the CC1NE Bit */
+  /* 禁用通道 1N：复位 CC1NE 位 */
   if (IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_1))
   {
     TIMx->CCER &= ~TIM_CCER_CC1NE;
   }
 
-  /* Get the TIMx CCMR1 register value */
+  /* 获取 TIMx CCMR1 寄存器的值 */
   tmpccmr1 = TIMx->CCMR1;
 
-  /* Select the Input */
+  /* 选择输入引脚 */
   if (IS_TIM_CC2_INSTANCE(TIMx) != RESET)
   {
     tmpccmr1 &= ~TIM_CCMR1_CC1S;
@@ -7280,82 +7254,82 @@ void TIM_TI1_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_
     tmpccmr1 |= TIM_CCMR1_CC1S_0;
   }
 
-  /* Set the filter */
+  /* 设置滤波器 */
   tmpccmr1 &= ~TIM_CCMR1_IC1F;
   tmpccmr1 |= ((TIM_ICFilter << 4U) & TIM_CCMR1_IC1F);
 
-  /* Select the Polarity and set the CC1E Bit */
+  /* 选择极性并置位 CC1E 位 */
   tmpccer &= ~(TIM_CCER_CC1P | TIM_CCER_CC1NP);
   tmpccer |= (TIM_ICPolarity & (TIM_CCER_CC1P | TIM_CCER_CC1NP));
 
-  /* Write to TIMx CCMR1 and CCER registers */
+  /* 写入 TIMx CCMR1 和 CCER 寄存器 */
   TIMx->CCMR1 = tmpccmr1;
   TIMx->CCER = tmpccer;
 }
 
 /**
-  * @brief  Configure the Polarity and Filter for TI1.
-  * @param  TIMx to select the TIM peripheral.
-  * @param  TIM_ICPolarity The Input Polarity.
-  *          This parameter can be one of the following values:
+  * @brief  配置 TI1 的极性和滤波器。
+  * @param  TIMx 用于选择 TIM 外设。
+  * @param  TIM_ICPolarity 输入极性。
+  *          该参数可以是以下值之一：
   *            @arg TIM_ICPOLARITY_RISING
   *            @arg TIM_ICPOLARITY_FALLING
   *            @arg TIM_ICPOLARITY_BOTHEDGE
-  * @param  TIM_ICFilter Specifies the Input Capture Filter.
-  *          This parameter must be a value between 0x00 and 0x0F.
-  * @retval None
+  * @param  TIM_ICFilter 指定输入捕获滤波器。
+  *          该参数的取值范围必须介于 0x00 和 0x0F 之间。
+  * @retval 无
   */
 static void TIM_TI1_ConfigInputStage(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICFilter)
 {
   uint32_t tmpccmr1;
   uint32_t tmpccer;
 
-  /* Get the TIMx CCER register value */
+  /* 获取 TIMx CCER 寄存器的值 */
   tmpccer = TIMx->CCER;
 
-  /* Disable the Channel 1: Reset the CC1E Bit */
+  /* 禁用通道 1：复位 CC1E 位 */
   TIMx->CCER &= ~TIM_CCER_CC1E;
-  /* Disable the Channel 1N: Reset the CC1NE Bit */
+  /* 禁用通道 1N：复位 CC1NE 位 */
   if (IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_1))
   {
     TIMx->CCER &= ~TIM_CCER_CC1NE;
   }
 
-  /* Get the TIMx CCMR1 register value */
+  /* 获取 TIMx CCMR1 寄存器的值 */
   tmpccmr1 = TIMx->CCMR1;
 
-  /* Set the filter */
+  /* 设置滤波器 */
   tmpccmr1 &= ~TIM_CCMR1_IC1F;
   tmpccmr1 |= (TIM_ICFilter << 4U);
 
-  /* Select the Polarity and set the CC1E Bit */
+  /* 选择极性并置位 CC1E 位 */
   tmpccer &= ~(TIM_CCER_CC1P | TIM_CCER_CC1NP);
   tmpccer |= TIM_ICPolarity;
 
-  /* Write to TIMx CCMR1 and CCER registers */
+  /* 写入 TIMx CCMR1 和 CCER 寄存器 */
   TIMx->CCMR1 = tmpccmr1;
   TIMx->CCER = tmpccer;
 }
 
 /**
-  * @brief  Configure the TI2 as Input.
-  * @param  TIMx to select the TIM peripheral
-  * @param  TIM_ICPolarity The Input Polarity.
-  *          This parameter can be one of the following values:
+  * @brief  将 TI2 配置为输入。
+  * @param  TIMx 用于选择 TIM 外设
+  * @param  TIM_ICPolarity 输入极性。
+  *          该参数可以是以下值之一：
   *            @arg TIM_ICPOLARITY_RISING
   *            @arg TIM_ICPOLARITY_FALLING
   *            @arg TIM_ICPOLARITY_BOTHEDGE
-  * @param  TIM_ICSelection specifies the input to be used.
-  *          This parameter can be one of the following values:
-  *            @arg TIM_ICSELECTION_DIRECTTI: TIM Input 2 is selected to be connected to IC2.
-  *            @arg TIM_ICSELECTION_INDIRECTTI: TIM Input 2 is selected to be connected to IC1.
-  *            @arg TIM_ICSELECTION_TRC: TIM Input 2 is selected to be connected to TRC.
-  * @param  TIM_ICFilter Specifies the Input Capture Filter.
-  *          This parameter must be a value between 0x00 and 0x0F.
-  * @retval None
-  * @note TIM_ICFilter and TIM_ICPolarity are not used in INDIRECT mode as TI1FP2
-  *       (on channel1 path) is used as the input signal. Therefore CCMR1 must be
-  *        protected against un-initialized filter and polarity values.
+  * @param  TIM_ICSelection 指定所使用的输入源。
+  *          该参数可以是以下值之一：
+  *            @arg TIM_ICSELECTION_DIRECTTI: 选择 TIM 输入 2 连接到 IC2。
+  *            @arg TIM_ICSELECTION_INDIRECTTI: 选择 TIM 输入 2 连接到 IC1。
+  *            @arg TIM_ICSELECTION_TRC: 选择 TIM 输入 2 连接到 TRC。
+  * @param  TIM_ICFilter 指定输入捕获滤波器。
+  *          该参数的取值范围必须介于 0x00 和 0x0F 之间。
+  * @retval 无
+  * @note 在间接（INDIRECT）模式下不使用 TIM_ICFilter 和 TIM_ICPolarity，因为此时使用
+  *       TI1FP2（位于通道 1 路径上）作为输入信号。因此必须对 CCMR1 进行保护，
+  *       以防止出现未初始化的滤波器和极性值。
   */
 static void TIM_TI2_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICSelection,
                               uint32_t TIM_ICFilter)
@@ -7363,99 +7337,99 @@ static void TIM_TI2_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
   uint32_t tmpccmr1;
   uint32_t tmpccer;
 
-  /* Get the TIMx CCER register value */
+  /* 获取 TIMx CCER 寄存器的值 */
   tmpccer = TIMx->CCER;
 
-  /* Disable the Channel 2: Reset the CC2E Bit */
+  /* 禁用通道 2：复位 CC2E 位 */
   TIMx->CCER &= ~TIM_CCER_CC2E;
-  /* Disable the Channel 2N: Reset the CC2NE Bit */
+  /* 禁用互补通道 2N：复位 CC2NE 位 */
   if (IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_2))
   {
     TIMx->CCER &= ~TIM_CCER_CC2NE;
   }
 
-  /* Get the TIMx CCMR1 register value */
+  /* 获取 TIMx CCMR1 寄存器的值 */
   tmpccmr1 = TIMx->CCMR1;
 
-  /* Select the Input */
+  /* 选择输入端 */
   tmpccmr1 &= ~TIM_CCMR1_CC2S;
   tmpccmr1 |= (TIM_ICSelection << 8U);
 
-  /* Set the filter */
+  /* 设置滤波器 */
   tmpccmr1 &= ~TIM_CCMR1_IC2F;
   tmpccmr1 |= ((TIM_ICFilter << 12U) & TIM_CCMR1_IC2F);
 
-  /* Select the Polarity and set the CC2E Bit */
+  /* 选择极性并置位 CC2E 位 */
   tmpccer &= ~(TIM_CCER_CC2P | TIM_CCER_CC2NP);
   tmpccer |= ((TIM_ICPolarity << 4U) & (TIM_CCER_CC2P | TIM_CCER_CC2NP));
 
-  /* Write to TIMx CCMR1 and CCER registers */
+  /* 写入 TIMx CCMR1 和 CCER 寄存器 */
   TIMx->CCMR1 = tmpccmr1 ;
   TIMx->CCER = tmpccer;
 }
 
 /**
-  * @brief  Configure the Polarity and Filter for TI2.
-  * @param  TIMx to select the TIM peripheral.
-  * @param  TIM_ICPolarity The Input Polarity.
-  *          This parameter can be one of the following values:
+  * @brief  配置 TI2 的极性和滤波器。
+  * @param  TIMx 用于选择 TIM 外设。
+  * @param  TIM_ICPolarity 输入极性。
+  *          该参数可以是以下值之一：
   *            @arg TIM_ICPOLARITY_RISING
   *            @arg TIM_ICPOLARITY_FALLING
   *            @arg TIM_ICPOLARITY_BOTHEDGE
-  * @param  TIM_ICFilter Specifies the Input Capture Filter.
-  *          This parameter must be a value between 0x00 and 0x0F.
-  * @retval None
+  * @param  TIM_ICFilter 指定输入捕获滤波器。
+  *          该参数取值必须介于 0x00 和 0x0F 之间。
+  * @retval 无
   */
 static void TIM_TI2_ConfigInputStage(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICFilter)
 {
   uint32_t tmpccmr1;
   uint32_t tmpccer;
 
-  /* Get the TIMx CCER register value */
+  /* 获取 TIMx CCER 寄存器的值 */
   tmpccer = TIMx->CCER;
 
-  /* Disable the Channel 2: Reset the CC2E Bit */
+  /* 禁用通道 2：复位 CC2E 位 */
   TIMx->CCER &= ~TIM_CCER_CC2E;
-  /* Disable the Channel 2N: Reset the CC2NE Bit */
+  /* 禁用互补通道 2N：复位 CC2NE 位 */
   if (IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_2))
   {
     TIMx->CCER &= ~TIM_CCER_CC2NE;
   }
 
-  /* Get the TIMx CCMR1 register value */
+  /* 获取 TIMx CCMR1 寄存器的值 */
   tmpccmr1 = TIMx->CCMR1;
 
-  /* Set the filter */
+  /* 设置滤波器 */
   tmpccmr1 &= ~TIM_CCMR1_IC2F;
   tmpccmr1 |= (TIM_ICFilter << 12U);
 
-  /* Select the Polarity and set the CC2E Bit */
+  /* 选择极性并置位 CC2E 位 */
   tmpccer &= ~(TIM_CCER_CC2P | TIM_CCER_CC2NP);
   tmpccer |= (TIM_ICPolarity << 4U);
 
-  /* Write to TIMx CCMR1 and CCER registers */
+  /* 写入 TIMx CCMR1 和 CCER 寄存器 */
   TIMx->CCMR1 = tmpccmr1 ;
   TIMx->CCER = tmpccer;
 }
 
 /**
-  * @brief  Configure the TI3 as Input.
-  * @param  TIMx to select the TIM peripheral
-  * @param  TIM_ICPolarity The Input Polarity.
-  *          This parameter can be one of the following values:
+  * @brief  将 TI3 配置为输入。
+  * @param  TIMx 用于选择 TIM 外设
+  * @param  TIM_ICPolarity 输入极性。
+  *          该参数可以是以下值之一：
   *            @arg TIM_ICPOLARITY_RISING
   *            @arg TIM_ICPOLARITY_FALLING
-  * @param  TIM_ICSelection specifies the input to be used.
-  *          This parameter can be one of the following values:
-  *            @arg TIM_ICSELECTION_DIRECTTI: TIM Input 3 is selected to be connected to IC3.
-  *            @arg TIM_ICSELECTION_INDIRECTTI: TIM Input 3 is selected to be connected to IC4.
-  *            @arg TIM_ICSELECTION_TRC: TIM Input 3 is selected to be connected to TRC.
-  * @param  TIM_ICFilter Specifies the Input Capture Filter.
-  *          This parameter must be a value between 0x00 and 0x0F.
-  * @retval None
-  * @note TIM_ICFilter and TIM_ICPolarity are not used in INDIRECT mode as TI3FP4
-  *       (on channel1 path) is used as the input signal. Therefore CCMR2 must be
-  *        protected against un-initialized filter and polarity values.
+  * @param  TIM_ICSelection 指定所使用的输入源。
+  *          该参数可以是以下值之一：
+  *            @arg TIM_ICSELECTION_DIRECTTI: 选择 TIM 输入 3 连接到 IC3。
+  *            @arg TIM_ICSELECTION_INDIRECTTI: 选择 TIM 输入 3 连接到 IC4。
+  *            @arg TIM_ICSELECTION_TRC: 选择 TIM 输入 3 连接到 TRC。
+  * @param  TIM_ICFilter 指定输入捕获滤波器。
+  *          该参数必须是介于 0x00 和 0x0F 之间的值。
+  * @retval 无
+  * @note 在 INDIRECT（间接）模式下不使用 TIM_ICFilter 和 TIM_ICPolarity，因为使用
+  *       TI3FP4（在通道 1 路径上）作为输入信号。因此必须保护 CCMR2
+  *       免受未初始化的滤波器和极性值的影响。
   */
 static void TIM_TI3_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICSelection,
                               uint32_t TIM_ICFilter)
@@ -7463,55 +7437,55 @@ static void TIM_TI3_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
   uint32_t tmpccmr2;
   uint32_t tmpccer;
 
-  /* Get the TIMx CCER register value */
+  /* 获取 TIMx CCER 寄存器的值 */
   tmpccer = TIMx->CCER;
 
-  /* Disable the Channel 3: Reset the CC3E Bit */
+  /* 禁用通道 3：复位 CC3E 位 */
   TIMx->CCER &= ~TIM_CCER_CC3E;
-  /* Disable the Channel 3N: Reset the CC3NE Bit */
+  /* 禁用通道 3N：复位 CC3NE 位 */
   if (IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_3))
   {
     TIMx->CCER &= ~TIM_CCER_CC3NE;
   }
 
-  /* Get the TIMx CCMR2 register value */
+  /* 获取 TIMx CCMR2 寄存器的值 */
   tmpccmr2 = TIMx->CCMR2;
 
-  /* Select the Input */
+  /* 选择输入源 */
   tmpccmr2 &= ~TIM_CCMR2_CC3S;
   tmpccmr2 |= TIM_ICSelection;
 
-  /* Set the filter */
+  /* 设置滤波器 */
   tmpccmr2 &= ~TIM_CCMR2_IC3F;
   tmpccmr2 |= ((TIM_ICFilter << 4U) & TIM_CCMR2_IC3F);
 
-  /* Select the Polarity and set the CC3E Bit */
+  /* 选择极性并置位 CC3E 位 */
   tmpccer &= ~(TIM_CCER_CC3P);
   tmpccer |= ((TIM_ICPolarity << 8U) & TIM_CCER_CC3P);
 
-  /* Write to TIMx CCMR2 and CCER registers */
+  /* 写入 TIMx CCMR2 和 CCER 寄存器 */
   TIMx->CCMR2 = tmpccmr2;
   TIMx->CCER = tmpccer;
 }
 
 /**
-  * @brief  Configure the TI4 as Input.
-  * @param  TIMx to select the TIM peripheral
-  * @param  TIM_ICPolarity The Input Polarity.
-  *          This parameter can be one of the following values:
+  * @brief  将 TI4 配置为输入。
+  * @param  TIMx 用于选择 TIM 外设
+  * @param  TIM_ICPolarity 输入极性。
+  *          该参数可以是以下值之一：
   *            @arg TIM_ICPOLARITY_RISING
   *            @arg TIM_ICPOLARITY_FALLING
-  * @param  TIM_ICSelection specifies the input to be used.
-  *          This parameter can be one of the following values:
-  *            @arg TIM_ICSELECTION_DIRECTTI: TIM Input 4 is selected to be connected to IC4.
-  *            @arg TIM_ICSELECTION_INDIRECTTI: TIM Input 4 is selected to be connected to IC3.
-  *            @arg TIM_ICSELECTION_TRC: TIM Input 4 is selected to be connected to TRC.
-  * @param  TIM_ICFilter Specifies the Input Capture Filter.
-  *          This parameter must be a value between 0x00 and 0x0F.
-  * @note TIM_ICFilter and TIM_ICPolarity are not used in INDIRECT mode as TI4FP3
-  *       (on channel1 path) is used as the input signal. Therefore CCMR2 must be
-  *        protected against un-initialized filter and polarity values.
-  * @retval None
+  * @param  TIM_ICSelection 指定所使用的输入源。
+  *          该参数可以是以下值之一：
+  *            @arg TIM_ICSELECTION_DIRECTTI: 选择 TIM 输入 4 连接到 IC4。
+  *            @arg TIM_ICSELECTION_INDIRECTTI: 选择 TIM 输入 4 连接到 IC3。
+  *            @arg TIM_ICSELECTION_TRC: 选择 TIM 输入 4 连接到 TRC。
+  * @param  TIM_ICFilter 指定输入捕获滤波器。
+  *          该参数必须是介于 0x00 和 0x0F 之间的值。
+  * @note 在 INDIRECT（间接）模式下不使用 TIM_ICFilter 和 TIM_ICPolarity，因为使用
+  *       TI4FP3（在通道 1 路径上）作为输入信号。因此必须保护 CCMR2
+  *       免受未初始化的滤波器和极性值的影响。
+  * @retval 无
   */
 static void TIM_TI4_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICSelection,
                               uint32_t TIM_ICFilter)
@@ -7519,76 +7493,76 @@ static void TIM_TI4_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
   uint32_t tmpccmr2;
   uint32_t tmpccer;
 
-  /* Get the TIMx CCER register value */
+  /* 获取 TIMx CCER 寄存器的值 */
   tmpccer = TIMx->CCER;
 
-  /* Disable the Channel 4: Reset the CC4E Bit */
+  /* 禁用通道 4：复位 CC4E 位 */
   TIMx->CCER &= ~TIM_CCER_CC4E;
 
-  /* Get the TIMx CCMR2 register value */
+  /* 获取 TIMx CCMR2 寄存器的值 */
   tmpccmr2 = TIMx->CCMR2;
 
-  /* Select the Input */
+  /* 选择输入源 */
   tmpccmr2 &= ~TIM_CCMR2_CC4S;
   tmpccmr2 |= (TIM_ICSelection << 8U);
 
-  /* Set the filter */
+  /* 设置滤波器 */
   tmpccmr2 &= ~TIM_CCMR2_IC4F;
   tmpccmr2 |= ((TIM_ICFilter << 12U) & TIM_CCMR2_IC4F);
 
-  /* Select the Polarity and set the CC4E Bit */
+  /* 选择极性并置位 CC4E 位 */
   tmpccer &= ~(TIM_CCER_CC4P);
   tmpccer |= ((TIM_ICPolarity << 12U) & TIM_CCER_CC4P);
 
-  /* Write to TIMx CCMR2 and CCER registers */
+  /* 写入 TIMx CCMR2 和 CCER 寄存器 */
   TIMx->CCMR2 = tmpccmr2;
   TIMx->CCER = tmpccer ;
 }
 
 /**
-  * @brief  Selects the Input Trigger source
-  * @param  TIMx to select the TIM peripheral
-  * @param  InputTriggerSource The Input Trigger source.
-  *          This parameter can be one of the following values:
-  *            @arg TIM_TS_ITR0: Internal Trigger 0
-  *            @arg TIM_TS_ITR1: Internal Trigger 1
-  *            @arg TIM_TS_ITR2: Internal Trigger 2
-  *            @arg TIM_TS_ITR3: Internal Trigger 3
-  *            @arg TIM_TS_TI1F_ED: TI1 Edge Detector
-  *            @arg TIM_TS_TI1FP1: Filtered Timer Input 1
-  *            @arg TIM_TS_TI2FP2: Filtered Timer Input 2
-  *            @arg TIM_TS_ETRF: External Trigger input
-  * @retval None
+  * @brief  选择输入触发源
+  * @param  TIMx 用于选择 TIM 外设
+  * @param  InputTriggerSource 输入触发源。
+  *          该参数可以是以下值之一：
+  *            @arg TIM_TS_ITR0: 内部触发 0
+  *            @arg TIM_TS_ITR1: 内部触发 1
+  *            @arg TIM_TS_ITR2: 内部触发 2
+  *            @arg TIM_TS_ITR3: 内部触发 3
+  *            @arg TIM_TS_TI1F_ED: TI1 边沿检测器
+  *            @arg TIM_TS_TI1FP1: 滤波后的定时器输入 1
+  *            @arg TIM_TS_TI2FP2: 滤波后的定时器输入 2
+  *            @arg TIM_TS_ETRF: 外部触发输入
+  * @retval 无
   */
 static void TIM_ITRx_SetConfig(TIM_TypeDef *TIMx, uint32_t InputTriggerSource)
 {
   uint32_t tmpsmcr;
 
-  /* Get the TIMx SMCR register value */
+  /* 获取 TIMx SMCR 寄存器的值 */
   tmpsmcr = TIMx->SMCR;
-  /* Reset the TS Bits */
+  /* 复位 TS 位 */
   tmpsmcr &= ~TIM_SMCR_TS;
-  /* Set the Input Trigger source and the slave mode*/
+  /* 设置输入触发源和从模式 */
   tmpsmcr |= (InputTriggerSource | TIM_SLAVEMODE_EXTERNAL1);
-  /* Write to TIMx SMCR */
+  /* 写入 TIMx SMCR 寄存器 */
   TIMx->SMCR = tmpsmcr;
 }
 /**
-  * @brief  Configures the TIMx External Trigger (ETR).
-  * @param  TIMx to select the TIM peripheral
-  * @param  TIM_ExtTRGPrescaler The external Trigger Prescaler.
-  *          This parameter can be one of the following values:
-  *            @arg TIM_ETRPRESCALER_DIV1: ETRP Prescaler OFF.
-  *            @arg TIM_ETRPRESCALER_DIV2: ETRP frequency divided by 2.
-  *            @arg TIM_ETRPRESCALER_DIV4: ETRP frequency divided by 4.
-  *            @arg TIM_ETRPRESCALER_DIV8: ETRP frequency divided by 8.
-  * @param  TIM_ExtTRGPolarity The external Trigger Polarity.
-  *          This parameter can be one of the following values:
-  *            @arg TIM_ETRPOLARITY_INVERTED: active low or falling edge active.
-  *            @arg TIM_ETRPOLARITY_NONINVERTED: active high or rising edge active.
-  * @param  ExtTRGFilter External Trigger Filter.
-  *          This parameter must be a value between 0x00 and 0x0F
-  * @retval None
+  * @brief  配置 TIMx 外部触发 (ETR)。
+  * @param  TIMx 用于选择 TIM 外设
+  * @param  TIM_ExtTRGPrescaler 外部触发预分频器。
+  *          该参数可以是以下值之一：
+  *            @arg TIM_ETRPRESCALER_DIV1: ETRP 预分频器关闭。
+  *            @arg TIM_ETRPRESCALER_DIV2: ETRP 频率 2 分频。
+  *            @arg TIM_ETRPRESCALER_DIV4: ETRP 频率 4 分频。
+  *            @arg TIM_ETRPRESCALER_DIV8: ETRP 频率 8 分频。
+  * @param  TIM_ExtTRGPolarity 外部触发极性。
+  *          该参数可以是以下值之一：
+  *            @arg TIM_ETRPOLARITY_INVERTED: 低电平有效或下降沿有效。
+  *            @arg TIM_ETRPOLARITY_NONINVERTED: 高电平有效或上升沿有效。
+  * @param  ExtTRGFilter 外部触发滤波器。
+  *          该参数必须是介于 0x00 和 0x0F 之间的值
+  * @retval 无
   */
 void TIM_ETR_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ExtTRGPrescaler,
                        uint32_t TIM_ExtTRGPolarity, uint32_t ExtTRGFilter)
@@ -7597,38 +7571,38 @@ void TIM_ETR_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ExtTRGPrescaler,
 
   tmpsmcr = TIMx->SMCR;
 
-  /* Reset the ETR Bits */
+  /* 复位 ETR 位 */
   tmpsmcr &= ~(TIM_SMCR_ETF | TIM_SMCR_ETPS | TIM_SMCR_ECE | TIM_SMCR_ETP);
 
-  /* Set the Prescaler, the Filter value and the Polarity */
+  /* 设置预分频器、滤波值和极性 */
   tmpsmcr |= (uint32_t)(TIM_ExtTRGPrescaler | (TIM_ExtTRGPolarity | (ExtTRGFilter << 8U)));
 
-  /* Write to TIMx SMCR */
+  /* 写入 TIMx SMCR 寄存器 */
   TIMx->SMCR = tmpsmcr;
 }
 
 /**
-  * @brief  Enables or disables the TIM Capture Compare Channel x.
-  * @param  TIMx to select the TIM peripheral
-  * @param  Channel specifies the TIM Channel
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
-  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
-  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
-  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
-  * @param  ChannelState specifies the TIM Channel CCxE bit new state.
-  *          This parameter can be: TIM_CCx_ENABLE or TIM_CCx_DISABLE.
-  * @retval None
+  * @brief  使能或失能 TIM 捕获/比较通道 x。
+  * @param  TIMx 用于选择 TIM 外设
+  * @param  Channel 指定 TIM 通道
+  *          该参数可以是以下值之一：
+  *            @arg TIM_CHANNEL_1: 选中 TIM 通道 1
+  *            @arg TIM_CHANNEL_2: 选中 TIM 通道 2
+  *            @arg TIM_CHANNEL_3: 选中 TIM 通道 3
+  *            @arg TIM_CHANNEL_4: 选中 TIM 通道 4
+  * @param  ChannelState 指定 TIM 通道 CCxE 位的新状态。
+  *          该参数可以是：TIM_CCx_ENABLE 或 TIM_CCx_DISABLE。
+  * @retval 无
   */
 void TIM_CCxChannelCmd(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ChannelState)
 {
   uint32_t tmp;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_TIM_CC1_INSTANCE(TIMx));
   assert_param(IS_TIM_CHANNELS(Channel));
 
-  tmp = TIM_CCER_CC1E << (Channel & 0x1FU); /* 0x1FU = 31 bits max shift */
+  tmp = TIM_CCER_CC1E << (Channel & 0x1FU); /* 0x1FU = 最大位移 31 位 */
 
   /* Reset the CCxE Bit */
   TIMx->CCER &= ~tmp;

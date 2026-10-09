@@ -4,7 +4,7 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file provides all the SPI firmware functions.
+  * @brief   本文件提供所有 SPI 固件函数。
   ******************************************************************************
   * @attention
   *
@@ -19,20 +19,20 @@
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x_spi.h"
 #include "stm32f10x_rcc.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @defgroup SPI 
-  * @brief SPI driver modules
+/** @defgroup SPI SPI 外设驱动模块
+  * @brief SPI 驱动模块
   * @{
   */ 
 
-/** @defgroup SPI_Private_TypesDefinitions
+/** @defgroup SPI_Private_TypesDefinitions  SPI 私有类型定义
   * @{
   */
 
@@ -41,38 +41,38 @@
   */ 
 
 
-/** @defgroup SPI_Private_Defines
+/** @defgroup SPI_Private_Defines  SPI 私有宏定义
   * @{
   */
 
-/* SPI SPE mask */
+/* SPI SPE 掩码 */
 #define CR1_SPE_Set          ((uint16_t)0x0040)
 #define CR1_SPE_Reset        ((uint16_t)0xFFBF)
 
-/* I2S I2SE mask */
+/* I2S I2SE 掩码 */
 #define I2SCFGR_I2SE_Set     ((uint16_t)0x0400)
 #define I2SCFGR_I2SE_Reset   ((uint16_t)0xFBFF)
 
-/* SPI CRCNext mask */
+/* SPI CRCNext 掩码 */
 #define CR1_CRCNext_Set      ((uint16_t)0x1000)
 
-/* SPI CRCEN mask */
+/* SPI CRCEN 掩码 */
 #define CR1_CRCEN_Set        ((uint16_t)0x2000)
 #define CR1_CRCEN_Reset      ((uint16_t)0xDFFF)
 
-/* SPI SSOE mask */
+/* SPI SSOE 掩码 */
 #define CR2_SSOE_Set         ((uint16_t)0x0004)
 #define CR2_SSOE_Reset       ((uint16_t)0xFFFB)
 
-/* SPI registers Masks */
+/* SPI 寄存器掩码 */
 #define CR1_CLEAR_Mask       ((uint16_t)0x3040)
 #define I2SCFGR_CLEAR_Mask   ((uint16_t)0xF040)
 
-/* SPI or I2S mode selection masks */
+/* SPI 或 I2S 模式选择掩码 */
 #define SPI_Mode_Select      ((uint16_t)0xF7FF)
 #define I2S_Mode_Select      ((uint16_t)0x0800) 
 
-/* I2S clock source selection masks */
+/* I2S 时钟源选择掩码 */
 #define I2S2_CLOCK_SRC       ((uint32_t)(0x00020000))
 #define I2S3_CLOCK_SRC       ((uint32_t)(0x00040000))
 #define I2S_MUL_MASK         ((uint32_t)(0x0000F000))
@@ -82,7 +82,7 @@
   * @}
   */
 
-/** @defgroup SPI_Private_Macros
+/** @defgroup SPI_Private_Macros  SPI 私有宏
   * @{
   */
 
@@ -90,7 +90,7 @@
   * @}
   */
 
-/** @defgroup SPI_Private_Variables
+/** @defgroup SPI_Private_Variables  SPI 私有变量
   * @{
   */
 
@@ -98,7 +98,7 @@
   * @}
   */
 
-/** @defgroup SPI_Private_FunctionPrototypes
+/** @defgroup SPI_Private_FunctionPrototypes  SPI 私有函数原型
   * @{
   */
 
@@ -106,63 +106,62 @@
   * @}
   */
 
-/** @defgroup SPI_Private_Functions
+/** @defgroup SPI_Private_Functions  SPI 私有函数
   * @{
   */
 
 /**
-  * @brief  Deinitializes the SPIx peripheral registers to their default
-  *         reset values (Affects also the I2Ss).
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
+  * @brief  将 SPIx 外设寄存器反初始化为其默认复位值
+  *         （同时影响 I2S）。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
   * @retval None
   */
 void SPI_I2S_DeInit(SPI_TypeDef* SPIx)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
 
   if (SPIx == SPI1)
   {
-    /* Enable SPI1 reset state */
+    /* 使能 SPI1 复位状态 */
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);
-    /* Release SPI1 from reset state */
+    /* 将 SPI1 从复位状态释放 */
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);
   }
   else if (SPIx == SPI2)
   {
-    /* Enable SPI2 reset state */
+    /* 使能 SPI2 复位状态 */
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, ENABLE);
-    /* Release SPI2 from reset state */
+    /* 将 SPI2 从复位状态释放 */
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, DISABLE);
   }
   else
   {
     if (SPIx == SPI3)
     {
-      /* Enable SPI3 reset state */
+      /* 使能 SPI3 复位状态 */
       RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI3, ENABLE);
-      /* Release SPI3 from reset state */
+      /* 将 SPI3 从复位状态释放 */
       RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI3, DISABLE);
     }
   }
 }
 
 /**
-  * @brief  Initializes the SPIx peripheral according to the specified 
-  *         parameters in the SPI_InitStruct.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
-  * @param  SPI_InitStruct: pointer to a SPI_InitTypeDef structure that
-  *         contains the configuration information for the specified SPI peripheral.
+  * @brief  根据 SPI_InitStruct 中指定的参数初始化 SPIx 外设。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
+  * @param  SPI_InitStruct: 指向 SPI_InitTypeDef 结构的指针，
+  *         该结构包含指定 SPI 外设的配置信息。
   * @retval None
   */
 void SPI_Init(SPI_TypeDef* SPIx, SPI_InitTypeDef* SPI_InitStruct)
 {
   uint16_t tmpreg = 0;
   
-  /* check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));   
   
-  /* Check the SPI parameters */
+  /* 检查 SPI 参数 */
   assert_param(IS_SPI_DIRECTION_MODE(SPI_InitStruct->SPI_Direction));
   assert_param(IS_SPI_MODE(SPI_InitStruct->SPI_Mode));
   assert_param(IS_SPI_DATASIZE(SPI_InitStruct->SPI_DataSize));
@@ -173,47 +172,44 @@ void SPI_Init(SPI_TypeDef* SPIx, SPI_InitTypeDef* SPI_InitStruct)
   assert_param(IS_SPI_FIRST_BIT(SPI_InitStruct->SPI_FirstBit));
   assert_param(IS_SPI_CRC_POLYNOMIAL(SPI_InitStruct->SPI_CRCPolynomial));
 
-/*---------------------------- SPIx CR1 Configuration ------------------------*/
-  /* Get the SPIx CR1 value */
+/*---------------------------- SPIx CR1 配置 ------------------------*/
+  /* 获取 SPIx CR1 的值 */
   tmpreg = SPIx->CR1;
-  /* Clear BIDIMode, BIDIOE, RxONLY, SSM, SSI, LSBFirst, BR, MSTR, CPOL and CPHA bits */
+  /* 清零 BIDIMode、BIDIOE、RxONLY、SSM、SSI、LSBFirst、BR、MSTR、CPOL 和 CPHA 位 */
   tmpreg &= CR1_CLEAR_Mask;
-  /* Configure SPIx: direction, NSS management, first transmitted bit, BaudRate prescaler
-     master/salve mode, CPOL and CPHA */
-  /* Set BIDImode, BIDIOE and RxONLY bits according to SPI_Direction value */
-  /* Set SSM, SSI and MSTR bits according to SPI_Mode and SPI_NSS values */
-  /* Set LSBFirst bit according to SPI_FirstBit value */
-  /* Set BR bits according to SPI_BaudRatePrescaler value */
-  /* Set CPOL bit according to SPI_CPOL value */
-  /* Set CPHA bit according to SPI_CPHA value */
+  /* 配置 SPIx：方向、NSS 管理、首先发送的位、波特率预分频器
+     主/从模式、CPOL 和 CPHA */
+  /* 根据 SPI_Direction 的值设置 BIDImode、BIDIOE 和 RxONLY 位 */
+  /* 根据 SPI_Mode 和 SPI_NSS 的值设置 SSM、SSI 和 MSTR 位 */
+  /* 根据 SPI_FirstBit 的值设置 LSBFirst 位 */
+  /* 根据 SPI_BaudRatePrescaler 的值设置 BR 位 */
+  /* 根据 SPI_CPOL 的值设置 CPOL 位 */
+  /* 根据 SPI_CPHA 的值设置 CPHA 位 */
   tmpreg |= (uint16_t)((uint32_t)SPI_InitStruct->SPI_Direction | SPI_InitStruct->SPI_Mode |
                   SPI_InitStruct->SPI_DataSize | SPI_InitStruct->SPI_CPOL |  
                   SPI_InitStruct->SPI_CPHA | SPI_InitStruct->SPI_NSS |  
                   SPI_InitStruct->SPI_BaudRatePrescaler | SPI_InitStruct->SPI_FirstBit);
-  /* Write to SPIx CR1 */
+  /* 写入 SPIx CR1 寄存器 */
   SPIx->CR1 = tmpreg;
   
-  /* Activate the SPI mode (Reset I2SMOD bit in I2SCFGR register) */
+  /* 激活 SPI 模式（清零 I2SCFGR 寄存器中的 I2SMOD 位） */
   SPIx->I2SCFGR &= SPI_Mode_Select;		
 
-/*---------------------------- SPIx CRCPOLY Configuration --------------------*/
-  /* Write to SPIx CRCPOLY */
+/*---------------------------- SPIx CRCPOLY 配置 --------------------*/
+  /* 写入 SPIx CRCPOLY 寄存器 */
   SPIx->CRCPR = SPI_InitStruct->SPI_CRCPolynomial;
 }
 
 /**
-  * @brief  Initializes the SPIx peripheral according to the specified 
-  *         parameters in the I2S_InitStruct.
-  * @param  SPIx: where x can be  2 or 3 to select the SPI peripheral
-  *         (configured in I2S mode).
-  * @param  I2S_InitStruct: pointer to an I2S_InitTypeDef structure that
-  *         contains the configuration information for the specified SPI peripheral
-  *         configured in I2S mode.
+  * @brief  根据 I2S_InitStruct 中指定的参数初始化 SPIx 外设。
+  * @param  SPIx: x 可取 2 或 3，用于选择 SPI 外设
+  *         （配置为 I2S 模式）。
+  * @param  I2S_InitStruct: 指向 I2S_InitTypeDef 结构的指针，
+  *         该结构包含配置为 I2S 模式的指定 SPI 外设的配置信息。
   * @note
-  *  The function calculates the optimal prescaler needed to obtain the most 
-  *  accurate audio frequency (depending on the I2S clock source, the PLL values 
-  *  and the product configuration). But in case the prescaler value is greater 
-  *  than 511, the default value (0x02) will be configured instead.  *   
+  *  本函数计算获得最精确音频频率所需的最佳预分频器
+  *  （取决于 I2S 时钟源、PLL 值和产品配置）。
+  *  但如果预分频器值大于 511，则改为配置默认值（0x02）。
   * @retval None
   */
 void I2S_Init(SPI_TypeDef* SPIx, I2S_InitTypeDef* I2S_InitStruct)
@@ -223,7 +219,7 @@ void I2S_Init(SPI_TypeDef* SPIx, I2S_InitTypeDef* I2S_InitStruct)
   RCC_ClocksTypeDef RCC_Clocks;
   uint32_t sourceclock = 0;
   
-  /* Check the I2S parameters */
+  /* 检查 I2S 参数 */
   assert_param(IS_SPI_23_PERIPH(SPIx));
   assert_param(IS_I2S_MODE(I2S_InitStruct->I2S_Mode));
   assert_param(IS_I2S_STANDARD(I2S_InitStruct->I2S_Standard));
@@ -232,665 +228,664 @@ void I2S_Init(SPI_TypeDef* SPIx, I2S_InitTypeDef* I2S_InitStruct)
   assert_param(IS_I2S_AUDIO_FREQ(I2S_InitStruct->I2S_AudioFreq));
   assert_param(IS_I2S_CPOL(I2S_InitStruct->I2S_CPOL));  
 
-/*----------------------- SPIx I2SCFGR & I2SPR Configuration -----------------*/
-  /* Clear I2SMOD, I2SE, I2SCFG, PCMSYNC, I2SSTD, CKPOL, DATLEN and CHLEN bits */
+/*----------------------- SPIx I2SCFGR 和 I2SPR 配置 -----------------*/
+  /* 清零 I2SMOD、I2SE、I2SCFG、PCMSYNC、I2SSTD、CKPOL、DATLEN 和 CHLEN 位 */
   SPIx->I2SCFGR &= I2SCFGR_CLEAR_Mask; 
   SPIx->I2SPR = 0x0002;
   
-  /* Get the I2SCFGR register value */
+  /* 获取 I2SCFGR 寄存器的值 */
   tmpreg = SPIx->I2SCFGR;
   
-  /* If the default value has to be written, reinitialize i2sdiv and i2sodd*/
+  /* 如果需要写入默认值，则重新初始化 i2sdiv 和 i2sodd */
   if(I2S_InitStruct->I2S_AudioFreq == I2S_AudioFreq_Default)
   {
     i2sodd = (uint16_t)0;
     i2sdiv = (uint16_t)2;   
   }
-  /* If the requested audio frequency is not the default, compute the prescaler */
+  /* 如果请求的音频频率不是默认值，则计算预分频器 */
   else
   {
-    /* Check the frame length (For the Prescaler computing) */
+    /* 检查帧长（用于计算预分频器） */
     if(I2S_InitStruct->I2S_DataFormat == I2S_DataFormat_16b)
     {
-      /* Packet length is 16 bits */
+      /* 包长为 16 位 */
       packetlength = 1;
     }
     else
     {
-      /* Packet length is 32 bits */
+      /* 包长为 32 位 */
       packetlength = 2;
     }
 
-    /* Get the I2S clock source mask depending on the peripheral number */
+    /* 根据外设编号获取 I2S 时钟源掩码 */
     if(((uint32_t)SPIx) == SPI2_BASE)
     {
-      /* The mask is relative to I2S2 */
+      /* 该掩码针对 I2S2 */
       tmp = I2S2_CLOCK_SRC;
     }
     else 
     {
-      /* The mask is relative to I2S3 */      
+      /* 该掩码针对 I2S3 */      
       tmp = I2S3_CLOCK_SRC;
     }
 
-    /* Check the I2S clock source configuration depending on the Device:
-       Only Connectivity line devices have the PLL3 VCO clock */
+    /* 根据器件检查 I2S 时钟源配置：
+       只有互联型器件才具有 PLL3 VCO 时钟 */
 #ifdef STM32F10X_CL
     if((RCC->CFGR2 & tmp) != 0)
     {
-      /* Get the configuration bits of RCC PLL3 multiplier */
+      /* 获取 RCC PLL3 倍频系数的配置位 */
       tmp = (uint32_t)((RCC->CFGR2 & I2S_MUL_MASK) >> 12);
 
-      /* Get the value of the PLL3 multiplier */      
+      /* 获取 PLL3 倍频系数的值 */      
       if((tmp > 5) && (tmp < 15))
       {
-        /* Multiplier is between 8 and 14 (value 15 is forbidden) */
+        /* 倍频系数介于 8 和 14 之间（禁止使用值 15） */
         tmp += 2;
       }
       else
       {
         if (tmp == 15)
         {
-          /* Multiplier is 20 */
+          /* 倍频系数为 20 */
           tmp = 20;
         }
       }      
-      /* Get the PREDIV2 value */
+      /* 获取 PREDIV2 的值 */
       sourceclock = (uint32_t)(((RCC->CFGR2 & I2S_DIV_MASK) >> 4) + 1);
       
-      /* Calculate the Source Clock frequency based on PLL3 and PREDIV2 values */
+      /* 根据 PLL3 和 PREDIV2 的值计算源时钟频率 */
       sourceclock = (uint32_t) ((HSE_Value / sourceclock) * tmp * 2); 
     }
     else
     {
-      /* I2S Clock source is System clock: Get System Clock frequency */
+      /* I2S 时钟源为系统时钟：获取系统时钟频率 */
       RCC_GetClocksFreq(&RCC_Clocks);      
       
-      /* Get the source clock value: based on System Clock value */
+      /* 获取源时钟值：基于系统时钟值 */
       sourceclock = RCC_Clocks.SYSCLK_Frequency;
     }        
 #else /* STM32F10X_HD */
-    /* I2S Clock source is System clock: Get System Clock frequency */
+    /* I2S 时钟源为系统时钟：获取系统时钟频率 */
     RCC_GetClocksFreq(&RCC_Clocks);      
       
-    /* Get the source clock value: based on System Clock value */
+    /* 获取源时钟值：基于系统时钟值 */
     sourceclock = RCC_Clocks.SYSCLK_Frequency;    
 #endif /* STM32F10X_CL */    
 
-    /* Compute the Real divider depending on the MCLK output state with a floating point */
+    /* 根据 MCLK 输出状态以浮点数计算实际分频值 */
     if(I2S_InitStruct->I2S_MCLKOutput == I2S_MCLKOutput_Enable)
     {
-      /* MCLK output is enabled */
+      /* MCLK 输出已使能 */
       tmp = (uint16_t)(((((sourceclock / 256) * 10) / I2S_InitStruct->I2S_AudioFreq)) + 5);
     }
     else
     {
-      /* MCLK output is disabled */
+      /* MCLK 输出已关闭 */
       tmp = (uint16_t)(((((sourceclock / (32 * packetlength)) *10 ) / I2S_InitStruct->I2S_AudioFreq)) + 5);
     }
     
-    /* Remove the floating point */
+    /* 去掉小数部分 */
     tmp = tmp / 10;  
       
-    /* Check the parity of the divider */
+    /* 检查分频值的奇偶性 */
     i2sodd = (uint16_t)(tmp & (uint16_t)0x0001);
    
-    /* Compute the i2sdiv prescaler */
+    /* 计算 i2sdiv 预分频值 */
     i2sdiv = (uint16_t)((tmp - i2sodd) / 2);
    
-    /* Get the Mask for the Odd bit (SPI_I2SPR[8]) register */
+    /* 获取奇偶位（SPI_I2SPR[8]）的掩码 */
     i2sodd = (uint16_t) (i2sodd << 8);
   }
   
-  /* Test if the divider is 1 or 0 or greater than 0xFF */
+  /* 判断分频值是否为 1 或 0，或者大于 0xFF */
   if ((i2sdiv < 2) || (i2sdiv > 0xFF))
   {
-    /* Set the default values */
+    /* 设置默认值 */
     i2sdiv = 2;
     i2sodd = 0;
   }
 
-  /* Write to SPIx I2SPR register the computed value */
+  /* 将计算得到的值写入 SPIx I2SPR 寄存器 */
   SPIx->I2SPR = (uint16_t)(i2sdiv | (uint16_t)(i2sodd | (uint16_t)I2S_InitStruct->I2S_MCLKOutput));  
  
-  /* Configure the I2S with the SPI_InitStruct values */
+  /* 使用 SPI_InitStruct 的值配置 I2S */
   tmpreg |= (uint16_t)(I2S_Mode_Select | (uint16_t)(I2S_InitStruct->I2S_Mode | \
                   (uint16_t)(I2S_InitStruct->I2S_Standard | (uint16_t)(I2S_InitStruct->I2S_DataFormat | \
                   (uint16_t)I2S_InitStruct->I2S_CPOL))));
  
-  /* Write to SPIx I2SCFGR */  
+  /* 写入 SPIx I2SCFGR 寄存器 */  
   SPIx->I2SCFGR = tmpreg;   
 }
 
 /**
-  * @brief  Fills each SPI_InitStruct member with its default value.
-  * @param  SPI_InitStruct : pointer to a SPI_InitTypeDef structure which will be initialized.
+  * @brief  将 SPI_InitStruct 的每个成员填充为默认值。
+  * @param  SPI_InitStruct : 指向将被初始化的 SPI_InitTypeDef 结构的指针。
   * @retval None
   */
 void SPI_StructInit(SPI_InitTypeDef* SPI_InitStruct)
 {
-/*--------------- Reset SPI init structure parameters values -----------------*/
-  /* Initialize the SPI_Direction member */
+/*--------------- 复位 SPI 初始化结构参数值 -----------------*/
+  /* 初始化 SPI_Direction 成员 */
   SPI_InitStruct->SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-  /* initialize the SPI_Mode member */
+  /* 初始化 SPI_Mode 成员 */
   SPI_InitStruct->SPI_Mode = SPI_Mode_Slave;
-  /* initialize the SPI_DataSize member */
+  /* 初始化 SPI_DataSize 成员 */
   SPI_InitStruct->SPI_DataSize = SPI_DataSize_8b;
-  /* Initialize the SPI_CPOL member */
+  /* 初始化 SPI_CPOL 成员 */
   SPI_InitStruct->SPI_CPOL = SPI_CPOL_Low;
-  /* Initialize the SPI_CPHA member */
+  /* 初始化 SPI_CPHA 成员 */
   SPI_InitStruct->SPI_CPHA = SPI_CPHA_1Edge;
-  /* Initialize the SPI_NSS member */
+  /* 初始化 SPI_NSS 成员 */
   SPI_InitStruct->SPI_NSS = SPI_NSS_Hard;
-  /* Initialize the SPI_BaudRatePrescaler member */
+  /* 初始化 SPI_BaudRatePrescaler 成员 */
   SPI_InitStruct->SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
-  /* Initialize the SPI_FirstBit member */
+  /* 初始化 SPI_FirstBit 成员 */
   SPI_InitStruct->SPI_FirstBit = SPI_FirstBit_MSB;
-  /* Initialize the SPI_CRCPolynomial member */
+  /* 初始化 SPI_CRCPolynomial 成员 */
   SPI_InitStruct->SPI_CRCPolynomial = 7;
 }
 
 /**
-  * @brief  Fills each I2S_InitStruct member with its default value.
-  * @param  I2S_InitStruct : pointer to a I2S_InitTypeDef structure which will be initialized.
+  * @brief  将 I2S_InitStruct 的每个成员填充为默认值。
+  * @param  I2S_InitStruct : 指向将被初始化的 I2S_InitTypeDef 结构的指针。
   * @retval None
   */
 void I2S_StructInit(I2S_InitTypeDef* I2S_InitStruct)
 {
-/*--------------- Reset I2S init structure parameters values -----------------*/
-  /* Initialize the I2S_Mode member */
+/*--------------- 复位 I2S 初始化结构参数值 -----------------*/
+  /* 初始化 I2S_Mode 成员 */
   I2S_InitStruct->I2S_Mode = I2S_Mode_SlaveTx;
   
-  /* Initialize the I2S_Standard member */
+  /* 初始化 I2S_Standard 成员 */
   I2S_InitStruct->I2S_Standard = I2S_Standard_Phillips;
   
-  /* Initialize the I2S_DataFormat member */
+  /* 初始化 I2S_DataFormat 成员 */
   I2S_InitStruct->I2S_DataFormat = I2S_DataFormat_16b;
   
-  /* Initialize the I2S_MCLKOutput member */
+  /* 初始化 I2S_MCLKOutput 成员 */
   I2S_InitStruct->I2S_MCLKOutput = I2S_MCLKOutput_Disable;
   
-  /* Initialize the I2S_AudioFreq member */
+  /* 初始化 I2S_AudioFreq 成员 */
   I2S_InitStruct->I2S_AudioFreq = I2S_AudioFreq_Default;
   
-  /* Initialize the I2S_CPOL member */
+  /* 初始化 I2S_CPOL 成员 */
   I2S_InitStruct->I2S_CPOL = I2S_CPOL_Low;
 }
 
 /**
-  * @brief  Enables or disables the specified SPI peripheral.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
-  * @param  NewState: new state of the SPIx peripheral. 
-  *   This parameter can be: ENABLE or DISABLE.
+  * @brief  使能或关闭指定的 SPI 外设。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
+  * @param  NewState: SPIx 外设的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
   * @retval None
   */
 void SPI_Cmd(SPI_TypeDef* SPIx, FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   if (NewState != DISABLE)
   {
-    /* Enable the selected SPI peripheral */
+    /* 使能选定的 SPI 外设 */
     SPIx->CR1 |= CR1_SPE_Set;
   }
   else
   {
-    /* Disable the selected SPI peripheral */
+    /* 关闭选定的 SPI 外设 */
     SPIx->CR1 &= CR1_SPE_Reset;
   }
 }
 
 /**
-  * @brief  Enables or disables the specified SPI peripheral (in I2S mode).
-  * @param  SPIx: where x can be 2 or 3 to select the SPI peripheral.
-  * @param  NewState: new state of the SPIx peripheral. 
-  *   This parameter can be: ENABLE or DISABLE.
+  * @brief  使能或关闭指定的 SPI 外设（I2S 模式）。
+  * @param  SPIx: x 可取 2 或 3，用于选择 SPI 外设。
+  * @param  NewState: SPIx 外设的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
   * @retval None
   */
 void I2S_Cmd(SPI_TypeDef* SPIx, FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_23_PERIPH(SPIx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   if (NewState != DISABLE)
   {
-    /* Enable the selected SPI peripheral (in I2S mode) */
+    /* 使能选定的 SPI 外设（I2S 模式） */
     SPIx->I2SCFGR |= I2SCFGR_I2SE_Set;
   }
   else
   {
-    /* Disable the selected SPI peripheral (in I2S mode) */
+    /* 关闭选定的 SPI 外设（I2S 模式） */
     SPIx->I2SCFGR &= I2SCFGR_I2SE_Reset;
   }
 }
 
 /**
-  * @brief  Enables or disables the specified SPI/I2S interrupts.
-  * @param  SPIx: where x can be
-  *   - 1, 2 or 3 in SPI mode 
-  *   - 2 or 3 in I2S mode
-  * @param  SPI_I2S_IT: specifies the SPI/I2S interrupt source to be enabled or disabled. 
-  *   This parameter can be one of the following values:
-  *     @arg SPI_I2S_IT_TXE: Tx buffer empty interrupt mask
-  *     @arg SPI_I2S_IT_RXNE: Rx buffer not empty interrupt mask
-  *     @arg SPI_I2S_IT_ERR: Error interrupt mask
-  * @param  NewState: new state of the specified SPI/I2S interrupt.
-  *   This parameter can be: ENABLE or DISABLE.
+  * @brief  使能或关闭指定的 SPI/I2S 中断。
+  * @param  SPIx: x 可取
+  *   - SPI 模式下为 1、2 或 3
+  *   - I2S 模式下为 2 或 3
+  * @param  SPI_I2S_IT: 指定要使能或关闭的 SPI/I2S 中断源。
+  *   该参数可取以下值之一：
+  *     @arg SPI_I2S_IT_TXE: Tx 缓冲区空中断掩码
+  *     @arg SPI_I2S_IT_RXNE: Rx 缓冲区非空中断掩码
+  *     @arg SPI_I2S_IT_ERR: 错误中断掩码
+  * @param  NewState: 指定 SPI/I2S 中断的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
   * @retval None
   */
 void SPI_I2S_ITConfig(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT, FunctionalState NewState)
 {
   uint16_t itpos = 0, itmask = 0 ;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   assert_param(IS_SPI_I2S_CONFIG_IT(SPI_I2S_IT));
 
-  /* Get the SPI/I2S IT index */
+  /* 获取 SPI/I2S 中断索引 */
   itpos = SPI_I2S_IT >> 4;
 
-  /* Set the IT mask */
+  /* 设置中断掩码 */
   itmask = (uint16_t)1 << (uint16_t)itpos;
 
   if (NewState != DISABLE)
   {
-    /* Enable the selected SPI/I2S interrupt */
+    /* 使能选定的 SPI/I2S 中断 */
     SPIx->CR2 |= itmask;
   }
   else
   {
-    /* Disable the selected SPI/I2S interrupt */
+    /* 关闭选定的 SPI/I2S 中断 */
     SPIx->CR2 &= (uint16_t)~itmask;
   }
 }
 
 /**
-  * @brief  Enables or disables the SPIx/I2Sx DMA interface.
-  * @param  SPIx: where x can be
-  *   - 1, 2 or 3 in SPI mode 
-  *   - 2 or 3 in I2S mode
-  * @param  SPI_I2S_DMAReq: specifies the SPI/I2S DMA transfer request to be enabled or disabled. 
-  *   This parameter can be any combination of the following values:
-  *     @arg SPI_I2S_DMAReq_Tx: Tx buffer DMA transfer request
-  *     @arg SPI_I2S_DMAReq_Rx: Rx buffer DMA transfer request
-  * @param  NewState: new state of the selected SPI/I2S DMA transfer request.
-  *   This parameter can be: ENABLE or DISABLE.
+  * @brief  使能或关闭 SPIx/I2Sx 的 DMA 接口。
+  * @param  SPIx: x 可取
+  *   - SPI 模式下为 1、2 或 3
+  *   - I2S 模式下为 2 或 3
+  * @param  SPI_I2S_DMAReq: 指定要使能或关闭的 SPI/I2S DMA 传输请求。
+  *   该参数可取以下值之一或其任意组合：
+  *     @arg SPI_I2S_DMAReq_Tx: Tx 缓冲区 DMA 传输请求
+  *     @arg SPI_I2S_DMAReq_Rx: Rx 缓冲区 DMA 传输请求
+  * @param  NewState: 选定 SPI/I2S DMA 传输请求的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
   * @retval None
   */
 void SPI_I2S_DMACmd(SPI_TypeDef* SPIx, uint16_t SPI_I2S_DMAReq, FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   assert_param(IS_SPI_I2S_DMAREQ(SPI_I2S_DMAReq));
   if (NewState != DISABLE)
   {
-    /* Enable the selected SPI/I2S DMA requests */
+    /* 使能选定的 SPI/I2S DMA 请求 */
     SPIx->CR2 |= SPI_I2S_DMAReq;
   }
   else
   {
-    /* Disable the selected SPI/I2S DMA requests */
+    /* 关闭选定的 SPI/I2S DMA 请求 */
     SPIx->CR2 &= (uint16_t)~SPI_I2S_DMAReq;
   }
 }
 
 /**
-  * @brief  Transmits a Data through the SPIx/I2Sx peripheral.
-  * @param  SPIx: where x can be
-  *   - 1, 2 or 3 in SPI mode 
-  *   - 2 or 3 in I2S mode
-  * @param  Data : Data to be transmitted.
+  * @brief  通过 SPIx/I2Sx 外设发送一个数据。
+  * @param  SPIx: x 可取
+  *   - SPI 模式下为 1、2 或 3
+  *   - I2S 模式下为 2 或 3
+  * @param  Data : 要发送的数据。
   * @retval None
   */
 void SPI_I2S_SendData(SPI_TypeDef* SPIx, uint16_t Data)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   
-  /* Write in the DR register the data to be sent */
+  /* 将要发送的数据写入 DR 寄存器 */
   SPIx->DR = Data;
 }
 
 /**
-  * @brief  Returns the most recent received data by the SPIx/I2Sx peripheral. 
-  * @param  SPIx: where x can be
-  *   - 1, 2 or 3 in SPI mode 
-  *   - 2 or 3 in I2S mode
-  * @retval The value of the received data.
+  * @brief  返回 SPIx/I2Sx 外设最近一次接收到的数据。
+  * @param  SPIx: x 可取
+  *   - SPI 模式下为 1、2 或 3
+  *   - I2S 模式下为 2 或 3
+  * @retval 接收到的数据值。
   */
 uint16_t SPI_I2S_ReceiveData(SPI_TypeDef* SPIx)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   
-  /* Return the data in the DR register */
+  /* 返回 DR 寄存器中的数据 */
   return SPIx->DR;
 }
 
 /**
-  * @brief  Configures internally by software the NSS pin for the selected SPI.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
-  * @param  SPI_NSSInternalSoft: specifies the SPI NSS internal state.
-  *   This parameter can be one of the following values:
-  *     @arg SPI_NSSInternalSoft_Set: Set NSS pin internally
-  *     @arg SPI_NSSInternalSoft_Reset: Reset NSS pin internally
+  * @brief  通过软件在内部配置选定 SPI 的 NSS 引脚。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
+  * @param  SPI_NSSInternalSoft: 指定 SPI NSS 的内部状态。
+  *   该参数可取以下值之一：
+  *     @arg SPI_NSSInternalSoft_Set: 在内部置位 NSS 引脚
+  *     @arg SPI_NSSInternalSoft_Reset: 在内部清零 NSS 引脚
   * @retval None
   */
 void SPI_NSSInternalSoftwareConfig(SPI_TypeDef* SPIx, uint16_t SPI_NSSInternalSoft)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_SPI_NSS_INTERNAL(SPI_NSSInternalSoft));
   if (SPI_NSSInternalSoft != SPI_NSSInternalSoft_Reset)
   {
-    /* Set NSS pin internally by software */
+    /* 通过软件在内部置位 NSS 引脚 */
     SPIx->CR1 |= SPI_NSSInternalSoft_Set;
   }
   else
   {
-    /* Reset NSS pin internally by software */
+    /* 通过软件在内部清零 NSS 引脚 */
     SPIx->CR1 &= SPI_NSSInternalSoft_Reset;
   }
 }
 
 /**
-  * @brief  Enables or disables the SS output for the selected SPI.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
-  * @param  NewState: new state of the SPIx SS output. 
-  *   This parameter can be: ENABLE or DISABLE.
+  * @brief  使能或关闭选定 SPI 的 SS 输出。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
+  * @param  NewState: SPIx SS 输出的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
   * @retval None
   */
 void SPI_SSOutputCmd(SPI_TypeDef* SPIx, FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   if (NewState != DISABLE)
   {
-    /* Enable the selected SPI SS output */
+    /* 使能选定的 SPI SS 输出 */
     SPIx->CR2 |= CR2_SSOE_Set;
   }
   else
   {
-    /* Disable the selected SPI SS output */
+    /* 关闭选定的 SPI SS 输出 */
     SPIx->CR2 &= CR2_SSOE_Reset;
   }
 }
 
 /**
-  * @brief  Configures the data size for the selected SPI.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
-  * @param  SPI_DataSize: specifies the SPI data size.
-  *   This parameter can be one of the following values:
-  *     @arg SPI_DataSize_16b: Set data frame format to 16bit
-  *     @arg SPI_DataSize_8b: Set data frame format to 8bit
+  * @brief  配置选定 SPI 的数据大小。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
+  * @param  SPI_DataSize: 指定 SPI 数据大小。
+  *   该参数可取以下值之一：
+  *     @arg SPI_DataSize_16b: 将数据帧格式设置为 16 位
+  *     @arg SPI_DataSize_8b: 将数据帧格式设置为 8 位
   * @retval None
   */
 void SPI_DataSizeConfig(SPI_TypeDef* SPIx, uint16_t SPI_DataSize)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_SPI_DATASIZE(SPI_DataSize));
-  /* Clear DFF bit */
+  /* 清零 DFF 位 */
   SPIx->CR1 &= (uint16_t)~SPI_DataSize_16b;
-  /* Set new DFF bit value */
+  /* 设置新的 DFF 位值 */
   SPIx->CR1 |= SPI_DataSize;
 }
 
 /**
-  * @brief  Transmit the SPIx CRC value.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
+  * @brief  发送 SPIx 的 CRC 值。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
   * @retval None
   */
 void SPI_TransmitCRC(SPI_TypeDef* SPIx)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   
-  /* Enable the selected SPI CRC transmission */
+  /* 使能选定的 SPI CRC 发送 */
   SPIx->CR1 |= CR1_CRCNext_Set;
 }
 
 /**
-  * @brief  Enables or disables the CRC value calculation of the transferred bytes.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
-  * @param  NewState: new state of the SPIx CRC value calculation.
-  *   This parameter can be: ENABLE or DISABLE.
+  * @brief  使能或关闭已传输字节的 CRC 值计算。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
+  * @param  NewState: SPIx CRC 值计算的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
   * @retval None
   */
 void SPI_CalculateCRC(SPI_TypeDef* SPIx, FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   if (NewState != DISABLE)
   {
-    /* Enable the selected SPI CRC calculation */
+    /* 使能选定的 SPI CRC 计算 */
     SPIx->CR1 |= CR1_CRCEN_Set;
   }
   else
   {
-    /* Disable the selected SPI CRC calculation */
+    /* 关闭选定的 SPI CRC 计算 */
     SPIx->CR1 &= CR1_CRCEN_Reset;
   }
 }
 
 /**
-  * @brief  Returns the transmit or the receive CRC register value for the specified SPI.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
-  * @param  SPI_CRC: specifies the CRC register to be read.
-  *   This parameter can be one of the following values:
-  *     @arg SPI_CRC_Tx: Selects Tx CRC register
-  *     @arg SPI_CRC_Rx: Selects Rx CRC register
-  * @retval The selected CRC register value..
+  * @brief  返回指定 SPI 的发送或接收 CRC 寄存器值。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
+  * @param  SPI_CRC: 指定要读取的 CRC 寄存器。
+  *   该参数可取以下值之一：
+  *     @arg SPI_CRC_Tx: 选择 Tx CRC 寄存器
+  *     @arg SPI_CRC_Rx: 选择 Rx CRC 寄存器
+  * @retval 选定的 CRC 寄存器值。
   */
 uint16_t SPI_GetCRC(SPI_TypeDef* SPIx, uint8_t SPI_CRC)
 {
   uint16_t crcreg = 0;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_SPI_CRC(SPI_CRC));
   if (SPI_CRC != SPI_CRC_Rx)
   {
-    /* Get the Tx CRC register */
+    /* 获取 Tx CRC 寄存器 */
     crcreg = SPIx->TXCRCR;
   }
   else
   {
-    /* Get the Rx CRC register */
+    /* 获取 Rx CRC 寄存器 */
     crcreg = SPIx->RXCRCR;
   }
-  /* Return the selected CRC register */
+  /* 返回选定的 CRC 寄存器值 */
   return crcreg;
 }
 
 /**
-  * @brief  Returns the CRC Polynomial register value for the specified SPI.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
-  * @retval The CRC Polynomial register value.
+  * @brief  返回指定 SPI 的 CRC 多项式寄存器值。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
+  * @retval CRC 多项式寄存器值。
   */
 uint16_t SPI_GetCRCPolynomial(SPI_TypeDef* SPIx)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   
-  /* Return the CRC polynomial register */
+  /* 返回 CRC 多项式寄存器值 */
   return SPIx->CRCPR;
 }
 
 /**
-  * @brief  Selects the data transfer direction in bi-directional mode for the specified SPI.
-  * @param  SPIx: where x can be 1, 2 or 3 to select the SPI peripheral.
-  * @param  SPI_Direction: specifies the data transfer direction in bi-directional mode. 
-  *   This parameter can be one of the following values:
-  *     @arg SPI_Direction_Tx: Selects Tx transmission direction
-  *     @arg SPI_Direction_Rx: Selects Rx receive direction
+  * @brief  为指定 SPI 选择双向模式下的数据传输方向。
+  * @param  SPIx: x 可取 1、2 或 3，用于选择 SPI 外设。
+  * @param  SPI_Direction: 指定双向模式下的数据传输方向。
+  *   该参数可取以下值之一：
+  *     @arg SPI_Direction_Tx: 选择 Tx 发送方向
+  *     @arg SPI_Direction_Rx: 选择 Rx 接收方向
   * @retval None
   */
 void SPI_BiDirectionalLineConfig(SPI_TypeDef* SPIx, uint16_t SPI_Direction)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_SPI_DIRECTION(SPI_Direction));
   if (SPI_Direction == SPI_Direction_Tx)
   {
-    /* Set the Tx only mode */
+    /* 设置为仅发送模式 */
     SPIx->CR1 |= SPI_Direction_Tx;
   }
   else
   {
-    /* Set the Rx only mode */
+    /* 设置为仅接收模式 */
     SPIx->CR1 &= SPI_Direction_Rx;
   }
 }
 
 /**
-  * @brief  Checks whether the specified SPI/I2S flag is set or not.
-  * @param  SPIx: where x can be
-  *   - 1, 2 or 3 in SPI mode 
-  *   - 2 or 3 in I2S mode
-  * @param  SPI_I2S_FLAG: specifies the SPI/I2S flag to check. 
-  *   This parameter can be one of the following values:
-  *     @arg SPI_I2S_FLAG_TXE: Transmit buffer empty flag.
-  *     @arg SPI_I2S_FLAG_RXNE: Receive buffer not empty flag.
-  *     @arg SPI_I2S_FLAG_BSY: Busy flag.
-  *     @arg SPI_I2S_FLAG_OVR: Overrun flag.
-  *     @arg SPI_FLAG_MODF: Mode Fault flag.
-  *     @arg SPI_FLAG_CRCERR: CRC Error flag.
-  *     @arg I2S_FLAG_UDR: Underrun Error flag.
-  *     @arg I2S_FLAG_CHSIDE: Channel Side flag.
-  * @retval The new state of SPI_I2S_FLAG (SET or RESET).
+  * @brief  检查指定的 SPI/I2S 标志是否置位。
+  * @param  SPIx: x 可取
+  *   - SPI 模式下为 1、2 或 3
+  *   - I2S 模式下为 2 或 3
+  * @param  SPI_I2S_FLAG: 指定要检查的 SPI/I2S 标志。
+  *   该参数可取以下值之一：
+  *     @arg SPI_I2S_FLAG_TXE: 发送缓冲区空标志。
+  *     @arg SPI_I2S_FLAG_RXNE: 接收缓冲区非空标志。
+  *     @arg SPI_I2S_FLAG_BSY: 忙标志。
+  *     @arg SPI_I2S_FLAG_OVR: 上溢标志。
+  *     @arg SPI_FLAG_MODF: 模式错误标志。
+  *     @arg SPI_FLAG_CRCERR: CRC 错误标志。
+  *     @arg I2S_FLAG_UDR: 下溢错误标志。
+  *     @arg I2S_FLAG_CHSIDE: 通道侧标志。
+  * @retval SPI_I2S_FLAG 的新状态（SET 或 RESET）。
   */
 FlagStatus SPI_I2S_GetFlagStatus(SPI_TypeDef* SPIx, uint16_t SPI_I2S_FLAG)
 {
   FlagStatus bitstatus = RESET;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_SPI_I2S_GET_FLAG(SPI_I2S_FLAG));
-  /* Check the status of the specified SPI/I2S flag */
+  /* 检查指定 SPI/I2S 标志的状态 */
   if ((SPIx->SR & SPI_I2S_FLAG) != (uint16_t)RESET)
   {
-    /* SPI_I2S_FLAG is set */
+    /* SPI_I2S_FLAG 已置位 */
     bitstatus = SET;
   }
   else
   {
-    /* SPI_I2S_FLAG is reset */
+    /* SPI_I2S_FLAG 已清零 */
     bitstatus = RESET;
   }
-  /* Return the SPI_I2S_FLAG status */
+  /* 返回 SPI_I2S_FLAG 的状态 */
   return  bitstatus;
 }
 
 /**
-  * @brief  Clears the SPIx CRC Error (CRCERR) flag.
-  * @param  SPIx: where x can be
-  *   - 1, 2 or 3 in SPI mode 
-  * @param  SPI_I2S_FLAG: specifies the SPI flag to clear. 
-  *   This function clears only CRCERR flag.
+  * @brief  清零 SPIx 的 CRC 错误（CRCERR）标志。
+  * @param  SPIx: x 可取
+  *   - SPI 模式下为 1、2 或 3
+  * @param  SPI_I2S_FLAG: 指定要清零的 SPI 标志。
+  *   本函数仅清零 CRCERR 标志。
   * @note
-  *   - OVR (OverRun error) flag is cleared by software sequence: a read 
-  *     operation to SPI_DR register (SPI_I2S_ReceiveData()) followed by a read 
-  *     operation to SPI_SR register (SPI_I2S_GetFlagStatus()).
-  *   - UDR (UnderRun error) flag is cleared by a read operation to 
-  *     SPI_SR register (SPI_I2S_GetFlagStatus()).
-  *   - MODF (Mode Fault) flag is cleared by software sequence: a read/write 
-  *     operation to SPI_SR register (SPI_I2S_GetFlagStatus()) followed by a 
-  *     write operation to SPI_CR1 register (SPI_Cmd() to enable the SPI).
+  *   - OVR（上溢错误）标志通过软件序列清零：先对 SPI_DR 寄存器执行读
+  *     操作（SPI_I2S_ReceiveData()），再对 SPI_SR 寄存器执行读操作
+  *     （SPI_I2S_GetFlagStatus()）。
+  *   - UDR（下溢错误）标志通过对 SPI_SR 寄存器执行读操作
+  *     （SPI_I2S_GetFlagStatus()）清零。
+  *   - MODF（模式错误）标志通过软件序列清零：先对 SPI_SR 寄存器执行
+  *     读/写操作（SPI_I2S_GetFlagStatus()），再对 SPI_CR1 寄存器执行
+  *     写操作（SPI_Cmd() 使能 SPI）。
   * @retval None
   */
 void SPI_I2S_ClearFlag(SPI_TypeDef* SPIx, uint16_t SPI_I2S_FLAG)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_SPI_I2S_CLEAR_FLAG(SPI_I2S_FLAG));
     
-    /* Clear the selected SPI CRC Error (CRCERR) flag */
+    /* 清零选定的 SPI CRC 错误（CRCERR）标志 */
     SPIx->SR = (uint16_t)~SPI_I2S_FLAG;
 }
 
 /**
-  * @brief  Checks whether the specified SPI/I2S interrupt has occurred or not.
-  * @param  SPIx: where x can be
-  *   - 1, 2 or 3 in SPI mode 
-  *   - 2 or 3 in I2S mode
-  * @param  SPI_I2S_IT: specifies the SPI/I2S interrupt source to check. 
-  *   This parameter can be one of the following values:
-  *     @arg SPI_I2S_IT_TXE: Transmit buffer empty interrupt.
-  *     @arg SPI_I2S_IT_RXNE: Receive buffer not empty interrupt.
-  *     @arg SPI_I2S_IT_OVR: Overrun interrupt.
-  *     @arg SPI_IT_MODF: Mode Fault interrupt.
-  *     @arg SPI_IT_CRCERR: CRC Error interrupt.
-  *     @arg I2S_IT_UDR: Underrun Error interrupt.
-  * @retval The new state of SPI_I2S_IT (SET or RESET).
+  * @brief  检查指定的 SPI/I2S 中断是否发生。
+  * @param  SPIx: x 可取
+  *   - SPI 模式下为 1、2 或 3
+  *   - I2S 模式下为 2 或 3
+  * @param  SPI_I2S_IT: 指定要检查的 SPI/I2S 中断源。
+  *   该参数可取以下值之一：
+  *     @arg SPI_I2S_IT_TXE: 发送缓冲区空中断。
+  *     @arg SPI_I2S_IT_RXNE: 接收缓冲区非空中断。
+  *     @arg SPI_I2S_IT_OVR: 上溢中断。
+  *     @arg SPI_IT_MODF: 模式错误中断。
+  *     @arg SPI_IT_CRCERR: CRC 错误中断。
+  *     @arg I2S_IT_UDR: 下溢错误中断。
+  * @retval SPI_I2S_IT 的新状态（SET 或 RESET）。
   */
 ITStatus SPI_I2S_GetITStatus(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT)
 {
   ITStatus bitstatus = RESET;
   uint16_t itpos = 0, itmask = 0, enablestatus = 0;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_SPI_I2S_GET_IT(SPI_I2S_IT));
 
-  /* Get the SPI/I2S IT index */
+  /* 获取 SPI/I2S 中断索引 */
   itpos = 0x01 << (SPI_I2S_IT & 0x0F);
 
-  /* Get the SPI/I2S IT mask */
+  /* 获取 SPI/I2S 中断掩码 */
   itmask = SPI_I2S_IT >> 4;
 
-  /* Set the IT mask */
+  /* 设置中断掩码 */
   itmask = 0x01 << itmask;
 
-  /* Get the SPI_I2S_IT enable bit status */
+  /* 获取 SPI_I2S_IT 使能位的状态 */
   enablestatus = (SPIx->CR2 & itmask) ;
 
-  /* Check the status of the specified SPI/I2S interrupt */
+  /* 检查指定 SPI/I2S 中断的状态 */
   if (((SPIx->SR & itpos) != (uint16_t)RESET) && enablestatus)
   {
-    /* SPI_I2S_IT is set */
+    /* SPI_I2S_IT 已置位 */
     bitstatus = SET;
   }
   else
   {
-    /* SPI_I2S_IT is reset */
+    /* SPI_I2S_IT 已清零 */
     bitstatus = RESET;
   }
-  /* Return the SPI_I2S_IT status */
+  /* 返回 SPI_I2S_IT 的状态 */
   return bitstatus;
 }
 
 /**
-  * @brief  Clears the SPIx CRC Error (CRCERR) interrupt pending bit.
-  * @param  SPIx: where x can be
-  *   - 1, 2 or 3 in SPI mode 
-  * @param  SPI_I2S_IT: specifies the SPI interrupt pending bit to clear.
-  *   This function clears only CRCERR interrupt pending bit.   
+  * @brief  清零 SPIx 的 CRC 错误（CRCERR）中断挂起位。
+  * @param  SPIx: x 可取
+  *   - SPI 模式下为 1、2 或 3
+  * @param  SPI_I2S_IT: 指定要清零的 SPI 中断挂起位。
+  *   本函数仅清零 CRCERR 中断挂起位。
   * @note
-  *   - OVR (OverRun Error) interrupt pending bit is cleared by software 
-  *     sequence: a read operation to SPI_DR register (SPI_I2S_ReceiveData()) 
-  *     followed by a read operation to SPI_SR register (SPI_I2S_GetITStatus()).
-  *   - UDR (UnderRun Error) interrupt pending bit is cleared by a read 
-  *     operation to SPI_SR register (SPI_I2S_GetITStatus()).
-  *   - MODF (Mode Fault) interrupt pending bit is cleared by software sequence:
-  *     a read/write operation to SPI_SR register (SPI_I2S_GetITStatus()) 
-  *     followed by a write operation to SPI_CR1 register (SPI_Cmd() to enable 
-  *     the SPI).
+  *   - OVR（上溢错误）中断挂起位通过软件序列清零：先对 SPI_DR 寄存器
+  *     执行读操作（SPI_I2S_ReceiveData()），再对 SPI_SR 寄存器执行读操作
+  *     （SPI_I2S_GetITStatus()）。
+  *   - UDR（下溢错误）中断挂起位通过对 SPI_SR 寄存器执行读操作
+  *     （SPI_I2S_GetITStatus()）清零。
+  *   - MODF（模式错误）中断挂起位通过软件序列清零：先对 SPI_SR 寄存器
+  *     执行读/写操作（SPI_I2S_GetITStatus()），再对 SPI_CR1 寄存器执行
+  *     写操作（SPI_Cmd() 使能 SPI）。
   * @retval None
   */
 void SPI_I2S_ClearITPendingBit(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT)
 {
   uint16_t itpos = 0;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
   assert_param(IS_SPI_I2S_CLEAR_IT(SPI_I2S_IT));
 
-  /* Get the SPI IT index */
+  /* 获取 SPI 中断索引 */
   itpos = 0x01 << (SPI_I2S_IT & 0x0F);
 
-  /* Clear the selected SPI CRC Error (CRCERR) interrupt pending bit */
+  /* 清零选定的 SPI CRC 错误（CRCERR）中断挂起位 */
   SPIx->SR = (uint16_t)~itpos;
 }
 /**
@@ -905,4 +900,4 @@ void SPI_I2S_ClearITPendingBit(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT)
   * @}
   */ 
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

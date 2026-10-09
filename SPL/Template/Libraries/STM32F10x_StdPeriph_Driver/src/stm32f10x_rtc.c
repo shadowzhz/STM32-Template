@@ -4,59 +4,49 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file provides all the RTC firmware functions.
+  * @brief   本文件提供 RTC 的所有固件函数。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指导之用，旨在为客户提供有关其产品的编码信息，以节省他们的时间。
+  * 因此，对于因本固件的内容和/或客户将此处包含的编码信息
+  * 与其产品结合使用而提出的任何索赔所造成的任何直接、间接或后果性损害，
+  * STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x_rtc.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @defgroup RTC 
-  * @brief RTC driver modules
+/** @defgroup RTC
+  * @brief RTC 驱动模块
   * @{
   */
 
-/** @defgroup RTC_Private_TypesDefinitions
+/** @defgroup RTC_Private_TypesDefinitions   RTC 私有类型定义
   * @{
   */ 
 /**
   * @}
   */
 
-/** @defgroup RTC_Private_Defines
+/** @defgroup RTC_Private_Defines   RTC 私有宏定义
   * @{
   */
-#define RTC_LSB_MASK     ((uint32_t)0x0000FFFF)  /*!< RTC LSB Mask */
-#define PRLH_MSB_MASK    ((uint32_t)0x000F0000)  /*!< RTC Prescaler MSB Mask */
+#define RTC_LSB_MASK     ((uint32_t)0x0000FFFF)  /*!< RTC LSB 掩码 */
+#define PRLH_MSB_MASK    ((uint32_t)0x000F0000)  /*!< RTC 预分频器 MSB 掩码 */
 
 /**
   * @}
   */
 
-/** @defgroup RTC_Private_Macros
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @defgroup RTC_Private_Variables
+/** @defgroup RTC_Private_Macros   RTC 私有宏
   * @{
   */
 
@@ -64,7 +54,7 @@
   * @}
   */
 
-/** @defgroup RTC_Private_FunctionPrototypes
+/** @defgroup RTC_Private_Variables   RTC 私有变量
   * @{
   */
 
@@ -72,24 +62,32 @@
   * @}
   */
 
-/** @defgroup RTC_Private_Functions
+/** @defgroup RTC_Private_FunctionPrototypes   RTC 私有函数原型
   * @{
   */
 
 /**
-  * @brief  Enables or disables the specified RTC interrupts.
-  * @param  RTC_IT: specifies the RTC interrupts sources to be enabled or disabled.
-  *   This parameter can be any combination of the following values:
-  *     @arg RTC_IT_OW: Overflow interrupt
-  *     @arg RTC_IT_ALR: Alarm interrupt
-  *     @arg RTC_IT_SEC: Second interrupt
-  * @param  NewState: new state of the specified RTC interrupts.
-  *   This parameter can be: ENABLE or DISABLE.
-  * @retval None
+  * @}
+  */
+
+/** @defgroup RTC_Private_Functions   RTC 私有函数
+  * @{
+  */
+
+/**
+  * @brief  使能或关闭指定的 RTC 中断。
+  * @param  RTC_IT: 指定要使能或关闭的 RTC 中断源。
+  *   该参数可取以下值的任意组合：
+  *     @arg RTC_IT_OW: 溢出中断
+  *     @arg RTC_IT_ALR: 闹钟中断
+  *     @arg RTC_IT_SEC: 秒中断
+  * @param  NewState: 指定 RTC 中断的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
+  * @retval 无
   */
 void RTC_ITConfig(uint16_t RTC_IT, FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_RTC_IT(RTC_IT));  
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   
@@ -104,31 +102,31 @@ void RTC_ITConfig(uint16_t RTC_IT, FunctionalState NewState)
 }
 
 /**
-  * @brief  Enters the RTC configuration mode.
+  * @brief  进入 RTC 配置模式。
   * @param  None
-  * @retval None
+  * @retval 无
   */
 void RTC_EnterConfigMode(void)
 {
-  /* Set the CNF flag to enter in the Configuration Mode */
+  /* 设置 CNF 标志以进入配置模式 */
   RTC->CRL |= RTC_CRL_CNF;
 }
 
 /**
-  * @brief  Exits from the RTC configuration mode.
+  * @brief  退出 RTC 配置模式。
   * @param  None
-  * @retval None
+  * @retval 无
   */
 void RTC_ExitConfigMode(void)
 {
-  /* Reset the CNF flag to exit from the Configuration Mode */
+  /* 复位 CNF 标志以退出配置模式 */
   RTC->CRL &= (uint16_t)~((uint16_t)RTC_CRL_CNF); 
 }
 
 /**
-  * @brief  Gets the RTC counter value.
+  * @brief  获取 RTC 计数器值。
   * @param  None
-  * @retval RTC counter value.
+  * @retval RTC 计数器值。
   */
 uint32_t RTC_GetCounter(void)
 {
@@ -138,57 +136,57 @@ uint32_t RTC_GetCounter(void)
 }
 
 /**
-  * @brief  Sets the RTC counter value.
-  * @param  CounterValue: RTC counter new value.
-  * @retval None
+  * @brief  设置 RTC 计数器值。
+  * @param  CounterValue: RTC 计数器新值。
+  * @retval 无
   */
 void RTC_SetCounter(uint32_t CounterValue)
 { 
   RTC_EnterConfigMode();
-  /* Set RTC COUNTER MSB word */
+  /* 设置 RTC 计数器 MSB 字 */
   RTC->CNTH = CounterValue >> 16;
-  /* Set RTC COUNTER LSB word */
+  /* 设置 RTC 计数器 LSB 字 */
   RTC->CNTL = (CounterValue & RTC_LSB_MASK);
   RTC_ExitConfigMode();
 }
 
 /**
-  * @brief  Sets the RTC prescaler value.
-  * @param  PrescalerValue: RTC prescaler new value.
-  * @retval None
+  * @brief  设置 RTC 预分频器值。
+  * @param  PrescalerValue: RTC 预分频器新值。
+  * @retval 无
   */
 void RTC_SetPrescaler(uint32_t PrescalerValue)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_RTC_PRESCALER(PrescalerValue));
   
   RTC_EnterConfigMode();
-  /* Set RTC PRESCALER MSB word */
+  /* 设置 RTC 预分频器 MSB 字 */
   RTC->PRLH = (PrescalerValue & PRLH_MSB_MASK) >> 16;
-  /* Set RTC PRESCALER LSB word */
+  /* 设置 RTC 预分频器 LSB 字 */
   RTC->PRLL = (PrescalerValue & RTC_LSB_MASK);
   RTC_ExitConfigMode();
 }
 
 /**
-  * @brief  Sets the RTC alarm value.
-  * @param  AlarmValue: RTC alarm new value.
-  * @retval None
+  * @brief  设置 RTC 闹钟值。
+  * @param  AlarmValue: RTC 闹钟新值。
+  * @retval 无
   */
 void RTC_SetAlarm(uint32_t AlarmValue)
 {  
   RTC_EnterConfigMode();
-  /* Set the ALARM MSB word */
+  /* 设置 ALARM MSB 字 */
   RTC->ALRH = AlarmValue >> 16;
-  /* Set the ALARM LSB word */
+  /* 设置 ALARM LSB 字 */
   RTC->ALRL = (AlarmValue & RTC_LSB_MASK);
   RTC_ExitConfigMode();
 }
 
 /**
-  * @brief  Gets the RTC divider value.
+  * @brief  获取 RTC 分频器值。
   * @param  None
-  * @retval RTC Divider value.
+  * @retval RTC 分频器值。
   */
 uint32_t RTC_GetDivider(void)
 {
@@ -199,53 +197,53 @@ uint32_t RTC_GetDivider(void)
 }
 
 /**
-  * @brief  Waits until last write operation on RTC registers has finished.
-  * @note   This function must be called before any write to RTC registers.
+  * @brief  等待对 RTC 寄存器的上一次写操作完成。
+  * @note   在对 RTC 寄存器进行任何写操作之前都必须调用本函数。
   * @param  None
-  * @retval None
+  * @retval 无
   */
 void RTC_WaitForLastTask(void)
 {
-  /* Loop until RTOFF flag is set */
+  /* 循环等待直到 RTOFF 标志置位 */
   while ((RTC->CRL & RTC_FLAG_RTOFF) == (uint16_t)RESET)
   {
   }
 }
 
 /**
-  * @brief  Waits until the RTC registers (RTC_CNT, RTC_ALR and RTC_PRL)
-  *   are synchronized with RTC APB clock.
-  * @note   This function must be called before any read operation after an APB reset
-  *   or an APB clock stop.
+  * @brief  等待 RTC 寄存器（RTC_CNT、RTC_ALR 和 RTC_PRL）
+  *   与 RTC APB 时钟同步。
+  * @note   在 APB 复位或 APB 时钟停止之后，进行任何读操作之前都必须
+  *   调用本函数。
   * @param  None
-  * @retval None
+  * @retval 无
   */
 void RTC_WaitForSynchro(void)
 {
-  /* Clear RSF flag */
+  /* 清除 RSF 标志 */
   RTC->CRL &= (uint16_t)~RTC_FLAG_RSF;
-  /* Loop until RSF flag is set */
+  /* 循环等待直到 RSF 标志置位 */
   while ((RTC->CRL & RTC_FLAG_RSF) == (uint16_t)RESET)
   {
   }
 }
 
 /**
-  * @brief  Checks whether the specified RTC flag is set or not.
-  * @param  RTC_FLAG: specifies the flag to check.
-  *   This parameter can be one the following values:
-  *     @arg RTC_FLAG_RTOFF: RTC Operation OFF flag
-  *     @arg RTC_FLAG_RSF: Registers Synchronized flag
-  *     @arg RTC_FLAG_OW: Overflow flag
-  *     @arg RTC_FLAG_ALR: Alarm flag
-  *     @arg RTC_FLAG_SEC: Second flag
-  * @retval The new state of RTC_FLAG (SET or RESET).
+  * @brief  检查指定的 RTC 标志是否置位。
+  * @param  RTC_FLAG: 指定要检查的标志。
+  *   该参数可取以下值之一：
+  *     @arg RTC_FLAG_RTOFF: RTC 操作关闭标志
+  *     @arg RTC_FLAG_RSF: 寄存器同步标志
+  *     @arg RTC_FLAG_OW: 溢出标志
+  *     @arg RTC_FLAG_ALR: 闹钟标志
+  *     @arg RTC_FLAG_SEC: 秒标志
+  * @retval RTC_FLAG 的新状态（SET 或 RESET）。
   */
 FlagStatus RTC_GetFlagStatus(uint16_t RTC_FLAG)
 {
   FlagStatus bitstatus = RESET;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_RTC_GET_FLAG(RTC_FLAG)); 
   
   if ((RTC->CRL & RTC_FLAG) != (uint16_t)RESET)
@@ -260,38 +258,38 @@ FlagStatus RTC_GetFlagStatus(uint16_t RTC_FLAG)
 }
 
 /**
-  * @brief  Clears the RTC's pending flags.
-  * @param  RTC_FLAG: specifies the flag to clear.
-  *   This parameter can be any combination of the following values:
-  *     @arg RTC_FLAG_RSF: Registers Synchronized flag. This flag is cleared only after
-  *                        an APB reset or an APB Clock stop.
-  *     @arg RTC_FLAG_OW: Overflow flag
-  *     @arg RTC_FLAG_ALR: Alarm flag
-  *     @arg RTC_FLAG_SEC: Second flag
-  * @retval None
+  * @brief  清除 RTC 的挂起标志。
+  * @param  RTC_FLAG: 指定要清除的标志。
+  *   该参数可取以下值的任意组合：
+  *     @arg RTC_FLAG_RSF: 寄存器同步标志。该标志仅在 APB 复位或
+  *                        APB 时钟停止后才会被清除。
+  *     @arg RTC_FLAG_OW: 溢出标志
+  *     @arg RTC_FLAG_ALR: 闹钟标志
+  *     @arg RTC_FLAG_SEC: 秒标志
+  * @retval 无
   */
 void RTC_ClearFlag(uint16_t RTC_FLAG)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_RTC_CLEAR_FLAG(RTC_FLAG)); 
     
-  /* Clear the corresponding RTC flag */
+  /* 清除相应的 RTC 标志 */
   RTC->CRL &= (uint16_t)~RTC_FLAG;
 }
 
 /**
-  * @brief  Checks whether the specified RTC interrupt has occurred or not.
-  * @param  RTC_IT: specifies the RTC interrupts sources to check.
-  *   This parameter can be one of the following values:
-  *     @arg RTC_IT_OW: Overflow interrupt
-  *     @arg RTC_IT_ALR: Alarm interrupt
-  *     @arg RTC_IT_SEC: Second interrupt
-  * @retval The new state of the RTC_IT (SET or RESET).
+  * @brief  检查指定的 RTC 中断是否发生。
+  * @param  RTC_IT: 指定要检查的 RTC 中断源。
+  *   该参数可取以下值之一：
+  *     @arg RTC_IT_OW: 溢出中断
+  *     @arg RTC_IT_ALR: 闹钟中断
+  *     @arg RTC_IT_SEC: 秒中断
+  * @retval RTC_IT 的新状态（SET 或 RESET）。
   */
 ITStatus RTC_GetITStatus(uint16_t RTC_IT)
 {
   ITStatus bitstatus = RESET;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_RTC_GET_IT(RTC_IT)); 
   
   bitstatus = (ITStatus)(RTC->CRL & RTC_IT);
@@ -307,20 +305,20 @@ ITStatus RTC_GetITStatus(uint16_t RTC_IT)
 }
 
 /**
-  * @brief  Clears the RTC's interrupt pending bits.
-  * @param  RTC_IT: specifies the interrupt pending bit to clear.
-  *   This parameter can be any combination of the following values:
-  *     @arg RTC_IT_OW: Overflow interrupt
-  *     @arg RTC_IT_ALR: Alarm interrupt
-  *     @arg RTC_IT_SEC: Second interrupt
-  * @retval None
+  * @brief  清除 RTC 的中断挂起位。
+  * @param  RTC_IT: 指定要清除的中断挂起位。
+  *   该参数可取以下值的任意组合：
+  *     @arg RTC_IT_OW: 溢出中断
+  *     @arg RTC_IT_ALR: 闹钟中断
+  *     @arg RTC_IT_SEC: 秒中断
+  * @retval 无
   */
 void RTC_ClearITPendingBit(uint16_t RTC_IT)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_RTC_IT(RTC_IT));  
   
-  /* Clear the corresponding RTC pending bit */
+  /* 清除相应的 RTC 挂起位 */
   RTC->CRL &= (uint16_t)~RTC_IT;
 }
 
@@ -336,4 +334,4 @@ void RTC_ClearITPendingBit(uint16_t RTC_IT)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

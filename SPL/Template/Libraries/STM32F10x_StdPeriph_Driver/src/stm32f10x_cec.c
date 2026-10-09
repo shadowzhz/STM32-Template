@@ -4,35 +4,32 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file provides all the CEC firmware functions.
+  * @brief   本文件提供全部 CEC 固件函数。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供参考，其目的在于为客户提供有关其产品的编码信息，以帮助客户节省时间。
+  * 因此，对于因本固件的内容和/或客户将其中所含编码信息用于其产品而产生的任何索赔
+  * 所造成的任何直接、间接或后果性损害，STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x_cec.h"
 #include "stm32f10x_rcc.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @defgroup CEC 
-  * @brief CEC driver modules
+/** @defgroup CEC   CEC 消费电子控制
+  * @brief CEC 驱动模块
   * @{
   */
 
-/** @defgroup CEC_Private_TypesDefinitions
+/** @defgroup CEC_Private_TypesDefinitions   CEC 私有类型定义
   * @{
   */
 
@@ -41,44 +38,44 @@
   */
 
 
-/** @defgroup CEC_Private_Defines
+/** @defgroup CEC_Private_Defines   CEC 私有宏定义
   * @{
   */ 
 
-/* ------------ CEC registers bit address in the alias region ----------- */
+/* ------------ 别名区中 CEC 寄存器的位地址 ----------- */
 #define CEC_OFFSET                (CEC_BASE - PERIPH_BASE)
 
-/* --- CFGR Register ---*/
+/* --- CFGR 寄存器 ---*/
 
-/* Alias word address of PE bit */
+/* PE 位的别名区字地址 */
 #define CFGR_OFFSET                 (CEC_OFFSET + 0x00)
 #define PE_BitNumber                0x00
 #define CFGR_PE_BB                  (PERIPH_BB_BASE + (CFGR_OFFSET * 32) + (PE_BitNumber * 4))
 
-/* Alias word address of IE bit */
+/* IE 位的别名区字地址 */
 #define IE_BitNumber                0x01
 #define CFGR_IE_BB                  (PERIPH_BB_BASE + (CFGR_OFFSET * 32) + (IE_BitNumber * 4))
 
-/* --- CSR Register ---*/
+/* --- CSR 寄存器 ---*/
 
-/* Alias word address of TSOM bit */
+/* TSOM 位的别名区字地址 */
 #define CSR_OFFSET                  (CEC_OFFSET + 0x10)
 #define TSOM_BitNumber              0x00
 #define CSR_TSOM_BB                 (PERIPH_BB_BASE + (CSR_OFFSET * 32) + (TSOM_BitNumber * 4))
 
-/* Alias word address of TEOM bit */
+/* TEOM 位的别名区字地址 */
 #define TEOM_BitNumber              0x01
 #define CSR_TEOM_BB                 (PERIPH_BB_BASE + (CSR_OFFSET * 32) + (TEOM_BitNumber * 4))
   
-#define CFGR_CLEAR_Mask            (uint8_t)(0xF3)        /* CFGR register Mask */
-#define FLAG_Mask                  ((uint32_t)0x00FFFFFF) /* CEC FLAG mask */
+#define CFGR_CLEAR_Mask            (uint8_t)(0xF3)        /* CFGR 寄存器掩码 */
+#define FLAG_Mask                  ((uint32_t)0x00FFFFFF) /* CEC 标志掩码 */
  
 /**
   * @}
   */ 
 
 
-/** @defgroup CEC_Private_Macros
+/** @defgroup CEC_Private_Macros   CEC 私有宏
   * @{
   */ 
 
@@ -87,7 +84,7 @@
   */ 
 
 
-/** @defgroup CEC_Private_Variables
+/** @defgroup CEC_Private_Variables   CEC 私有变量
   * @{
   */ 
 
@@ -96,7 +93,7 @@
   */ 
 
 
-/** @defgroup CEC_Private_FunctionPrototypes
+/** @defgroup CEC_Private_FunctionPrototypes   CEC 私有函数原型
   * @{
   */
  
@@ -105,72 +102,69 @@
   */ 
 
 
-/** @defgroup CEC_Private_Functions
+/** @defgroup CEC_Private_Functions   CEC 私有函数
   * @{
   */ 
 
 /**
-  * @brief  Deinitializes the CEC peripheral registers to their default reset 
-  *         values.
-  * @param  None
-  * @retval None
+  * @brief  将 CEC 外设寄存器反初始化，恢复为默认复位值。
+  * @param  无
+  * @retval 无
   */
 void CEC_DeInit(void)
 {
-  /* Enable CEC reset state */
+  /* 使 CEC 进入复位状态 */
   RCC_APB1PeriphResetCmd(RCC_APB1Periph_CEC, ENABLE);  
-  /* Release CEC from reset state */
+  /* 将 CEC 从复位状态释放 */
   RCC_APB1PeriphResetCmd(RCC_APB1Periph_CEC, DISABLE); 
 }
 
 
 /**
-  * @brief  Initializes the CEC peripheral according to the specified 
-  *         parameters in the CEC_InitStruct.
-  * @param  CEC_InitStruct: pointer to an CEC_InitTypeDef structure that
-  *         contains the configuration information for the specified
-  *         CEC peripheral.
-  * @retval None
+  * @brief  根据 CEC_InitStruct 中指定的参数初始化 CEC 外设。
+  * @param  CEC_InitStruct: 指向 CEC_InitTypeDef 结构体的指针，
+  *         该结构体包含指定 CEC 外设的配置信息。
+  * @retval 无
   */
 void CEC_Init(CEC_InitTypeDef* CEC_InitStruct)
 {
   uint16_t tmpreg = 0;
  
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CEC_BIT_TIMING_ERROR_MODE(CEC_InitStruct->CEC_BitTimingMode)); 
   assert_param(IS_CEC_BIT_PERIOD_ERROR_MODE(CEC_InitStruct->CEC_BitPeriodMode));
      
-  /*---------------------------- CEC CFGR Configuration -----------------*/
-  /* Get the CEC CFGR value */
+  /*---------------------------- 配置 CEC 的 CFGR 寄存器 -----------------*/
+  /* 读取 CEC 的 CFGR 寄存器值 */
   tmpreg = CEC->CFGR;
   
-  /* Clear BTEM and BPEM bits */
+  /* 清除 BTEM 与 BPEM 位 */
   tmpreg &= CFGR_CLEAR_Mask;
   
-  /* Configure CEC: Bit Timing Error and Bit Period Error */
+  /* 配置 CEC：位时序错误与位周期错误 */
   tmpreg |= (uint16_t)(CEC_InitStruct->CEC_BitTimingMode | CEC_InitStruct->CEC_BitPeriodMode);
 
-  /* Write to CEC CFGR  register*/
+  /* 写入 CEC 的 CFGR 寄存器 */
   CEC->CFGR = tmpreg;
   
 }
 
 /**
-  * @brief  Enables or disables the specified CEC peripheral.
-  * @param  NewState: new state of the CEC peripheral. 
-  *     This parameter can be: ENABLE or DISABLE.
-  * @retval None
+  * @brief  使能或关闭指定的 CEC 外设。
+  * @param  NewState: CEC 外设的新状态。
+  *     该参数可取：ENABLE 或 DISABLE。
+  * @retval 无
   */
 void CEC_Cmd(FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FUNCTIONAL_STATE(NewState));
 
   *(__IO uint32_t *) CFGR_PE_BB = (uint32_t)NewState;
 
   if(NewState == DISABLE)
   {
-    /* Wait until the PE bit is cleared by hardware (Idle Line detected) */
+    /* 等待硬件清除 PE 位（检测到空闲线路） */
     while((CEC->CFGR & CEC_CFGR_PE) != (uint32_t)RESET)
     {
     }  
@@ -178,243 +172,243 @@ void CEC_Cmd(FunctionalState NewState)
 }
 
 /**
-  * @brief  Enables or disables the CEC interrupt.
-  * @param  NewState: new state of the CEC interrupt.
-  *   This parameter can be: ENABLE or DISABLE.
-  * @retval None
+  * @brief  使能或关闭 CEC 中断。
+  * @param  NewState: CEC 中断的新状态。
+  *   该参数可取：ENABLE 或 DISABLE。
+  * @retval 无
   */
 void CEC_ITConfig(FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FUNCTIONAL_STATE(NewState));
 
   *(__IO uint32_t *) CFGR_IE_BB = (uint32_t)NewState;
 }
 
 /**
-  * @brief  Defines the Own Address of the CEC device.
-  * @param  CEC_OwnAddress: The CEC own address
-  * @retval None
+  * @brief  定义 CEC 设备的自身地址。
+  * @param  CEC_OwnAddress: CEC 自身地址
+  * @retval 无
   */
 void CEC_OwnAddressConfig(uint8_t CEC_OwnAddress)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CEC_ADDRESS(CEC_OwnAddress));
 
-  /* Set the CEC own address */
+  /* 设置 CEC 自身地址 */
   CEC->OAR = CEC_OwnAddress;
 }
 
 /**
-  * @brief  Sets the CEC prescaler value.
-  * @param  CEC_Prescaler: CEC prescaler new value
-  * @retval None
+  * @brief  设置 CEC 预分频值。
+  * @param  CEC_Prescaler: CEC 预分频器的新值
+  * @retval 无
   */
 void CEC_SetPrescaler(uint16_t CEC_Prescaler)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CEC_PRESCALER(CEC_Prescaler));
 
-  /* Set the  Prescaler value*/
+  /* 设置预分频值 */
   CEC->PRES = CEC_Prescaler;
 }
 
 /**
-  * @brief  Transmits single data through the CEC peripheral.
-  * @param  Data: the data to transmit.
-  * @retval None
+  * @brief  通过 CEC 外设发送单个数据。
+  * @param  Data: 待发送的数据。
+  * @retval 无
   */
 void CEC_SendDataByte(uint8_t Data)
 {  
-  /* Transmit Data */
+  /* 发送数据 */
   CEC->TXD = Data ;
 }
 
 
 /**
-  * @brief  Returns the most recent received data by the CEC peripheral.
-  * @param  None
-  * @retval The received data.
+  * @brief  返回 CEC 外设最近一次接收到的数据。
+  * @param  无
+  * @retval 接收到的数据。
   */
 uint8_t CEC_ReceiveDataByte(void)
 {
-  /* Receive Data */
+  /* 接收数据 */
   return (uint8_t)(CEC->RXD);
 }
 
 /**
-  * @brief  Starts a new message.
-  * @param  None
-  * @retval None
+  * @brief  开始一条新报文。
+  * @param  无
+  * @retval 无
   */
 void CEC_StartOfMessage(void)
 {  
-  /* Starts of new message */
+  /* 开始新报文 */
   *(__IO uint32_t *) CSR_TSOM_BB = (uint32_t)0x1;
 }
 
 /**
-  * @brief  Transmits message with or without an EOM bit.
-  * @param  NewState: new state of the CEC Tx End Of Message. 
-  *     This parameter can be: ENABLE or DISABLE.
-  * @retval None
+  * @brief  发送带或不带 EOM 位的报文。
+  * @param  NewState: CEC 发送消息结束（EOM）的新状态。
+  *     该参数可取：ENABLE 或 DISABLE。
+  * @retval 无
   */
 void CEC_EndOfMessageCmd(FunctionalState NewState)
 {   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   
-  /* The data byte will be transmitted with or without an EOM bit*/
+  /* 该数据字节将带或不带 EOM 位发送 */
   *(__IO uint32_t *) CSR_TEOM_BB = (uint32_t)NewState;
 }
 
 /**
-  * @brief  Gets the CEC flag status
-  * @param  CEC_FLAG: specifies the CEC flag to check. 
-  *   This parameter can be one of the following values:
-  *     @arg CEC_FLAG_BTE: Bit Timing Error
-  *     @arg CEC_FLAG_BPE: Bit Period Error
-  *     @arg CEC_FLAG_RBTFE: Rx Block Transfer Finished Error
-  *     @arg CEC_FLAG_SBE: Start Bit Error
-  *     @arg CEC_FLAG_ACKE: Block Acknowledge Error
-  *     @arg CEC_FLAG_LINE: Line Error
-  *     @arg CEC_FLAG_TBTFE: Tx Block Transfer Finished Error
-  *     @arg CEC_FLAG_TEOM: Tx End Of Message 
-  *     @arg CEC_FLAG_TERR: Tx Error
-  *     @arg CEC_FLAG_TBTRF: Tx Byte Transfer Request or Block Transfer Finished
-  *     @arg CEC_FLAG_RSOM: Rx Start Of Message
-  *     @arg CEC_FLAG_REOM: Rx End Of Message
-  *     @arg CEC_FLAG_RERR: Rx Error
-  *     @arg CEC_FLAG_RBTF: Rx Byte/Block Transfer Finished
-  * @retval The new state of CEC_FLAG (SET or RESET)
+  * @brief  获取 CEC 标志状态
+  * @param  CEC_FLAG: 指定要检查的 CEC 标志。
+  *   该参数可取下列值之一：
+  *     @arg CEC_FLAG_BTE: 位时序错误
+  *     @arg CEC_FLAG_BPE: 位周期错误
+  *     @arg CEC_FLAG_RBTFE: 接收块传输结束错误
+  *     @arg CEC_FLAG_SBE: 起始位错误
+  *     @arg CEC_FLAG_ACKE: 块应答错误
+  *     @arg CEC_FLAG_LINE: 线路错误
+  *     @arg CEC_FLAG_TBTFE: 发送块传输结束错误
+  *     @arg CEC_FLAG_TEOM: 发送消息结束
+  *     @arg CEC_FLAG_TERR: 发送错误
+  *     @arg CEC_FLAG_TBTRF: 发送字节传输请求或块传输结束
+  *     @arg CEC_FLAG_RSOM: 接收消息开始
+  *     @arg CEC_FLAG_REOM: 接收消息结束
+  *     @arg CEC_FLAG_RERR: 接收错误
+  *     @arg CEC_FLAG_RBTF: 接收字节/块传输结束
+  * @retval CEC_FLAG 的新状态（SET 或 RESET）
   */
 FlagStatus CEC_GetFlagStatus(uint32_t CEC_FLAG) 
 {
   FlagStatus bitstatus = RESET;
   uint32_t cecreg = 0, cecbase = 0;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CEC_GET_FLAG(CEC_FLAG));
  
-  /* Get the CEC peripheral base address */
+  /* 获取 CEC 外设基址 */
   cecbase = (uint32_t)(CEC_BASE);
   
-  /* Read flag register index */
+  /* 读取标志寄存器索引 */
   cecreg = CEC_FLAG >> 28;
   
-  /* Get bit[23:0] of the flag */
+  /* 获取标志的 bit[23:0] */
   CEC_FLAG &= FLAG_Mask;
   
   if(cecreg != 0)
   {
-    /* Flag in CEC ESR Register */
+    /* 标志位于 CEC 的 ESR 寄存器中 */
     CEC_FLAG = (uint32_t)(CEC_FLAG >> 16);
     
-    /* Get the CEC ESR register address */
+    /* 获取 CEC 的 ESR 寄存器地址 */
     cecbase += 0xC;
   }
   else
   {
-    /* Get the CEC CSR register address */
+    /* 获取 CEC 的 CSR 寄存器地址 */
     cecbase += 0x10;
   }
   
   if(((*(__IO uint32_t *)cecbase) & CEC_FLAG) != (uint32_t)RESET)
   {
-    /* CEC_FLAG is set */
+    /* CEC_FLAG 已置位 */
     bitstatus = SET;
   }
   else
   {
-    /* CEC_FLAG is reset */
+    /* CEC_FLAG 已清零 */
     bitstatus = RESET;
   }
   
-  /* Return the CEC_FLAG status */
+  /* 返回 CEC_FLAG 的状态 */
   return  bitstatus;
 }
 
 /**
-  * @brief  Clears the CEC's pending flags.
-  * @param  CEC_FLAG: specifies the flag to clear. 
-  *   This parameter can be any combination of the following values:
-  *     @arg CEC_FLAG_TERR: Tx Error
-  *     @arg CEC_FLAG_TBTRF: Tx Byte Transfer Request or Block Transfer Finished
-  *     @arg CEC_FLAG_RSOM: Rx Start Of Message
-  *     @arg CEC_FLAG_REOM: Rx End Of Message
-  *     @arg CEC_FLAG_RERR: Rx Error
-  *     @arg CEC_FLAG_RBTF: Rx Byte/Block Transfer Finished
-  * @retval None
+  * @brief  清除 CEC 的待处理标志。
+  * @param  CEC_FLAG: 指定要清除的标志。
+  *   该参数可取下列值的任意组合：
+  *     @arg CEC_FLAG_TERR: 发送错误
+  *     @arg CEC_FLAG_TBTRF: 发送字节传输请求或块传输结束
+  *     @arg CEC_FLAG_RSOM: 接收消息开始
+  *     @arg CEC_FLAG_REOM: 接收消息结束
+  *     @arg CEC_FLAG_RERR: 接收错误
+  *     @arg CEC_FLAG_RBTF: 接收字节/块传输结束
+  * @retval 无
   */
 void CEC_ClearFlag(uint32_t CEC_FLAG)
 { 
   uint32_t tmp = 0x0;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CEC_CLEAR_FLAG(CEC_FLAG));
 
   tmp = CEC->CSR & 0x2;
        
-  /* Clear the selected CEC flags */
+  /* 清除所选的 CEC 标志 */
   CEC->CSR &= (uint32_t)(((~(uint32_t)CEC_FLAG) & 0xFFFFFFFC) | tmp);
 }
 
 /**
-  * @brief  Checks whether the specified CEC interrupt has occurred or not.
-  * @param  CEC_IT: specifies the CEC interrupt source to check. 
-  *   This parameter can be one of the following values:
-  *     @arg CEC_IT_TERR: Tx Error
-  *     @arg CEC_IT_TBTF: Tx Block Transfer Finished
-  *     @arg CEC_IT_RERR: Rx Error
-  *     @arg CEC_IT_RBTF: Rx Block Transfer Finished
-  * @retval The new state of CEC_IT (SET or RESET).
+  * @brief  检查指定的 CEC 中断是否已经发生。
+  * @param  CEC_IT: 指定要检查的 CEC 中断源。
+  *   该参数可取下列值之一：
+  *     @arg CEC_IT_TERR: 发送错误
+  *     @arg CEC_IT_TBTF: 发送块传输结束
+  *     @arg CEC_IT_RERR: 接收错误
+  *     @arg CEC_IT_RBTF: 接收块传输结束
+  * @retval CEC_IT 的新状态（SET 或 RESET）。
   */
 ITStatus CEC_GetITStatus(uint8_t CEC_IT)
 {
   ITStatus bitstatus = RESET;
   uint32_t enablestatus = 0;
   
-  /* Check the parameters */
+  /* 检查参数 */
    assert_param(IS_CEC_GET_IT(CEC_IT));
    
-  /* Get the CEC IT enable bit status */
+  /* 获取 CEC 中断使能位的状态 */
   enablestatus = (CEC->CFGR & (uint8_t)CEC_CFGR_IE) ;
   
-  /* Check the status of the specified CEC interrupt */
+  /* 检查指定 CEC 中断的状态 */
   if (((CEC->CSR & CEC_IT) != (uint32_t)RESET) && enablestatus)
   {
-    /* CEC_IT is set */
+    /* CEC_IT 已置位 */
     bitstatus = SET;
   }
   else
   {
-    /* CEC_IT is reset */
+    /* CEC_IT 已清零 */
     bitstatus = RESET;
   }
-  /* Return the CEC_IT status */
+  /* 返回 CEC_IT 的状态 */
   return  bitstatus;
 }
 
 /**
-  * @brief  Clears the CEC's interrupt pending bits.
-  * @param  CEC_IT: specifies the CEC interrupt pending bit to clear.
-  *   This parameter can be any combination of the following values:
-  *     @arg CEC_IT_TERR: Tx Error
-  *     @arg CEC_IT_TBTF: Tx Block Transfer Finished
-  *     @arg CEC_IT_RERR: Rx Error
-  *     @arg CEC_IT_RBTF: Rx Block Transfer Finished
-  * @retval None
+  * @brief  清除 CEC 的中断待处理位。
+  * @param  CEC_IT: 指定要清除的 CEC 中断待处理位。
+  *   该参数可取下列值的任意组合：
+  *     @arg CEC_IT_TERR: 发送错误
+  *     @arg CEC_IT_TBTF: 发送块传输结束
+  *     @arg CEC_IT_RERR: 接收错误
+  *     @arg CEC_IT_RBTF: 接收块传输结束
+  * @retval 无
   */
 void CEC_ClearITPendingBit(uint16_t CEC_IT)
 {
   uint32_t tmp = 0x0;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CEC_GET_IT(CEC_IT));
   
   tmp = CEC->CSR & 0x2;
   
-  /* Clear the selected CEC interrupt pending bits */
+  /* 清除所选的 CEC 中断待处理位 */
   CEC->CSR &= (uint32_t)(((~(uint32_t)CEC_IT) & 0xFFFFFFFC) | tmp);
 }
 
@@ -430,4 +424,4 @@ void CEC_ClearITPendingBit(uint16_t CEC_IT)
   * @}
   */ 
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

@@ -2,13 +2,12 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_spi.c
   * @author  MCD Application Team
-  * @brief   SPI HAL module driver.
-  *          This file provides firmware functions to manage the following
-  *          functionalities of the Serial Peripheral Interface (SPI) peripheral:
-  *           + Initialization and de-initialization functions
-  *           + IO operation functions
-  *           + Peripheral Control functions
-  *           + Peripheral State functions
+  * @brief   SPI HAL 模块驱动程序。
+  *          本文件提供固件函数以管理串行外设接口 (SPI) 外设的以下功能：
+  *           + 初始化与反初始化函数
+  *           + I/O 操作函数
+  *           + 外设控制函数
+  *           + 外设状态函数
   ******************************************************************************
   * @attention
   *
@@ -22,122 +21,114 @@
   ******************************************************************************
   @verbatim
   ==============================================================================
-                        ##### How to use this driver #####
+                        ##### 如何使用本驱动程序 #####
   ==============================================================================
     [..]
-      The SPI HAL driver can be used as follows:
+      SPI HAL 驱动程序的使用步骤如下：
 
-      (#) Declare a SPI_HandleTypeDef handle structure, for example:
+      (#) 声明一个 SPI_HandleTypeDef 句柄结构体，例如：
           SPI_HandleTypeDef  hspi;
 
-      (#)Initialize the SPI low level resources by implementing the HAL_SPI_MspInit() API:
-          (##) Enable the SPIx interface clock
-          (##) SPI pins configuration
-              (+++) Enable the clock for the SPI GPIOs
-              (+++) Configure these SPI pins as alternate function push-pull
-          (##) NVIC configuration if you need to use interrupt process
-              (+++) Configure the SPIx interrupt priority
-              (+++) Enable the NVIC SPI IRQ handle
-          (##) DMA Configuration if you need to use DMA process
-              (+++) Declare a DMA_HandleTypeDef handle structure for the transmit or receive Stream/Channel
-              (+++) Enable the DMAx clock
-              (+++) Configure the DMA handle parameters
-              (+++) Configure the DMA Tx or Rx Stream/Channel
-              (+++) Associate the initialized hdma_tx(or _rx)  handle to the hspi DMA Tx or Rx handle
-              (+++) Configure the priority and enable the NVIC for the transfer complete interrupt on the DMA Tx
-                    or Rx Stream/Channel
+      (#) 通过实现 HAL_SPI_MspInit() API 初始化 SPI 底层硬件资源：
+          (##) 使能 SPIx 接口时钟
+          (##) SPI 引脚配置
+              (+++) 使能 SPI GPIO 时钟
+              (+++) 将这些 SPI 引脚配置为复用推挽输出
+          (##) 若需使用中断处理，则进行 NVIC 配置
+              (+++) 配置 SPIx 中断优先级
+              (+++) 使能 NVIC SPI 中断处理程序
+          (##) 若需使用 DMA 处理，则进行 DMA 配置
+              (+++) 为发送或接收数据流/通道声明一个 DMA_HandleTypeDef 句柄结构体
+              (+++) 使能 DMAx 时钟
+              (+++) 配置 DMA 句柄参数
+              (+++) 配置 DMA 发送或接收数据流/通道
+              (+++) 将已初始化的 hdma_tx（或 _rx）句柄与 hspi 的 DMA Tx 或 Rx 句柄进行关联
+              (+++) 配置 DMA 发送或接收数据流/通道的传输完成中断优先级，并使能 NVIC 中断
 
-      (#) Program the Mode, BidirectionalMode , Data size, Baudrate Prescaler, NSS
-          management, Clock polarity and phase, FirstBit and CRC configuration in the hspi Init structure.
+      (#) 在 hspi 的 Init 结构体中配置主从模式（Mode）、双向模式（BidirectionalMode）、数据位宽（Data size）、
+          波特率预分频系数（Baudrate Prescaler）、NSS 信号管理、时钟极性和相位（Clock polarity and phase）、
+          高低位优先（FirstBit）以及 CRC 配置。
 
-      (#) Initialize the SPI registers by calling the HAL_SPI_Init() API:
-          (++) This API configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
-              by calling the customized HAL_SPI_MspInit() API.
+      (#) 调用 HAL_SPI_Init() API 初始化 SPI 寄存器：
+          (++) 该 API 还会通过调用用户自定义的 HAL_SPI_MspInit() API
+              来配置底层硬件（GPIO、时钟、CORTEX 等）。
      [..]
-       Circular mode restriction:
-      (#) The DMA circular mode cannot be used when the SPI is configured in these modes:
-          (##) Master 2Lines RxOnly
-          (##) Master 1Line Rx
-      (#) The CRC feature is not managed when the DMA circular mode is enabled
-      (#) When the SPI DMA Pause/Stop features are used, we must use the following APIs
-          the HAL_SPI_DMAPause()/ HAL_SPI_DMAStop() only under the SPI callbacks
+       循环模式限制：
+      (#) 当 SPI 配置为以下模式时，无法使用 DMA 循环模式：
+          (##) 主机双线仅接收（Master 2Lines RxOnly）
+          (##) 主机单线接收（Master 1Line Rx）
+      (#) 当使能 DMA 循环模式时，不支持 CRC 功能
+      (#) 使用 SPI DMA 暂停/停止功能时，必须仅在 SPI 回调函数中
+          调用 HAL_SPI_DMAPause() / HAL_SPI_DMAStop() API
      [..]
-       Master Receive mode restriction:
-      (#) In Master unidirectional receive-only mode (MSTR =1, BIDIMODE=0, RXONLY=1) or
-          bidirectional receive mode (MSTR=1, BIDIMODE=1, BIDIOE=0), to ensure that the SPI
-          does not initiate a new transfer the following procedure has to be respected:
+       主机接收模式限制：
+      (#) 在主机单向仅接收模式（MSTR=1, BIDIMODE=0, RXONLY=1）或
+          双向接收模式（MSTR=1, BIDIMODE=1, BIDIOE=0）下，为确保 SPI
+          不会启动新的传输，必须遵循以下步骤：
           (##) HAL_SPI_DeInit()
           (##) HAL_SPI_Init()
      [..]
-       Callback registration:
+       回调函数注册：
 
-      (#) The compilation flag USE_HAL_SPI_REGISTER_CALLBACKS when set to 1U
-          allows the user to configure dynamically the driver callbacks.
-          Use Functions HAL_SPI_RegisterCallback() to register an interrupt callback.
+      (#) 当编译宏 USE_HAL_SPI_REGISTER_CALLBACKS 设置为 1U 时，
+          允许用户动态配置驱动程序回调函数。
+          使用函数 HAL_SPI_RegisterCallback() 注册中断回调函数。
 
-          Function HAL_SPI_RegisterCallback() allows to register following callbacks:
-            (++) TxCpltCallback        : SPI Tx Completed callback
-            (++) RxCpltCallback        : SPI Rx Completed callback
-            (++) TxRxCpltCallback      : SPI TxRx Completed callback
-            (++) TxHalfCpltCallback    : SPI Tx Half Completed callback
-            (++) RxHalfCpltCallback    : SPI Rx Half Completed callback
-            (++) TxRxHalfCpltCallback  : SPI TxRx Half Completed callback
-            (++) ErrorCallback         : SPI Error callback
-            (++) AbortCpltCallback     : SPI Abort callback
-            (++) MspInitCallback       : SPI Msp Init callback
-            (++) MspDeInitCallback     : SPI Msp DeInit callback
-          This function takes as parameters the HAL peripheral handle, the Callback ID
-          and a pointer to the user callback function.
+          函数 HAL_SPI_RegisterCallback() 允许注册以下回调函数：
+            (++) TxCpltCallback        : SPI 发送完成回调函数
+            (++) RxCpltCallback        : SPI 接收完成回调函数
+            (++) TxRxCpltCallback      : SPI 收发完成回调函数
+            (++) TxHalfCpltCallback    : SPI 发送过半回调函数
+            (++) RxHalfCpltCallback    : SPI 接收过半回调函数
+            (++) TxRxHalfCpltCallback  : SPI 收发过半回调函数
+            (++) ErrorCallback         : SPI 错误回调函数
+            (++) AbortCpltCallback     : SPI 中止回调函数
+            (++) MspInitCallback       : SPI Msp 初始化回调函数
+            (++) MspDeInitCallback     : SPI Msp 反初始化回调函数
+          该函数接收 HAL 外设句柄、回调函数 ID 以及指向用户回调函数的指针作为参数。
 
-
-      (#) Use function HAL_SPI_UnRegisterCallback to reset a callback to the default
-          weak function.
-          HAL_SPI_UnRegisterCallback takes as parameters the HAL peripheral handle,
-          and the Callback ID.
-          This function allows to reset following callbacks:
-            (++) TxCpltCallback        : SPI Tx Completed callback
-            (++) RxCpltCallback        : SPI Rx Completed callback
-            (++) TxRxCpltCallback      : SPI TxRx Completed callback
-            (++) TxHalfCpltCallback    : SPI Tx Half Completed callback
-            (++) RxHalfCpltCallback    : SPI Rx Half Completed callback
-            (++) TxRxHalfCpltCallback  : SPI TxRx Half Completed callback
-            (++) ErrorCallback         : SPI Error callback
-            (++) AbortCpltCallback     : SPI Abort callback
-            (++) MspInitCallback       : SPI Msp Init callback
-            (++) MspDeInitCallback     : SPI Msp DeInit callback
+      (#) 使用函数 HAL_SPI_UnRegisterCallback 将回调函数重置为默认弱定义函数。
+          HAL_SPI_UnRegisterCallback 接收 HAL 外设句柄和回调函数 ID 作为参数。
+          该函数允许重置以下回调函数：
+            (++) TxCpltCallback        : SPI 发送完成回调函数
+            (++) RxCpltCallback        : SPI 接收完成回调函数
+            (++) TxRxCpltCallback      : SPI 收发完成回调函数
+            (++) TxHalfCpltCallback    : SPI 发送过半回调函数
+            (++) RxHalfCpltCallback    : SPI 接收过半回调函数
+            (++) TxRxHalfCpltCallback  : SPI 收发过半回调函数
+            (++) ErrorCallback         : SPI 错误回调函数
+            (++) AbortCpltCallback     : SPI 中止回调函数
+            (++) MspInitCallback       : SPI Msp 初始化回调函数
+            (++) MspDeInitCallback     : SPI Msp 反初始化回调函数
 
        [..]
-       By default, after the HAL_SPI_Init() and when the state is HAL_SPI_STATE_RESET
-       all callbacks are set to the corresponding weak functions:
-       examples HAL_SPI_MasterTxCpltCallback(), HAL_SPI_MasterRxCpltCallback().
-       Exception done for MspInit and MspDeInit functions that are
-       reset to the legacy weak functions in the HAL_SPI_Init()/ HAL_SPI_DeInit() only when
-       these callbacks are null (not registered beforehand).
-       If MspInit or MspDeInit are not null, the HAL_SPI_Init()/ HAL_SPI_DeInit()
-       keep and use the user MspInit/MspDeInit callbacks (registered beforehand) whatever the state.
+       默认情况下，在执行 HAL_SPI_Init() 且状态为 HAL_SPI_STATE_RESET 时，
+       所有回调函数均被设置为对应的弱定义函数：
+       例如 HAL_SPI_MasterTxCpltCallback()、HAL_SPI_MasterRxCpltCallback()。
+       MspInit 和 MspDeInit 函数例外，仅当这些回调函数为空（事先未注册）时，
+       才会在 HAL_SPI_Init()/HAL_SPI_DeInit() 中被重置为原有的弱定义函数。
+       如果 MspInit 或 MspDeInit 不为空，无论处于何种状态，
+       HAL_SPI_Init()/HAL_SPI_DeInit() 都会保留并使用用户（事先注册的）MspInit/MspDeInit 回调函数。
 
        [..]
-       Callbacks can be registered/unregistered in HAL_SPI_STATE_READY state only.
-       Exception done MspInit/MspDeInit functions that can be registered/unregistered
-       in HAL_SPI_STATE_READY or HAL_SPI_STATE_RESET state,
-       thus registered (user) MspInit/DeInit callbacks can be used during the Init/DeInit.
-       Then, the user first registers the MspInit/MspDeInit user callbacks
-       using HAL_SPI_RegisterCallback() before calling HAL_SPI_DeInit()
-       or HAL_SPI_Init() function.
+       仅在 HAL_SPI_STATE_READY 状态下才允许注册/注销回调函数。
+       MspInit/MspDeInit 函数例外，可以在 HAL_SPI_STATE_READY 或 HAL_SPI_STATE_RESET 状态下注册/注销，
+       因此在 Init/DeInit 期间可以使用已注册的（用户）MspInit/DeInit 回调函数。
+       即用户应在调用 HAL_SPI_DeInit() 或 HAL_SPI_Init() 函数之前，
+       先使用 HAL_SPI_RegisterCallback() 注册 MspInit/MspDeInit 用户回调函数。
 
        [..]
-       When the compilation define USE_HAL_PPP_REGISTER_CALLBACKS is set to 0 or
-       not defined, the callback registering feature is not available
-       and weak (surcharged) callbacks are used.
+       当编译宏 USE_HAL_PPP_REGISTER_CALLBACKS 设置为 0 或未定义时，
+       回调函数注册功能不可用，驱动将使用弱定义（重载）回调函数。
 
      [..]
-       Using the HAL it is not possible to reach all supported SPI frequency with the different SPI Modes,
-       the following table resume the max SPI frequency reached with data size 8bits/16bits,
-         according to frequency of the APBx Peripheral Clock (fPCLK) used by the SPI instance.
+       使用 HAL 时，无法在所有不同的 SPI 模式下均达到所支持的最大 SPI 频率，
+       下表根据 SPI 实例所使用的 APBx 外设时钟频率 (fPCLK)，
+       汇总了在 8 位/16 位数据宽度下所能达到的最大 SPI 频率。
 
   @endverbatim
 
-  Additional table :
+  附加表格：
 
        DataSize = SPI_DATASIZE_8BIT:
        +----------------------------------------------------------------------------------------------+
@@ -188,17 +179,17 @@
        |    X    |----------------|----------|----------|-----------|----------|-----------|----------|
        |         |       DMA      | Fpclk/2  | Fpclk/2  |     NA    |    NA    | Fpclk/2   | Fpclk/128|
        +----------------------------------------------------------------------------------------------+
-       @note The max SPI frequency depend on SPI data size (8bits, 16bits),
-             SPI mode(2 Lines fullduplex, 2 lines RxOnly, 1 line TX/RX) and Process mode (Polling, IT, DMA).
+       @note SPI 最大频率取决于 SPI 数据位宽（8 位、16 位）、
+             SPI 模式（双线全双工、双线仅接收、单线收发）以及处理模式（轮询、中断、DMA）。
        @note
-            (#) TX/RX processes are HAL_SPI_TransmitReceive(), HAL_SPI_TransmitReceive_IT() and
+            (#) TX/RX 过程对应 HAL_SPI_TransmitReceive()、HAL_SPI_TransmitReceive_IT() 和
                 HAL_SPI_TransmitReceive_DMA()
-            (#) RX processes are HAL_SPI_Receive(), HAL_SPI_Receive_IT() and HAL_SPI_Receive_DMA()
-            (#) TX processes are HAL_SPI_Transmit(), HAL_SPI_Transmit_IT() and HAL_SPI_Transmit_DMA()
+            (#) RX 过程对应 HAL_SPI_Receive()、HAL_SPI_Receive_IT() 和 HAL_SPI_Receive_DMA()
+            (#) TX 过程对应 HAL_SPI_Transmit()、HAL_SPI_Transmit_IT() 和 HAL_SPI_Transmit_DMA()
 
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 包含文件 ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -206,37 +197,36 @@
   */
 
 /** @defgroup SPI SPI
-  * @brief SPI HAL module driver
+  * @brief SPI HAL 模块驱动
   * @{
   */
 #ifdef HAL_SPI_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private defines -----------------------------------------------------------*/
+/* 私有类型定义 --------------------------------------------------------------*/
+/* 私有宏定义 ----------------------------------------------------------------*/
 #if (USE_SPI_CRC != 0U) && defined(SPI_CRC_ERROR_WORKAROUND_FEATURE)
-/* CRC WORKAROUND FEATURE: Variable used to determine if device is impacted by implementation
- * of workaround related to wrong CRC errors detection on SPI2. Conditions in which this workaround
- * has to be applied, are:
+/* CRC 规避措施特性：该变量用于判断器件是否受 SPI2 错误 CRC 错误检测规避措施实现的影响。
+ * 应用该规避措施的条件为：
  *  - STM32F101CDE/STM32F103CDE
- *  - Revision ID : Z
+ *  - 修订版本 ID（Revision ID）：Z
  *  - SPI2
- *  - In receive only mode, with CRC calculation enabled, at the end of the CRC reception,
- *     the software needs to check the CRCERR flag. If it is found set, read back the SPI_RXCRC:
- *       + If the value is 0, the complete data transfer is successful.
- *       + Otherwise, one or more errors have been detected during the data transfer by CPU or DMA.
- *    If CRCERR is found reset, the complete data transfer is considered successful.
+ *  - 在仅接收模式且使能 CRC 计算的情况下，在 CRC 接收结束时，
+ *     软件需要检查 CRCERR 标志。若置位，则读回 SPI_RXCRC：
+ *       + 若值为 0，则完整数据传输成功。
+ *       + 否则，CPU 或 DMA 在数据传输过程中检测到了一个或多个错误。
+ *    若 CRCERR 复位，则认为完整数据传输成功。
  *
- * Check RevisionID value for identifying if Device is Rev Z (0x0001) in order to enable workaround for
- * CRC errors wrongly detected
+ * 检查 RevisionID 值以确认器件是否为 Rev Z (0x0001)，以便使能针对错误检测
+ * CRC 错误的规避措施
  */
-/* Pb is that ES_STM32F10xxCDE also identify an issue in Debug registers access while not in Debug mode
- * Revision ID information is only available in Debug mode, so Workaround could not be implemented
- * to distinguish Rev Z devices (issue present) from more recent version (issue fixed).
- * So, in case of Revision Z F101 or F103 devices, below define should be assigned to 1.
+/* 问题在于 ES_STM32F10xxCDE 还指出了非调试模式下访问调试寄存器的问题
+ * 修订版本 ID 信息仅在调试模式下可用，因此无法实现规避措施
+ * 来区分 Rev Z 器件（存在问题）与更新版本（已修复问题）。
+ * 因此，对于 Revision Z 的 F101 或 F103 器件，以下宏定义应赋值为 1。
  */
 #define  USE_SPI_CRC_ERROR_WORKAROUND   0U
 #endif /* USE_SPI_CRC */
-/** @defgroup SPI_Private_Constants SPI Private Constants
+/** @defgroup SPI_Private_Constants SPI 私有常量
   * @{
   */
 #define SPI_DEFAULT_TIMEOUT 100U
@@ -244,10 +234,10 @@
   * @}
   */
 
-/* Private macros ------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/** @defgroup SPI_Private_Functions SPI Private Functions
+/* 私有宏 --------------------------------------------------------------------*/
+/* 私有变量 ------------------------------------------------------------------*/
+/* 私有函数原型 --------------------------------------------------------------*/
+/** @defgroup SPI_Private_Functions SPI 私有函数
   * @{
   */
 static void SPI_DMATransmitCplt(DMA_HandleTypeDef *hdma);
@@ -287,60 +277,56 @@ static HAL_StatusTypeDef SPI_EndRxTxTransaction(SPI_HandleTypeDef *hspi, uint32_
   * @}
   */
 
-/* Exported functions --------------------------------------------------------*/
-/** @defgroup SPI_Exported_Functions SPI Exported Functions
+/* 导出函数 --------------------------------------------------------*/
+/** @defgroup SPI_Exported_Functions SPI 导出函数
   * @{
   */
 
-/** @defgroup SPI_Exported_Functions_Group1 Initialization and de-initialization functions
-  *  @brief    Initialization and Configuration functions
+/** @defgroup SPI_Exported_Functions_Group1 初始化和反初始化函数
+  *  @brief    初始化与配置函数
   *
 @verbatim
  ===============================================================================
-              ##### Initialization and de-initialization functions #####
+              ##### 初始化和反初始化函数 #####
  ===============================================================================
-    [..]  This subsection provides a set of functions allowing to initialize and
-          de-initialize the SPIx peripheral:
+    [..]  本节提供了一组用于初始化和反初始化 SPIx 外设的函数：
 
-      (+) User must implement HAL_SPI_MspInit() function in which he configures
-          all related peripherals resources (CLOCK, GPIO, DMA, IT and NVIC ).
+      (+) 用户必须实现 HAL_SPI_MspInit() 函数，并在其中配置所有相关的外设资源
+          （时钟 CLOCK、GPIO、DMA、中断 IT 以及 NVIC）。
 
-      (+) Call the function HAL_SPI_Init() to configure the selected device with
-          the selected configuration:
-        (++) Mode
-        (++) Direction
-        (++) Data Size
-        (++) Clock Polarity and Phase
-        (++) NSS Management
-        (++) BaudRate Prescaler
-        (++) FirstBit
-        (++) TIMode
-        (++) CRC Calculation
-        (++) CRC Polynomial if CRC enabled
+      (+) 调用 HAL_SPI_Init() 函数以按照所选配置对指定设备进行配置：
+        (++) 工作模式（Mode）
+        (++) 传输方向（Direction）
+        (++) 数据大小（Data Size）
+        (++) 时钟极性和相位（Clock Polarity and Phase）
+        (++) NSS 硬件/软件管理（NSS Management）
+        (++) 波特率预分频系数（BaudRate Prescaler）
+        (++) 高/低位先行（FirstBit）
+        (++) TI 模式（TIMode）
+        (++) CRC 校验计算（CRC Calculation）
+        (++) 使能 CRC 时的 CRC 多项式（CRC Polynomial if CRC enabled）
 
-      (+) Call the function HAL_SPI_DeInit() to restore the default configuration
-          of the selected SPIx peripheral.
+      (+) 调用 HAL_SPI_DeInit() 函数以将所选 SPIx 外设恢复为默认配置。
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Initialize the SPI according to the specified parameters
-  *         in the SPI_InitTypeDef and initialize the associated handle.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval HAL status
+  * @brief  根据 SPI_InitTypeDef 中指定的参数初始化 SPI，
+  *         并初始化关联的句柄。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 {
-  /* Check the SPI handle allocation */
+  /* 检查 SPI 句柄分配有效性 */
   if (hspi == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_SPI_ALL_INSTANCE(hspi->Instance));
   assert_param(IS_SPI_MODE(hspi->Init.Mode));
   assert_param(IS_SPI_DIRECTION(hspi->Init.Direction));
@@ -348,8 +334,8 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
   assert_param(IS_SPI_NSS(hspi->Init.NSS));
   assert_param(IS_SPI_BAUDRATE_PRESCALER(hspi->Init.BaudRatePrescaler));
   assert_param(IS_SPI_FIRST_BIT(hspi->Init.FirstBit));
-  /* TI mode is not supported on this device.
-     TIMode parameter is mandatory equal to SPI_TIMODE_DISABLE */
+  /* 该器件不支持 TI 模式。
+     TIMode 参数必须强制设置为 SPI_TIMODE_DISABLE */
   assert_param(IS_SPI_TIMODE(hspi->Init.TIMode));
   if (hspi->Init.TIMode == SPI_TIMODE_DISABLE)
   {
@@ -362,7 +348,7 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
     }
     else
     {
-      /* Baudrate prescaler not use in Motoraola Slave mode. force to default value */
+      /* 波特率预分频器在 Motorola 从机模式下不使用。强制设为默认值 */
       hspi->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
     }
   }
@@ -370,7 +356,7 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
   {
     assert_param(IS_SPI_BAUDRATE_PRESCALER(hspi->Init.BaudRatePrescaler));
 
-    /* Force polarity and phase to TI protocaol requirements */
+    /* 强制将极性和相位配置为满足 TI 协议的要求 */
     hspi->Init.CLKPolarity = SPI_POLARITY_LOW;
     hspi->Init.CLKPhase    = SPI_PHASE_1EDGE;
   }
@@ -386,41 +372,41 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 
   if (hspi->State == HAL_SPI_STATE_RESET)
   {
-    /* Allocate lock resource and initialize it */
+    /* 分配锁资源并进行初始化 */
     hspi->Lock = HAL_UNLOCKED;
 
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
-    /* Init the SPI Callback settings */
-    hspi->TxCpltCallback       = HAL_SPI_TxCpltCallback;       /* Legacy weak TxCpltCallback       */
-    hspi->RxCpltCallback       = HAL_SPI_RxCpltCallback;       /* Legacy weak RxCpltCallback       */
-    hspi->TxRxCpltCallback     = HAL_SPI_TxRxCpltCallback;     /* Legacy weak TxRxCpltCallback     */
-    hspi->TxHalfCpltCallback   = HAL_SPI_TxHalfCpltCallback;   /* Legacy weak TxHalfCpltCallback   */
-    hspi->RxHalfCpltCallback   = HAL_SPI_RxHalfCpltCallback;   /* Legacy weak RxHalfCpltCallback   */
-    hspi->TxRxHalfCpltCallback = HAL_SPI_TxRxHalfCpltCallback; /* Legacy weak TxRxHalfCpltCallback */
-    hspi->ErrorCallback        = HAL_SPI_ErrorCallback;        /* Legacy weak ErrorCallback        */
-    hspi->AbortCpltCallback    = HAL_SPI_AbortCpltCallback;    /* Legacy weak AbortCpltCallback    */
+    /* 初始化 SPI 回调函数设置 */
+    hspi->TxCpltCallback       = HAL_SPI_TxCpltCallback;       /* 遗留的弱定义 TxCpltCallback       */
+    hspi->RxCpltCallback       = HAL_SPI_RxCpltCallback;       /* 传统的弱定义 RxCpltCallback       */
+    hspi->TxRxCpltCallback     = HAL_SPI_TxRxCpltCallback;     /* 传统的弱定义 TxRxCpltCallback     */
+    hspi->TxHalfCpltCallback   = HAL_SPI_TxHalfCpltCallback;   /* 传统的弱定义 TxHalfCpltCallback   */
+    hspi->RxHalfCpltCallback   = HAL_SPI_RxHalfCpltCallback;   /* 传统的弱定义 RxHalfCpltCallback   */
+    hspi->TxRxHalfCpltCallback = HAL_SPI_TxRxHalfCpltCallback; /* 传统的弱定义 TxRxHalfCpltCallback */
+    hspi->ErrorCallback        = HAL_SPI_ErrorCallback;        /* 传统的弱定义 ErrorCallback        */
+    hspi->AbortCpltCallback    = HAL_SPI_AbortCpltCallback;    /* 传统的弱定义 AbortCpltCallback    */
 
     if (hspi->MspInitCallback == NULL)
     {
-      hspi->MspInitCallback = HAL_SPI_MspInit; /* Legacy weak MspInit  */
+      hspi->MspInitCallback = HAL_SPI_MspInit; /* 传统的弱定义 MspInit  */
     }
 
-    /* Init the low level hardware : GPIO, CLOCK, NVIC... */
+    /* 初始化底层硬件：GPIO、CLOCK、NVIC... */
     hspi->MspInitCallback(hspi);
 #else
-    /* Init the low level hardware : GPIO, CLOCK, NVIC... */
+    /* 初始化底层硬件：GPIO、CLOCK、NVIC... */
     HAL_SPI_MspInit(hspi);
 #endif /* USE_HAL_SPI_REGISTER_CALLBACKS */
   }
 
   hspi->State = HAL_SPI_STATE_BUSY;
 
-  /* Disable the selected SPI peripheral */
+  /* 禁用指定的 SPI 外设 */
   __HAL_SPI_DISABLE(hspi);
 
-  /*----------------------- SPIx CR1 & CR2 Configuration ---------------------*/
-  /* Configure : SPI Mode, Communication Mode, Data size, Clock polarity and phase, NSS management,
-  Communication speed, First bit and CRC calculation state */
+  /*----------------------- SPIx CR1 与 CR2 配置 ---------------------*/
+  /* 配置：SPI 模式、通信模式、数据大小、时钟极性和相位、NSS 管理、
+  通信速率、起始位以及 CRC 校验计算状态 */
   WRITE_REG(hspi->Instance->CR1, ((hspi->Init.Mode & (SPI_CR1_MSTR | SPI_CR1_SSI)) |
                                   (hspi->Init.Direction & (SPI_CR1_RXONLY | SPI_CR1_BIDIMODE)) |
                                   (hspi->Init.DataSize & SPI_CR1_DFF) |
@@ -431,12 +417,12 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
                                   (hspi->Init.FirstBit  & SPI_CR1_LSBFIRST) |
                                   (hspi->Init.CRCCalculation & SPI_CR1_CRCEN)));
 
-  /* Configure : NSS management */
+  /* 配置：NSS 管理 */
   WRITE_REG(hspi->Instance->CR2, ((hspi->Init.NSS >> 16U) & SPI_CR2_SSOE));
 
 #if (USE_SPI_CRC != 0U)
-  /*---------------------------- SPIx CRCPOLY Configuration ------------------*/
-  /* Configure : CRC Polynomial */
+  /*---------------------------- SPIx CRCPOLY 配置 ------------------*/
+  /* 配置：CRC 多项式 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     WRITE_REG(hspi->Instance->CRCPR, (hspi->Init.CRCPolynomial & SPI_CRCPR_CRCPOLY_Msk));
@@ -444,7 +430,7 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 #endif /* USE_SPI_CRC */
 
 #if defined(SPI_I2SCFGR_I2SMOD)
-  /* Activate the SPI mode (Make sure that I2SMOD bit in I2SCFGR register is reset) */
+  /* 激活 SPI 模式（确保 I2SCFGR 寄存器中的 I2SMOD 位被复位） */
   CLEAR_BIT(hspi->Instance->I2SCFGR, SPI_I2SCFGR_I2SMOD);
 #endif /* SPI_I2SCFGR_I2SMOD */
 
@@ -455,90 +441,88 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  De-Initialize the SPI peripheral.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval HAL status
+  * @brief  反初始化 SPI 外设。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_DeInit(SPI_HandleTypeDef *hspi)
 {
-  /* Check the SPI handle allocation */
+  /* 检查 SPI 句柄分配 */
   if (hspi == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check SPI Instance parameter */
+  /* 检查 SPI 实例参数 */
   assert_param(IS_SPI_ALL_INSTANCE(hspi->Instance));
 
   hspi->State = HAL_SPI_STATE_BUSY;
 
-  /* Disable the SPI Peripheral Clock */
+  /* 禁用 SPI 外设时钟 */
   __HAL_SPI_DISABLE(hspi);
 
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   if (hspi->MspDeInitCallback == NULL)
   {
-    hspi->MspDeInitCallback = HAL_SPI_MspDeInit; /* Legacy weak MspDeInit  */
+    hspi->MspDeInitCallback = HAL_SPI_MspDeInit; /* 传统的弱定义 MspDeInit */
   }
 
-  /* DeInit the low level hardware: GPIO, CLOCK, NVIC... */
+  /* 反初始化底层硬件：GPIO、时钟、NVIC... */
   hspi->MspDeInitCallback(hspi);
 #else
-  /* DeInit the low level hardware: GPIO, CLOCK, NVIC... */
+  /* 反初始化底层硬件：GPIO、时钟、NVIC... */
   HAL_SPI_MspDeInit(hspi);
 #endif /* USE_HAL_SPI_REGISTER_CALLBACKS */
 
   hspi->ErrorCode = HAL_SPI_ERROR_NONE;
   hspi->State = HAL_SPI_STATE_RESET;
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(hspi);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Initialize the SPI MSP.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  初始化 SPI MSP。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 __weak void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用参数产生的编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_MspInit should be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调函数时，
+            应在用户文件中实现 HAL_SPI_MspInit
    */
 }
 
 /**
-  * @brief  De-Initialize the SPI MSP.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  反初始化 SPI MSP。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 __weak void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用参数产生的编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_MspDeInit should be implemented in the user file
+  /* 注意：不应修改此函数，当需要回调函数时，
+            应在用户文件中实现 HAL_SPI_MspDeInit
    */
 }
 
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
 /**
-  * @brief  Register a User SPI Callback
-  *         To be used instead of the weak predefined callback
-  * @param  hspi Pointer to a SPI_HandleTypeDef structure that contains
-  *                the configuration information for the specified SPI.
-  * @param  CallbackID ID of the callback to be registered
-  * @param  pCallback pointer to the Callback function
-  * @retval HAL status
+  * @brief  注册用户 SPI 回调函数
+  *         用于替代预定义的弱（weak）回调函数
+  * @param  hspi 指向包含指定 SPI 配置信息的
+  *                SPI_HandleTypeDef 结构体的指针。
+  * @param  CallbackID 要注册的回调函数 ID
+  * @param  pCallback 指向回调函数的指针
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_RegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_CallbackIDTypeDef CallbackID,
                                            pSPI_CallbackTypeDef pCallback)
@@ -547,12 +531,12 @@ HAL_StatusTypeDef HAL_SPI_RegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_Call
 
   if (pCallback == NULL)
   {
-    /* Update the error code */
+    /* 更新错误代码 */
     hspi->ErrorCode |= HAL_SPI_ERROR_INVALID_CALLBACK;
 
     return HAL_ERROR;
   }
-  /* Process locked */
+  /* 进程已锁定 */
   __HAL_LOCK(hspi);
 
   if (HAL_SPI_STATE_READY == hspi->State)
@@ -600,10 +584,10 @@ HAL_StatusTypeDef HAL_SPI_RegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_Call
         break;
 
       default :
-        /* Update the error code */
+        /* 更新错误代码 */
         SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_INVALID_CALLBACK);
 
-        /* Return error status */
+        /* 返回错误状态 */
         status =  HAL_ERROR;
         break;
     }
@@ -621,41 +605,40 @@ HAL_StatusTypeDef HAL_SPI_RegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_Call
         break;
 
       default :
-        /* Update the error code */
+        /* 更新错误代码 */
         SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_INVALID_CALLBACK);
 
-        /* Return error status */
+        /* 返回错误状态 */
         status =  HAL_ERROR;
         break;
     }
   }
   else
   {
-    /* Update the error code */
+    /* 更新错误代码 */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_INVALID_CALLBACK);
 
-    /* Return error status */
+    /* 返回错误状态 */
     status =  HAL_ERROR;
   }
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(hspi);
   return status;
 }
 
 /**
-  * @brief  Unregister an SPI Callback
-  *         SPI callback is redirected to the weak predefined callback
-  * @param  hspi Pointer to a SPI_HandleTypeDef structure that contains
-  *                the configuration information for the specified SPI.
-  * @param  CallbackID ID of the callback to be unregistered
-  * @retval HAL status
+  * @brief  注销 SPI 回调函数
+  *         SPI 回调函数将被重定向至预定义的弱函数（weak）回调
+  * @param  hspi 指向包含指定 SPI 配置信息的 SPI_HandleTypeDef 结构体的指针
+  * @param  CallbackID 要注销的回调函数 ID
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_UnRegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_CallbackIDTypeDef CallbackID)
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Process locked */
+  /* 进程已锁定 */
   __HAL_LOCK(hspi);
 
   if (HAL_SPI_STATE_READY == hspi->State)
@@ -663,50 +646,50 @@ HAL_StatusTypeDef HAL_SPI_UnRegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_Ca
     switch (CallbackID)
     {
       case HAL_SPI_TX_COMPLETE_CB_ID :
-        hspi->TxCpltCallback = HAL_SPI_TxCpltCallback;             /* Legacy weak TxCpltCallback       */
+        hspi->TxCpltCallback = HAL_SPI_TxCpltCallback;             /* 传统的弱定义 TxCpltCallback       */
         break;
 
       case HAL_SPI_RX_COMPLETE_CB_ID :
-        hspi->RxCpltCallback = HAL_SPI_RxCpltCallback;             /* Legacy weak RxCpltCallback       */
+        hspi->RxCpltCallback = HAL_SPI_RxCpltCallback;             /* 传统的弱定义 RxCpltCallback       */
         break;
 
       case HAL_SPI_TX_RX_COMPLETE_CB_ID :
-        hspi->TxRxCpltCallback = HAL_SPI_TxRxCpltCallback;         /* Legacy weak TxRxCpltCallback     */
+        hspi->TxRxCpltCallback = HAL_SPI_TxRxCpltCallback;         /* 传统的弱定义 TxRxCpltCallback     */
         break;
 
       case HAL_SPI_TX_HALF_COMPLETE_CB_ID :
-        hspi->TxHalfCpltCallback = HAL_SPI_TxHalfCpltCallback;     /* Legacy weak TxHalfCpltCallback   */
+        hspi->TxHalfCpltCallback = HAL_SPI_TxHalfCpltCallback;     /* 传统的弱定义 TxHalfCpltCallback   */
         break;
 
       case HAL_SPI_RX_HALF_COMPLETE_CB_ID :
-        hspi->RxHalfCpltCallback = HAL_SPI_RxHalfCpltCallback;     /* Legacy weak RxHalfCpltCallback   */
+        hspi->RxHalfCpltCallback = HAL_SPI_RxHalfCpltCallback;     /* 传统的弱定义 RxHalfCpltCallback   */
         break;
 
       case HAL_SPI_TX_RX_HALF_COMPLETE_CB_ID :
-        hspi->TxRxHalfCpltCallback = HAL_SPI_TxRxHalfCpltCallback; /* Legacy weak TxRxHalfCpltCallback */
+        hspi->TxRxHalfCpltCallback = HAL_SPI_TxRxHalfCpltCallback; /* 传统的弱定义 TxRxHalfCpltCallback */
         break;
 
       case HAL_SPI_ERROR_CB_ID :
-        hspi->ErrorCallback = HAL_SPI_ErrorCallback;               /* Legacy weak ErrorCallback        */
+        hspi->ErrorCallback = HAL_SPI_ErrorCallback;               /* 传统的弱定义 ErrorCallback        */
         break;
 
       case HAL_SPI_ABORT_CB_ID :
-        hspi->AbortCpltCallback = HAL_SPI_AbortCpltCallback;       /* Legacy weak AbortCpltCallback    */
+        hspi->AbortCpltCallback = HAL_SPI_AbortCpltCallback;       /* 传统的弱定义 AbortCpltCallback    */
         break;
 
       case HAL_SPI_MSPINIT_CB_ID :
-        hspi->MspInitCallback = HAL_SPI_MspInit;                   /* Legacy weak MspInit              */
+        hspi->MspInitCallback = HAL_SPI_MspInit;                   /* 传统的弱定义 MspInit              */
         break;
 
       case HAL_SPI_MSPDEINIT_CB_ID :
-        hspi->MspDeInitCallback = HAL_SPI_MspDeInit;               /* Legacy weak MspDeInit            */
+        hspi->MspDeInitCallback = HAL_SPI_MspDeInit;               /* 传统的弱定义 MspDeInit            */
         break;
 
       default :
-        /* Update the error code */
+        /* 更新错误代码 */
         SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_INVALID_CALLBACK);
 
-        /* Return error status */
+        /* 返回错误状态 */
         status =  HAL_ERROR;
         break;
     }
@@ -716,32 +699,32 @@ HAL_StatusTypeDef HAL_SPI_UnRegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_Ca
     switch (CallbackID)
     {
       case HAL_SPI_MSPINIT_CB_ID :
-        hspi->MspInitCallback = HAL_SPI_MspInit;                   /* Legacy weak MspInit              */
+        hspi->MspInitCallback = HAL_SPI_MspInit;                   /* 传统的弱定义 MspInit              */
         break;
 
       case HAL_SPI_MSPDEINIT_CB_ID :
-        hspi->MspDeInitCallback = HAL_SPI_MspDeInit;               /* Legacy weak MspDeInit            */
+        hspi->MspDeInitCallback = HAL_SPI_MspDeInit;               /* 遗留的弱定义 MspDeInit            */
         break;
 
       default :
-        /* Update the error code */
+        /* 更新错误代码 */
         SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_INVALID_CALLBACK);
 
-        /* Return error status */
+        /* 返回错误状态 */
         status =  HAL_ERROR;
         break;
     }
   }
   else
   {
-    /* Update the error code */
+    /* 更新错误代码 */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_INVALID_CALLBACK);
 
-    /* Return error status */
+    /* 返回错误状态 */
     status =  HAL_ERROR;
   }
 
-  /* Release Lock */
+  /* 释放锁 */
   __HAL_UNLOCK(hspi);
   return status;
 }
@@ -751,56 +734,51 @@ HAL_StatusTypeDef HAL_SPI_UnRegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_Ca
   */
 
 /** @defgroup SPI_Exported_Functions_Group2 IO operation functions
-  *  @brief   Data transfers functions
+  *  @brief   数据传输函数
   *
 @verbatim
   ==============================================================================
-                      ##### IO operation functions #####
+                      ##### IO 操作函数 #####
  ===============================================================================
  [..]
-    This subsection provides a set of functions allowing to manage the SPI
-    data transfers.
+    本节提供了一组用于管理 SPI 数据传输的函数。
 
-    [..] The SPI supports master and slave mode :
+    [..] SPI 支持主模式和从模式：
 
-    (#) There are two modes of transfer:
-       (++) Blocking mode: The communication is performed in polling mode.
-            The HAL status of all data processing is returned by the same function
-            after finishing transfer.
-       (++) No-Blocking mode: The communication is performed using Interrupts
-            or DMA, These APIs return the HAL status.
-            The end of the data processing will be indicated through the
-            dedicated SPI IRQ when using Interrupt mode or the DMA IRQ when
-            using DMA mode.
-            The HAL_SPI_TxCpltCallback(), HAL_SPI_RxCpltCallback() and HAL_SPI_TxRxCpltCallback() user callbacks
-            will be executed respectively at the end of the transmit or Receive process
-            The HAL_SPI_ErrorCallback()user callback will be executed when a communication error is detected
+    (#) 存在两种传输模式：
+       (++) 阻塞模式：通信以轮询方式进行。
+            所有数据处理的 HAL 状态均在传输完成后由同一个函数返回。
+       (++) 非阻塞模式：通信使用中断或 DMA 方式进行，这些 API 会直接返回 HAL 状态。
+            在使用中断模式时，数据处理的结束将通过专用的 SPI IRQ 指示；
+            在使用 DMA 模式时，则通过 DMA IRQ 指示。
+            HAL_SPI_TxCpltCallback()、HAL_SPI_RxCpltCallback() 和 HAL_SPI_TxRxCpltCallback() 用户回调函数
+            将分别在发送或接收过程结束时执行。
+            当检测到通信错误时，将执行 HAL_SPI_ErrorCallback() 用户回调函数。
 
-    (#) APIs provided for these 2 transfer modes (Blocking mode or Non blocking mode using either Interrupt or DMA)
-        exist for 1Line (simplex) and 2Lines (full duplex) modes.
+    (#) 为这两种传输模式（阻塞模式，以及使用中断或 DMA 的非阻塞模式）提供的 API
+        均支持单线（半双工/单工）和双线（全双工）模式。
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Transmit an amount of data in blocking mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  pData pointer to data buffer (u8 or u16 data elements)
-  * @param  Size amount of data elements (u8 or u16) to be sent
-  * @param  Timeout Timeout duration in ms
-  * @retval HAL status
+  * @brief  以阻塞模式发送一定量的数据。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @param  pData 指向数据缓冲区的指针（u8 或 u16 数据元素）。
+  * @param  Size 要发送的数据元素量（u8 或 u16）。
+  * @param  Timeout 超时时间（毫秒）。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
   uint32_t tickstart;
   uint16_t initial_TxXferCount;
 
-  /* Check Direction parameter */
+  /* 检查 Direction 参数 */
   assert_param(IS_SPI_DIRECTION_2LINES_OR_1LINE(hspi->Init.Direction));
 
-  /* Init tickstart for timeout management*/
+  /* 初始化 tickstart 以进行超时管理 */
   tickstart = HAL_GetTick();
   initial_TxXferCount = Size;
 
@@ -814,47 +792,47 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData
     return HAL_ERROR;
   }
 
-  /* Process Locked */
+  /* 进程锁定 */
   __HAL_LOCK(hspi);
 
-  /* Set the transaction information */
+  /* 设置传输事务信息 */
   hspi->State       = HAL_SPI_STATE_BUSY_TX;
   hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
   hspi->pTxBuffPtr  = (const uint8_t *)pData;
   hspi->TxXferSize  = Size;
   hspi->TxXferCount = Size;
 
-  /*Init field not used in handle to zero */
+  /* 将句柄中未使用的字段清零 */
   hspi->pRxBuffPtr  = (uint8_t *)NULL;
   hspi->RxXferSize  = 0U;
   hspi->RxXferCount = 0U;
   hspi->TxISR       = NULL;
   hspi->RxISR       = NULL;
 
-  /* Configure communication direction : 1Line */
+  /* 配置通信方向：单线 */
   if (hspi->Init.Direction == SPI_DIRECTION_1LINE)
   {
-    /* Disable SPI Peripheral before set 1Line direction (BIDIOE bit) */
+    /* 在设置单线方向（BIDIOE 位）之前禁用 SPI 外设 */
     __HAL_SPI_DISABLE(hspi);
     SPI_1LINE_TX(hspi);
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Reset CRC Calculation */
+  /* 复位 CRC 计算 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SPI_RESET_CRC(hspi);
   }
 #endif /* USE_SPI_CRC */
 
-  /* Check if the SPI is already enabled */
+  /* 检查 SPI 是否已经使能 */
   if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
   {
-    /* Enable SPI peripheral */
+    /* 使能 SPI 外设 */
     __HAL_SPI_ENABLE(hspi);
   }
 
-  /* Transmit data in 16 Bit mode */
+  /* 在 16 位模式下发送数据 */
   if (hspi->Init.DataSize == SPI_DATASIZE_16BIT)
   {
     if ((hspi->Init.Mode == SPI_MODE_SLAVE) || (initial_TxXferCount == 0x01U))
@@ -863,10 +841,10 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData
       hspi->pTxBuffPtr += sizeof(uint16_t);
       hspi->TxXferCount--;
     }
-    /* Transmit data in 16 Bit mode */
+    /* 在 16 位模式下发送数据 */
     while (hspi->TxXferCount > 0U)
     {
-      /* Wait until TXE flag is set to send data */
+      /* 等待 TXE 标志位置位以发送数据 */
       if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXE))
       {
         hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
@@ -875,7 +853,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData
       }
       else
       {
-        /* Timeout management */
+        /* 超时管理 */
         if ((((HAL_GetTick() - tickstart) >=  Timeout) && (Timeout != HAL_MAX_DELAY)) || (Timeout == 0U))
         {
           hspi->State = HAL_SPI_STATE_READY;
@@ -885,7 +863,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData
       }
     }
   }
-  /* Transmit data in 8 Bit mode */
+  /* 在 8 位模式下发送数据 */
   else
   {
     if ((hspi->Init.Mode == SPI_MODE_SLAVE) || (initial_TxXferCount == 0x01U))
@@ -896,7 +874,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData
     }
     while (hspi->TxXferCount > 0U)
     {
-      /* Wait until TXE flag is set to send data */
+      /* 等待 TXE 标志位置位以发送数据 */
       if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXE))
       {
         *((__IO uint8_t *)&hspi->Instance->DR) = *((const uint8_t *)hspi->pTxBuffPtr);
@@ -905,7 +883,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData
       }
       else
       {
-        /* Timeout management */
+        /* 超时管理 */
         if ((((HAL_GetTick() - tickstart) >=  Timeout) && (Timeout != HAL_MAX_DELAY)) || (Timeout == 0U))
         {
           hspi->State = HAL_SPI_STATE_READY;
@@ -916,27 +894,27 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData
     }
   }
 #if (USE_SPI_CRC != 0U)
-  /* Enable CRC Transmission */
+  /* 使能 CRC 发送 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
   }
 #endif /* USE_SPI_CRC */
 
-  /* Check the end of the transaction */
+  /* 检查传输是否结束 */
   if (SPI_EndRxTxTransaction(hspi, Timeout, tickstart) != HAL_OK)
   {
     hspi->ErrorCode = HAL_SPI_ERROR_FLAG;
   }
 
-  /* Clear overrun flag in 2 Lines communication mode because received is not read */
+  /* 在双线通信模式下清除过载（Overrun）标志，因为未读取接收到的数据 */
   if (hspi->Init.Direction == SPI_DIRECTION_2LINES)
   {
     __HAL_SPI_CLEAR_OVRFLAG(hspi);
   }
 
   hspi->State = HAL_SPI_STATE_READY;
-  /* Process Unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hspi);
 
   if (hspi->ErrorCode != HAL_SPI_ERROR_NONE)
@@ -950,16 +928,16 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData
 }
 
 /**
-  * @brief  Receive an amount of data in blocking mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  pData pointer to data buffer (u8 or u16 data elements)
-  * @param  Size amount of data elements (u8 or u16) to be received
-  * @param  Timeout Timeout duration in ms
-  * @retval HAL status
-  * @note   In master mode, if the direction is set to SPI_DIRECTION_2LINES 
-  *         the receive buffer is written to data register (DR) to generate
-  *         clock pulses and receive data
+  * @brief  在阻塞模式下接收指定量的数据。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构的指针。
+  * @param  pData 指向数据缓冲区的指针（u8 或 u16 数据元素）
+  * @param  Size 待接收的数据元素数量（u8 或 u16）
+  * @param  Timeout 超时时间（毫秒）
+  * @retval HAL 状态
+  * @note   在主模式下，如果通信方向设置为 SPI_DIRECTION_2LINES，
+  *         则会向数据寄存器 (DR) 写入接收缓冲区以生成时钟脉冲
+  *         并接收数据
   */
 HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
@@ -981,24 +959,24 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
   if ((hspi->Init.Mode == SPI_MODE_MASTER) && (hspi->Init.Direction == SPI_DIRECTION_2LINES))
   {
     hspi->State = HAL_SPI_STATE_BUSY_RX;
-    /* Call transmit-receive function to send Dummy data on Tx line and generate clock on CLK line */
+    /* 调用收发一体函数在 Tx 线上发送伪数据（Dummy data），并在 CLK 线上生成时钟脉冲 */
     return HAL_SPI_TransmitReceive(hspi, pData, pData, Size, Timeout);
   }
 
-  /* Init tickstart for timeout management*/
+  /* 初始化 tickstart 以进行超时管理 */
   tickstart = HAL_GetTick();
 
-  /* Process Locked */
+  /* 进程加锁 */
   __HAL_LOCK(hspi);
 
-  /* Set the transaction information */
+  /* 设置传输信息 */
   hspi->State       = HAL_SPI_STATE_BUSY_RX;
   hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
   hspi->pRxBuffPtr  = (uint8_t *)pData;
   hspi->RxXferSize  = Size;
   hspi->RxXferCount = Size;
 
-  /*Init field not used in handle to zero */
+  /* 将句柄中未使用的字段初始化为零 */
   hspi->pTxBuffPtr  = (uint8_t *)NULL;
   hspi->TxXferSize  = 0U;
   hspi->TxXferCount = 0U;
@@ -1006,47 +984,47 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
   hspi->TxISR       = NULL;
 
 #if (USE_SPI_CRC != 0U)
-  /* Reset CRC Calculation */
+  /* 复位 CRC 计算 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SPI_RESET_CRC(hspi);
-    /* this is done to handle the CRCNEXT before the latest data */
+    /* 此操作用于在最后一个数据之前处理 CRCNEXT */
     hspi->RxXferCount--;
   }
 #endif /* USE_SPI_CRC */
 
-  /* Configure communication direction: 1Line */
+  /* 配置通信方向：单线（1Line） */
   if (hspi->Init.Direction == SPI_DIRECTION_1LINE)
   {
-    /* Disable SPI Peripheral before set 1Line direction (BIDIOE bit) */
+    /* 在设置单线方向（BIDIOE 位）之前禁用 SPI 外设 */
     __HAL_SPI_DISABLE(hspi);
     SPI_1LINE_RX(hspi);
   }
 
-  /* Check if the SPI is already enabled */
+  /* 检查 SPI 是否已使能 */
   if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
   {
-    /* Enable SPI peripheral */
+    /* 使能 SPI 外设 */
     __HAL_SPI_ENABLE(hspi);
   }
 
-  /* Receive data in 8 Bit mode */
+  /* 以 8 位模式接收数据 */
   if (hspi->Init.DataSize == SPI_DATASIZE_8BIT)
   {
-    /* Transfer loop */
+    /* 传输循环 */
     while (hspi->RxXferCount > 0U)
     {
-      /* Check the RXNE flag */
+      /* 检查 RXNE 标志 */
       if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_RXNE))
       {
-        /* read the received data */
+        /* 读取接收到的数据 */
         (* (uint8_t *)hspi->pRxBuffPtr) = *(__IO uint8_t *)&hspi->Instance->DR;
         hspi->pRxBuffPtr += sizeof(uint8_t);
         hspi->RxXferCount--;
       }
       else
       {
-        /* Timeout management */
+        /* 超时管理 */
         if ((((HAL_GetTick() - tickstart) >=  Timeout) && (Timeout != HAL_MAX_DELAY)) || (Timeout == 0U))
         {
           hspi->State = HAL_SPI_STATE_READY;
@@ -1058,10 +1036,10 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
   }
   else
   {
-    /* Transfer loop */
+    /* 传输循环 */
     while (hspi->RxXferCount > 0U)
     {
-      /* Check the RXNE flag */
+      /* 检查 RXNE 标志 */
       if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_RXNE))
       {
         *((uint16_t *)hspi->pRxBuffPtr) = (uint16_t)hspi->Instance->DR;
@@ -1070,7 +1048,7 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
       }
       else
       {
-        /* Timeout management */
+        /* 超时管理 */
         if ((((HAL_GetTick() - tickstart) >=  Timeout) && (Timeout != HAL_MAX_DELAY)) || (Timeout == 0U))
         {
           hspi->State = HAL_SPI_STATE_READY;
@@ -1082,38 +1060,38 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Handle the CRC Transmission */
+  /* 处理 CRC 传输 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
-    /* freeze the CRC before the latest data */
+    /* 在读取最后一个数据之前冻结 CRC */
     SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
 
-    /* Check if CRCNEXT is well reset by hardware */
+    /* 检查 CRCNEXT 是否已成功由硬件复位 */
     if (READ_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT))
     {
-      /* Workaround to force CRCNEXT bit to zero in case of CRCNEXT is not reset automatically by hardware */
+      /* 用于在 CRCNEXT 未被硬件自动复位的情况下强制将其清零的规避方案 (Workaround) */
       CLEAR_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
     }
-    /* Read the latest data */
+    /* 读取最后一个数据 */
     if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_RXNE, SET, Timeout, tickstart) != HAL_OK)
     {
-      /* the latest data has not been received */
+      /* 尚未接收到最新数据 */
       __HAL_UNLOCK(hspi);
       return HAL_TIMEOUT;
     }
 
-    /* Receive last data in 16 Bit mode */
+    /* 在 16 位模式下接收最后一个数据 */
     if (hspi->Init.DataSize == SPI_DATASIZE_16BIT)
     {
       *((uint16_t *)hspi->pRxBuffPtr) = (uint16_t)hspi->Instance->DR;
     }
-    /* Receive last data in 8 Bit mode */
+    /* 在 8 位模式下接收最后一个数据 */
     else
     {
       (*(uint8_t *)hspi->pRxBuffPtr) = *(__IO uint8_t *)&hspi->Instance->DR;
     }
 
-    /* Wait the CRC data */
+    /* 等待 CRC 数据 */
     if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_RXNE, SET, Timeout, tickstart) != HAL_OK)
     {
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
@@ -1122,29 +1100,29 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
       return HAL_TIMEOUT;
     }
 
-    /* Read CRC to Flush DR and RXNE flag */
+    /* 读取 CRC 以清空 DR 寄存器和 RXNE 标志 */
     tmpreg = READ_REG(hspi->Instance->DR);
-    /* To avoid GCC warning */
+    /* 避免 GCC 警告 */
     UNUSED(tmpreg);
   }
 #endif /* USE_SPI_CRC */
 
-  /* Check the end of the transaction */
+  /* 检查传输是否结束 */
   if (SPI_EndRxTransaction(hspi, Timeout, tickstart) != HAL_OK)
   {
     hspi->ErrorCode = HAL_SPI_ERROR_FLAG;
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Check if CRC error occurred */
+  /* 检查是否发生 CRC 错误 */
   if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_CRCERR) != RESET)
   {
-    /* Check if CRC error is valid or not (workaround to be applied or not) */
+    /* 检查 CRC 错误是否有效（是否需要应用变通方案） */
     if (SPI_ISCRCErrorValid(hspi) == SPI_VALID_CRC_ERROR)
     {
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
 
-      /* Reset CRC Calculation */
+      /* 复位 CRC 计算 */
       SPI_RESET_CRC(hspi);
     }
     else
@@ -1155,7 +1133,7 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
 #endif /* USE_SPI_CRC */
 
   hspi->State = HAL_SPI_STATE_READY;
-  /* Unlock the process */
+  /* 解锁进程 */
   __HAL_UNLOCK(hspi);
   if (hspi->ErrorCode != HAL_SPI_ERROR_NONE)
   {
@@ -1168,14 +1146,13 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
 }
 
 /**
-  * @brief  Transmit and Receive an amount of data in blocking mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  pTxData pointer to transmission data buffer (u8 or u16 data elements)
-  * @param  pRxData pointer to reception data buffer (u8 or u16 data elements)
-  * @param  Size amount of data elements (u8 or u16) to be sent and received
-  * @param  Timeout Timeout duration in ms
-  * @retval HAL status
+  * @brief  在阻塞模式下收发一定量的数据。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构的指针。
+  * @param  pTxData 指向发送数据缓冲区的指针（u8 或 u16 数据元素）
+  * @param  pRxData 指向接收数据缓冲区的指针（u8 或 u16 数据元素）
+  * @param  Size 要发送和接收的数据元素数量（u8 或 u16）
+  * @param  Timeout 超时时间（单位：毫秒）
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t *pTxData, uint8_t *pRxData,
                                           uint16_t Size, uint32_t Timeout)
@@ -1188,16 +1165,16 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
   __IO uint32_t tmpreg = 0U;
 #endif /* USE_SPI_CRC */
 
-  /* Variable used to alternate Rx and Tx during transfer */
+  /* 用于在传输过程中交替进行接收（Rx）和发送（Tx）的变量 */
   uint32_t             txallowed = 1U;
 
-  /* Check Direction parameter */
+  /* 检查 Direction 参数 */
   assert_param(IS_SPI_DIRECTION_2LINES(hspi->Init.Direction));
 
-  /* Init tickstart for timeout management*/
+  /* 初始化用于超时管理的 tickstart */
   tickstart = HAL_GetTick();
 
-  /* Init temporary variables */
+  /* 初始化临时变量 */
   tmp_state           = hspi->State;
   tmp_mode            = hspi->Init.Mode;
   initial_TxXferCount = Size;
@@ -1214,16 +1191,16 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
     return HAL_ERROR;
   }
 
-  /* Process Locked */
+  /* 进程已锁定 */
   __HAL_LOCK(hspi);
 
-  /* Don't overwrite in case of HAL_SPI_STATE_BUSY_RX */
+  /* 在状态为 HAL_SPI_STATE_BUSY_RX 的情况下不要覆盖 */
   if (hspi->State != HAL_SPI_STATE_BUSY_RX)
   {
     hspi->State = HAL_SPI_STATE_BUSY_TX_RX;
   }
 
-  /* Set the transaction information */
+  /* 设置传输事务信息 */
   hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
   hspi->pRxBuffPtr  = (uint8_t *)pRxData;
   hspi->RxXferCount = Size;
@@ -1232,26 +1209,26 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
   hspi->TxXferCount = Size;
   hspi->TxXferSize  = Size;
 
-  /*Init field not used in handle to zero */
+  /* 将句柄中未使用的字段初始化为零 */
   hspi->RxISR       = NULL;
   hspi->TxISR       = NULL;
 
 #if (USE_SPI_CRC != 0U)
-  /* Reset CRC Calculation */
+  /* 复位 CRC 计算 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SPI_RESET_CRC(hspi);
   }
 #endif /* USE_SPI_CRC */
 
-  /* Check if the SPI is already enabled */
+  /* 检查 SPI 是否已使能 */
   if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
   {
-    /* Enable SPI peripheral */
+    /* 使能 SPI 外设 */
     __HAL_SPI_ENABLE(hspi);
   }
 
-  /* Transmit and Receive data in 16 Bit mode */
+  /* 在 16 位模式下发送和接收数据 */
   if (hspi->Init.DataSize == SPI_DATASIZE_16BIT)
   {
     if ((hspi->Init.Mode == SPI_MODE_SLAVE) || (initial_TxXferCount == 0x01U))
@@ -1261,7 +1238,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
       hspi->TxXferCount--;
 
 #if (USE_SPI_CRC != 0U)
-      /* Enable CRC Transmission */
+      /* 使能 CRC 发送 */
       if ((hspi->TxXferCount == 0U) && (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE))
       {
         SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
@@ -1271,17 +1248,17 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
     }
     while ((hspi->TxXferCount > 0U) || (hspi->RxXferCount > 0U))
     {
-      /* Check TXE flag */
+      /* 检查 TXE 标志 */
       if ((__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXE)) && (hspi->TxXferCount > 0U) && (txallowed == 1U))
       {
         hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
         hspi->pTxBuffPtr += sizeof(uint16_t);
         hspi->TxXferCount--;
-        /* Next Data is a reception (Rx). Tx not allowed */
+        /* 下一个数据为接收 (Rx)。不允许发送 (Tx) */
         txallowed = 0U;
 
 #if (USE_SPI_CRC != 0U)
-        /* Enable CRC Transmission */
+        /* 使能 CRC 发送 */
         if ((hspi->TxXferCount == 0U) && (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE))
         {
           SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
@@ -1289,13 +1266,13 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
 #endif /* USE_SPI_CRC */
       }
 
-      /* Check RXNE flag */
+      /* 检查 RXNE 标志 */
       if ((__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_RXNE)) && (hspi->RxXferCount > 0U))
       {
         *((uint16_t *)hspi->pRxBuffPtr) = (uint16_t)hspi->Instance->DR;
         hspi->pRxBuffPtr += sizeof(uint16_t);
         hspi->RxXferCount--;
-        /* Next Data is a Transmission (Tx). Tx is allowed */
+        /* 下一个数据为发送 (Tx)。允许发送 (Tx) */
         txallowed = 1U;
       }
       if (((HAL_GetTick() - tickstart) >=  Timeout) && (Timeout != HAL_MAX_DELAY))
@@ -1306,7 +1283,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
       }
     }
   }
-  /* Transmit and Receive data in 8 Bit mode */
+  /* 以 8 位模式发送和接收数据 */
   else
   {
     if ((hspi->Init.Mode == SPI_MODE_SLAVE) || (initial_TxXferCount == 0x01U))
@@ -1316,7 +1293,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
       hspi->TxXferCount--;
 
 #if (USE_SPI_CRC != 0U)
-      /* Enable CRC Transmission */
+      /* 使能 CRC 发送 */
       if ((hspi->TxXferCount == 0U) && (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE))
       {
         SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
@@ -1325,17 +1302,17 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
     }
     while ((hspi->TxXferCount > 0U) || (hspi->RxXferCount > 0U))
     {
-      /* Check TXE flag */
+      /* 检查 TXE 标志 */
       if ((__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_TXE)) && (hspi->TxXferCount > 0U) && (txallowed == 1U))
       {
         *(__IO uint8_t *)&hspi->Instance->DR = *((const uint8_t *)hspi->pTxBuffPtr);
         hspi->pTxBuffPtr++;
         hspi->TxXferCount--;
-        /* Next Data is a reception (Rx). Tx not allowed */
+        /* 下一个数据为接收 (Rx)。不允许发送 (Tx) */
         txallowed = 0U;
 
 #if (USE_SPI_CRC != 0U)
-        /* Enable CRC Transmission */
+        /* 使能 CRC 发送 */
         if ((hspi->TxXferCount == 0U) && (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE))
         {
           SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
@@ -1343,13 +1320,13 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
 #endif /* USE_SPI_CRC */
       }
 
-      /* Wait until RXNE flag is reset */
+      /* 等待直到 RXNE 标志复位 */
       if ((__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_RXNE)) && (hspi->RxXferCount > 0U))
       {
         (*(uint8_t *)hspi->pRxBuffPtr) = hspi->Instance->DR;
         hspi->pRxBuffPtr++;
         hspi->RxXferCount--;
-        /* Next Data is a Transmission (Tx). Tx is allowed */
+        /* 下一个数据为发送 (Tx)。允许发送 (Tx) */
         txallowed = 1U;
       }
       if ((((HAL_GetTick() - tickstart) >=  Timeout) && ((Timeout != HAL_MAX_DELAY))) || (Timeout == 0U))
@@ -1362,33 +1339,33 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Read CRC from DR to close CRC calculation process */
+  /* 从 DR 读取 CRC 以结束 CRC 计算流程 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
-    /* Wait until TXE flag */
+    /* 等待 TXE 标志置位 */
     if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_RXNE, SET, Timeout, tickstart) != HAL_OK)
     {
-      /* Error on the CRC reception */
+      /* CRC 接收错误 */
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
       hspi->State = HAL_SPI_STATE_READY;
       __HAL_UNLOCK(hspi);
       return HAL_TIMEOUT;
     }
-    /* Read CRC */
+    /* 读取 CRC */
     tmpreg = READ_REG(hspi->Instance->DR);
-    /* To avoid GCC warning */
+    /* 避免 GCC 编译器警告 */
     UNUSED(tmpreg);
   }
 
-  /* Check if CRC error occurred */
+  /* 检查是否发生 CRC 错误 */
   if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_CRCERR) != RESET)
   {
-    /* Check if CRC error is valid or not (workaround to be applied or not) */
+    /* 检查 CRC 错误是否有效（是否需要应用变通方案） */
     if (SPI_ISCRCErrorValid(hspi) == SPI_VALID_CRC_ERROR)
     {
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
 
-      /* Reset CRC Calculation */
+      /* 复位 CRC 计算 */
       SPI_RESET_CRC(hspi);
       __HAL_UNLOCK(hspi);
       return HAL_ERROR;
@@ -1400,7 +1377,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
   }
 #endif /* USE_SPI_CRC */
 
-  /* Check the end of the transaction */
+  /* 检查本次传输事务是否结束 */
   if (SPI_EndRxTxTransaction(hspi, Timeout, tickstart) != HAL_OK)
   {
     hspi->ErrorCode = HAL_SPI_ERROR_FLAG;
@@ -1408,7 +1385,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
     return HAL_ERROR;
   }
 
-  /* Clear overrun flag in 2 Lines communication mode because received is not read */
+  /* 在双线通信模式下清除过载（OVR）标志，因为未读取接收到的数据 */
   if (hspi->Init.Direction == SPI_DIRECTION_2LINES)
   {
     __HAL_SPI_CLEAR_OVRFLAG(hspi);
@@ -1416,7 +1393,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
 
 
   hspi->State = HAL_SPI_STATE_READY;
-  /* Unlock the process */
+  /* 解锁进程 */
   __HAL_UNLOCK(hspi);
 
   if (hspi->ErrorCode != HAL_SPI_ERROR_NONE)
@@ -1430,17 +1407,16 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t
 }
 
 /**
-  * @brief  Transmit an amount of data in non-blocking mode with Interrupt.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  pData pointer to data buffer (u8 or u16 data elements)
-  * @param  Size amount of data elements (u8 or u16) to be sent
-  * @retval HAL status
+  * @brief  在中断非阻塞模式下发送一定数量的数据。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构的指针。
+  * @param  pData 指向数据缓冲区的指针（u8 或 u16 数据元素）
+  * @param  Size 要发送的数据元素（u8 或 u16）数量
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, const uint8_t *pData, uint16_t Size)
 {
 
-  /* Check Direction parameter */
+  /* 检查 Direction 参数 */
   assert_param(IS_SPI_DIRECTION_2LINES_OR_1LINE(hspi->Init.Direction));
 
 
@@ -1454,23 +1430,23 @@ HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, const uint8_t *pD
     return HAL_BUSY;
   }
 
-  /* Process Locked */
+  /* 进程已锁定 */
   __HAL_LOCK(hspi);
 
-  /* Set the transaction information */
+  /* 设置传输事务信息 */
   hspi->State       = HAL_SPI_STATE_BUSY_TX;
   hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
   hspi->pTxBuffPtr  = (const uint8_t *)pData;
   hspi->TxXferSize  = Size;
   hspi->TxXferCount = Size;
 
-  /* Init field not used in handle to zero */
+  /* 将句柄中未使用的字段初始化为零 */
   hspi->pRxBuffPtr  = (uint8_t *)NULL;
   hspi->RxXferSize  = 0U;
   hspi->RxXferCount = 0U;
   hspi->RxISR       = NULL;
 
-  /* Set the function for IT treatment */
+  /* 设置中断处理函数 */
   if (hspi->Init.DataSize > SPI_DATASIZE_8BIT)
   {
     hspi->TxISR = SPI_TxISR_16BIT;
@@ -1480,44 +1456,43 @@ HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, const uint8_t *pD
     hspi->TxISR = SPI_TxISR_8BIT;
   }
 
-  /* Configure communication direction : 1Line */
+  /* 配置通信方向：单线模式 */
   if (hspi->Init.Direction == SPI_DIRECTION_1LINE)
   {
-    /* Disable SPI Peripheral before set 1Line direction (BIDIOE bit) */
+    /* 在设置单线方向（BIDIOE 位）前禁用 SPI 外设 */
     __HAL_SPI_DISABLE(hspi);
     SPI_1LINE_TX(hspi);
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Reset CRC Calculation */
+  /* 复位 CRC 计算 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SPI_RESET_CRC(hspi);
   }
 #endif /* USE_SPI_CRC */
 
-  /* Check if the SPI is already enabled */
+  /* 检查 SPI 是否已经使能 */
   if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
   {
-    /* Enable SPI peripheral */
+    /* 使能 SPI 外设 */
     __HAL_SPI_ENABLE(hspi);
   }
 
-  /* Process Unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hspi);
-  /* Enable TXE and ERR interrupt */
+  /* 使能 TXE 和 ERR 中断 */
   __HAL_SPI_ENABLE_IT(hspi, (SPI_IT_TXE | SPI_IT_ERR));
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Receive an amount of data in non-blocking mode with Interrupt.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  pData pointer to data buffer (u8 or u16 data elements)
-  * @param  Size amount of data elements (u8 or u16) to be received
-  * @retval HAL status
+  * @brief  在中断模式下以非阻塞方式接收指定量的数据。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构的指针。
+  * @param  pData 指向数据缓冲区的指针（u8 或 u16 数据元素）
+  * @param  Size 待接收的数据元素数量（u8 或 u16）
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size)
 {
@@ -1535,28 +1510,28 @@ HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, ui
   if ((hspi->Init.Direction == SPI_DIRECTION_2LINES) && (hspi->Init.Mode == SPI_MODE_MASTER))
   {
     hspi->State = HAL_SPI_STATE_BUSY_RX;
-    /* Call transmit-receive function to send Dummy data on Tx line and generate clock on CLK line */
+    /* 调用收发函数在 Tx 线上发送伪数据并在 CLK 线上生成时钟 */
     return HAL_SPI_TransmitReceive_IT(hspi, pData, pData, Size);
   }
 
 
-  /* Process Locked */
+  /* 进程加锁 */
   __HAL_LOCK(hspi);
 
-  /* Set the transaction information */
+  /* 设置传输事务信息 */
   hspi->State       = HAL_SPI_STATE_BUSY_RX;
   hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
   hspi->pRxBuffPtr  = (uint8_t *)pData;
   hspi->RxXferSize  = Size;
   hspi->RxXferCount = Size;
 
-  /* Init field not used in handle to zero */
+  /* 将句柄中未使用的字段清零 */
   hspi->pTxBuffPtr  = (uint8_t *)NULL;
   hspi->TxXferSize  = 0U;
   hspi->TxXferCount = 0U;
   hspi->TxISR       = NULL;
 
-  /* Set the function for IT treatment */
+  /* 设置用于中断处理的函数 */
   if (hspi->Init.DataSize > SPI_DATASIZE_8BIT)
   {
     hspi->RxISR = SPI_RxISR_16BIT;
@@ -1566,49 +1541,47 @@ HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, ui
     hspi->RxISR = SPI_RxISR_8BIT;
   }
 
-  /* Configure communication direction : 1Line */
+  /* 配置通信方向：单线模式 (1Line) */
   if (hspi->Init.Direction == SPI_DIRECTION_1LINE)
   {
-    /* Disable SPI Peripheral before set 1Line direction (BIDIOE bit) */
+    /* 在设置单线方向 (BIDIOE 位) 之前禁用 SPI 外设 */
     __HAL_SPI_DISABLE(hspi);
     SPI_1LINE_RX(hspi);
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Reset CRC Calculation */
+  /* 复位 CRC 计算 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SPI_RESET_CRC(hspi);
   }
 #endif /* USE_SPI_CRC */
 
-  /* Note : The SPI must be enabled after unlocking current process
-            to avoid the risk of SPI interrupt handle execution before current
-            process unlock */
+  /* 注意：必须在解锁当前进程之后再使能 SPI，
+            以避免在当前进程解锁之前执行 SPI 中断处理程序的风险 */
 
-  /* Check if the SPI is already enabled */
+  /* 检查 SPI 是否已经使能 */
   if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
   {
-    /* Enable SPI peripheral */
+    /* 使能 SPI 外设 */
     __HAL_SPI_ENABLE(hspi);
   }
 
-  /* Process Unlocked */
+  /* 进程已解锁 */
   __HAL_UNLOCK(hspi);
-  /* Enable RXNE and ERR interrupt */
+  /* 使能 RXNE 和 ERR 中断 */
   __HAL_SPI_ENABLE_IT(hspi, (SPI_IT_RXNE | SPI_IT_ERR));
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Transmit and Receive an amount of data in non-blocking mode with Interrupt.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  pTxData pointer to transmission data buffer (u8 or u16 data elements)
-  * @param  pRxData pointer to reception data buffer (u8 or u16 data elements)
-  * @param  Size amount of data elements (u8 or u16) to be sent and received
-  * @retval HAL status
+  * @brief  在中断非阻塞模式下收发一定数量的数据。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构的指针。
+  * @param  pTxData 指向发送数据缓冲区的指针（u8 或 u16 数据元素）
+  * @param  pRxData 指向接收数据缓冲区的指针（u8 或 u16 数据元素）
+  * @param  Size 要发送和接收的数据元素数量（u8 或 u16）
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, const uint8_t *pTxData, uint8_t *pRxData,
                                              uint16_t Size)
@@ -1616,10 +1589,10 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, const uint
   uint32_t             tmp_mode;
   HAL_SPI_StateTypeDef tmp_state;
 
-  /* Check Direction parameter */
+  /* 检查方向参数 */
   assert_param(IS_SPI_DIRECTION_2LINES(hspi->Init.Direction));
 
-  /* Init temporary variables */
+  /* 初始化临时变量 */
   tmp_state           = hspi->State;
   tmp_mode            = hspi->Init.Mode;
 
@@ -1635,16 +1608,16 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, const uint
     return HAL_ERROR;
   }
 
-  /* Process locked */
+  /* 进程已加锁 */
   __HAL_LOCK(hspi);
 
-  /* Don't overwrite in case of HAL_SPI_STATE_BUSY_RX */
+  /* 若处于 HAL_SPI_STATE_BUSY_RX 状态则不覆盖 */
   if (hspi->State != HAL_SPI_STATE_BUSY_RX)
   {
     hspi->State = HAL_SPI_STATE_BUSY_TX_RX;
   }
 
-  /* Set the transaction information */
+  /* 设置传输事务信息 */
   hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
   hspi->pTxBuffPtr  = (const uint8_t *)pTxData;
   hspi->TxXferSize  = Size;
@@ -1653,7 +1626,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, const uint
   hspi->RxXferSize  = Size;
   hspi->RxXferCount = Size;
 
-  /* Set the function for IT treatment */
+  /* 设置中断处理函数 */
   if (hspi->Init.DataSize > SPI_DATASIZE_8BIT)
   {
     hspi->RxISR     = SPI_2linesRxISR_16BIT;
@@ -1666,7 +1639,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, const uint
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Reset CRC Calculation */
+  /* 复位 CRC 计算 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SPI_RESET_CRC(hspi);
@@ -1674,36 +1647,35 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, const uint
 #endif /* USE_SPI_CRC */
 
 
-  /* Check if the SPI is already enabled */
+  /* 检查 SPI 是否已使能 */
   if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
   {
-    /* Enable SPI peripheral */
+    /* 使能 SPI 外设 */
     __HAL_SPI_ENABLE(hspi);
   }
 
-  /* Process Unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hspi);
-  /* Enable TXE, RXNE and ERR interrupt */
+  /* 使能 TXE、RXNE 和 ERR 中断 */
   __HAL_SPI_ENABLE_IT(hspi, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Transmit an amount of data in non-blocking mode with DMA.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  pData pointer to data buffer  (u8 or u16 data elements)
-  * @param  Size amount of data elements (u8 or u16) to be sent
-  * @retval HAL status
+  * @brief  使用 DMA 在非阻塞模式下发送一定数量的数据。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构的指针。
+  * @param  pData 指向数据缓冲区的指针（u8 或 u16 数据元素）
+  * @param  Size 待发送的数据元素数量（u8 或 u16）
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_Transmit_DMA(SPI_HandleTypeDef *hspi, const uint8_t *pData, uint16_t Size)
 {
 
-  /* Check tx dma handle */
+  /* 检查 TX DMA 句柄 */
   assert_param(IS_SPI_DMA_HANDLE(hspi->hdmatx));
 
-  /* Check Direction parameter */
+  /* 检查 Direction 参数 */
   assert_param(IS_SPI_DIRECTION_2LINES_OR_1LINE(hspi->Init.Direction));
 
   if (hspi->State != HAL_SPI_STATE_READY)
@@ -1716,94 +1688,93 @@ HAL_StatusTypeDef HAL_SPI_Transmit_DMA(SPI_HandleTypeDef *hspi, const uint8_t *p
     return HAL_ERROR;
   }
 
-  /* Process Locked */
+  /* 进程加锁 */
   __HAL_LOCK(hspi);
 
-  /* Set the transaction information */
+  /* 设置传输事务信息 */
   hspi->State       = HAL_SPI_STATE_BUSY_TX;
   hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
   hspi->pTxBuffPtr  = (const uint8_t *)pData;
   hspi->TxXferSize  = Size;
   hspi->TxXferCount = Size;
 
-  /* Init field not used in handle to zero */
+  /* 将句柄中未使用的字段初始化为零 */
   hspi->pRxBuffPtr  = (uint8_t *)NULL;
   hspi->TxISR       = NULL;
   hspi->RxISR       = NULL;
   hspi->RxXferSize  = 0U;
   hspi->RxXferCount = 0U;
 
-  /* Configure communication direction : 1Line */
+  /* 配置通信方向：单线 */
   if (hspi->Init.Direction == SPI_DIRECTION_1LINE)
   {
-    /* Disable SPI Peripheral before set 1Line direction (BIDIOE bit) */
+    /* 在设置单线方向（BIDIOE 位）之前禁用 SPI 外设 */
     __HAL_SPI_DISABLE(hspi);
     SPI_1LINE_TX(hspi);
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Reset CRC Calculation */
+  /* 复位 CRC 计算 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SPI_RESET_CRC(hspi);
   }
 #endif /* USE_SPI_CRC */
 
-  /* Set the SPI TxDMA Half transfer complete callback */
+  /* 设置 SPI TxDMA 半传输完成回调函数 */
   hspi->hdmatx->XferHalfCpltCallback = SPI_DMAHalfTransmitCplt;
 
-  /* Set the SPI TxDMA transfer complete callback */
+  /* 设置 SPI TxDMA 传输完成回调函数 */
   hspi->hdmatx->XferCpltCallback = SPI_DMATransmitCplt;
 
-  /* Set the DMA error callback */
+  /* 设置 DMA 错误回调函数 */
   hspi->hdmatx->XferErrorCallback = SPI_DMAError;
 
-  /* Set the DMA AbortCpltCallback */
+  /* 设置 DMA 中止完成回调函数 (AbortCpltCallback) */
   hspi->hdmatx->XferAbortCallback = NULL;
 
-  /* Enable the Tx DMA Stream/Channel */
+  /* 使能 Tx DMA 数据流/通道 */
   if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmatx, (uint32_t)hspi->pTxBuffPtr, (uint32_t)&hspi->Instance->DR,
                                  hspi->TxXferCount))
   {
-    /* Update SPI error code */
+    /* 更新 SPI 错误代码 */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_DMA);
-    /* Process Unlocked */
+    /* 解锁进程 */
     __HAL_UNLOCK(hspi);
     return HAL_ERROR;
   }
 
-  /* Check if the SPI is already enabled */
+  /* 检查 SPI 是否已使能 */
   if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
   {
-    /* Enable SPI peripheral */
+    /* 使能 SPI 外设 */
     __HAL_SPI_ENABLE(hspi);
   }
 
-  /* Process Unlocked */
+  /* 解锁进程 */
   __HAL_UNLOCK(hspi);
 
-  /* Enable the SPI Error Interrupt Bit */
+  /* 使能 SPI 错误中断位 */
   __HAL_SPI_ENABLE_IT(hspi, (SPI_IT_ERR));
 
-  /* Enable Tx DMA Request */
+  /* 使能发送 DMA 请求 */
   SET_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Receive an amount of data in non-blocking mode with DMA.
-  * @note   In case of MASTER mode and SPI_DIRECTION_2LINES direction, hdmatx shall be defined.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  pData pointer to data buffer (u8 or u16 data elements)
-  * @note   When the CRC feature is enabled the pData Length must be Size + 1.
-  * @param  Size amount of data elements (u8 or u16) to be received
-  * @retval HAL status
+  * @brief  在非阻塞模式下通过 DMA 接收指定数量的数据。
+  * @note   在主机模式（MASTER）且为双线全双工方向（SPI_DIRECTION_2LINES）时，必须定义 hdmatx。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @param  pData 指向数据缓冲区的指针（u8 或 u16 数据元素）
+  * @note   使能 CRC 功能时，pData 的长度必须为 Size + 1。
+  * @param  Size 要接收的数据元素（u8 或 u16）数量
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_Receive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size)
 {
-  /* Check rx dma handle */
+  /* 检查接收 DMA 句柄 */
   assert_param(IS_SPI_DMA_HANDLE(hspi->hdmarx));
 
   if (hspi->State != HAL_SPI_STATE_READY)
@@ -1820,96 +1791,95 @@ HAL_StatusTypeDef HAL_SPI_Receive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, u
   {
     hspi->State = HAL_SPI_STATE_BUSY_RX;
 
-    /* Check tx dma handle */
+    /* 检查发送 DMA 句柄 */
     assert_param(IS_SPI_DMA_HANDLE(hspi->hdmatx));
 
-    /* Call transmit-receive function to send Dummy data on Tx line and generate clock on CLK line */
+    /* 调用收发函数在 Tx 线上发送伪数据（Dummy data）并在 CLK 线上产生时钟 */
     return HAL_SPI_TransmitReceive_DMA(hspi, pData, pData, Size);
   }
 
-  /* Process Locked */
+  /* 进程加锁 */
   __HAL_LOCK(hspi);
 
-  /* Set the transaction information */
+  /* 设置传输信息 */
   hspi->State       = HAL_SPI_STATE_BUSY_RX;
   hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
   hspi->pRxBuffPtr  = (uint8_t *)pData;
   hspi->RxXferSize  = Size;
   hspi->RxXferCount = Size;
 
-  /*Init field not used in handle to zero */
+  /* 将句柄中未使用的字段初始化为零 */
   hspi->RxISR       = NULL;
   hspi->TxISR       = NULL;
   hspi->TxXferSize  = 0U;
   hspi->TxXferCount = 0U;
 
-  /* Configure communication direction : 1Line */
+  /* 配置通信方向：单线模式（1Line） */
   if (hspi->Init.Direction == SPI_DIRECTION_1LINE)
   {
-    /* Disable SPI Peripheral before set 1Line direction (BIDIOE bit) */
+    /* 在设置单线方向（BIDIOE 位）之前禁用 SPI 外设 */
     __HAL_SPI_DISABLE(hspi);
     SPI_1LINE_RX(hspi);
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Reset CRC Calculation */
+  /* 复位 CRC 计算 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SPI_RESET_CRC(hspi);
   }
 #endif /* USE_SPI_CRC */
 
-  /* Set the SPI RxDMA Half transfer complete callback */
+  /* 设置 SPI 接收 DMA 半传输完成回调函数 */
   hspi->hdmarx->XferHalfCpltCallback = SPI_DMAHalfReceiveCplt;
 
-  /* Set the SPI Rx DMA transfer complete callback */
+  /* 设置 SPI 接收 DMA 传输完成回调函数 */
   hspi->hdmarx->XferCpltCallback = SPI_DMAReceiveCplt;
 
-  /* Set the DMA error callback */
+  /* 设置 DMA 错误回调函数 */
   hspi->hdmarx->XferErrorCallback = SPI_DMAError;
 
-  /* Set the DMA AbortCpltCallback */
+  /* 设置 DMA 中止完成回调函数 (AbortCpltCallback) */
   hspi->hdmarx->XferAbortCallback = NULL;
 
-  /* Enable the Rx DMA Stream/Channel  */
+  /* 使能接收 DMA 数据流/通道 (Rx DMA Stream/Channel) */
   if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmarx, (uint32_t)&hspi->Instance->DR, (uint32_t)hspi->pRxBuffPtr,
                                  hspi->RxXferCount))
   {
-    /* Update SPI error code */
+    /* 更新 SPI 错误代码 */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_DMA);
-    /* Process Unlocked */
+    /* 进程解锁 */
     __HAL_UNLOCK(hspi);
     return HAL_ERROR;
   }
 
-  /* Check if the SPI is already enabled */
+  /* 检查 SPI 是否已使能 */
   if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
   {
-    /* Enable SPI peripheral */
+    /* 使能 SPI 外设 */
     __HAL_SPI_ENABLE(hspi);
   }
 
-  /* Process Unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hspi);
 
-  /* Enable the SPI Error Interrupt Bit */
+  /* 使能 SPI 错误中断位 */
   __HAL_SPI_ENABLE_IT(hspi, (SPI_IT_ERR));
 
-  /* Enable Rx DMA Request */
+  /* 使能接收 DMA 请求 */
   SET_BIT(hspi->Instance->CR2, SPI_CR2_RXDMAEN);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Transmit and Receive an amount of data in non-blocking mode with DMA.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  pTxData pointer to transmission data buffer (u8 or u16 data elements)
-  * @param  pRxData pointer to reception data buffer (u8 or u16 data elements)
-  * @note   When the CRC feature is enabled the pRxData Length must be Size + 1
-  * @param  Size amount of data elements (u8 or u16) to be sent and received
-  * @retval HAL status
+  * @brief  使用 DMA 在非阻塞模式下发送和接收指定量的数据。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @param  pTxData 指向发送数据缓冲区的指针（u8 或 u16 数据元素）
+  * @param  pRxData 指向接收数据缓冲区的指针（u8 或 u16 数据元素）
+  * @note   使能 CRC 功能时，pRxData 的长度必须为 Size + 1
+  * @param  Size 要发送和接收的数据元素（u8 或 u16）数量
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, const uint8_t *pTxData, uint8_t *pRxData,
                                               uint16_t Size)
@@ -1917,14 +1887,14 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, const uin
   uint32_t             tmp_mode;
   HAL_SPI_StateTypeDef tmp_state;
 
-  /* Check rx & tx dma handles */
+  /* 检查 rx 和 tx 的 DMA 句柄 */
   assert_param(IS_SPI_DMA_HANDLE(hspi->hdmarx));
   assert_param(IS_SPI_DMA_HANDLE(hspi->hdmatx));
 
-  /* Check Direction parameter */
+  /* 检查方向 (Direction) 参数 */
   assert_param(IS_SPI_DIRECTION_2LINES(hspi->Init.Direction));
 
-  /* Init temporary variables */
+  /* 初始化临时变量 */
   tmp_state           = hspi->State;
   tmp_mode            = hspi->Init.Mode;
 
@@ -1940,16 +1910,16 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, const uin
     return HAL_ERROR;
   }
 
-  /* Process locked */
+  /* 进程加锁 */
   __HAL_LOCK(hspi);
 
-  /* Don't overwrite in case of HAL_SPI_STATE_BUSY_RX */
+  /* 若处于 HAL_SPI_STATE_BUSY_RX 状态则不要覆盖 */
   if (hspi->State != HAL_SPI_STATE_BUSY_RX)
   {
     hspi->State = HAL_SPI_STATE_BUSY_TX_RX;
   }
 
-  /* Set the transaction information */
+  /* 设置传输事务信息 */
   hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
   hspi->pTxBuffPtr  = (const uint8_t *)pTxData;
   hspi->TxXferSize  = Size;
@@ -1958,101 +1928,101 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, const uin
   hspi->RxXferSize  = Size;
   hspi->RxXferCount = Size;
 
-  /* Init field not used in handle to zero */
+  /* 将句柄中未使用的字段初始化为零 */
   hspi->RxISR       = NULL;
   hspi->TxISR       = NULL;
 
 #if (USE_SPI_CRC != 0U)
-  /* Reset CRC Calculation */
+  /* 复位 CRC 计算 */
   if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
   {
     SPI_RESET_CRC(hspi);
   }
 #endif /* USE_SPI_CRC */
 
-  /* Check if we are in Rx only or in Rx/Tx Mode and configure the DMA transfer complete callback */
+  /* 检查是仅接收模式还是收发模式，并配置 DMA 传输完成回调函数 */
   if (hspi->State == HAL_SPI_STATE_BUSY_RX)
   {
-    /* Set the SPI Rx DMA Half transfer complete callback */
+    /* 设置 SPI 接收 DMA 半传输完成回调函数 */
     hspi->hdmarx->XferHalfCpltCallback = SPI_DMAHalfReceiveCplt;
     hspi->hdmarx->XferCpltCallback     = SPI_DMAReceiveCplt;
   }
   else
   {
-    /* Set the SPI Tx/Rx DMA Half transfer complete callback */
+    /* 设置 SPI 发送/接收 DMA 半传输完成回调函数 */
     hspi->hdmarx->XferHalfCpltCallback = SPI_DMAHalfTransmitReceiveCplt;
     hspi->hdmarx->XferCpltCallback     = SPI_DMATransmitReceiveCplt;
   }
 
-  /* Set the DMA error callback */
+  /* 设置 DMA 错误回调函数 */
   hspi->hdmarx->XferErrorCallback = SPI_DMAError;
 
-  /* Set the DMA AbortCpltCallback */
+  /* 设置 DMA 中止完成回调函数 (AbortCpltCallback) */
   hspi->hdmarx->XferAbortCallback = NULL;
 
-  /* Enable the Rx DMA Stream/Channel  */
+  /* 使能接收 DMA 数据流/通道 */
   if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmarx, (uint32_t)&hspi->Instance->DR, (uint32_t)hspi->pRxBuffPtr,
                                  hspi->RxXferCount))
   {
-    /* Update SPI error code */
+    /* 更新 SPI 错误代码 */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_DMA);
-    /* Process Unlocked */
+    /* 进程解锁 */
     __HAL_UNLOCK(hspi);
     return HAL_ERROR;
   }
 
-  /* Enable Rx DMA Request */
+  /* 使能接收 DMA 请求 */
   SET_BIT(hspi->Instance->CR2, SPI_CR2_RXDMAEN);
 
-  /* Set the SPI Tx DMA transfer complete callback as NULL because the communication closing
-  is performed in DMA reception complete callback  */
+  /* 将 SPI 发送 DMA 传输完成回调函数设为 NULL，因为通信关闭操作
+  在 DMA 接收完成回调函数中执行 */
   hspi->hdmatx->XferHalfCpltCallback = NULL;
   hspi->hdmatx->XferCpltCallback     = NULL;
   hspi->hdmatx->XferErrorCallback    = NULL;
   hspi->hdmatx->XferAbortCallback    = NULL;
 
-  /* Enable the Tx DMA Stream/Channel  */
+  /* 使能发送 DMA 数据流/通道 */
   if (HAL_OK != HAL_DMA_Start_IT(hspi->hdmatx, (uint32_t)hspi->pTxBuffPtr, (uint32_t)&hspi->Instance->DR,
                                  hspi->TxXferCount))
   {
-    /* Update SPI error code */
+    /* 更新 SPI 错误代码 */
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_DMA);
-    /* Process Unlocked */
+    /* 进程解锁 */
     __HAL_UNLOCK(hspi);
     return HAL_ERROR;
   }
 
-  /* Check if the SPI is already enabled */
+  /* 检查 SPI 是否已使能 */
   if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE)
   {
-    /* Enable SPI peripheral */
+    /* 使能 SPI 外设 */
     __HAL_SPI_ENABLE(hspi);
   }
 
-  /* Process Unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hspi);
 
-  /* Enable the SPI Error Interrupt Bit */
+  /* 使能 SPI 错误中断位 */
   __HAL_SPI_ENABLE_IT(hspi, (SPI_IT_ERR));
 
-  /* Enable Tx DMA Request */
+  /* 使能 Tx DMA 请求 */
   SET_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Abort ongoing transfer (blocking mode).
-  * @param  hspi SPI handle.
-  * @note   This procedure could be used for aborting any ongoing transfer (Tx and Rx),
-  *         started in Interrupt or DMA mode.
-  *         This procedure performs following operations :
-  *           - Disable SPI Interrupts (depending of transfer direction)
-  *           - Disable the DMA transfer in the peripheral register (if enabled)
-  *           - Abort DMA transfer by calling HAL_DMA_Abort (in case of transfer in DMA mode)
-  *           - Set handle State to READY
-  * @note   This procedure is executed in blocking mode : when exiting function, Abort is considered as completed.
-  * @retval HAL status
+  * @brief  中止正在进行的传输（阻塞模式）。
+  * @param  hspi SPI 句柄。
+  * @note   此过程可用于中止任何正在进行的传输（发送和接收），
+  *         无论该传输是以中断模式还是 DMA 模式启动。
+  *         该过程执行以下操作：
+  *           - 禁用 SPI 中断（取决于传输方向）
+  *           - 在外设寄存器中禁用 DMA 传输（如果已使能）
+  *           - 通过调用 HAL_DMA_Abort 中止 DMA 传输（如果是 DMA 模式传输）
+  *           - 将句柄状态设置为 READY
+  * @note   此过程在阻塞模式下执行：退出函数时，中止操作被视为已完成。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
 {
@@ -2060,19 +2030,19 @@ HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
   __IO uint32_t count;
   __IO uint32_t resetcount;
 
-  /* Initialized local variable  */
+  /* 初始化局部变量 */
   errorcode = HAL_OK;
   resetcount = SPI_DEFAULT_TIMEOUT * (SystemCoreClock / 24U / 1000U);
   count = resetcount;
 
-  /* Clear ERRIE interrupt to avoid error interrupts generation during Abort procedure */
+  /* 清除 ERRIE 中断，以避免在中止过程中产生错误中断 */
   CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_ERRIE);
 
-  /* Disable TXEIE, RXNEIE and ERRIE(mode fault event, overrun error, TI frame error) interrupts */
+  /* 禁用 TXEIE、RXNEIE 和 ERRIE（模式错误事件、过载错误、TI 帧错误）中断 */
   if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_TXEIE))
   {
     hspi->TxISR = SPI_AbortTx_ISR;
-    /* Wait HAL_SPI_STATE_ABORT state */
+    /* 等待 HAL_SPI_STATE_ABORT 状态 */
     do
     {
       if (count == 0U)
@@ -2082,14 +2052,14 @@ HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
       }
       count--;
     } while (hspi->State != HAL_SPI_STATE_ABORT);
-    /* Reset Timeout Counter */
+    /* 重置超时计数器 */
     count = resetcount;
   }
 
   if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_RXNEIE))
   {
     hspi->RxISR = SPI_AbortRx_ISR;
-    /* Wait HAL_SPI_STATE_ABORT state */
+    /* 等待 HAL_SPI_STATE_ABORT 状态 */
     do
     {
       if (count == 0U)
@@ -2099,30 +2069,30 @@ HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
       }
       count--;
     } while (hspi->State != HAL_SPI_STATE_ABORT);
-    /* Reset Timeout Counter */
+    /* 重置超时计数器 */
     count = resetcount;
   }
 
-  /* Disable the SPI DMA Tx request if enabled */
+  /* 若已使能，则禁用 SPI DMA 发送请求 */
   if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_TXDMAEN))
   {
-    /* Abort the SPI DMA Tx Stream/Channel : use blocking DMA Abort API (no callback) */
+    /* 中止 SPI DMA 发送数据流/通道：使用阻塞式 DMA 中止 API（无回调） */
     if (hspi->hdmatx != NULL)
     {
-      /* Set the SPI DMA Abort callback :
-      will lead to call HAL_SPI_AbortCpltCallback() at end of DMA abort procedure */
+      /* 设置 SPI DMA 中止回调函数：
+      将在 DMA 中止流程结束时调用 HAL_SPI_AbortCpltCallback() */
       hspi->hdmatx->XferAbortCallback = NULL;
 
-      /* Abort DMA Tx Handle linked to SPI Peripheral */
+      /* 中止与 SPI 外设关联的 DMA 发送句柄 */
       if (HAL_DMA_Abort(hspi->hdmatx) != HAL_OK)
       {
         hspi->ErrorCode = HAL_SPI_ERROR_ABORT;
       }
 
-      /* Disable Tx DMA Request */
+      /* 禁用发送 DMA 请求 */
       CLEAR_BIT(hspi->Instance->CR2, (SPI_CR2_TXDMAEN));
 
-      /* Wait until TXE flag is set */
+      /* 等待 TXE 标志位置位 */
       do
       {
         if (count == 0U)
@@ -2135,68 +2105,67 @@ HAL_StatusTypeDef HAL_SPI_Abort(SPI_HandleTypeDef *hspi)
     }
   }
 
-  /* Disable the SPI DMA Rx request if enabled */
+  /* 若已使能，则禁用 SPI DMA 接收请求 */
   if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_RXDMAEN))
   {
-    /* Abort the SPI DMA Rx Stream/Channel : use blocking DMA Abort API (no callback) */
+    /* 中止 SPI DMA 接收数据流/通道：使用阻塞式 DMA 中止 API（无回调） */
     if (hspi->hdmarx != NULL)
     {
-      /* Set the SPI DMA Abort callback :
-      will lead to call HAL_SPI_AbortCpltCallback() at end of DMA abort procedure */
+      /* 设置 SPI DMA 中止回调函数：
+      将在 DMA 中止流程结束时调用 HAL_SPI_AbortCpltCallback() */
       hspi->hdmarx->XferAbortCallback = NULL;
 
-      /* Abort DMA Rx Handle linked to SPI Peripheral */
+      /* 中止与 SPI 外设关联的 DMA 接收句柄 */
       if (HAL_DMA_Abort(hspi->hdmarx) != HAL_OK)
       {
         hspi->ErrorCode = HAL_SPI_ERROR_ABORT;
       }
 
-      /* Disable peripheral */
+      /* 禁用外设 */
       __HAL_SPI_DISABLE(hspi);
 
-      /* Disable Rx DMA Request */
+      /* 禁用接收 DMA 请求 */
       CLEAR_BIT(hspi->Instance->CR2, (SPI_CR2_RXDMAEN));
     }
   }
-  /* Reset Tx and Rx transfer counters */
+  /* 重置发送和接收传输计数器 */
   hspi->RxXferCount = 0U;
   hspi->TxXferCount = 0U;
 
-  /* Check error during Abort procedure */
+  /* 检查中止流程中是否存在错误 */
   if (hspi->ErrorCode == HAL_SPI_ERROR_ABORT)
   {
-    /* return HAL_Error in case of error during Abort procedure */
+    /* 若中止流程中发生错误，则返回 HAL_Error */
     errorcode = HAL_ERROR;
   }
   else
   {
-    /* Reset errorCode */
+    /* 复位 errorCode */
     hspi->ErrorCode = HAL_SPI_ERROR_NONE;
   }
 
-  /* Clear the Error flags in the SR register */
+  /* 清除 SR 寄存器中的错误标志 */
   __HAL_SPI_CLEAR_OVRFLAG(hspi);
 
-  /* Restore hspi->state to ready */
+  /* 恢复 hspi->state 为 ready 状态 */
   hspi->State = HAL_SPI_STATE_READY;
 
   return errorcode;
 }
 
 /**
-  * @brief  Abort ongoing transfer (Interrupt mode).
-  * @param  hspi SPI handle.
-  * @note   This procedure could be used for aborting any ongoing transfer (Tx and Rx),
-  *         started in Interrupt or DMA mode.
-  *         This procedure performs following operations :
-  *           - Disable SPI Interrupts (depending of transfer direction)
-  *           - Disable the DMA transfer in the peripheral register (if enabled)
-  *           - Abort DMA transfer by calling HAL_DMA_Abort_IT (in case of transfer in DMA mode)
-  *           - Set handle State to READY
-  *           - At abort completion, call user abort complete callback
-  * @note   This procedure is executed in Interrupt mode, meaning that abort procedure could be
-  *         considered as completed only when user abort complete callback is executed (not when exiting function).
-  * @retval HAL status
+  * @brief  中止正在进行的传输（中断模式）。
+  * @param  hspi SPI 句柄。
+  * @note   此过程可用于中止在中断或 DMA 模式下启动的任何正在进行的传输（发送和接收）。
+  *         该过程执行以下操作：
+  *           - 禁用 SPI 中断（取决于传输方向）
+  *           - 禁用外设寄存器中的 DMA 传输（如果已使能）
+  *           - 通过调用 HAL_DMA_Abort_IT 中止 DMA 传输（适用于 DMA 模式下的传输）
+  *           - 将句柄状态设置为 READY
+  *           - 中止完成时，调用用户中止完成回调函数
+  * @note   此过程在中断模式下执行，这意味着只有在执行用户中止完成回调函数时（而不是退出函数时），
+  *         中止过程才可被视为已完成。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
 {
@@ -2205,20 +2174,20 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
   __IO uint32_t count;
   __IO uint32_t resetcount;
 
-  /* Initialized local variable  */
+  /* 初始化局部变量 */
   errorcode = HAL_OK;
   abortcplt = 1U;
   resetcount = SPI_DEFAULT_TIMEOUT * (SystemCoreClock / 24U / 1000U);
   count = resetcount;
 
-  /* Clear ERRIE interrupt to avoid error interrupts generation during Abort procedure */
+  /* 清除 ERRIE 中断以避免在中止过程中产生错误中断 */
   CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_ERRIE);
 
-  /* Change Rx and Tx Irq Handler to Disable TXEIE, RXNEIE and ERRIE interrupts */
+  /* 更改 Rx 和 Tx 中断处理程序以禁用 TXEIE、RXNEIE 和 ERRIE 中断 */
   if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_TXEIE))
   {
     hspi->TxISR = SPI_AbortTx_ISR;
-    /* Wait HAL_SPI_STATE_ABORT state */
+    /* 等待 HAL_SPI_STATE_ABORT 状态 */
     do
     {
       if (count == 0U)
@@ -2228,14 +2197,14 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
       }
       count--;
     } while (hspi->State != HAL_SPI_STATE_ABORT);
-    /* Reset Timeout Counter */
+    /* 重置超时计数器 */
     count = resetcount;
   }
 
   if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_RXNEIE))
   {
     hspi->RxISR = SPI_AbortRx_ISR;
-    /* Wait HAL_SPI_STATE_ABORT state */
+    /* 等待 HAL_SPI_STATE_ABORT 状态 */
     do
     {
       if (count == 0U)
@@ -2245,17 +2214,17 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
       }
       count--;
     } while (hspi->State != HAL_SPI_STATE_ABORT);
-    /* Reset Timeout Counter */
+    /* 重置超时计数器 */
     count = resetcount;
   }
 
-  /* If DMA Tx and/or DMA Rx Handles are associated to SPI Handle, DMA Abort complete callbacks should be initialised
-     before any call to DMA Abort functions */
-  /* DMA Tx Handle is valid */
+  /* 如果 DMA Tx 和/或 DMA Rx 句柄关联到了 SPI 句柄，则在调用任何 DMA 中止函数之前，
+     必须先初始化 DMA 中止完成回调函数 */
+  /* DMA Tx 句柄有效 */
   if (hspi->hdmatx != NULL)
   {
-    /* Set DMA Abort Complete callback if UART DMA Tx request if enabled.
-       Otherwise, set it to NULL */
+    /* 如果使能了 UART DMA Tx 请求，则设置 DMA 中止完成回调函数。
+       否则，将其设置为 NULL */
     if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_TXDMAEN))
     {
       hspi->hdmatx->XferAbortCallback = SPI_DMATxAbortCallback;
@@ -2265,11 +2234,11 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
       hspi->hdmatx->XferAbortCallback = NULL;
     }
   }
-  /* DMA Rx Handle is valid */
+  /* DMA Rx 句柄有效 */
   if (hspi->hdmarx != NULL)
   {
-    /* Set DMA Abort Complete callback if UART DMA Rx request if enabled.
-       Otherwise, set it to NULL */
+    /* 如果使能了 UART DMA Rx 请求，则设置 DMA 中止完成回调函数。
+       否则，将其设置为 NULL */
     if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_RXDMAEN))
     {
       hspi->hdmarx->XferAbortCallback = SPI_DMARxAbortCallback;
@@ -2280,13 +2249,13 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
     }
   }
 
-  /* Disable the SPI DMA Tx request if enabled */
+  /* 如果使能了 SPI DMA Tx 请求，则将其禁用 */
   if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_TXDMAEN))
   {
-    /* Abort the SPI DMA Tx Stream/Channel */
+    /* 中止 SPI DMA Tx 数据流/通道 */
     if (hspi->hdmatx != NULL)
     {
-      /* Abort DMA Tx Handle linked to SPI Peripheral */
+      /* 中止连接到 SPI 外设的 DMA Tx 句柄 */
       if (HAL_DMA_Abort_IT(hspi->hdmatx) != HAL_OK)
       {
         hspi->hdmatx->XferAbortCallback = NULL;
@@ -2298,13 +2267,13 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
       }
     }
   }
-  /* Disable the SPI DMA Rx request if enabled */
+  /* 如果使能了 SPI DMA Rx 请求，则将其禁用 */
   if (HAL_IS_BIT_SET(hspi->Instance->CR2, SPI_CR2_RXDMAEN))
   {
-    /* Abort the SPI DMA Rx Stream/Channel */
+    /* 中止 SPI DMA Rx 数据流/通道 */
     if (hspi->hdmarx != NULL)
     {
-      /* Abort DMA Rx Handle linked to SPI Peripheral */
+      /* 中止连接到 SPI 外设的 DMA Rx 句柄 */
       if (HAL_DMA_Abort_IT(hspi->hdmarx) !=  HAL_OK)
       {
         hspi->hdmarx->XferAbortCallback = NULL;
@@ -2319,29 +2288,29 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
 
   if (abortcplt == 1U)
   {
-    /* Reset Tx and Rx transfer counters */
+    /* 复位 Tx 和 Rx 传输计数器 */
     hspi->RxXferCount = 0U;
     hspi->TxXferCount = 0U;
 
-    /* Check error during Abort procedure */
+    /* 检查中止流程中是否存在错误 */
     if (hspi->ErrorCode == HAL_SPI_ERROR_ABORT)
     {
-      /* return HAL_Error in case of error during Abort procedure */
+      /* 如果中止流程中发生错误，则返回 HAL_Error */
       errorcode = HAL_ERROR;
     }
     else
     {
-      /* Reset errorCode */
+      /* 复位 errorCode */
       hspi->ErrorCode = HAL_SPI_ERROR_NONE;
     }
 
-    /* Clear the Error flags in the SR register */
+    /* 清除 SR 寄存器中的错误标志 */
     __HAL_SPI_CLEAR_OVRFLAG(hspi);
 
-    /* Restore hspi->State to Ready */
+    /* 将 hspi->State 恢复为就绪状态（Ready） */
     hspi->State = HAL_SPI_STATE_READY;
 
-    /* As no DMA to be aborted, call directly user Abort complete callback */
+    /* 由于没有需要中止的 DMA，直接调用用户中止完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
     hspi->AbortCpltCallback(hspi);
 #else
@@ -2353,63 +2322,63 @@ HAL_StatusTypeDef HAL_SPI_Abort_IT(SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  Pause the DMA Transfer.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for the specified SPI module.
-  * @retval HAL status
+  * @brief  暂停 DMA 传输。
+  * @param  hspi 指向包含指定 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_DMAPause(SPI_HandleTypeDef *hspi)
 {
-  /* Process Locked */
+  /* 进程加锁 */
   __HAL_LOCK(hspi);
 
-  /* Disable the SPI DMA Tx & Rx requests */
+  /* 禁用 SPI DMA 发送和接收请求 */
   CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN);
 
-  /* Process Unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hspi);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Resume the DMA Transfer.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for the specified SPI module.
-  * @retval HAL status
+  * @brief  恢复 DMA 传输。
+  * @param  hspi 指向包含指定 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_DMAResume(SPI_HandleTypeDef *hspi)
 {
-  /* Process Locked */
+  /* 进程加锁 */
   __HAL_LOCK(hspi);
 
-  /* Enable the SPI DMA Tx & Rx requests */
+  /* 使能 SPI DMA 发送和接收请求 */
   SET_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN);
 
-  /* Process Unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hspi);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Stop the DMA Transfer.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for the specified SPI module.
-  * @retval HAL status
+  * @brief  停止 DMA 传输。
+  * @param  hspi 指向包含指定 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_SPI_DMAStop(SPI_HandleTypeDef *hspi)
 {
   HAL_StatusTypeDef errorcode = HAL_OK;
-  /* The Lock is not implemented on this API to allow the user application
-     to call the HAL SPI API under callbacks HAL_SPI_TxCpltCallback() or HAL_SPI_RxCpltCallback() or
-     HAL_SPI_TxRxCpltCallback():
-     when calling HAL_DMA_Abort() API the DMA TX/RX Transfer complete interrupt is generated
-     and the correspond call back is executed HAL_SPI_TxCpltCallback() or HAL_SPI_RxCpltCallback() or
-     HAL_SPI_TxRxCpltCallback()
+  /* 此 API 未实现加锁操作，以便用户应用程序能够在
+     HAL_SPI_TxCpltCallback()、HAL_SPI_RxCpltCallback() 或
+     HAL_SPI_TxRxCpltCallback() 回调函数中调用 HAL SPI API：
+     当调用 HAL_DMA_Abort() API 时，会生成 DMA TX/RX 传输完成中断，
+     并执行相应的回调函数 HAL_SPI_TxCpltCallback()、HAL_SPI_RxCpltCallback()
+     或 HAL_SPI_TxRxCpltCallback()
      */
 
-  /* Abort the SPI DMA tx Stream/Channel  */
+  /* 中止 SPI DMA 发送数据流/通道 */
   if (hspi->hdmatx != NULL)
   {
     if (HAL_OK != HAL_DMA_Abort(hspi->hdmatx))
@@ -2418,7 +2387,7 @@ HAL_StatusTypeDef HAL_SPI_DMAStop(SPI_HandleTypeDef *hspi)
       errorcode = HAL_ERROR;
     }
   }
-  /* Abort the SPI DMA rx Stream/Channel  */
+  /* 中止 SPI DMA 接收数据流/通道 */
   if (hspi->hdmarx != NULL)
   {
     if (HAL_OK != HAL_DMA_Abort(hspi->hdmarx))
@@ -2428,24 +2397,24 @@ HAL_StatusTypeDef HAL_SPI_DMAStop(SPI_HandleTypeDef *hspi)
     }
   }
 
-  /* Disable the SPI DMA Tx & Rx requests */
+  /* 禁用 SPI DMA 发送和接收请求 */
   CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN);
   hspi->State = HAL_SPI_STATE_READY;
   return errorcode;
 }
 
 /**
-  * @brief  Handle SPI interrupt request.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for the specified SPI module.
-  * @retval None
+  * @brief  处理 SPI 中断请求。
+  * @param  hspi 指向包含指定 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
 {
   uint32_t itsource = hspi->Instance->CR2;
   uint32_t itflag   = hspi->Instance->SR;
 
-  /* SPI in mode Receiver ----------------------------------------------------*/
+  /* SPI 处于接收模式 ----------------------------------------------------*/
   if ((SPI_CHECK_FLAG(itflag, SPI_FLAG_OVR) == RESET) &&
       (SPI_CHECK_FLAG(itflag, SPI_FLAG_RXNE) != RESET) && (SPI_CHECK_IT_SOURCE(itsource, SPI_IT_RXNE) != RESET))
   {
@@ -2453,18 +2422,18 @@ void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
     return;
   }
 
-  /* SPI in mode Transmitter -------------------------------------------------*/
+  /* SPI 发送器模式 -------------------------------------------------*/
   if ((SPI_CHECK_FLAG(itflag, SPI_FLAG_TXE) != RESET) && (SPI_CHECK_IT_SOURCE(itsource, SPI_IT_TXE) != RESET))
   {
     hspi->TxISR(hspi);
     return;
   }
 
-  /* SPI in Error Treatment --------------------------------------------------*/
+  /* SPI 错误处理 --------------------------------------------------*/
   if (((SPI_CHECK_FLAG(itflag, SPI_FLAG_MODF) != RESET) || (SPI_CHECK_FLAG(itflag, SPI_FLAG_OVR) != RESET))
       && (SPI_CHECK_IT_SOURCE(itsource, SPI_IT_ERR) != RESET))
   {
-    /* SPI Overrun error interrupt occurred ----------------------------------*/
+    /* 发生 SPI 过载错误（Overrun error）中断 ----------------------------------*/
     if (SPI_CHECK_FLAG(itflag, SPI_FLAG_OVR) != RESET)
     {
       if (hspi->State != HAL_SPI_STATE_BUSY_TX)
@@ -2479,42 +2448,42 @@ void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
       }
     }
 
-    /* SPI Mode Fault error interrupt occurred -------------------------------*/
+    /* 发生 SPI 模式故障（Mode Fault）错误中断 -------------------------------*/
     if (SPI_CHECK_FLAG(itflag, SPI_FLAG_MODF) != RESET)
     {
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_MODF);
       __HAL_SPI_CLEAR_MODFFLAG(hspi);
     }
 
-    /* SPI Frame error interrupt occurred ------------------------------------*/
+    /* 发生 SPI 帧错误（Frame error）中断 ------------------------------------*/
 
     if (hspi->ErrorCode != HAL_SPI_ERROR_NONE)
     {
-      /* Disable all interrupts */
+      /* 禁用所有中断 */
       __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXNE | SPI_IT_TXE | SPI_IT_ERR);
 
       hspi->State = HAL_SPI_STATE_READY;
-      /* Disable the SPI DMA requests if enabled */
+      /* 如果已启用，则禁用 SPI DMA 请求 */
       if ((HAL_IS_BIT_SET(itsource, SPI_CR2_TXDMAEN)) || (HAL_IS_BIT_SET(itsource, SPI_CR2_RXDMAEN)))
       {
         CLEAR_BIT(hspi->Instance->CR2, (SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN));
 
-        /* Abort the SPI DMA Rx channel */
+        /* 中止 SPI DMA Rx 通道 */
         if (hspi->hdmarx != NULL)
         {
-          /* Set the SPI DMA Abort callback :
-          will lead to call HAL_SPI_ErrorCallback() at end of DMA abort procedure */
+          /* 设置 SPI DMA 中止回调函数：
+          将在 DMA 中止流程结束时调用 HAL_SPI_ErrorCallback() */
           hspi->hdmarx->XferAbortCallback = SPI_DMAAbortOnError;
           if (HAL_OK != HAL_DMA_Abort_IT(hspi->hdmarx))
           {
             SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_ABORT);
           }
         }
-        /* Abort the SPI DMA Tx channel */
+        /* 中止 SPI DMA Tx 通道 */
         if (hspi->hdmatx != NULL)
         {
-          /* Set the SPI DMA Abort callback :
-          will lead to call HAL_SPI_ErrorCallback() at end of DMA abort procedure */
+          /* 设置 SPI DMA 中止回调函数：
+          将在 DMA 中止流程结束时调用 HAL_SPI_ErrorCallback() */
           hspi->hdmatx->XferAbortCallback = SPI_DMAAbortOnError;
           if (HAL_OK != HAL_DMA_Abort_IT(hspi->hdmatx))
           {
@@ -2524,7 +2493,7 @@ void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
       }
       else
       {
-        /* Call user error callback */
+        /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
         hspi->ErrorCallback(hspi);
 #else
@@ -2537,132 +2506,131 @@ void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  Tx Transfer completed callback.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  发送传输完成回调函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构的指针。
+  * @retval 无
   */
 __weak void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用参数引起的编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_TxCpltCallback should be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            应在用户文件中实现 HAL_SPI_TxCpltCallback
    */
 }
 
 /**
-  * @brief  Rx Transfer completed callback.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  接收传输完成回调函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 __weak void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_RxCpltCallback should be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            应在用户文件中实现 HAL_SPI_RxCpltCallback
    */
 }
 
 /**
-  * @brief  Tx and Rx Transfer completed callback.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  发送和接收传输完成回调函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 __weak void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_TxRxCpltCallback should be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            应在用户文件中实现 HAL_SPI_TxRxCpltCallback
    */
 }
 
 /**
-  * @brief  Tx Half Transfer completed callback.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  发送过半传输完成回调函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 __weak void HAL_SPI_TxHalfCpltCallback(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_TxHalfCpltCallback should be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            应在用户文件中实现 HAL_SPI_TxHalfCpltCallback
    */
 }
 
 /**
-  * @brief  Rx Half Transfer completed callback.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  接收过半传输完成回调函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 __weak void HAL_SPI_RxHalfCpltCallback(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_RxHalfCpltCallback() should be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            应在用户文件中实现 HAL_SPI_RxHalfCpltCallback()
    */
 }
 
 /**
-  * @brief  Tx and Rx Half Transfer callback.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  发送和接收过半传输回调函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 __weak void HAL_SPI_TxRxHalfCpltCallback(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_TxRxHalfCpltCallback() should be implemented in the user file
+  /* 注意：不应修改此函数，当需要该回调函数时，
+            应在用户文件中实现 HAL_SPI_TxRxHalfCpltCallback()
    */
 }
 
 /**
-  * @brief  SPI error callback.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  SPI 错误回调函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 __weak void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_ErrorCallback should be implemented in the user file
+  /* 注意：不应修改此函数，当需要该回调函数时，
+            应在用户文件中实现 HAL_SPI_ErrorCallback
    */
-  /* NOTE : The ErrorCode parameter in the hspi handle is updated by the SPI processes
-            and user can use HAL_SPI_GetError() API to check the latest error occurred
+  /* 注意：hspi 句柄中的 ErrorCode 参数由 SPI 处理进程更新，
+            用户可使用 HAL_SPI_GetError() API 检查最近发生的错误
    */
 }
 
 /**
-  * @brief  SPI Abort Complete callback.
-  * @param  hspi SPI handle.
-  * @retval None
+  * @brief  SPI 中止完成回调函数。
+  * @param  hspi SPI 句柄。
+  * @retval 无
   */
 __weak void HAL_SPI_AbortCpltCallback(SPI_HandleTypeDef *hspi)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(hspi);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_SPI_AbortCpltCallback can be implemented in the user file.
+  /* 注意：不应修改此函数，当需要该回调函数时，
+            可在用户文件中实现 HAL_SPI_AbortCpltCallback。
    */
 }
 
@@ -2670,42 +2638,42 @@ __weak void HAL_SPI_AbortCpltCallback(SPI_HandleTypeDef *hspi)
   * @}
   */
 
-/** @defgroup SPI_Exported_Functions_Group3 Peripheral State and Errors functions
-  * @brief   SPI control functions
+/** @defgroup SPI_Exported_Functions_Group3 外设状态和错误函数
+  * @brief   SPI 控制函数
   *
 @verbatim
  ===============================================================================
-                      ##### Peripheral State and Errors functions #####
+                      ##### 外设状态和错误函数 #####
  ===============================================================================
     [..]
-    This subsection provides a set of functions allowing to control the SPI.
-     (+) HAL_SPI_GetState() API can be helpful to check in run-time the state of the SPI peripheral
-     (+) HAL_SPI_GetError() check in run-time Errors occurring during communication
+    本小节提供了一组用于控制 SPI 的函数。
+     (+) HAL_SPI_GetState() API 可用于在运行时检查 SPI 外设的状态
+     (+) HAL_SPI_GetError() 用于在运行时检查通信期间发生的错误
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Return the SPI handle state.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval SPI state
+  * @brief  返回 SPI 句柄状态。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval SPI 状态
   */
 HAL_SPI_StateTypeDef HAL_SPI_GetState(const SPI_HandleTypeDef *hspi)
 {
-  /* Return SPI handle state */
+  /* 返回 SPI 句柄状态 */
   return hspi->State;
 }
 
 /**
-  * @brief  Return the SPI error code.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval SPI error code in bitmap format
+  * @brief  返回 SPI 错误代码。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 位图格式的 SPI 错误代码
   */
 uint32_t HAL_SPI_GetError(const SPI_HandleTypeDef *hspi)
 {
-  /* Return SPI ErrorCode */
+  /* 返回 SPI ErrorCode */
   return hspi->ErrorCode;
 }
 
@@ -2718,40 +2686,39 @@ uint32_t HAL_SPI_GetError(const SPI_HandleTypeDef *hspi)
   */
 
 /** @addtogroup SPI_Private_Functions
-  * @brief   Private functions
+  * @brief   私有函数
   * @{
   */
 
 /**
-  * @brief  DMA SPI transmit process complete callback.
-  * @param  hdma pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA module.
-  * @retval None
+  * @brief  SPI DMA 发送过程完成回调函数。
+  * @param  hdma 指向包含指定 DMA 模块配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 {
   SPI_HandleTypeDef *hspi = (SPI_HandleTypeDef *)(((DMA_HandleTypeDef *)hdma)->Parent);
   uint32_t tickstart;
 
-  /* Init tickstart for timeout management*/
+  /* 初始化 tickstart 用于超时管理 */
   tickstart = HAL_GetTick();
 
-  /* DMA Normal Mode */
+  /* DMA 正常模式 */
   if ((hdma->Instance->CCR & DMA_CCR_CIRC) != DMA_CCR_CIRC)
   {
-    /* Disable ERR interrupt */
+    /* 禁用 ERR 中断 */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_ERR);
 
-    /* Disable Tx DMA Request */
+    /* 禁用发送 DMA 请求 */
     CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN);
 
-    /* Check the end of the transaction */
+    /* 检查传输是否结束 */
     if (SPI_EndRxTxTransaction(hspi, SPI_DEFAULT_TIMEOUT, tickstart) != HAL_OK)
     {
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_FLAG);
     }
 
-    /* Clear overrun flag in 2 Lines communication mode because received data is not read */
+    /* 在双线通信模式下清除过载（overrun）标志，因为未读取接收到的数据 */
     if (hspi->Init.Direction == SPI_DIRECTION_2LINES)
     {
       __HAL_SPI_CLEAR_OVRFLAG(hspi);
@@ -2762,7 +2729,7 @@ static void SPI_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 
     if (hspi->ErrorCode != HAL_SPI_ERROR_NONE)
     {
-      /* Call user error callback */
+      /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
       hspi->ErrorCallback(hspi);
 #else
@@ -2771,7 +2738,7 @@ static void SPI_DMATransmitCplt(DMA_HandleTypeDef *hdma)
       return;
     }
   }
-  /* Call user Tx complete callback */
+  /* 调用用户发送完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->TxCpltCallback(hspi);
 #else
@@ -2780,10 +2747,9 @@ static void SPI_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA SPI receive process complete callback.
-  * @param  hdma pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA module.
-  * @retval None
+  * @brief  SPI DMA 接收过程完成回调函数。
+  * @param  hdma 指向包含指定 DMA 模块配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
 {
@@ -2793,45 +2759,45 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
   __IO uint32_t tmpreg = 0U;
 #endif /* USE_SPI_CRC */
 
-  /* Init tickstart for timeout management*/
+  /* 初始化 tickstart 以进行超时管理 */
   tickstart = HAL_GetTick();
 
-  /* DMA Normal Mode */
+  /* DMA 正常模式 */
   if ((hdma->Instance->CCR & DMA_CCR_CIRC) != DMA_CCR_CIRC)
   {
-    /* Disable ERR interrupt */
+    /* 禁用 ERR 中断 */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_ERR);
 
 #if (USE_SPI_CRC != 0U)
-    /* CRC handling */
+    /* CRC 处理 */
     if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      /* Wait until RXNE flag */
+      /* 等待 RXNE 标志置位 */
       if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_RXNE, SET, SPI_DEFAULT_TIMEOUT, tickstart) != HAL_OK)
       {
-        /* Error on the CRC reception */
+        /* CRC 接收错误 */
         SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
       }
-      /* Read CRC */
+      /* 读取 CRC */
       tmpreg = READ_REG(hspi->Instance->DR);
-      /* To avoid GCC warning */
+      /* 避免 GCC 警告 */
       UNUSED(tmpreg);
     }
 #endif /* USE_SPI_CRC */
 
-    /* Check if we are in Master RX 2 line mode */
+    /* 检查是否处于主机双线接收模式 (Master RX 2 line mode) */
     if ((hspi->Init.Direction == SPI_DIRECTION_2LINES) && (hspi->Init.Mode == SPI_MODE_MASTER))
     {
-      /* Disable Rx/Tx DMA Request (done by default to handle the case master rx direction 2 lines) */
+      /* 禁用 Rx/Tx DMA 请求（默认执行，以处理主机双线接收方向的情况） */
       CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN);
     }
     else
     {
-      /* Normal case */
+      /* 正常情况 */
       CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_RXDMAEN);
     }
 
-    /* Check the end of the transaction */
+    /* 检查传输是否结束 */
     if (SPI_EndRxTransaction(hspi, SPI_DEFAULT_TIMEOUT, tickstart) != HAL_OK)
     {
       hspi->ErrorCode = HAL_SPI_ERROR_FLAG;
@@ -2841,15 +2807,15 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
     hspi->State = HAL_SPI_STATE_READY;
 
 #if (USE_SPI_CRC != 0U)
-    /* Check if CRC error occurred */
+    /* 检查是否发生 CRC 错误 */
     if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_CRCERR) != RESET)
     {
-      /* Check if CRC error is valid or not (workaround to be applied or not) */
+      /* 检查 CRC 错误是否有效（是否需要应用变通方案） */
       if (SPI_ISCRCErrorValid(hspi) == SPI_VALID_CRC_ERROR)
       {
         SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
 
-        /* Reset CRC Calculation */
+        /* 复位 CRC 计算 */
         SPI_RESET_CRC(hspi);
       }
       else
@@ -2861,7 +2827,7 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
 
     if (hspi->ErrorCode != HAL_SPI_ERROR_NONE)
     {
-      /* Call user error callback */
+      /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
       hspi->ErrorCallback(hspi);
 #else
@@ -2870,7 +2836,7 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
       return;
     }
   }
-  /* Call user Rx complete callback */
+  /* 调用用户接收完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->RxCpltCallback(hspi);
 #else
@@ -2879,10 +2845,9 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA SPI transmit receive process complete callback.
-  * @param  hdma pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA module.
-  * @retval None
+  * @brief  DMA SPI 发送和接收处理完成回调函数。
+  * @param  hdma 指向包含指定 DMA 模块配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
 {
@@ -2892,38 +2857,38 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
   __IO uint32_t tmpreg = 0U;
 #endif /* USE_SPI_CRC */
 
-  /* Init tickstart for timeout management*/
+  /* 初始化 tickstart 用于超时管理 */
   tickstart = HAL_GetTick();
 
-  /* DMA Normal Mode */
+  /* DMA 正常模式 */
   if ((hdma->Instance->CCR & DMA_CCR_CIRC) != DMA_CCR_CIRC)
   {
-    /* Disable ERR interrupt */
+    /* 禁用 ERR 中断 */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_ERR);
 
 #if (USE_SPI_CRC != 0U)
-    /* CRC handling */
+    /* CRC 处理 */
     if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      /* Wait the CRC data */
+      /* 等待 CRC 数据 */
       if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_RXNE, SET, SPI_DEFAULT_TIMEOUT, tickstart) != HAL_OK)
       {
         SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
       }
-      /* Read CRC to Flush DR and RXNE flag */
+      /* 读取 CRC 以清空 DR 寄存器和 RXNE 标志 */
       tmpreg = READ_REG(hspi->Instance->DR);
-      /* To avoid GCC warning */
+      /* 避免 GCC 编译器警告 */
       UNUSED(tmpreg);
     }
 #endif /* USE_SPI_CRC */
 
-    /* Check the end of the transaction */
+    /* 检查传输事务是否结束 */
     if (SPI_EndRxTxTransaction(hspi, SPI_DEFAULT_TIMEOUT, tickstart) != HAL_OK)
     {
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_FLAG);
     }
 
-    /* Disable Rx/Tx DMA Request */
+    /* 禁用 Rx/Tx DMA 请求 */
     CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN);
 
     hspi->TxXferCount = 0U;
@@ -2931,15 +2896,15 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
     hspi->State = HAL_SPI_STATE_READY;
 
 #if (USE_SPI_CRC != 0U)
-    /* Check if CRC error occurred */
+    /* 检查是否发生 CRC 错误 */
     if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_CRCERR) != RESET)
     {
-      /* Check if CRC error is valid or not (workaround to be applied or not) */
+      /* 检查 CRC 错误是否有效（判断是否需要应用变通方案/规避措施） */
       if (SPI_ISCRCErrorValid(hspi) == SPI_VALID_CRC_ERROR)
       {
         SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
 
-        /* Reset CRC Calculation */
+        /* 复位 CRC 计算 */
         SPI_RESET_CRC(hspi);
       }
       else
@@ -2951,7 +2916,7 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
 
     if (hspi->ErrorCode != HAL_SPI_ERROR_NONE)
     {
-      /* Call user error callback */
+      /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
       hspi->ErrorCallback(hspi);
 #else
@@ -2960,7 +2925,7 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
       return;
     }
   }
-  /* Call user TxRx complete callback */
+  /* 调用用户收发完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->TxRxCpltCallback(hspi);
 #else
@@ -2969,16 +2934,15 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA SPI half transmit process complete callback.
-  * @param  hdma pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA module.
-  * @retval None
+  * @brief  DMA SPI 发送过半完成回调函数。
+  * @param  hdma 指向包含指定 DMA 模块配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_DMAHalfTransmitCplt(DMA_HandleTypeDef *hdma)
 {
   SPI_HandleTypeDef *hspi = (SPI_HandleTypeDef *)(((DMA_HandleTypeDef *)hdma)->Parent);
 
-  /* Call user Tx half complete callback */
+  /* 调用用户发送过半完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->TxHalfCpltCallback(hspi);
 #else
@@ -2987,16 +2951,15 @@ static void SPI_DMAHalfTransmitCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA SPI half receive process complete callback
-  * @param  hdma pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA module.
-  * @retval None
+  * @brief  DMA SPI 接收过半完成回调函数
+  * @param  hdma 指向包含指定 DMA 模块配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_DMAHalfReceiveCplt(DMA_HandleTypeDef *hdma)
 {
   SPI_HandleTypeDef *hspi = (SPI_HandleTypeDef *)(((DMA_HandleTypeDef *)hdma)->Parent);
 
-  /* Call user Rx half complete callback */
+  /* 调用用户接收过半完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->RxHalfCpltCallback(hspi);
 #else
@@ -3005,16 +2968,15 @@ static void SPI_DMAHalfReceiveCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA SPI half transmit receive process complete callback.
-  * @param  hdma pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA module.
-  * @retval None
+  * @brief  DMA SPI 发送与接收过半完成回调函数。
+  * @param  hdma 指向包含指定 DMA 模块配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_DMAHalfTransmitReceiveCplt(DMA_HandleTypeDef *hdma)
 {
   SPI_HandleTypeDef *hspi = (SPI_HandleTypeDef *)(((DMA_HandleTypeDef *)hdma)->Parent);
 
-  /* Call user TxRx half complete callback */
+  /* 调用用户发送与接收过半完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->TxRxHalfCpltCallback(hspi);
 #else
@@ -3023,21 +2985,20 @@ static void SPI_DMAHalfTransmitReceiveCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA SPI communication error callback.
-  * @param  hdma pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA module.
-  * @retval None
+  * @brief  DMA SPI 通信错误回调函数。
+  * @param  hdma 指向包含指定 DMA 模块配置信息的 DMA_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_DMAError(DMA_HandleTypeDef *hdma)
 {
   SPI_HandleTypeDef *hspi = (SPI_HandleTypeDef *)(((DMA_HandleTypeDef *)hdma)->Parent);
 
-  /* Stop the disable DMA transfer on SPI side */
+  /* 停止 SPI 侧禁用的 DMA 传输 */
   CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN);
 
   SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_DMA);
   hspi->State = HAL_SPI_STATE_READY;
-  /* Call user error callback */
+  /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->ErrorCallback(hspi);
 #else
@@ -3046,10 +3007,10 @@ static void SPI_DMAError(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA SPI communication abort callback, when initiated by HAL services on Error
-  *         (To be called at end of DMA Abort procedure following error occurrence).
-  * @param  hdma DMA handle.
-  * @retval None
+  * @brief  DMA SPI 通信中止回调函数，由 HAL 服务在发生错误时发起
+  *         （在发生错误并执行完 DMA 中止流程后调用）。
+  * @param  hdma DMA 句柄。
+  * @retval 无
   */
 static void SPI_DMAAbortOnError(DMA_HandleTypeDef *hdma)
 {
@@ -3057,7 +3018,7 @@ static void SPI_DMAAbortOnError(DMA_HandleTypeDef *hdma)
   hspi->RxXferCount = 0U;
   hspi->TxXferCount = 0U;
 
-  /* Call user error callback */
+  /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->ErrorCallback(hspi);
 #else
@@ -3066,12 +3027,12 @@ static void SPI_DMAAbortOnError(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA SPI Tx communication abort callback, when initiated by user
-  *         (To be called at end of DMA Tx Abort procedure following user abort request).
-  * @note   When this callback is executed, User Abort complete call back is called only if no
-  *         Abort still ongoing for Rx DMA Handle.
-  * @param  hdma DMA handle.
-  * @retval None
+  * @brief  DMA SPI 发送通信中止回调函数，由用户发起
+  *         （在响应用户中止请求并执行完 DMA 发送中止流程后调用）。
+  * @note   执行此回调时，仅当 Rx DMA 句柄没有正在进行的中止操作时，
+  *         才会调用用户中止完成回调函数。
+  * @param  hdma DMA 句柄。
+  * @retval 无
   */
 static void SPI_DMATxAbortCallback(DMA_HandleTypeDef *hdma)
 {
@@ -3081,10 +3042,10 @@ static void SPI_DMATxAbortCallback(DMA_HandleTypeDef *hdma)
   hspi->hdmatx->XferAbortCallback = NULL;
   count = SPI_DEFAULT_TIMEOUT * (SystemCoreClock / 24U / 1000U);
 
-  /* Disable Tx DMA Request */
+  /* 禁用发送 DMA 请求 */
   CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_TXDMAEN);
 
-  /* Wait until TXE flag is set */
+  /* 等待直到 TXE 标志位置位 */
   do
   {
     if (count == 0U)
@@ -3095,7 +3056,7 @@ static void SPI_DMATxAbortCallback(DMA_HandleTypeDef *hdma)
     count--;
   } while ((hspi->Instance->SR & SPI_FLAG_TXE) == RESET);
 
-  /* Check if an Abort process is still ongoing */
+  /* 检查中止（Abort）流程是否仍在进行中 */
   if (hspi->hdmarx != NULL)
   {
     if (hspi->hdmarx->XferAbortCallback != NULL)
@@ -3104,24 +3065,24 @@ static void SPI_DMATxAbortCallback(DMA_HandleTypeDef *hdma)
     }
   }
 
-  /* No Abort process still ongoing : All DMA Stream/Channel are aborted, call user Abort Complete callback */
+  /* 中止流程已全部结束：所有 DMA 数据流/通道均已中止，调用用户中止完成回调函数 */
   hspi->RxXferCount = 0U;
   hspi->TxXferCount = 0U;
 
-  /* Check no error during Abort procedure */
+  /* 检查中止流程期间是否有错误发生 */
   if (hspi->ErrorCode != HAL_SPI_ERROR_ABORT)
   {
-    /* Reset errorCode */
+    /* 复位错误代码（errorCode） */
     hspi->ErrorCode = HAL_SPI_ERROR_NONE;
   }
 
-  /* Clear the Error flags in the SR register */
+  /* 清除 SR 寄存器中的错误标志位 */
   __HAL_SPI_CLEAR_OVRFLAG(hspi);
 
-  /* Restore hspi->State to Ready */
+  /* 将 hspi->State 恢复为就绪（Ready）状态 */
   hspi->State  = HAL_SPI_STATE_READY;
 
-  /* Call user Abort complete callback */
+  /* 调用用户中止完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->AbortCpltCallback(hspi);
 #else
@@ -3130,32 +3091,32 @@ static void SPI_DMATxAbortCallback(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA SPI Rx communication abort callback, when initiated by user
-  *         (To be called at end of DMA Rx Abort procedure following user abort request).
-  * @note   When this callback is executed, User Abort complete call back is called only if no
-  *         Abort still ongoing for Tx DMA Handle.
-  * @param  hdma DMA handle.
-  * @retval None
+  * @brief  由用户发起的 DMA SPI 接收通信中止回调函数
+  *         （在响应用户中止请求的 DMA 接收中止流程结束时调用）。
+  * @note   执行此回调时，仅当发送 DMA 句柄上没有仍在进行中的
+  *         中止流程时，才会调用用户中止完成回调函数。
+  * @param  hdma DMA 句柄。
+  * @retval 无
   */
 static void SPI_DMARxAbortCallback(DMA_HandleTypeDef *hdma)
 {
   SPI_HandleTypeDef *hspi = (SPI_HandleTypeDef *)(((DMA_HandleTypeDef *)hdma)->Parent);
 
-  /* Disable SPI Peripheral */
+  /* 禁用 SPI 外设 */
   __HAL_SPI_DISABLE(hspi);
 
   hspi->hdmarx->XferAbortCallback = NULL;
 
-  /* Disable Rx DMA Request */
+  /* 禁用接收 DMA 请求 */
   CLEAR_BIT(hspi->Instance->CR2, SPI_CR2_RXDMAEN);
 
-  /* Check Busy flag */
+  /* 检查忙标志位（Busy flag） */
   if (SPI_EndRxTxTransaction(hspi, SPI_DEFAULT_TIMEOUT, HAL_GetTick()) != HAL_OK)
   {
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_ABORT);
   }
 
-  /* Check if an Abort process is still ongoing */
+  /* 检查中止（Abort）流程是否仍在进行中 */
   if (hspi->hdmatx != NULL)
   {
     if (hspi->hdmatx->XferAbortCallback != NULL)
@@ -3164,24 +3125,24 @@ static void SPI_DMARxAbortCallback(DMA_HandleTypeDef *hdma)
     }
   }
 
-  /* No Abort process still ongoing : All DMA Stream/Channel are aborted, call user Abort Complete callback */
+  /* 中止流程已全部结束：所有 DMA 数据流/通道均已中止，调用用户中止完成回调函数 */
   hspi->RxXferCount = 0U;
   hspi->TxXferCount = 0U;
 
-  /* Check no error during Abort procedure */
+  /* 检查中止流程期间是否有错误发生 */
   if (hspi->ErrorCode != HAL_SPI_ERROR_ABORT)
   {
-    /* Reset errorCode */
+    /* 复位 errorCode */
     hspi->ErrorCode = HAL_SPI_ERROR_NONE;
   }
 
-  /* Clear the Error flags in the SR register */
+  /* 清除 SR 寄存器中的错误标志位 */
   __HAL_SPI_CLEAR_OVRFLAG(hspi);
 
-  /* Restore hspi->State to Ready */
+  /* 将 hspi->State 恢复为就绪（Ready）状态 */
   hspi->State  = HAL_SPI_STATE_READY;
 
-  /* Call user Abort complete callback */
+  /* 调用用户中止完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
   hspi->AbortCpltCallback(hspi);
 #else
@@ -3190,19 +3151,18 @@ static void SPI_DMARxAbortCallback(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  Rx 8-bit handler for Transmit and Receive in Interrupt mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  中断模式下发送和接收的 8 位 Rx 处理函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_2linesRxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
 {
-  /* Receive data in 8bit mode */
+  /* 以 8 位模式接收数据 */
   *hspi->pRxBuffPtr = *((__IO uint8_t *)&hspi->Instance->DR);
   hspi->pRxBuffPtr++;
   hspi->RxXferCount--;
 
-  /* Check end of the reception */
+  /* 检查接收是否结束 */
   if (hspi->RxXferCount == 0U)
   {
 #if (USE_SPI_CRC != 0U)
@@ -3213,7 +3173,7 @@ static void SPI_2linesRxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
     }
 #endif /* USE_SPI_CRC */
 
-    /* Disable RXNE  and ERR interrupt */
+    /* 禁用 RXNE 和 ERR 中断 */
     __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_RXNE | SPI_IT_ERR));
 
     if (hspi->TxXferCount == 0U)
@@ -3225,24 +3185,23 @@ static void SPI_2linesRxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
 
 #if (USE_SPI_CRC != 0U)
 /**
-  * @brief  Rx 8-bit handler for Transmit and Receive in Interrupt mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  中断模式下发送和接收的 8 位 Rx 处理函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_2linesRxISR_8BITCRC(struct __SPI_HandleTypeDef *hspi)
 {
   __IO uint8_t  *ptmpreg8;
   __IO uint8_t  tmpreg8 = 0;
 
-  /* Initialize the 8bit temporary pointer */
+  /* 初始化 8 位临时指针 */
   ptmpreg8 = (__IO uint8_t *)&hspi->Instance->DR;
-  /* Read 8bit CRC to flush Data Register */
+  /* 读取 8 位 CRC 以清空数据寄存器 */
   tmpreg8 = *ptmpreg8;
-  /* To avoid GCC warning */
+  /* 避免 GCC 警告 */
   UNUSED(tmpreg8);
 
-  /* Disable RXNE and ERR interrupt */
+  /* 禁用 RXNE 和 ERR 中断 */
   __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_RXNE | SPI_IT_ERR));
 
   if (hspi->TxXferCount == 0U)
@@ -3253,10 +3212,9 @@ static void SPI_2linesRxISR_8BITCRC(struct __SPI_HandleTypeDef *hspi)
 #endif /* USE_SPI_CRC */
 
 /**
-  * @brief  Tx 8-bit handler for Transmit and Receive in Interrupt mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  中断模式下发送和接收的 8 位发送处理函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_2linesTxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
 {
@@ -3264,21 +3222,21 @@ static void SPI_2linesTxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
   hspi->pTxBuffPtr++;
   hspi->TxXferCount--;
 
-  /* Check the end of the transmission */
+  /* 检查传输是否结束 */
   if (hspi->TxXferCount == 0U)
   {
 #if (USE_SPI_CRC != 0U)
     if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      /* Set CRC Next Bit to send CRC */
+      /* 设置 CRCNEXT 位以发送 CRC */
       SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
-      /* Disable TXE interrupt */
+      /* 禁用 TXE 中断 */
       __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
       return;
     }
 #endif /* USE_SPI_CRC */
 
-    /* Disable TXE interrupt */
+    /* 禁用 TXE 中断 */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
 
     if (hspi->RxXferCount == 0U)
@@ -3289,14 +3247,13 @@ static void SPI_2linesTxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  Rx 16-bit handler for Transmit and Receive in Interrupt mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  中断模式下发送和接收的 16 位接收处理函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_2linesRxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
 {
-  /* Receive data in 16 Bit mode */
+  /* 在 16 位模式下接收数据 */
   *((uint16_t *)hspi->pRxBuffPtr) = (uint16_t)(hspi->Instance->DR);
   hspi->pRxBuffPtr += sizeof(uint16_t);
   hspi->RxXferCount--;
@@ -3311,7 +3268,7 @@ static void SPI_2linesRxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
     }
 #endif /* USE_SPI_CRC */
 
-    /* Disable RXNE interrupt */
+    /* 禁用 RXNE 中断 */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXNE);
 
     if (hspi->TxXferCount == 0U)
@@ -3323,21 +3280,20 @@ static void SPI_2linesRxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
 
 #if (USE_SPI_CRC != 0U)
 /**
-  * @brief  Manage the CRC 16-bit receive for Transmit and Receive in Interrupt mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  管理中断模式下发送和接收的 16 位 CRC 接收。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_2linesRxISR_16BITCRC(struct __SPI_HandleTypeDef *hspi)
 {
   __IO uint32_t tmpreg = 0U;
 
-  /* Read 16bit CRC to flush Data Register */
+  /* 读取 16 位 CRC 以清空数据寄存器 */
   tmpreg = READ_REG(hspi->Instance->DR);
-  /* To avoid GCC warning */
+  /* 避免 GCC 编译器警告 */
   UNUSED(tmpreg);
 
-  /* Disable RXNE interrupt */
+  /* 禁用 RXNE 中断 */
   __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXNE);
 
   SPI_CloseRxTx_ISR(hspi);
@@ -3345,33 +3301,32 @@ static void SPI_2linesRxISR_16BITCRC(struct __SPI_HandleTypeDef *hspi)
 #endif /* USE_SPI_CRC */
 
 /**
-  * @brief  Tx 16-bit handler for Transmit and Receive in Interrupt mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  中断模式下同时发送与接收的 16 位发送处理函数。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_2linesTxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
 {
-  /* Transmit data in 16 Bit mode */
+  /* 以 16 位模式发送数据 */
   hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
   hspi->pTxBuffPtr += sizeof(uint16_t);
   hspi->TxXferCount--;
 
-  /* Enable CRC Transmission */
+  /* 使能 CRC 传输 */
   if (hspi->TxXferCount == 0U)
   {
 #if (USE_SPI_CRC != 0U)
     if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      /* Set CRC Next Bit to send CRC */
+      /* 置位 CRCNEXT 位以发送 CRC */
       SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
-      /* Disable TXE interrupt */
+      /* 禁用 TXE 中断 */
       __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
       return;
     }
 #endif /* USE_SPI_CRC */
 
-    /* Disable TXE interrupt */
+    /* 禁用 TXE 中断 */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
 
     if (hspi->RxXferCount == 0U)
@@ -3383,21 +3338,20 @@ static void SPI_2linesTxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
 
 #if (USE_SPI_CRC != 0U)
 /**
-  * @brief  Manage the CRC 8-bit receive in Interrupt context.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  在中断上下文中处理 8 位 CRC 接收。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_RxISR_8BITCRC(struct __SPI_HandleTypeDef *hspi)
 {
   __IO uint8_t  *ptmpreg8;
   __IO uint8_t  tmpreg8 = 0;
 
-  /* Initialize the 8bit temporary pointer */
+  /* 初始化 8 位临时指针 */
   ptmpreg8 = (__IO uint8_t *)&hspi->Instance->DR;
-  /* Read 8bit CRC to flush Data Register */
+  /* 读取 8 位 CRC 以清空数据寄存器 */
   tmpreg8 = *ptmpreg8;
-  /* To avoid GCC warning */
+  /* 避免 GCC 编译器警告 */
   UNUSED(tmpreg8);
 
   SPI_CloseRx_ISR(hspi);
@@ -3405,10 +3359,9 @@ static void SPI_RxISR_8BITCRC(struct __SPI_HandleTypeDef *hspi)
 #endif /* USE_SPI_CRC */
 
 /**
-  * @brief  Manage the receive 8-bit in Interrupt context.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  在中断上下文中处理 8 位数据接收。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_RxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
 {
@@ -3417,15 +3370,15 @@ static void SPI_RxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
   hspi->RxXferCount--;
 
 #if (USE_SPI_CRC != 0U)
-  /* Enable CRC Transmission */
+  /* 使能 CRC 传输 */
   if ((hspi->RxXferCount == 1U) && (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE))
   {
     SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
   }
-  /* Check if CRCNEXT is well reset by hardware */
+  /* 检查硬件是否已成功复位 CRCNEXT */
   if (READ_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT))
   {
-    /* Workaround to force CRCNEXT bit to zero in case of CRCNEXT is not reset automatically by hardware */
+    /* 规避方案：若硬件未自动复位 CRCNEXT，则强制将 CRCNEXT 位置零 */
     CLEAR_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
   }
 
@@ -3446,21 +3399,20 @@ static void SPI_RxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
 
 #if (USE_SPI_CRC != 0U)
 /**
-  * @brief  Manage the CRC 16-bit receive in Interrupt context.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  在中断上下文中处理 16 位 CRC 接收。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_RxISR_16BITCRC(struct __SPI_HandleTypeDef *hspi)
 {
   __IO uint32_t tmpreg = 0U;
 
-  /* Read 16bit CRC to flush Data Register */
+  /* 读取 16 位 CRC 以清空数据寄存器 */
   tmpreg = READ_REG(hspi->Instance->DR);
-  /* To avoid GCC warning */
+  /* 用于消除 GCC 警告 */
   UNUSED(tmpreg);
 
-  /* Disable RXNE and ERR interrupt */
+  /* 禁用 RXNE 和 ERR 中断 */
   __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_RXNE | SPI_IT_ERR));
 
   SPI_CloseRx_ISR(hspi);
@@ -3468,10 +3420,9 @@ static void SPI_RxISR_16BITCRC(struct __SPI_HandleTypeDef *hspi)
 #endif /* USE_SPI_CRC */
 
 /**
-  * @brief  Manage the 16-bit receive in Interrupt context.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  在中断上下文中处理 16 位数据接收。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_RxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
 {
@@ -3480,15 +3431,15 @@ static void SPI_RxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
   hspi->RxXferCount--;
 
 #if (USE_SPI_CRC != 0U)
-  /* Enable CRC Transmission */
+  /* 使能 CRC 传输 */
   if ((hspi->RxXferCount == 1U) && (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE))
   {
     SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
   }
-  /* Check if CRCNEXT is well reset by hardware */
+  /* 检查硬件是否已成功复位 CRCNEXT */
   if (READ_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT))
   {
-    /* Workaround to force CRCNEXT bit to zero in case of CRCNEXT is not reset automatically by hardware */
+    /* 规避方案：若硬件未自动复位 CRCNEXT，则强制将 CRCNEXT 位置零 */
     CLEAR_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
   }
 
@@ -3508,10 +3459,10 @@ static void SPI_RxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  Handle the data 8-bit transmit in Interrupt mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  在中断模式下处理 8 位数据发送。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_TxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
 {
@@ -3524,7 +3475,7 @@ static void SPI_TxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
 #if (USE_SPI_CRC != 0U)
     if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      /* Enable CRC Transmission */
+      /* 使能 CRC 发送 */
       SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
     }
 #endif /* USE_SPI_CRC */
@@ -3533,14 +3484,14 @@ static void SPI_TxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  Handle the data 16-bit transmit in Interrupt mode.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  在中断模式下处理 16 位数据发送。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *               SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_TxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
 {
-  /* Transmit data in 16 Bit mode */
+  /* 以 16 位模式发送数据 */
   hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
   hspi->pTxBuffPtr += sizeof(uint16_t);
   hspi->TxXferCount--;
@@ -3550,7 +3501,7 @@ static void SPI_TxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
 #if (USE_SPI_CRC != 0U)
     if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      /* Enable CRC Transmission */
+      /* 使能 CRC 发送 */
       SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
     }
 #endif /* USE_SPI_CRC */
@@ -3559,14 +3510,14 @@ static void SPI_TxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  Handle SPI Communication Timeout.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *              the configuration information for SPI module.
-  * @param  Flag SPI flag to check
-  * @param  State flag state to check
-  * @param  Timeout Timeout duration
-  * @param  Tickstart tick start value
-  * @retval HAL status
+  * @brief  处理 SPI 通信超时。
+  * @param  hspi 指向包含 SPI 模块配置信息的
+  *              SPI_HandleTypeDef 结构体的指针。
+  * @param  Flag 要检查的 SPI 标志
+  * @param  State 要检查的标志状态
+  * @param  Timeout 超时持续时间
+  * @param  Tickstart 滴答定时器起始值
+  * @retval HAL 状态
   */
 static HAL_StatusTypeDef SPI_WaitFlagStateUntilTimeout(SPI_HandleTypeDef *hspi, uint32_t Flag, FlagStatus State,
                                                        uint32_t Timeout, uint32_t Tickstart)
@@ -3575,11 +3526,11 @@ static HAL_StatusTypeDef SPI_WaitFlagStateUntilTimeout(SPI_HandleTypeDef *hspi, 
   uint32_t tmp_timeout;
   uint32_t tmp_tickstart;
 
-  /* Adjust Timeout value  in case of end of transfer */
+  /* 传输结束时调整超时时间 */
   tmp_timeout   = Timeout - (HAL_GetTick() - Tickstart);
   tmp_tickstart = HAL_GetTick();
 
-  /* Calculate Timeout based on a software loop to avoid blocking issue if Systick is disabled */
+  /* 基于软件循环计算超时，以避免 SysTick 被禁用时出现阻塞问题 */
   count = tmp_timeout * ((SystemCoreClock * 32U) >> 20U);
 
   while ((__HAL_SPI_GET_FLAG(hspi, Flag) ? SET : RESET) != State)
@@ -3588,21 +3539,20 @@ static HAL_StatusTypeDef SPI_WaitFlagStateUntilTimeout(SPI_HandleTypeDef *hspi, 
     {
       if (((HAL_GetTick() - tmp_tickstart) >= tmp_timeout) || (tmp_timeout == 0U))
       {
-        /* Disable the SPI and reset the CRC: the CRC value should be cleared
-           on both master and slave sides in order to resynchronize the master
-           and slave for their respective CRC calculation */
+        /* 禁用 SPI 并复位 CRC：主设备和从设备端均应清除 CRC 值，
+           以便重新同步主设备和从设备各自的 CRC 计算 */
 
-        /* Disable TXE, RXNE and ERR interrupts for the interrupt process */
+        /* 针对中断处理流程，禁用 TXE、RXNE 和 ERR 中断 */
         __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
 
         if ((hspi->Init.Mode == SPI_MODE_MASTER) && ((hspi->Init.Direction == SPI_DIRECTION_1LINE)
                                                      || (hspi->Init.Direction == SPI_DIRECTION_2LINES_RXONLY)))
         {
-          /* Disable SPI peripheral */
+          /* 禁用 SPI 外设 */
           __HAL_SPI_DISABLE(hspi);
         }
 
-        /* Reset CRC Calculation */
+        /* 复位 CRC 计算 */
         if (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
         {
           SPI_RESET_CRC(hspi);
@@ -3610,12 +3560,12 @@ static HAL_StatusTypeDef SPI_WaitFlagStateUntilTimeout(SPI_HandleTypeDef *hspi, 
 
         hspi->State = HAL_SPI_STATE_READY;
 
-        /* Process Unlocked */
+        /* 进程解锁 */
         __HAL_UNLOCK(hspi);
 
         return HAL_TIMEOUT;
       }
-      /* If Systick is disabled or not incremented, deactivate timeout to go in disable loop procedure */
+      /* 如果 Systick 被禁用或未递增，则关闭超时机制以进入禁用循环流程 */
       if (count == 0U)
       {
         tmp_timeout = 0U;
@@ -3631,25 +3581,24 @@ static HAL_StatusTypeDef SPI_WaitFlagStateUntilTimeout(SPI_HandleTypeDef *hspi, 
 }
 
 /**
-  * @brief  Handle the check of the RX transaction complete.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @param  Timeout Timeout duration
-  * @param  Tickstart tick start value
-  * @retval HAL status
+  * @brief  处理 RX 传输完成检查。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @param  Timeout 超时时间
+  * @param  Tickstart 初始滴答计数值
+  * @retval HAL 状态
   */
 static HAL_StatusTypeDef SPI_EndRxTransaction(SPI_HandleTypeDef *hspi,  uint32_t Timeout, uint32_t Tickstart)
 {
   if ((hspi->Init.Mode == SPI_MODE_MASTER) && ((hspi->Init.Direction == SPI_DIRECTION_1LINE)
                                                || (hspi->Init.Direction == SPI_DIRECTION_2LINES_RXONLY)))
   {
-    /* Disable SPI peripheral */
+    /* 禁用 SPI 外设 */
     __HAL_SPI_DISABLE(hspi);
   }
 
   if ((hspi->Init.Mode == SPI_MODE_MASTER) && (hspi->Init.Direction == SPI_DIRECTION_2LINES_RXONLY))
   {
-    /* Wait the RXNE reset */
+    /* 等待 RXNE 复位 */
     if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_RXNE, RESET, Timeout, Tickstart) != HAL_OK)
     {
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_FLAG);
@@ -3658,7 +3607,7 @@ static HAL_StatusTypeDef SPI_EndRxTransaction(SPI_HandleTypeDef *hspi,  uint32_t
   }
   else
   {
-    /* Control the BSY flag */
+    /* 检查 BSY 标志位 */
     if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_BSY, RESET, Timeout, Tickstart) != HAL_OK)
     {
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_FLAG);
@@ -3669,22 +3618,22 @@ static HAL_StatusTypeDef SPI_EndRxTransaction(SPI_HandleTypeDef *hspi,  uint32_t
 }
 
 /**
-  * @brief  Handle the check of the RXTX or TX transaction complete.
-  * @param  hspi SPI handle
-  * @param  Timeout Timeout duration
-  * @param  Tickstart tick start value
-  * @retval HAL status
+  * @brief  处理 RXTX 或 TX 传输完成检查。
+  * @param  hspi SPI 句柄
+  * @param  Timeout 超时时间
+  * @param  Tickstart 初始滴答计数值
+  * @retval HAL 状态
   */
 static HAL_StatusTypeDef SPI_EndRxTxTransaction(SPI_HandleTypeDef *hspi, uint32_t Timeout, uint32_t Tickstart)
 {
-  /* Wait until TXE flag */
+  /* 等待 TXE 标志位置位 */
   if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_TXE, SET, Timeout, Tickstart) != HAL_OK)
   {
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_FLAG);
     return HAL_TIMEOUT;
   }
 
-  /* Control the BSY flag */
+  /* 检查 BSY 标志位 */
   if (SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_BSY, RESET, Timeout, Tickstart) != HAL_OK)
   {
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_FLAG);
@@ -3694,23 +3643,22 @@ static HAL_StatusTypeDef SPI_EndRxTxTransaction(SPI_HandleTypeDef *hspi, uint32_
 }
 
 /**
-  * @brief  Handle the end of the RXTX transaction.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  处理 RXTX 传输结束。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_CloseRxTx_ISR(SPI_HandleTypeDef *hspi)
 {
   uint32_t tickstart;
   __IO uint32_t count = SPI_DEFAULT_TIMEOUT * (SystemCoreClock / 24U / 1000U);
 
-  /* Init tickstart for timeout management */
+  /* 初始化超时管理所用的 tickstart */
   tickstart = HAL_GetTick();
 
-  /* Disable ERR interrupt */
+  /* 禁用 ERR 中断 */
   __HAL_SPI_DISABLE_IT(hspi, SPI_IT_ERR);
 
-  /* Wait until TXE flag is set */
+  /* 等待 TXE 标志位置位 */
   do
   {
     if (count == 0U)
@@ -3721,32 +3669,32 @@ static void SPI_CloseRxTx_ISR(SPI_HandleTypeDef *hspi)
     count--;
   } while ((hspi->Instance->SR & SPI_FLAG_TXE) == RESET);
 
-  /* Check the end of the transaction */
+  /* 检查传输是否结束 */
   if (SPI_EndRxTxTransaction(hspi, SPI_DEFAULT_TIMEOUT, tickstart) != HAL_OK)
   {
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_FLAG);
   }
 
-  /* Clear overrun flag in 2 Lines communication mode because received is not read */
+  /* 在双线通信模式下清除过载（overrun）标志，因为接收到的数据未被读取 */
   if (hspi->Init.Direction == SPI_DIRECTION_2LINES)
   {
     __HAL_SPI_CLEAR_OVRFLAG(hspi);
   }
 
 #if (USE_SPI_CRC != 0U)
-  /* Check if CRC error occurred */
+  /* 检查是否发生 CRC 错误 */
   if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_CRCERR) != RESET)
   {
-    /* Check if CRC error is valid or not (workaround to be applied or not) */
+    /* 检查 CRC 错误是否有效（是否需要应用变通方案） */
     if (SPI_ISCRCErrorValid(hspi) == SPI_VALID_CRC_ERROR)
     {
       hspi->State = HAL_SPI_STATE_READY;
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
 
-      /* Reset CRC Calculation */
+      /* 复位 CRC 计算 */
       SPI_RESET_CRC(hspi);
 
-      /* Call user error callback */
+      /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
       hspi->ErrorCallback(hspi);
 #else
@@ -3766,7 +3714,7 @@ static void SPI_CloseRxTx_ISR(SPI_HandleTypeDef *hspi)
       if (hspi->State == HAL_SPI_STATE_BUSY_RX)
       {
         hspi->State = HAL_SPI_STATE_READY;
-        /* Call user Rx complete callback */
+        /* 调用用户接收完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
         hspi->RxCpltCallback(hspi);
 #else
@@ -3776,7 +3724,7 @@ static void SPI_CloseRxTx_ISR(SPI_HandleTypeDef *hspi)
       else
       {
         hspi->State = HAL_SPI_STATE_READY;
-        /* Call user TxRx complete callback */
+        /* 调用用户发送与接收完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
         hspi->TxRxCpltCallback(hspi);
 #else
@@ -3787,7 +3735,7 @@ static void SPI_CloseRxTx_ISR(SPI_HandleTypeDef *hspi)
     else
     {
       hspi->State = HAL_SPI_STATE_READY;
-      /* Call user error callback */
+      /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
       hspi->ErrorCallback(hspi);
 #else
@@ -3800,23 +3748,22 @@ static void SPI_CloseRxTx_ISR(SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  Handle the end of the RX transaction.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  处理接收传输结束事件。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_CloseRx_ISR(SPI_HandleTypeDef *hspi)
 {
-  /* Disable RXNE and ERR interrupt */
+  /* 禁用 RXNE 和 ERR 中断 */
   __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_RXNE | SPI_IT_ERR));
 
-  /* Check the end of the transaction */
+  /* 检查传输是否结束 */
   if (SPI_EndRxTransaction(hspi, SPI_DEFAULT_TIMEOUT, HAL_GetTick()) != HAL_OK)
   {
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_FLAG);
   }
 
-  /* Clear overrun flag in 2 Lines communication mode because received is not read */
+  /* 在双线通信模式下清除过载（overrun）标志，因为接收到的数据未被读取 */
   if (hspi->Init.Direction == SPI_DIRECTION_2LINES)
   {
     __HAL_SPI_CLEAR_OVRFLAG(hspi);
@@ -3824,18 +3771,18 @@ static void SPI_CloseRx_ISR(SPI_HandleTypeDef *hspi)
   hspi->State = HAL_SPI_STATE_READY;
 
 #if (USE_SPI_CRC != 0U)
-  /* Check if CRC error occurred */
+  /* 检查是否发生 CRC 错误 */
   if (__HAL_SPI_GET_FLAG(hspi, SPI_FLAG_CRCERR) != RESET)
   {
-    /* Check if CRC error is valid or not (workaround to be applied or not) */
+    /* 检查 CRC 错误是否有效（是否需要应用变通方案/workaround） */
     if (SPI_ISCRCErrorValid(hspi) == SPI_VALID_CRC_ERROR)
     {
       SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_CRC);
 
-      /* Reset CRC Calculation */
+      /* 复位 CRC 计算 */
       SPI_RESET_CRC(hspi);
 
-      /* Call user error callback */
+      /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
       hspi->ErrorCallback(hspi);
 #else
@@ -3852,7 +3799,7 @@ static void SPI_CloseRx_ISR(SPI_HandleTypeDef *hspi)
 #endif /* USE_SPI_CRC */
     if (hspi->ErrorCode == HAL_SPI_ERROR_NONE)
     {
-      /* Call user Rx complete callback */
+      /* 调用用户接收完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
       hspi->RxCpltCallback(hspi);
 #else
@@ -3861,7 +3808,7 @@ static void SPI_CloseRx_ISR(SPI_HandleTypeDef *hspi)
     }
     else
     {
-      /* Call user error callback */
+      /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
       hspi->ErrorCallback(hspi);
 #else
@@ -3874,20 +3821,19 @@ static void SPI_CloseRx_ISR(SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  Handle the end of the TX transaction.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  处理 TX 传输事务结束。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构的指针。
+  * @retval 无
   */
 static void SPI_CloseTx_ISR(SPI_HandleTypeDef *hspi)
 {
   uint32_t tickstart;
   __IO uint32_t count = SPI_DEFAULT_TIMEOUT * (SystemCoreClock / 24U / 1000U);
 
-  /* Init tickstart for timeout management*/
+  /* 初始化用于超时管理的 tickstart */
   tickstart = HAL_GetTick();
 
-  /* Wait until TXE flag is set */
+  /* 等待直到 TXE 标志置位 */
   do
   {
     if (count == 0U)
@@ -3898,16 +3844,16 @@ static void SPI_CloseTx_ISR(SPI_HandleTypeDef *hspi)
     count--;
   } while ((hspi->Instance->SR & SPI_FLAG_TXE) == RESET);
 
-  /* Disable TXE and ERR interrupt */
+  /* 禁用 TXE 和 ERR 中断 */
   __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_TXE | SPI_IT_ERR));
 
-  /* Check the end of the transaction */
+  /* 检查传输是否结束 */
   if (SPI_EndRxTxTransaction(hspi, SPI_DEFAULT_TIMEOUT, tickstart) != HAL_OK)
   {
     SET_BIT(hspi->ErrorCode, HAL_SPI_ERROR_FLAG);
   }
 
-  /* Clear overrun flag in 2 Lines communication mode because received is not read */
+  /* 在双线通信模式下清除过载标志（OVR），因为未读取接收到的数据 */
   if (hspi->Init.Direction == SPI_DIRECTION_2LINES)
   {
     __HAL_SPI_CLEAR_OVRFLAG(hspi);
@@ -3916,7 +3862,7 @@ static void SPI_CloseTx_ISR(SPI_HandleTypeDef *hspi)
   hspi->State = HAL_SPI_STATE_READY;
   if (hspi->ErrorCode != HAL_SPI_ERROR_NONE)
   {
-    /* Call user error callback */
+    /* 调用用户错误回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
     hspi->ErrorCallback(hspi);
 #else
@@ -3925,7 +3871,7 @@ static void SPI_CloseTx_ISR(SPI_HandleTypeDef *hspi)
   }
   else
   {
-    /* Call user Rx complete callback */
+    /* 调用用户接收完成回调函数 */
 #if (USE_HAL_SPI_REGISTER_CALLBACKS == 1U)
     hspi->TxCpltCallback(hspi);
 #else
@@ -3935,17 +3881,16 @@ static void SPI_CloseTx_ISR(SPI_HandleTypeDef *hspi)
 }
 
 /**
-  * @brief  Handle abort a Rx transaction.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  处理中止 Rx 传输事务。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_AbortRx_ISR(SPI_HandleTypeDef *hspi)
 {
   __IO uint32_t tmpreg = 0U;
   __IO uint32_t count = SPI_DEFAULT_TIMEOUT * (SystemCoreClock / 24U / 1000U);
 
-  /* Wait until TXE flag is set */
+  /* 等待直到 TXE 标志位置位 */
   do
   {
     if (count == 0U)
@@ -3956,32 +3901,31 @@ static void SPI_AbortRx_ISR(SPI_HandleTypeDef *hspi)
     count--;
   } while ((hspi->Instance->SR & SPI_FLAG_TXE) == RESET);
 
-  /* Disable SPI Peripheral */
+  /* 禁用 SPI 外设 */
   __HAL_SPI_DISABLE(hspi);
 
-  /* Disable TXEIE, RXNEIE and ERRIE(mode fault event, overrun error, TI frame error) interrupts */
+  /* 禁用 TXEIE、RXNEIE 和 ERRIE（模式错误事件、过载错误、TI 帧格式错误）中断 */
   CLEAR_BIT(hspi->Instance->CR2, (SPI_CR2_TXEIE | SPI_CR2_RXNEIE | SPI_CR2_ERRIE));
 
-  /* Flush Data Register by a blank read */
+  /* 通过一次空读操作刷新数据寄存器（DR） */
   tmpreg = READ_REG(hspi->Instance->DR);
-  /* To avoid GCC warning */
+  /* 用于避免 GCC 编译器警告 */
   UNUSED(tmpreg);
 
   hspi->State = HAL_SPI_STATE_ABORT;
 }
 
 /**
-  * @brief  Handle abort a Tx or Rx/Tx transaction.
-  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval None
+  * @brief  处理中止 Tx 或 Rx/Tx 传输事务。
+  * @param  hspi 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval 无
   */
 static void SPI_AbortTx_ISR(SPI_HandleTypeDef *hspi)
 {
-  /* Disable TXEIE interrupt */
+  /* 禁用 TXEIE 中断 */
   CLEAR_BIT(hspi->Instance->CR2, (SPI_CR2_TXEIE));
 
-  /* Disable SPI Peripheral */
+  /* 禁用 SPI 外设 */
   __HAL_SPI_DISABLE(hspi);
 
   hspi->State = HAL_SPI_STATE_ABORT;
@@ -3989,18 +3933,16 @@ static void SPI_AbortTx_ISR(SPI_HandleTypeDef *hspi)
 
 #if (USE_SPI_CRC != 0U)
 /**
-  * @brief  Checks if encountered CRC error could be corresponding to wrongly detected errors
-  *         according to SPI instance, Device type, and revision ID.
-  * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains
-  *               the configuration information for SPI module.
-  * @retval CRC error validity (SPI_INVALID_CRC_ERROR or SPI_VALID_CRC_ERROR).
+  * @brief  根据 SPI 实例、器件类型以及修订版本 ID，检查所遇到的 CRC 错误是否可能属于误检错误。
+  * @param  hspi: 指向包含 SPI 模块配置信息的 SPI_HandleTypeDef 结构体的指针。
+  * @retval CRC 错误有效性 (SPI_INVALID_CRC_ERROR 或 SPI_VALID_CRC_ERROR)。
   */
 uint8_t SPI_ISCRCErrorValid(SPI_HandleTypeDef *hspi)
 {
 #if defined(SPI_CRC_ERROR_WORKAROUND_FEATURE) && (USE_SPI_CRC_ERROR_WORKAROUND != 0U)
-  /* Check how to handle this CRC error (workaround to be applied or not) */
-  /* If CRC errors could be wrongly detected (issue 2.15.2 in STM32F10xxC/D/E silicon limitations ES
-     (DocID14732 Rev 13)) */
+  /* 检查如何处理此 CRC 错误（是否需要应用变通方案） */
+  /* 如果 CRC 错误可能存在误报（STM32F10xxC/D/E 芯片勘误表 ES 中的问题 2.15.2
+     (DocID14732 Rev 13)） */
   if (hspi->Instance == SPI2)
   {
     if (hspi->Instance->RXCRCR == 0U)
@@ -4009,7 +3951,7 @@ uint8_t SPI_ISCRCErrorValid(SPI_HandleTypeDef *hspi)
     }
   }
 #endif /* USE_SPI_CRC_ERROR_WORKAROUND */
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用的参数产生编译警告 */
   UNUSED(hspi);
 
   return (SPI_VALID_CRC_ERROR);

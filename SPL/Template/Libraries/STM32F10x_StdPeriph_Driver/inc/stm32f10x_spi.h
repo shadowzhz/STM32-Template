@@ -4,8 +4,7 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the SPI firmware 
-  *          library.
+  * @brief   本文件包含 SPI 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
@@ -20,7 +19,7 @@
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_SPI_H
 #define __STM32F10x_SPI_H
 
@@ -28,89 +27,89 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup SPI
+/** @addtogroup SPI  SPI 外设
   * @{
   */ 
 
-/** @defgroup SPI_Exported_Types
+/** @defgroup SPI_Exported_Types  SPI 导出的类型定义
   * @{
   */
 
-/** 
-  * @brief  SPI Init structure definition  
+/**
+  * @brief  SPI 初始化结构定义
   */
 
 typedef struct
 {
-  uint16_t SPI_Direction;           /*!< Specifies the SPI unidirectional or bidirectional data mode.
-                                         This parameter can be a value of @ref SPI_data_direction */
+  uint16_t SPI_Direction;           /*!< 指定 SPI 单向或双向数据模式。
+                                         该参数可取 @ref SPI_data_direction 的值 */
 
-  uint16_t SPI_Mode;                /*!< Specifies the SPI operating mode.
-                                         This parameter can be a value of @ref SPI_mode */
+  uint16_t SPI_Mode;                /*!< 指定 SPI 工作模式。
+                                         该参数可取 @ref SPI_mode 的值 */
 
-  uint16_t SPI_DataSize;            /*!< Specifies the SPI data size.
-                                         This parameter can be a value of @ref SPI_data_size */
+  uint16_t SPI_DataSize;            /*!< 指定 SPI 数据大小。
+                                         该参数可取 @ref SPI_data_size 的值 */
 
-  uint16_t SPI_CPOL;                /*!< Specifies the serial clock steady state.
-                                         This parameter can be a value of @ref SPI_Clock_Polarity */
+  uint16_t SPI_CPOL;                /*!< 指定串行时钟的稳态。
+                                         该参数可取 @ref SPI_Clock_Polarity 的值 */
 
-  uint16_t SPI_CPHA;                /*!< Specifies the clock active edge for the bit capture.
-                                         This parameter can be a value of @ref SPI_Clock_Phase */
+  uint16_t SPI_CPHA;                /*!< 指定位采样所使用的时钟有效边沿。
+                                         该参数可取 @ref SPI_Clock_Phase 的值 */
 
-  uint16_t SPI_NSS;                 /*!< Specifies whether the NSS signal is managed by
-                                         hardware (NSS pin) or by software using the SSI bit.
-                                         This parameter can be a value of @ref SPI_Slave_Select_management */
+  uint16_t SPI_NSS;                 /*!< 指定 NSS 信号由硬件（NSS 引脚）管理还是
+                                         由软件通过 SSI 位管理。
+                                         该参数可取 @ref SPI_Slave_Select_management 的值 */
  
-  uint16_t SPI_BaudRatePrescaler;   /*!< Specifies the Baud Rate prescaler value which will be
-                                         used to configure the transmit and receive SCK clock.
-                                         This parameter can be a value of @ref SPI_BaudRate_Prescaler.
-                                         @note The communication clock is derived from the master
-                                               clock. The slave clock does not need to be set. */
+  uint16_t SPI_BaudRatePrescaler;   /*!< 指定波特率预分频值，该值将用于配置
+                                         发送和接收 SCK 时钟。
+                                         该参数可取 @ref SPI_BaudRate_Prescaler 的值。
+                                         @note 通信时钟由主时钟分频得到。
+                                               从时钟无需设置。 */
 
-  uint16_t SPI_FirstBit;            /*!< Specifies whether data transfers start from MSB or LSB bit.
-                                         This parameter can be a value of @ref SPI_MSB_LSB_transmission */
+  uint16_t SPI_FirstBit;            /*!< 指定数据传输从 MSB 位还是 LSB 位开始。
+                                         该参数可取 @ref SPI_MSB_LSB_transmission 的值 */
 
-  uint16_t SPI_CRCPolynomial;       /*!< Specifies the polynomial used for the CRC calculation. */
+  uint16_t SPI_CRCPolynomial;       /*!< 指定用于 CRC 计算的多项式。 */
 }SPI_InitTypeDef;
 
-/** 
-  * @brief  I2S Init structure definition  
+/**
+  * @brief  I2S 初始化结构定义
   */
 
 typedef struct
 {
 
-  uint16_t I2S_Mode;         /*!< Specifies the I2S operating mode.
-                                  This parameter can be a value of @ref I2S_Mode */
+  uint16_t I2S_Mode;         /*!< 指定 I2S 工作模式。
+                                  该参数可取 @ref I2S_Mode 的值 */
 
-  uint16_t I2S_Standard;     /*!< Specifies the standard used for the I2S communication.
-                                  This parameter can be a value of @ref I2S_Standard */
+  uint16_t I2S_Standard;     /*!< 指定 I2S 通信所使用的标准。
+                                  该参数可取 @ref I2S_Standard 的值 */
 
-  uint16_t I2S_DataFormat;   /*!< Specifies the data format for the I2S communication.
-                                  This parameter can be a value of @ref I2S_Data_Format */
+  uint16_t I2S_DataFormat;   /*!< 指定 I2S 通信的数据格式。
+                                  该参数可取 @ref I2S_Data_Format 的值 */
 
-  uint16_t I2S_MCLKOutput;   /*!< Specifies whether the I2S MCLK output is enabled or not.
-                                  This parameter can be a value of @ref I2S_MCLK_Output */
+  uint16_t I2S_MCLKOutput;   /*!< 指定 I2S MCLK 输出是否使能。
+                                  该参数可取 @ref I2S_MCLK_Output 的值 */
 
-  uint32_t I2S_AudioFreq;    /*!< Specifies the frequency selected for the I2S communication.
-                                  This parameter can be a value of @ref I2S_Audio_Frequency */
+  uint32_t I2S_AudioFreq;    /*!< 指定为 I2S 通信选择的频率。
+                                  该参数可取 @ref I2S_Audio_Frequency 的值 */
 
-  uint16_t I2S_CPOL;         /*!< Specifies the idle state of the I2S clock.
-                                  This parameter can be a value of @ref I2S_Clock_Polarity */
+  uint16_t I2S_CPOL;         /*!< 指定 I2S 时钟的空闲状态。
+                                  该参数可取 @ref I2S_Clock_Polarity 的值 */
 }I2S_InitTypeDef;
 
 /**
   * @}
   */
 
-/** @defgroup SPI_Exported_Constants
+/** @defgroup SPI_Exported_Constants  SPI 导出的常量
   * @{
   */
 
@@ -121,7 +120,7 @@ typedef struct
 #define IS_SPI_23_PERIPH(PERIPH) (((PERIPH) == SPI2) || \
                                   ((PERIPH) == SPI3))
 
-/** @defgroup SPI_data_direction 
+/** @defgroup SPI_data_direction  SPI 数据方向
   * @{
   */
   
@@ -137,7 +136,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_mode 
+/** @defgroup SPI_mode  SPI 模式
   * @{
   */
 
@@ -149,7 +148,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_data_size 
+/** @defgroup SPI_data_size  SPI 数据大小
   * @{
   */
 
@@ -161,7 +160,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup SPI_Clock_Polarity 
+/** @defgroup SPI_Clock_Polarity  SPI 时钟极性
   * @{
   */
 
@@ -173,7 +172,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_Clock_Phase 
+/** @defgroup SPI_Clock_Phase  SPI 时钟相位
   * @{
   */
 
@@ -185,7 +184,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_Slave_Select_management 
+/** @defgroup SPI_Slave_Select_management  SPI 从器件选择管理
   * @{
   */
 
@@ -197,7 +196,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup SPI_BaudRate_Prescaler 
+/** @defgroup SPI_BaudRate_Prescaler  SPI 波特率预分频器
   * @{
   */
 
@@ -221,7 +220,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup SPI_MSB_LSB_transmission 
+/** @defgroup SPI_MSB_LSB_transmission  SPI MSB/LSB 传输顺序
   * @{
   */
 
@@ -233,7 +232,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup I2S_Mode 
+/** @defgroup I2S_Mode  I2S 模式
   * @{
   */
 
@@ -249,7 +248,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup I2S_Standard 
+/** @defgroup I2S_Standard  I2S 标准
   * @{
   */
 
@@ -267,7 +266,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup I2S_Data_Format 
+/** @defgroup I2S_Data_Format  I2S 数据格式
   * @{
   */
 
@@ -283,7 +282,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup I2S_MCLK_Output 
+/** @defgroup I2S_MCLK_Output  I2S MCLK 输出
   * @{
   */
 
@@ -295,7 +294,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup I2S_Audio_Frequency 
+/** @defgroup I2S_Audio_Frequency  I2S 音频频率
   * @{
   */
 
@@ -317,7 +316,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup I2S_Clock_Polarity 
+/** @defgroup I2S_Clock_Polarity  I2S 时钟极性
   * @{
   */
 
@@ -329,7 +328,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_I2S_DMA_transfer_requests 
+/** @defgroup SPI_I2S_DMA_transfer_requests  SPI/I2S DMA 传输请求
   * @{
   */
 
@@ -340,7 +339,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_NSS_internal_software_management 
+/** @defgroup SPI_NSS_internal_software_management  SPI NSS 内部软件管理
   * @{
   */
 
@@ -352,7 +351,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_CRC_Transmit_Receive 
+/** @defgroup SPI_CRC_Transmit_Receive  SPI CRC 发送/接收
   * @{
   */
 
@@ -363,7 +362,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_direction_transmit_receive 
+/** @defgroup SPI_direction_transmit_receive  SPI 发送/接收方向
   * @{
   */
 
@@ -375,7 +374,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_I2S_interrupts_definition 
+/** @defgroup SPI_I2S_interrupts_definition  SPI/I2S 中断定义
   * @{
   */
 
@@ -397,7 +396,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_I2S_flags_definition 
+/** @defgroup SPI_I2S_flags_definition  SPI/I2S 标志定义
   * @{
   */
 
@@ -418,7 +417,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_CRC_polynomial 
+/** @defgroup SPI_CRC_polynomial  SPI CRC 多项式
   * @{
   */
 
@@ -431,7 +430,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_Exported_Macros
+/** @defgroup SPI_Exported_Macros  SPI 导出的宏
   * @{
   */
 
@@ -439,7 +438,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SPI_Exported_Functions
+/** @defgroup SPI_Exported_Functions  SPI 导出的函数
   * @{
   */
 
@@ -484,4 +483,4 @@ void SPI_I2S_ClearITPendingBit(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

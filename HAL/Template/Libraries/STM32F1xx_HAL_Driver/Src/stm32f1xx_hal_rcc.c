@@ -2,62 +2,53 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_rcc.c
   * @author  MCD Application Team
-  * @brief   RCC HAL module driver.
-  *          This file provides firmware functions to manage the following
-  *          functionalities of the Reset and Clock Control (RCC) peripheral:
-  *           + Initialization and de-initialization functions
-  *           + Peripheral Control functions
+  * @brief   HAL库 RCC 模块驱动
+  *          该文件提供了固件函数，用于管理复位和时钟控制（RCC）外设的以下功能：
+  *           + 初始化和反初始化函数
+  *           + 外设控制函数
   *
   @verbatim
   ==============================================================================
-                      ##### RCC specific features #####
+                      ##### RCC 特性 #####
   ==============================================================================
     [..]
-      After reset the device is running from Internal High Speed oscillator
-      (HSI 8MHz) with Flash 0 wait state, Flash prefetch buffer is enabled,
-      and all peripherals are off except internal SRAM, Flash and JTAG.
-      (+) There is no prescaler on High speed (AHB) and Low speed (APB) buses;
-          all peripherals mapped on these buses are running at HSI speed.
-      (+) The clock for all peripherals is switched off, except the SRAM and FLASH.
-      (+) All GPIOs are in input floating state, except the JTAG pins which
-          are assigned to be used for debug purpose.
-    [..] Once the device started from reset, the user application has to:
-      (+) Configure the clock source to be used to drive the System clock
-          (if the application needs higher frequency/performance)
-      (+) Configure the System clock frequency and Flash settings
-      (+) Configure the AHB and APB buses prescalers
-      (+) Enable the clock for the peripheral(s) to be used
-      (+) Configure the clock source(s) for peripherals whose clocks are not
-          derived from the System clock (I2S, RTC, ADC, USB OTG FS)
+      复位后，设备使用内部高速振荡器（HSI 8MHz）运行，Flash为0等待周期，
+      启用Flash预取缓冲区，除了内部SRAM、Flash和JTAG之外，所有外设都处于关闭状态。
+      (+) 高速（AHB）和低速（APB）总线上没有预分频；映射到这些总线上的所有外设都以HSI速度运行。
+      (+) 所有外设的时钟都被关闭，除了SRAM和FLASH。
+      (+) 所有GPIO处于浮空输入状态，除了分配给调试目的的JTAG引脚。
+    [..]  一旦设备从复位开始运行，用户应用程序必须：
+      (+) 配置用于驱动系统时钟的时钟源（如果应用程序需要更高的频率/性能）
+      (+) 配置系统时钟频率和Flash设置
+      (+) 配置AHB和APB总线的预分频
+      (+) 启用要使用的外设的时钟
+      (+) 配置时钟源以用于那些时钟不是从系统时钟派生的外设（I2S、RTC、ADC、USB OTG FS）
 
-                      ##### RCC Limitations #####
+                      ##### RCC 限制 #####
   ==============================================================================
     [..]
-      A delay between an RCC peripheral clock enable and the effective peripheral
-      enabling should be taken into account in order to manage the peripheral read/write
-      from/to registers.
-      (+) This delay depends on the peripheral mapping.
-        (++) AHB & APB peripherals, 1 dummy read is necessary
+      在启用RCC外设时，应考虑RCC外设时钟启用和有效外设启用之间的延迟，以便管理对寄存器的外设读/写操作。
+      (+) 此延迟取决于外设映射。
+        (++) 对于AHB和APB外设，需要进行一次虚拟读取
 
     [..]
-      Workarounds:
-      (#) For AHB & APB peripherals, a dummy read to the peripheral register has been
-          inserted in each __HAL_RCC_PPP_CLK_ENABLE() macro.
+      解决方法:
+      (#) 对于AHB和APB外设，在每个__HAL_RCC_PPP_CLK_ENABLE()宏中插入了对外设寄存器的虚拟读取。
 
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.
+  * 版权所有 (c) 2016 STMicroelectronics。
+  * 保留所有权利。
   *
-  * This software is licensed under terms that can be found in the LICENSE file in
-  * the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * 本软件根据可以在此软件组件的根目录中找到的 LICENSE 文件中的条款进行许可。
+  * 如果此软件没有附带 LICENSE 文件，则按原样提供。
+  * 
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件 ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -65,22 +56,22 @@
   */
 
 /** @defgroup RCC RCC
-* @brief RCC HAL module driver
+* @brief RCC HAL 模块驱动
   * @{
   */
 
 #ifdef HAL_RCC_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/** @defgroup RCC_Private_Constants RCC Private Constants
+/* 私有类型 -----------------------------------------------------------*/
+/* 私有定义 ------------------------------------------------------------*/
+/** @defgroup RCC_Private_Constants RCC 私有常量
  * @{
  */
 /**
   * @}
   */
-/* Private macro -------------------------------------------------------------*/
-/** @defgroup RCC_Private_Macros RCC Private Macros
+/* 私有宏 -------------------------------------------------------------*/
+/** @defgroup RCC_Private_Macros RCC 私有宏
   * @{
   */
 
@@ -92,122 +83,113 @@
   * @}
   */
 
-/* Private variables ---------------------------------------------------------*/
-/** @defgroup RCC_Private_Variables RCC Private Variables
+/* 私有变量 ---------------------------------------------------------*/
+/** @defgroup RCC_Private_Variables RCC 私有变量
   * @{
   */
 /**
   * @}
   */
 
-/* Private function prototypes -----------------------------------------------*/
+/* 私有函数原型 -----------------------------------------------*/
+
 static void RCC_Delay(uint32_t mdelay);
 
-/* Exported functions --------------------------------------------------------*/
+/* 导出函数 --------------------------------------------------------*/
 
-/** @defgroup RCC_Exported_Functions RCC Exported Functions
+/** @defgroup RCC_Exported_Functions RCC 导出函数
   * @{
   */
 
-/** @defgroup RCC_Exported_Functions_Group1 Initialization and de-initialization functions
-  *  @brief    Initialization and Configuration functions
+/** @defgroup RCC_Exported_Functions_Group1 初始化和反初始化函数
+  *  @brief    初始化和配置函数
   *
   @verbatim
   ===============================================================================
-           ##### Initialization and de-initialization functions #####
+           ##### 初始化和反初始化函数 #####
   ===============================================================================
     [..]
-      This section provides functions allowing to configure the internal/external oscillators
-      (HSE, HSI, LSE, LSI, PLL, CSS and MCO) and the System buses clocks (SYSCLK, AHB, APB1
-      and APB2).
+      该部分提供了允许配置内部/外部振荡器（HSE、HSI、LSE、LSI、PLL、CSS和MCO）以及系统总线时钟（SYSCLK、AHB、APB1和APB2）的函数。
 
-    [..] Internal/external clock and PLL configuration
-      (#) HSI (high-speed internal), 8 MHz factory-trimmed RC used directly or through
-          the PLL as System clock source.
-      (#) LSI (low-speed internal), ~40 KHz low consumption RC used as IWDG and/or RTC
-          clock source.
+    [..] 内部/外部时钟和PLL配置
+      (#) HSI (内部高速RC震荡器)，工厂修正的8MHz RC振荡器，直接或通过PLL作为系统时钟源
+      (#) LSI (内部低速RC震荡器), 约40 KHz 低速RC震荡器，用于作为IWDG独立看门狗和RTC实时时钟的时钟源
 
-      (#) HSE (high-speed external), 4 to 24 MHz (STM32F100xx) or 4 to 16 MHz (STM32F101x/STM32F102x/STM32F103x) or 3 to 25 MHz (STM32F105x/STM32F107x)  crystal oscillator used directly or
-          through the PLL as System clock source. Can be used also as RTC clock source.
+      (#) HSE (外部高速振荡器), 4至24 MHz（STM32F100xx）或4至16 MHz（STM32F101x/STM32F102x/STM32F103x）或3至25 MHz（STM32F105x/STM32F107x）晶体振荡器，
+          可以直接或通过PLL用作系统时钟源。 也可用作RTC时钟源。
 
-      (#) LSE (low-speed external), 32 KHz oscillator used as RTC clock source.
+      (#) LSE (外部低速震荡器), 32 KHz 振荡器用作 RTC实时时钟的时钟源
 
-      (#) PLL (clocked by HSI or HSE), featuring different output clocks:
-        (++) The first output is used to generate the high speed system clock (up to 72 MHz for STM32F10xxx or up to 24 MHz for STM32F100xx)
-        (++) The second output is used to generate the clock for the USB OTG FS (48 MHz)
+      (#) PLL (由HSI或HSE输入), 具有不同的输出时钟:
+        (++) 第一个输出用于生成高速系统时钟（STM32F10xxx最高达72 MHz，STM32F100xx最高达24 MHz）
+        (++) 第二个输出用于生成USB OTG FS的时钟（48 MHz）
 
-      (#) CSS (Clock security system), once enable using the macro __HAL_RCC_CSS_ENABLE()
-          and if a HSE clock failure occurs(HSE used directly or through PLL as System
-          clock source), the System clocks automatically switched to HSI and an interrupt
-          is generated if enabled. The interrupt is linked to the Cortex-M3 NMI
-          (Non-Maskable Interrupt) exception vector.
+      (#) CSS（时钟安全系统），一旦使用宏__HAL_RCC_CSS_ENABLE()启用，
+          如果发生HSE时钟故障（HSE直接或通过PLL用作系统时钟源），
+          系统时钟会自动切换到HSI，并在启用CSS的情况下生成中断。
+          该中断与Cortex-M3 NMI（不可屏蔽中断）异常向量相关联。
 
-      (#) MCO1 (microcontroller clock output), used to output SYSCLK, HSI,
-          HSE or PLL clock (divided by 2) on PA8 pin + PLL2CLK, PLL3CLK/2, PLL3CLK and XTI for STM32F105x/STM32F107x
+      (#) MCO1（微控制器时钟输出），用于在PA8引脚上输出SYSCLK、HSI、HSE 或 PLL时钟（除以2）
+            + STM32F105x/STM32F107x上的PLL2CLK、PLL3CLK/2、PLL3CLK和XTI
 
-    [..] System, AHB and APB buses clocks configuration
-      (#) Several clock sources can be used to drive the System clock (SYSCLK): HSI,
-          HSE and PLL.
-          The AHB clock (HCLK) is derived from System clock through configurable
-          prescaler and used to clock the CPU, memory and peripherals mapped
-          on AHB bus (DMA, GPIO...). APB1 (PCLK1) and APB2 (PCLK2) clocks are derived
-          from AHB clock through configurable prescalers and used to clock
-          the peripherals mapped on these buses. You can use
-          "HAL_RCC_GetSysClockFreq()" function to retrieve the frequencies of these clocks.
 
-      -@- All the peripheral clocks are derived from the System clock (SYSCLK) except:
-          (+@) RTC: RTC clock can be derived either from the LSI, LSE or HSE clock
-              divided by 128.
-          (+@) USB OTG FS and RTC: USB OTG FS require a frequency equal to 48 MHz
-              to work correctly. This clock is derived of the main PLL through PLL Multiplier.
-          (+@) I2S interface on STM32F105x/STM32F107x can be derived from PLL3CLK
-          (+@) IWDG clock which is always the LSI clock.
+    [..] 系统、AHB和APB总线时钟配置
+      (#) 可以使用多个时钟源来驱动系统时钟（SYSCLK）：HSI、HSE和PLL。
+          AHB时钟（HCLK）通过可配置的预分频器从系统时钟派生，作为CPU、内存和映射到AHB总线上的外设（DMA、GPIO等）的时钟。
+          APB1（PCLK1）和 APB2（PCLK2）时钟通过可配置的预分频器从AHB时钟派生，作为映射到这些总线上的外设的时钟。
+          您可以使用"HAL_RCC_GetSysClockFreq()"函数来获取这些时钟的频率。
 
-      (#) For STM32F10xxx, the maximum frequency of the SYSCLK and HCLK/PCLK2 is 72 MHz, PCLK1 36 MHz.
-          For STM32F100xx, the maximum frequency of the SYSCLK and HCLK/PCLK1/PCLK2 is 24 MHz.
-          Depending on the SYSCLK frequency, the flash latency should be adapted accordingly.
+      -@- 所有外设时钟都是从系统时钟（SYSCLK）派生的，除了：
+          (+@) RTC：RTC时钟可以从 LSI、LSE 或 HSE时钟除以128派生。
+          (+@) USB OTG FS：USB OTG FS需要频率为 48 MHz 才能正常工作。此时钟是通过主PLL输出进行USB预分频后派生的。
+          (+@) STM32F105x/STM32F107x上的I2S接口可以从PLL3CLK派生
+          (+@) IWDG时钟始终为LSI时钟
+
+      (#) 对于STM32F10xxx，SYSCLK 和 HCLK/PCLK2的最大频率为72 MHz，PCLK1为36 MHz。
+          对于STM32F100xx，SYSCLK 和 HCLK/PCLK1/PCLK2的最大频率为24 MHz。
+          根据SYSCLK频率，应相应调整Flash延迟。
   @endverbatim
   * @{
   */
 
 /*
-  Additional consideration on the SYSCLK based on Latency settings:
+  关于基于FLASH延迟设置的SYSCLK的额外考虑：
         +-----------------------------------------------+
-        | Latency       | SYSCLK clock frequency (MHz)  |
+        |    延迟       |     SYSCLK 时钟频率 (MHz)      |
         |---------------|-------------------------------|
-        |0WS(1CPU cycle)|       0 < SYSCLK <= 24        |
+        |0WS(1CPU 周期) |       0 < SYSCLK <= 24        |
         |---------------|-------------------------------|
-        |1WS(2CPU cycle)|      24 < SYSCLK <= 48        |
+        |1WS(2CPU 周期) |      24 < SYSCLK <= 48        |
         |---------------|-------------------------------|
-        |2WS(3CPU cycle)|      48 < SYSCLK <= 72        |
+        |2WS(3CPU 周期) |      48 < SYSCLK <= 72        |
         +-----------------------------------------------+
   */
 
 /**
-  * @brief  Resets the RCC clock configuration to the default reset state.
-  * @note   The default reset state of the clock configuration is given below:
-  *            - HSI ON and used as system clock source
-  *            - HSE, PLL, PLL2 and PLL3 are OFF
-  *            - AHB, APB1 and APB2 prescaler set to 1.
-  *            - CSS and MCO1 OFF
-  *            - All interrupts disabled
-  *            - All flags are cleared
-  * @note   This function does not modify the configuration of the
-  *            - Peripheral clocks
-  *            - LSI, LSE and RTC clocks
+  * @brief  重置RCC时钟配置为默认复位状态。
+  * @note   时钟配置的默认复位状态如下:
+  *            - HSI 开启作为系统时钟源
+  *            - HSE, PLL, PLL2 和 PLL3 关闭
+  *            - AHB, APB1 和 APB2 预分频为1
+  *            - CSS 和 MCO1 关闭
+  *            - 全部中断禁用
+  *            - 全部标志清除
+  * @note   该函数不修改的设备配置
+  *            - 外设时钟源
+  *            - LSI, LSE 和 RTC 时钟
   * @retval HAL_StatusTypeDef
   */
 HAL_StatusTypeDef HAL_RCC_DeInit(void)
 {
   uint32_t tickstart;
 
-  /* Get Start Tick */
+  /* 获取起始滴答值 */
   tickstart = HAL_GetTick();
 
-  /* Set HSION bit */
+  /* 设置 HSION（内部高速时钟使能）位 */
   SET_BIT(RCC->CR, RCC_CR_HSION);
 
-  /* Wait till HSI is ready */
+  /* 等待 HSI 就绪 */
   while (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == RESET)
   {
     if ((HAL_GetTick() - tickstart) > HSI_TIMEOUT_VALUE)
@@ -216,16 +198,16 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
     }
   }
 
-  /* Set HSITRIM bits to the reset value */
+  /* 设置 HSITRIM（内部高速时钟调整）位为复位值（默认16） */
   MODIFY_REG(RCC->CR, RCC_CR_HSITRIM, (0x10U << RCC_CR_HSITRIM_Pos));
 
-  /* Get Start Tick */
+  /* 获取起始滴答值 */
   tickstart = HAL_GetTick();
 
-  /* Reset CFGR register */
+  /* 重置 CFGR（时钟配置）寄存器 */
   CLEAR_REG(RCC->CFGR);
 
-  /* Wait till clock switch is ready */
+  /* 等待系统时钟切换完成，通过读CFGR（时钟配置寄存器）的SWS（系统时钟切换状态位）是否为HSI */
   while (READ_BIT(RCC->CFGR, RCC_CFGR_SWS) != RESET)
   {
     if ((HAL_GetTick() - tickstart) > CLOCKSWITCH_TIMEOUT_VALUE)
@@ -234,22 +216,22 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
     }
   }
 
-  /* Update the SystemCoreClock global variable */
+  /* 更新系统时钟频率到全局变量 */
   SystemCoreClock = HSI_VALUE;
 
-  /* Adapt Systick interrupt period */
+  /* 重置系统时钟中断优先级 */
   if (HAL_InitTick(uwTickPrio) != HAL_OK)
   {
     return HAL_ERROR;
   }
 
-  /* Get Start Tick */
+  /* 获取起始滴答值 */
   tickstart = HAL_GetTick();
 
-  /* Second step is to clear PLLON bit */
+  /* 第二步 清除 PLLON（PLL使能）位 */
   CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
 
-  /* Wait till PLL is disabled */
+  /* 等待PLL关闭 */
   while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) != RESET)
   {
     if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
@@ -258,16 +240,16 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
     }
   }
 
-  /* Ensure to reset PLLSRC and PLLMUL bits */
+  /* 确保PLLSRC（PLL输入时钟源）和PLLMUL（PLL倍频系数）位复位 */
   CLEAR_REG(RCC->CFGR);
 
-  /* Get Start Tick */
+  /* 获取起始滴答值 */
   tickstart = HAL_GetTick();
 
-  /* Reset HSEON & CSSON bits */
+  /* 重置 HSEON（外部高速时钟使能）和 CSSON（时钟安全系统使能）位 */
   CLEAR_BIT(RCC->CR, RCC_CR_HSEON | RCC_CR_CSSON);
 
-  /* Wait till HSE is disabled */
+  /* 等待 HSE 关闭 */
   while (READ_BIT(RCC->CR, RCC_CR_HSERDY) != RESET)
   {
     if ((HAL_GetTick() - tickstart) > HSE_TIMEOUT_VALUE)
@@ -276,17 +258,17 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
     }
   }
 
-  /* Reset HSEBYP bit */
+  /* 重置 HSEBYP（外部高速时钟旁路）位 */
   CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
 
 #if defined(RCC_PLL2_SUPPORT)
-  /* Get Start Tick */
+  /* 获取起始滴答值 */
   tickstart = HAL_GetTick();
 
-  /* Clear PLL2ON bit */
+  /* 重置 PLL2ON（PLL2使能）位 */
   CLEAR_BIT(RCC->CR, RCC_CR_PLL2ON);
 
-  /* Wait till PLL2 is disabled */
+  /* 等待 PLL2 禁用 */
   while (READ_BIT(RCC->CR, RCC_CR_PLL2RDY) != RESET)
   {
     if ((HAL_GetTick() - tickstart) > PLL2_TIMEOUT_VALUE)
@@ -297,13 +279,13 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
 #endif /* RCC_PLL2_SUPPORT */
 
 #if defined(RCC_PLLI2S_SUPPORT)
-  /* Get Start Tick */
+  /* 获取起始滴答值 */
   tickstart = HAL_GetTick();
 
-  /* Clear PLL3ON bit */
+  /* 重置 PLL3ON（PLL3使能）位 */
   CLEAR_BIT(RCC->CR, RCC_CR_PLL3ON);
 
-  /* Wait till PLL3 is disabled */
+  /* 等大 PLL3 禁用 */
   while (READ_BIT(RCC->CR, RCC_CR_PLL3RDY) != RESET)
   {
     if ((HAL_GetTick() - tickstart) > PLLI2S_TIMEOUT_VALUE)
@@ -314,55 +296,51 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
 #endif /* RCC_PLLI2S_SUPPORT */
 
 #if defined(RCC_CFGR2_PREDIV1)
-  /* Reset CFGR2 register */
+  /* 重置 CFGR2（时钟配置寄存器2） */
   CLEAR_REG(RCC->CFGR2);
 #endif /* RCC_CFGR2_PREDIV1 */
 
-  /* Reset all CSR flags */
+  /* 重置 CSR（控制/状态寄存器）中的全部标志 */
   SET_BIT(RCC->CSR, RCC_CSR_RMVF);
 
-  /* Disable all interrupts */
+  /* 禁用全部中断 */
   CLEAR_REG(RCC->CIR);
 
   return HAL_OK;
 }
 
 /**
-  * @brief  Initializes the RCC Oscillators according to the specified parameters in the
-  *         RCC_OscInitTypeDef.
-  * @param  RCC_OscInitStruct pointer to an RCC_OscInitTypeDef structure that
-  *         contains the configuration information for the RCC Oscillators.
-  * @note   The PLL is not disabled when used as system clock.
-  * @note   The PLL is not disabled when USB OTG FS clock is enabled (specific to devices with USB FS)
-  * @note   Transitions LSE Bypass to LSE On and LSE On to LSE Bypass are not
-  *         supported by this macro. User should request a transition to LSE Off
-  *         first and then LSE On or LSE Bypass.
-  * @note   Transition HSE Bypass to HSE On and HSE On to HSE Bypass are not
-  *         supported by this macro. User should request a transition to HSE Off
-  *         first and then HSE On or HSE Bypass.
+  * @brief  初始化RCC振荡器（根据RCC_OscInitTypeDef中指定的参数）
+  * @param  RCC_OscInitStruct p指向RCC_OscInitTypeDef结构体的指针，该结构体包含RCC振荡器的配置信息。
+  * @note   PLL(锁相环)作为系统时钟时不可关闭。
+  * @note   当USB OTG FS时钟启用时，PLL(锁相环)不可关闭(特定于带有USB FS的设备)
+  * @note   函数不支持 LSE Bypass 转换为 LSE On 和 LSE On 转换为 LSE Bypass。
+  *         用户应该首先请求切换到 LSE Off，然后再切换到 LSE On 或 LSE Bypass。
+  * @note   函数不支持将 HSE Bypass 转换为 HSE On 和 将 HSE On 转换为 HSE Bypass。
+  *         用户应首先请求切换到 HSE Off，然后再切换到 HSE On 或 HSE Bypass 。
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct)
+HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
 {
   uint32_t tickstart;
   uint32_t pll_config;
 
-  /* Check Null pointer */
+  /* 检查空指针 */
   if (RCC_OscInitStruct == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数合法性 */
   assert_param(IS_RCC_OSCILLATORTYPE(RCC_OscInitStruct->OscillatorType));
 
-  /*------------------------------- HSE Configuration ------------------------*/
+  /*------------------------------- HSE 配置 ------------------------*/
   if (((RCC_OscInitStruct->OscillatorType) & RCC_OSCILLATORTYPE_HSE) == RCC_OSCILLATORTYPE_HSE)
   {
-    /* Check the parameters */
+    /* 检查参数合法性 */
     assert_param(IS_RCC_HSE(RCC_OscInitStruct->HSEState));
 
-    /* When the HSE is used as system clock or clock source for PLL in these cases it is not allowed to be disabled */
+    /* 当HSE被用作系统时钟或PLL的时钟源时，不允许将其禁用 */
     if ((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_SYSCLKSOURCE_STATUS_HSE)
         || ((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_SYSCLKSOURCE_STATUS_PLLCLK) && (__HAL_RCC_GET_PLL_OSCSOURCE() == RCC_PLLSOURCE_HSE)))
     {
@@ -373,17 +351,17 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
     }
     else
     {
-      /* Set the new HSE configuration ---------------------------------------*/
+      /* 设置新的 HSE 配置 ---------------------------------------*/
       __HAL_RCC_HSE_CONFIG(RCC_OscInitStruct->HSEState);
 
 
-      /* Check the HSE State */
+      /* 检查 HSE 状态 */
       if (RCC_OscInitStruct->HSEState != RCC_HSE_OFF)
       {
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till HSE is ready */
+        /* 等待 HSE 就绪 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) == RESET)
         {
           if ((HAL_GetTick() - tickstart) > HSE_TIMEOUT_VALUE)
@@ -394,10 +372,10 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
       }
       else
       {
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till HSE is disabled */
+        /* 等待 HSE 禁用 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) != RESET)
         {
           if ((HAL_GetTick() - tickstart) > HSE_TIMEOUT_VALUE)
@@ -408,41 +386,41 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
       }
     }
   }
-  /*----------------------------- HSI Configuration --------------------------*/
+  /*----------------------------- HSI 配置 --------------------------*/
   if (((RCC_OscInitStruct->OscillatorType) & RCC_OSCILLATORTYPE_HSI) == RCC_OSCILLATORTYPE_HSI)
   {
-    /* Check the parameters */
+    /* 检查参数合法性 */
     assert_param(IS_RCC_HSI(RCC_OscInitStruct->HSIState));
     assert_param(IS_RCC_CALIBRATION_VALUE(RCC_OscInitStruct->HSICalibrationValue));
 
-    /* Check if HSI is used as system clock or as PLL source when PLL is selected as system clock */
+    /* 当选择锁相环作为系统时钟时，检查是否使用HSI作为系统时钟或作为锁相环源 */
     if ((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_SYSCLKSOURCE_STATUS_HSI)
         || ((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_SYSCLKSOURCE_STATUS_PLLCLK) && (__HAL_RCC_GET_PLL_OSCSOURCE() == RCC_PLLSOURCE_HSI_DIV2)))
     {
-      /* When HSI is used as system clock it will not disabled */
+      /* 当HSI被用作系统时钟时，它不可被禁用 */
       if ((__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) != RESET) && (RCC_OscInitStruct->HSIState != RCC_HSI_ON))
       {
         return HAL_ERROR;
       }
-      /* Otherwise, just the calibration is allowed */
+      /* 否则，只允许校准 */
       else
       {
-        /* Adjusts the Internal High Speed oscillator (HSI) calibration value.*/
+        /* 调整内部高速振荡器(HSI)校准值 */
         __HAL_RCC_HSI_CALIBRATIONVALUE_ADJUST(RCC_OscInitStruct->HSICalibrationValue);
       }
     }
     else
     {
-      /* Check the HSI State */
+      /* 检查 HSI 状态 */
       if (RCC_OscInitStruct->HSIState != RCC_HSI_OFF)
       {
-        /* Enable the Internal High Speed oscillator (HSI). */
+        /* 启用内部高速振荡器(HSI) */
         __HAL_RCC_HSI_ENABLE();
 
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till HSI is ready */
+        /* 等待 HSI 就绪 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) == RESET)
         {
           if ((HAL_GetTick() - tickstart) > HSI_TIMEOUT_VALUE)
@@ -451,18 +429,18 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
           }
         }
 
-        /* Adjusts the Internal High Speed oscillator (HSI) calibration value.*/
+        /* 调整内部高速振荡器(HSI)校准值 */
         __HAL_RCC_HSI_CALIBRATIONVALUE_ADJUST(RCC_OscInitStruct->HSICalibrationValue);
       }
       else
       {
-        /* Disable the Internal High Speed oscillator (HSI). */
+        /* 禁用内部高速振荡器(HSI) */
         __HAL_RCC_HSI_DISABLE();
 
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till HSI is disabled */
+        /* 等待 HSI 关闭 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) != RESET)
         {
           if ((HAL_GetTick() - tickstart) > HSI_TIMEOUT_VALUE)
@@ -473,22 +451,22 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
       }
     }
   }
-  /*------------------------------ LSI Configuration -------------------------*/
+  /*------------------------------ LSI 配置 -------------------------*/
   if (((RCC_OscInitStruct->OscillatorType) & RCC_OSCILLATORTYPE_LSI) == RCC_OSCILLATORTYPE_LSI)
   {
-    /* Check the parameters */
+    /* 检查参数合法性 */
     assert_param(IS_RCC_LSI(RCC_OscInitStruct->LSIState));
 
-    /* Check the LSI State */
+    /* 检查 LSI 状态 */
     if (RCC_OscInitStruct->LSIState != RCC_LSI_OFF)
     {
-      /* Enable the Internal Low Speed oscillator (LSI). */
+      /* 启用内部低速振荡器 (LSI) */
       __HAL_RCC_LSI_ENABLE();
 
-      /* Get Start Tick */
+      /* 获取起始滴答值 */
       tickstart = HAL_GetTick();
 
-      /* Wait till LSI is ready */
+      /* 等待 LSI 就绪 */
       while (__HAL_RCC_GET_FLAG(RCC_FLAG_LSIRDY) == RESET)
       {
         if ((HAL_GetTick() - tickstart) > LSI_TIMEOUT_VALUE)
@@ -496,19 +474,18 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
           return HAL_TIMEOUT;
         }
       }
-      /*  To have a fully stabilized clock in the specified range, a software delay of 1ms
-          should be added.*/
+      /*  为了获得在指定范围内完全稳定的时钟，应当添加1毫秒的软件延迟。*/
       RCC_Delay(1);
     }
     else
     {
-      /* Disable the Internal Low Speed oscillator (LSI). */
+      /* 关闭内部低速振荡器 (LSI) */
       __HAL_RCC_LSI_DISABLE();
 
-      /* Get Start Tick */
+      /* 获取起始滴答值 */
       tickstart = HAL_GetTick();
 
-      /* Wait till LSI is disabled */
+      /* 等待 LSI 关闭 */
       while (__HAL_RCC_GET_FLAG(RCC_FLAG_LSIRDY) != RESET)
       {
         if ((HAL_GetTick() - tickstart) > LSI_TIMEOUT_VALUE)
@@ -518,16 +495,16 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
       }
     }
   }
-  /*------------------------------ LSE Configuration -------------------------*/
+  /*------------------------------ LSE 配置 -------------------------*/
   if (((RCC_OscInitStruct->OscillatorType) & RCC_OSCILLATORTYPE_LSE) == RCC_OSCILLATORTYPE_LSE)
   {
     FlagStatus       pwrclkchanged = RESET;
 
-    /* Check the parameters */
+    /* 检查参数合法性 */
     assert_param(IS_RCC_LSE(RCC_OscInitStruct->LSEState));
 
-    /* Update LSE configuration in Backup Domain control register    */
-    /* Requires to enable write access to Backup Domain of necessary */
+    /* 更新备份域控制寄存器中的LSE配置    */
+    /* 需要启用对必要的备份域的写访问权限 */
     if (__HAL_RCC_PWR_IS_CLK_DISABLED())
     {
       __HAL_RCC_PWR_CLK_ENABLE();
@@ -536,10 +513,10 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
 
     if (HAL_IS_BIT_CLR(PWR->CR, PWR_CR_DBP))
     {
-      /* Enable write access to Backup domain */
+      /* 启用对备份域的写访问权限 */
       SET_BIT(PWR->CR, PWR_CR_DBP);
 
-      /* Wait for Backup domain Write protection disable */
+      /* 等待备份域写保护禁用 */
       tickstart = HAL_GetTick();
 
       while (HAL_IS_BIT_CLR(PWR->CR, PWR_CR_DBP))
@@ -551,15 +528,15 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
       }
     }
 
-    /* Set the new LSE configuration -----------------------------------------*/
+    /* 设置新的 LSE 配置 -----------------------------------------*/
     __HAL_RCC_LSE_CONFIG(RCC_OscInitStruct->LSEState);
-    /* Check the LSE State */
+    /* 检查 LSE 状态 */
     if (RCC_OscInitStruct->LSEState != RCC_LSE_OFF)
     {
-      /* Get Start Tick */
+      /* 获取起始滴答值 */
       tickstart = HAL_GetTick();
 
-      /* Wait till LSE is ready */
+      /* 等待 LSE 就绪 */
       while (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == RESET)
       {
         if ((HAL_GetTick() - tickstart) > RCC_LSE_TIMEOUT_VALUE)
@@ -570,10 +547,10 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
     }
     else
     {
-      /* Get Start Tick */
+      /* 获取起始滴答值 */
       tickstart = HAL_GetTick();
 
-      /* Wait till LSE is disabled */
+      /* 等待 LSE 禁用 */
       while (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) != RESET)
       {
         if ((HAL_GetTick() - tickstart) > RCC_LSE_TIMEOUT_VALUE)
@@ -583,7 +560,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
       }
     }
 
-    /* Require to disable power clock if necessary */
+    /* 如果需要，关闭电源power的时钟（前面开备份域写保护，开了电源部分的时钟） */
     if (pwrclkchanged == SET)
     {
       __HAL_RCC_PWR_CLK_DISABLE();
@@ -591,13 +568,12 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
   }
 
 #if defined(RCC_CR_PLL2ON)
-  /*-------------------------------- PLL2 Configuration -----------------------*/
-  /* Check the parameters */
+  /*-------------------------------- PLL2 配置 -----------------------*/
+  /* 检查参数合法性 */
   assert_param(IS_RCC_PLL2(RCC_OscInitStruct->PLL2.PLL2State));
   if ((RCC_OscInitStruct->PLL2.PLL2State) != RCC_PLL2_NONE)
   {
-    /* This bit can not be cleared if the PLL2 clock is used indirectly as system
-      clock (i.e. it is used as PLL clock entry that is used as system clock). */
+    /* 如果PLL2时钟间接地被用作系统时钟（即被用作系统时钟的PLL时钟输入），则无法清除此位 */
     if ((__HAL_RCC_GET_PLL_OSCSOURCE() == RCC_PLLSOURCE_HSE) && \
         (__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_SYSCLKSOURCE_STATUS_PLLCLK) && \
         ((READ_BIT(RCC->CFGR2, RCC_CFGR2_PREDIV1SRC)) == RCC_CFGR2_PREDIV1SRC_PLL2))
@@ -608,25 +584,25 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
     {
       if ((RCC_OscInitStruct->PLL2.PLL2State) == RCC_PLL2_ON)
       {
-        /* Check the parameters */
+        /* 检查参数合法性 */
         assert_param(IS_RCC_PLL2_MUL(RCC_OscInitStruct->PLL2.PLL2MUL));
         assert_param(IS_RCC_HSE_PREDIV2(RCC_OscInitStruct->PLL2.HSEPrediv2Value));
 
-        /* Prediv2 can be written only when the PLLI2S is disabled. */
-        /* Return an error only if new value is different from the programmed value */
+        /* 只有在禁用PLLI2S（PLL3）时才能写入预分频器Prediv2 */
+        /* 如果新值与已编程的值不同，才返回错误 */
         if (HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLL3ON) && \
             (__HAL_RCC_HSE_GET_PREDIV2() != RCC_OscInitStruct->PLL2.HSEPrediv2Value))
         {
           return HAL_ERROR;
         }
 
-        /* Disable the main PLL2. */
+        /* 禁用 PLL2. */
         __HAL_RCC_PLL2_DISABLE();
 
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till PLL2 is disabled */
+        /* 等待 PLL2 禁用 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_PLL2RDY) != RESET)
         {
           if ((HAL_GetTick() - tickstart) > PLL2_TIMEOUT_VALUE)
@@ -635,19 +611,19 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
           }
         }
 
-        /* Configure the HSE prediv2 factor --------------------------------*/
+        /* 配置 HSE 预分频器 prediv2 --------------------------------*/
         __HAL_RCC_HSE_PREDIV2_CONFIG(RCC_OscInitStruct->PLL2.HSEPrediv2Value);
 
-        /* Configure the main PLL2 multiplication factors. */
+        /* 配置 PLL2 倍频系数 */
         __HAL_RCC_PLL2_CONFIG(RCC_OscInitStruct->PLL2.PLL2MUL);
 
-        /* Enable the main PLL2. */
+        /* 启用 PLL2. */
         __HAL_RCC_PLL2_ENABLE();
 
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till PLL2 is ready */
+        /* 等待 PLL2 就绪 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_PLL2RDY)  == RESET)
         {
           if ((HAL_GetTick() - tickstart) > PLL2_TIMEOUT_VALUE)
@@ -658,16 +634,16 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
       }
       else
       {
-        /* Set PREDIV1 source to HSE */
+        /* 设置HSE振荡器时钟作为PREDIV1的时钟源 */
         CLEAR_BIT(RCC->CFGR2, RCC_CFGR2_PREDIV1SRC);
 
-        /* Disable the main PLL2. */
+        /* 禁用 PLL2. */
         __HAL_RCC_PLL2_DISABLE();
 
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till PLL2 is disabled */
+        /* 等待 PLL2 禁用 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_PLL2RDY)  != RESET)
         {
           if ((HAL_GetTick() - tickstart) > PLL2_TIMEOUT_VALUE)
@@ -680,27 +656,27 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
   }
 
 #endif /* RCC_CR_PLL2ON */
-  /*-------------------------------- PLL Configuration -----------------------*/
-  /* Check the parameters */
+  /*-------------------------------- PLL 配置 -----------------------*/
+  /* 检查参数合法性 */
   assert_param(IS_RCC_PLL(RCC_OscInitStruct->PLL.PLLState));
   if ((RCC_OscInitStruct->PLL.PLLState) != RCC_PLL_NONE)
   {
-    /* Check if the PLL is used as system clock or not */
+    /* 检查PLL(锁相环)是否用作系统时钟 */
     if (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_PLLCLK)
     {
       if ((RCC_OscInitStruct->PLL.PLLState) == RCC_PLL_ON)
       {
-        /* Check the parameters */
+        /* 检查参数合法性 */
         assert_param(IS_RCC_PLLSOURCE(RCC_OscInitStruct->PLL.PLLSource));
         assert_param(IS_RCC_PLL_MUL(RCC_OscInitStruct->PLL.PLLMUL));
 
-        /* Disable the main PLL. */
+        /*关闭 PLL. */
         __HAL_RCC_PLL_DISABLE();
 
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till PLL is disabled */
+        /* 等待 PLL 禁用 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_PLLRDY)  != RESET)
         {
           if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
@@ -709,33 +685,33 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
           }
         }
 
-        /* Configure the HSE prediv factor --------------------------------*/
-        /* It can be written only when the PLL is disabled. Not used in PLL source is different than HSE */
+        /* 配置 HSE 预分频器 prediv --------------------------------*/
+        /* 只有在PLL被禁用时才能写入。仅当PLL的时钟源与HSE不同时才使用。 */
         if (RCC_OscInitStruct->PLL.PLLSource == RCC_PLLSOURCE_HSE)
         {
-          /* Check the parameter */
+          /* 检查参数 */
           assert_param(IS_RCC_HSE_PREDIV(RCC_OscInitStruct->HSEPredivValue));
 #if defined(RCC_CFGR2_PREDIV1SRC)
           assert_param(IS_RCC_PREDIV1_SOURCE(RCC_OscInitStruct->Prediv1Source));
 
-          /* Set PREDIV1 source */
+          /* 设置 预分频器PREDIV1 的源 */
           SET_BIT(RCC->CFGR2, RCC_OscInitStruct->Prediv1Source);
 #endif /* RCC_CFGR2_PREDIV1SRC */
 
-          /* Set PREDIV1 Value */
+          /* 设置 预分频器PREDIV1 预分频值 */
           __HAL_RCC_HSE_PREDIV_CONFIG(RCC_OscInitStruct->HSEPredivValue);
         }
 
-        /* Configure the main PLL clock source and multiplication factors. */
+        /* 配置 PLL 是中原和倍频系数 */
         __HAL_RCC_PLL_CONFIG(RCC_OscInitStruct->PLL.PLLSource,
                              RCC_OscInitStruct->PLL.PLLMUL);
-        /* Enable the main PLL. */
+        /* 启用 PLL. */
         __HAL_RCC_PLL_ENABLE();
 
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till PLL is ready */
+        /* 等待 PLL 就绪 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_PLLRDY)  == RESET)
         {
           if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
@@ -746,13 +722,13 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
       }
       else
       {
-        /* Disable the main PLL. */
+        /* 禁用 PLL. */
         __HAL_RCC_PLL_DISABLE();
 
-        /* Get Start Tick */
+        /* 获取起始滴答值 */
         tickstart = HAL_GetTick();
 
-        /* Wait till PLL is disabled */
+        /* 等待 PLL 关闭 */
         while (__HAL_RCC_GET_FLAG(RCC_FLAG_PLLRDY)  != RESET)
         {
           if ((HAL_GetTick() - tickstart) > PLL_TIMEOUT_VALUE)
@@ -764,14 +740,14 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
     }
     else
     {
-      /* Check if there is a request to disable the PLL used as System clock source */
+      /* 检查是否有请求禁用作为系统时钟源的PLL */
       if ((RCC_OscInitStruct->PLL.PLLState) == RCC_PLL_OFF)
       {
         return HAL_ERROR;
       }
       else
       {
-        /* Do not return HAL_ERROR if request repeats the current configuration */
+        /* 如果请求重复当前配置，则不返回HAL_ERROR */
         pll_config = RCC->CFGR;
         if ((READ_BIT(pll_config, RCC_CFGR_PLLSRC) != RCC_OscInitStruct->PLL.PLLSource) ||
             (READ_BIT(pll_config, RCC_CFGR_PLLMULL) != RCC_OscInitStruct->PLL.PLLMUL))
@@ -786,55 +762,45 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
 }
 
 /**
-  * @brief  Initializes the CPU, AHB and APB buses clocks according to the specified
-  *         parameters in the RCC_ClkInitStruct.
-  * @param  RCC_ClkInitStruct pointer to an RCC_OscInitTypeDef structure that
-  *         contains the configuration information for the RCC peripheral.
-  * @param  FLatency FLASH Latency
-  *          The value of this parameter depend on device used within the same series
-  * @note   The SystemCoreClock CMSIS variable is used to store System Clock Frequency
-  *         and updated by @ref HAL_RCC_GetHCLKFreq() function called within this function
+  * @brief  初始化CPU、AHB和APB总线时钟（根据RCC_ClkInitStruct中的参数）
+  * 
+  * @param  RCC_ClkInitStruct 指向RCC_OscInitTypeDef结构体的指针，该结构体包含RCC外设的配置信息。
+  * 
+  * @param  FLatency FLASH 等待周期
+  *                         该参数的值取决于芯片
+  * @note   SystemCoreClock CMSIS变量用于存储系统时钟频率，并由本函数内部调用的@ref HAL_RCC_GetHCLKFreq()函数更新。
   *
-  * @note   The HSI is used (enabled by hardware) as system clock source after
-  *         start-up from Reset, wake-up from STOP and STANDBY mode, or in case
-  *         of failure of the HSE used directly or indirectly as system clock
-  *         (if the Clock Security System CSS is enabled).
+  * @note   在复位启动、从停止和待机模式唤醒，或者HSE直接或间接作为系统时钟失败的情况下（如果时钟安全系统CSS已启用），HSI会被用作系统时钟源（由硬件启用）。
   *
-  * @note   A switch from one clock source to another occurs only if the target
-  *         clock source is ready (clock stable after start-up delay or PLL locked).
-  *         If a clock source which is not yet ready is selected, the switch will
-  *         occur when the clock source will be ready.
-  *         You can use @ref HAL_RCC_GetClockConfig() function to know which clock is
-  *         currently used as system clock source.
+  * @note   只有当目标时钟源准备就绪（经过启动延迟后时钟稳定或PLL锁定）时，才会发生从一种时钟源到另一种时钟源的切换。
+  *         如果选择了尚未准备就绪的时钟源，切换将在时钟源准备就绪时发生。
+  *         您可以使用 @ref HAL_RCC_GetClockConfig() 函数来了解当前作为系统时钟源的时钟。
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_RCC_ClockConfig(const RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t FLatency)
+HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t FLatency)
 {
   uint32_t tickstart;
 
-  /* Check Null pointer */
+  /* 检查空指针 */
   if (RCC_ClkInitStruct == NULL)
   {
     return HAL_ERROR;
   }
 
-  /* Check the parameters */
+  /* 检查参数合法性 */
   assert_param(IS_RCC_CLOCKTYPE(RCC_ClkInitStruct->ClockType));
   assert_param(IS_FLASH_LATENCY(FLatency));
 
-  /* To correctly read data from FLASH memory, the number of wait states (LATENCY)
-  must be correctly programmed according to the frequency of the CPU clock
-    (HCLK) of the device. */
+  /* 为了正确从闪存中读取数据，必须根据设备的CPU时钟频率（HCLK）正确设置等待周期（LATENCY） */
 
 #if defined(FLASH_ACR_LATENCY)
-  /* Increasing the number of wait states because of higher CPU frequency */
+  /* 由于CPU频率更高而增加等待周期的数量 */
   if (FLatency > __HAL_FLASH_GET_LATENCY())
   {
-    /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
+    /* 将新的等待周期数量编程到FLASH_ACR寄存器中的LATENCY位 */
     __HAL_FLASH_SET_LATENCY(FLatency);
 
-    /* Check that the new number of wait states is taken into account to access the Flash
-    memory by reading the FLASH_ACR register */
+    /* 通过读取FLASH_ACR寄存器来检查新的等待周期数量是否被考虑到访问闪存内存 */
     if (__HAL_FLASH_GET_LATENCY() != FLatency)
   {
     return HAL_ERROR;
@@ -842,11 +808,10 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(const RCC_ClkInitTypeDef  *RCC_ClkInitStru
 }
 
 #endif /* FLASH_ACR_LATENCY */
-/*-------------------------- HCLK Configuration --------------------------*/
+/*-------------------------- HCLK 配置 --------------------------*/
 if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
   {
-    /* Set the highest APBx dividers in order to ensure that we do not go through
-    a non-spec phase whatever we decrease or increase HCLK. */
+    /* 设置最高的APBx分频器，以确保无论我们减小还是增加HCLK，都不会经历非规范阶段。 */
     if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK1) == RCC_CLOCKTYPE_PCLK1)
     {
       MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, RCC_HCLK_DIV16);
@@ -857,38 +822,38 @@ if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
       MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, (RCC_HCLK_DIV16 << 3));
     }
 
-    /* Set the new HCLK clock divider */
+    /* 设置新的HCLK时钟分频器 */
     assert_param(IS_RCC_HCLK(RCC_ClkInitStruct->AHBCLKDivider));
     MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, RCC_ClkInitStruct->AHBCLKDivider);
   }
 
-  /*------------------------- SYSCLK Configuration ---------------------------*/
+  /*------------------------- SYSCLK 配置 ---------------------------*/
   if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_SYSCLK) == RCC_CLOCKTYPE_SYSCLK)
   {
     assert_param(IS_RCC_SYSCLKSOURCE(RCC_ClkInitStruct->SYSCLKSource));
 
-    /* HSE is selected as System Clock Source */
+    /* HSE 作为系统时钟源 */
     if (RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSE)
     {
-      /* Check the HSE ready flag */
+      /* 检查 HSE 就绪标志 */
       if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) == RESET)
       {
         return HAL_ERROR;
       }
     }
-    /* PLL is selected as System Clock Source */
+    /* PLL 作为系统时钟源 */
     else if (RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_PLLCLK)
     {
-      /* Check the PLL ready flag */
+      /* 检查 PLL 就绪标志 */
       if (__HAL_RCC_GET_FLAG(RCC_FLAG_PLLRDY) == RESET)
       {
         return HAL_ERROR;
       }
     }
-    /* HSI is selected as System Clock Source */
+    /* HSI 作为系统时钟源 */
     else
     {
-      /* Check the HSI ready flag */
+      /* 检查 HSI 就绪标志 */
       if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) == RESET)
       {
         return HAL_ERROR;
@@ -896,7 +861,7 @@ if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
     }
     __HAL_RCC_SYSCLK_CONFIG(RCC_ClkInitStruct->SYSCLKSource);
 
-    /* Get Start Tick */
+    /* 获取起始滴答值 */
     tickstart = HAL_GetTick();
 
     while (__HAL_RCC_GET_SYSCLK_SOURCE() != (RCC_ClkInitStruct->SYSCLKSource << RCC_CFGR_SWS_Pos))
@@ -909,14 +874,13 @@ if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
   }
 
 #if defined(FLASH_ACR_LATENCY)
-  /* Decreasing the number of wait states because of lower CPU frequency */
+  /* 由于CPU频率降低而减少等待周期的数量 */
   if (FLatency < __HAL_FLASH_GET_LATENCY())
   {
-    /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
+    /* 将新的等待周期数量编程到FLASH_ACR寄存器中的LATENCY位 */
     __HAL_FLASH_SET_LATENCY(FLatency);
 
-    /* Check that the new number of wait states is taken into account to access the Flash
-    memory by reading the FLASH_ACR register */
+    /* 通过读取FLASH_ACR寄存器来检查新的等待周期数量是否被考虑到访问闪存内存 */
     if (__HAL_FLASH_GET_LATENCY() != FLatency)
   {
     return HAL_ERROR;
@@ -924,24 +888,24 @@ if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
 }
 #endif /* FLASH_ACR_LATENCY */
 
-/*-------------------------- PCLK1 Configuration ---------------------------*/
+/*-------------------------- PCLK1 配置 ---------------------------*/
 if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK1) == RCC_CLOCKTYPE_PCLK1)
   {
     assert_param(IS_RCC_PCLK(RCC_ClkInitStruct->APB1CLKDivider));
     MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, RCC_ClkInitStruct->APB1CLKDivider);
   }
 
-  /*-------------------------- PCLK2 Configuration ---------------------------*/
+  /*-------------------------- PCLK2 配置 ---------------------------*/
   if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK2) == RCC_CLOCKTYPE_PCLK2)
   {
     assert_param(IS_RCC_PCLK(RCC_ClkInitStruct->APB2CLKDivider));
     MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, ((RCC_ClkInitStruct->APB2CLKDivider) << 3));
   }
 
-  /* Update the SystemCoreClock global variable */
+  /* 更新 SystemCoreClock 全局变量 */
   SystemCoreClock = HAL_RCC_GetSysClockFreq() >> AHBPrescTable[(RCC->CFGR & RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos];
 
-  /* Configure the source of time base considering new system clocks settings*/
+  /* 考虑新的系统时钟设置，配置时间基准的来源*/
   HAL_InitTick(uwTickPrio);
 
   return HAL_OK;
@@ -951,87 +915,84 @@ if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK1) == RCC_CLOCKTYPE_PCLK
   * @}
   */
 
-/** @defgroup RCC_Exported_Functions_Group2 Peripheral Control functions
-  *  @brief   RCC clocks control functions
+/** @defgroup RCC_Exported_Functions_Group2 外设控制函数
+  *  @brief   RCC 时钟控制函数
   *
   @verbatim
   ===============================================================================
-                  ##### Peripheral Control functions #####
+                  ##### 外设控制函数 #####
   ===============================================================================
     [..]
-    This subsection provides a set of functions allowing to control the RCC Clocks
-    frequencies.
+    本小节提供了一组允许控制RCC时钟频率的函数。
 
   @endverbatim
   * @{
   */
 
 /**
-  * @brief  Selects the clock source to output on MCO pin.
-  * @note   MCO pin should be configured in alternate function mode.
-  * @param  RCC_MCOx specifies the output direction for the clock source.
-  *          This parameter can be one of the following values:
-  *            @arg @ref RCC_MCO1 Clock source to output on MCO1 pin(PA8).
-  * @param  RCC_MCOSource specifies the clock source to output.
-  *          This parameter can be one of the following values:
-  *            @arg @ref RCC_MCO1SOURCE_NOCLOCK     No clock selected as MCO clock
-  *            @arg @ref RCC_MCO1SOURCE_SYSCLK      System clock selected as MCO clock
-  *            @arg @ref RCC_MCO1SOURCE_HSI         HSI selected as MCO clock
-  *            @arg @ref RCC_MCO1SOURCE_HSE         HSE selected as MCO clock
+  * @brief  选择要输出到MCO引脚的时钟源
+  * @note   MCO 引脚应配置为复用功能模式。
+  * @param  RCC_MCOx 指定时钟源的输出方向
+  *          此参数可为以下值之一：
+  *            @arg @ref RCC_MCO1 要输出到MCO1引脚（PA8）的时钟源
+  * @param  RCC_MCOSource 指定要输出的时钟源
+  *          此参数可为以下值之一：
+  *            @arg @ref RCC_MCO1SOURCE_NOCLOCK     未选择 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_SYSCLK      系统时钟 作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_HSI         HSI 作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_HSE         HSE 作为 MCO 源
   @if STM32F105xC
-  *            @arg @ref RCC_MCO1SOURCE_PLLCLK       PLL clock divided by 2 selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_PLL2CLK      PLL2 clock selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_PLL3CLK_DIV2 PLL3 clock divided by 2 selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_EXT_HSE      XT1 external 3-25 MHz oscillator clock selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_PLL3CLK      PLL3 clock selected as MCO source
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK       PLL 时钟2分频作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_PLL2CLK      PLL2 时钟作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_PLL3CLK_DIV2 PLL3 时钟2分频作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_EXT_HSE      XT1 外部 3-25 MHz 振荡器作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_PLL3CLK      PLL3 时钟作为 MCO 源
   @endif
   @if STM32F107xC
-  *            @arg @ref RCC_MCO1SOURCE_PLLCLK       PLL clock divided by 2 selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_PLL2CLK      PLL2 clock selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_PLL3CLK_DIV2 PLL3 clock divided by 2 selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_EXT_HSE XT1  external 3-25 MHz oscillator clock selected as MCO source
-  *            @arg @ref RCC_MCO1SOURCE_PLL3CLK      PLL3 clock selected as MCO source
+  *            @arg @ref RCC_MCO1SOURCE_PLLCLK       PLL 时钟2分频作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_PLL2CLK      PLL2 时钟作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_PLL3CLK_DIV2 PLL3 时钟2分频作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_EXT_HSE      XT1 外部 3-25 MHz 振荡器作为 MCO 源
+  *            @arg @ref RCC_MCO1SOURCE_PLL3CLK      PLL3 时钟作为 MCO 源
   @endif
-  * @param  RCC_MCODiv specifies the MCO DIV.
-  *          This parameter can be one of the following values:
-  *            @arg @ref RCC_MCODIV_1 no division applied to MCO clock
+  * @param  RCC_MCODiv 指定 MCO 分频
+  *          此参数可为以下值之一：
+  *            @arg @ref RCC_MCODIV_1 MCO无输出分频
   * @retval None
   */
 void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_MCODiv)
 {
   GPIO_InitTypeDef gpio = {0U};
 
-  /* Check the parameters */
+  /* 检查参数合法性 */
   assert_param(IS_RCC_MCO(RCC_MCOx));
   assert_param(IS_RCC_MCODIV(RCC_MCODiv));
   assert_param(IS_RCC_MCO1SOURCE(RCC_MCOSource));
 
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止未使用参数的编译警告 */
   UNUSED(RCC_MCOx);
   UNUSED(RCC_MCODiv);
 
-  /* Configure the MCO1 pin in alternate function mode */
+  /* 将MCO1引脚配置为复用功能模式 */
   gpio.Mode      = GPIO_MODE_AF_PP;
   gpio.Speed     = GPIO_SPEED_FREQ_HIGH;
   gpio.Pull      = GPIO_NOPULL;
   gpio.Pin       = MCO1_PIN;
 
-  /* MCO1 Clock Enable */
+  /* MCO1 时钟开启 */
   MCO1_CLK_ENABLE();
 
   HAL_GPIO_Init(MCO1_GPIO_PORT, &gpio);
 
-  /* Configure the MCO clock source */
+  /* 配置 MCO 时钟源 */
   __HAL_RCC_MCO1_CONFIG(RCC_MCOSource, RCC_MCODiv);
 }
 
 /**
-  * @brief  Enables the Clock Security System.
-  * @note   If a failure is detected on the HSE oscillator clock, this oscillator
-  *         is automatically disabled and an interrupt is generated to inform the
-  *         software about the failure (Clock Security System Interrupt, CSSI),
-  *         allowing the MCU to perform rescue operations. The CSSI is linked to
-  *         the Cortex-M3 NMI (Non-Maskable Interrupt) exception vector.
+  * @brief  启用时钟安全系统
+  * @note   如果在HSE振荡器时钟上检测到故障，则该振荡器会自动禁用，
+  *         并生成中断以通知软件发生故障（时钟安全系统中断，CSSI），从而允许MCU执行救援操作。
+  *         CSSI与Cortex-M3 NMI（不可屏蔽中断）异常向量相关联。
   * @retval None
   */
 void HAL_RCC_EnableCSS(void)
@@ -1040,7 +1001,7 @@ void HAL_RCC_EnableCSS(void)
 }
 
 /**
-  * @brief  Disables the Clock Security System.
+  * @brief  禁用时钟安全系统
   * @retval None
   */
 void HAL_RCC_DisableCSS(void)
@@ -1049,33 +1010,24 @@ void HAL_RCC_DisableCSS(void)
 }
 
 /**
-  * @brief  Returns the SYSCLK frequency
-  * @note   The system frequency computed by this function is not the real
-  *         frequency in the chip. It is calculated based on the predefined
-  *         constant and the selected clock source:
-  * @note     If SYSCLK source is HSI, function returns values based on HSI_VALUE(*)
-  * @note     If SYSCLK source is HSE, function returns a value based on HSE_VALUE
-  *           divided by PREDIV factor(**)
-  * @note     If SYSCLK source is PLL, function returns a value based on HSE_VALUE
-  *           divided by PREDIV factor(**) or HSI_VALUE(*) multiplied by the PLL factor.
-  * @note     (*) HSI_VALUE is a constant defined in stm32f1xx_hal_conf.h file (default value
-  *               8 MHz) but the real value may vary depending on the variations
-  *               in voltage and temperature.
-  * @note     (**) HSE_VALUE is a constant defined in stm32f1xx_hal_conf.h file (default value
-  *                8 MHz), user has to ensure that HSE_VALUE is same as the real
-  *                frequency of the crystal used. Otherwise, this function may
-  *                have wrong result.
+  * @brief  获取系统时钟频率
+  * @note   此函数计算得到的系统频率并非芯片上的实际频率，它是基于预定义常数和所选的时钟源计算得出的。
+  * @note     如果系统时钟源是HSI，函数返回值基于 HSI_VALUE(*)
+  * @note     如果系统时钟源是HSE，函数返回值基于 HSE_VALUE 除以分频因数(**)
+  * @note     如果系统时钟源是PLL, 函数返回值基于 HSE_VALUE 除以分频因数(**) 或者 HSI_VALUE(*)  并乘以锁相环因子。
+  * @note     (*) HSI_VALUE 是在 stm32f1xx_hal_conf.h 文件中定义的常量（默认值为 8 MHz），
+  *               但实际值可能会因电压和温度的变化而有所不同。
+  * @note     (**) HSE_VALUE 是在 stm32f1xx_hal_conf.h 文件中定义的常量（默认值为 8 MHz），
+  *                用户必须确保 HSE_VALUE 与实际使用的晶体的频率相同。否则，此函数可能会产生错误的结果。
   *
-  * @note   The result of this function could be not correct when using fractional
-  *         value for HSE crystal.
+  * @note   当使用的HSE晶体为小数时，此函数的结果可能不正确。
   *
-  * @note   This function can be used by the user application to compute the
-  *         baud-rate for the communication peripherals or configure other parameters.
+  * @note   用户应用程序可以使用此函数来计算通信外设的波特率或配置其他参数。
   *
-  * @note   Each time SYSCLK changes, this function must be called to update the
-  *         right SYSCLK value. Otherwise, any configuration based on this function will be incorrect.
+  * @note   每当SYSCLK发生变化时，必须调用此函数以更新正确的SYSCLK值。
+  *         否则，基于此函数的任何配置都将是不正确的。
   *
-  * @retval SYSCLK frequency
+  * @retval SYSCLK 频率
   */
 uint32_t HAL_RCC_GetSysClockFreq(void)
 {
@@ -1099,15 +1051,15 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
 
   tmpreg = RCC->CFGR;
 
-  /* Get SYSCLK source -------------------------------------------------------*/
+  /* 获取系统时钟源 -------------------------------------------------------*/
   switch (tmpreg & RCC_CFGR_SWS)
   {
-    case RCC_SYSCLKSOURCE_STATUS_HSE:  /* HSE used as system clock */
+    case RCC_SYSCLKSOURCE_STATUS_HSE:  /* HSE 被用作系统时钟 */
     {
       sysclockfreq = HSE_VALUE;
       break;
     }
-    case RCC_SYSCLKSOURCE_STATUS_PLLCLK:  /* PLL used as system clock */
+    case RCC_SYSCLKSOURCE_STATUS_PLLCLK:  /* PLL 被用作系统时钟 */
     {
       pllmul = aPLLMULFactorTable[(uint32_t)(tmpreg & RCC_CFGR_PLLMULL) >> RCC_CFGR_PLLMULL_Pos];
       if ((tmpreg & RCC_CFGR_PLLSRC) != RCC_PLLSOURCE_HSI_DIV2)
@@ -1121,7 +1073,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
 
         if (HAL_IS_BIT_SET(RCC->CFGR2, RCC_CFGR2_PREDIV1SRC))
         {
-          /* PLL2 selected as Prediv1 source */
+          /* PLL2 作为 预分频器Prediv1 的源 */
           /* PLLCLK = PLL2CLK / PREDIV1 * PLLMUL with PLL2CLK = HSE/PREDIV2 * PLL2MUL */
           prediv2 = ((RCC->CFGR2 & RCC_CFGR2_PREDIV2) >> RCC_CFGR2_PREDIV2_Pos) + 1;
           pll2mul = ((RCC->CFGR2 & RCC_CFGR2_PLL2MUL) >> RCC_CFGR2_PLL2MUL_Pos) + 2;
@@ -1129,31 +1081,31 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
         }
         else
         {
-          /* HSE used as PLL clock source : PLLCLK = HSE/PREDIV1 * PLLMUL */
+          /* HSE 作为 PLL 时钟源 : PLLCLK = HSE/PREDIV1 * PLLMUL */
           pllclk = (uint32_t)((HSE_VALUE * pllmul) / prediv);
         }
 
-        /* If PLLMUL was set to 13 means that it was to cover the case PLLMUL 6.5 (avoid using float) */
-        /* In this case need to divide pllclk by 2 */
+        /* 如果PLLMUL被设置为13，意味着它是为了覆盖PLLMUL为6.5的情况（避免使用浮点数） */
+        /* 在这种情况下需要将pllclk除以2 */
         if (pllmul == aPLLMULFactorTable[(uint32_t)(RCC_CFGR_PLLMULL6_5) >> RCC_CFGR_PLLMULL_Pos])
         {
           pllclk = pllclk / 2;
         }
 #else
-        /* HSE used as PLL clock source : PLLCLK = HSE/PREDIV1 * PLLMUL */
+        /* HSE 作为 PLL 时钟源 : PLLCLK = HSE/PREDIV1 * PLLMUL */
         pllclk = (uint32_t)((HSE_VALUE  * pllmul) / prediv);
 #endif /*RCC_CFGR2_PREDIV1SRC*/
       }
       else
       {
-        /* HSI used as PLL clock source : PLLCLK = HSI/2 * PLLMUL */
+        /* HSI 作为 PLL 时钟源 : PLLCLK = HSI/2 * PLLMUL */
         pllclk = (uint32_t)((HSI_VALUE >> 1) * pllmul);
       }
       sysclockfreq = pllclk;
       break;
     }
-    case RCC_SYSCLKSOURCE_STATUS_HSI:  /* HSI used as system clock source */
-    default: /* HSI used as system clock */
+    case RCC_SYSCLKSOURCE_STATUS_HSI:  /* HSI 被用作系统时钟源 */
+    default: /* HSI 被用作系统时钟 */
     {
       sysclockfreq = HSI_VALUE;
       break;
@@ -1163,12 +1115,10 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
 }
 
 /**
-  * @brief  Returns the HCLK frequency
-  * @note   Each time HCLK changes, this function must be called to update the
-  *         right HCLK value. Otherwise, any configuration based on this function will be incorrect.
+  * @brief  获取 HCLK 频率
+  * @note   每次 HCLK更改时，必须调用此函数以更新正确的HCLK值。否则，基于该功能的配置将不正确。
   *
-  * @note   The SystemCoreClock CMSIS variable is used to store System Clock Frequency
-  *         and updated within this function
+  * @note   SystemCoreClock CMSIS变量用于存储系统时钟频率并在此函数中更新
   * @retval HCLK frequency
   */
 uint32_t HAL_RCC_GetHCLKFreq(void)
@@ -1177,51 +1127,47 @@ uint32_t HAL_RCC_GetHCLKFreq(void)
 }
 
 /**
-  * @brief  Returns the PCLK1 frequency
-  * @note   Each time PCLK1 changes, this function must be called to update the
-  *         right PCLK1 value. Otherwise, any configuration based on this function will be incorrect.
+  * @brief  获取 PCLK1 频率
+  * @note   每次 PCLK1 改变时，必须调用这个函数来更新正确的PCLK1值。否则，基于该功能的配置将不正确。
   * @retval PCLK1 frequency
   */
 uint32_t HAL_RCC_GetPCLK1Freq(void)
 {
-  /* Get HCLK source and Compute PCLK1 frequency ---------------------------*/
+  /* 获取 HCLK 源并计算 PCLK1 频率 ---------------------------*/
   return (HAL_RCC_GetHCLKFreq() >> APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos]);
 }
 
 /**
-  * @brief  Returns the PCLK2 frequency
-  * @note   Each time PCLK2 changes, this function must be called to update the
-  *         right PCLK2 value. Otherwise, any configuration based on this function will be incorrect.
+  * @brief  获取 PCLK2 频率
+  * @note   每次PCLK2更改时，必须调用此函数来更新正确的PCLK2值。否则，基于该功能的配置将不正确。
   * @retval PCLK2 frequency
   */
 uint32_t HAL_RCC_GetPCLK2Freq(void)
 {
-  /* Get HCLK source and Compute PCLK2 frequency ---------------------------*/
+  /* 获取 HCLK 源并计算 PCLK2 频率 ---------------------------*/
   return (HAL_RCC_GetHCLKFreq() >> APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos]);
 }
 
 /**
-  * @brief  Configures the RCC_OscInitStruct according to the internal
-  * RCC configuration registers.
-  * @param  RCC_OscInitStruct pointer to an RCC_OscInitTypeDef structure that
-  * will be configured.
+  * @brief  获取 RCC 振荡器配置（根据内部RCC配置寄存器的设置）
+  * @param  RCC_OscInitStruct 指向将要存储配置的RCC_OscInitTypeDef结构体的指针
   * @retval None
   */
 void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
 {
-  /* Check the parameters */
+  /* 检查参数合法性 */
   assert_param(RCC_OscInitStruct != NULL);
 
-  /* Set all possible values for the Oscillator type parameter ---------------*/
+  /* 设置振荡器类型参数的所有可能值 ---------------*/
   RCC_OscInitStruct->OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI  \
                                       | RCC_OSCILLATORTYPE_LSE | RCC_OSCILLATORTYPE_LSI;
 
 #if defined(RCC_CFGR2_PREDIV1SRC)
-  /* Get the Prediv1 source --------------------------------------------------*/
+  /* 获取 预分频器Prediv1 的输入源 --------------------------------------------------*/
   RCC_OscInitStruct->Prediv1Source = READ_BIT(RCC->CFGR2, RCC_CFGR2_PREDIV1SRC);
 #endif /* RCC_CFGR2_PREDIV1SRC */
 
-  /* Get the HSE configuration -----------------------------------------------*/
+  /* 获取 HSE 配置 -----------------------------------------------*/
   if ((RCC->CR & RCC_CR_HSEBYP) == RCC_CR_HSEBYP)
   {
     RCC_OscInitStruct->HSEState = RCC_HSE_BYPASS;
@@ -1236,7 +1182,7 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   }
   RCC_OscInitStruct->HSEPredivValue = __HAL_RCC_HSE_GET_PREDIV();
 
-  /* Get the HSI configuration -----------------------------------------------*/
+  /* 获取 HSI 配置 -----------------------------------------------*/
   if ((RCC->CR & RCC_CR_HSION) == RCC_CR_HSION)
   {
     RCC_OscInitStruct->HSIState = RCC_HSI_ON;
@@ -1248,7 +1194,7 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
 
   RCC_OscInitStruct->HSICalibrationValue = (uint32_t)((RCC->CR & RCC_CR_HSITRIM) >> RCC_CR_HSITRIM_Pos);
 
-  /* Get the LSE configuration -----------------------------------------------*/
+  /* 获取 LSE 配置 -----------------------------------------------*/
   if ((RCC->BDCR & RCC_BDCR_LSEBYP) == RCC_BDCR_LSEBYP)
   {
     RCC_OscInitStruct->LSEState = RCC_LSE_BYPASS;
@@ -1262,7 +1208,7 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     RCC_OscInitStruct->LSEState = RCC_LSE_OFF;
   }
 
-  /* Get the LSI configuration -----------------------------------------------*/
+  /* 获取 LSI 配置 -----------------------------------------------*/
   if ((RCC->CSR & RCC_CSR_LSION) == RCC_CSR_LSION)
   {
     RCC_OscInitStruct->LSIState = RCC_LSI_ON;
@@ -1273,7 +1219,7 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   }
 
 
-  /* Get the PLL configuration -----------------------------------------------*/
+  /* 获取 PLL 配置 -----------------------------------------------*/
   if ((RCC->CR & RCC_CR_PLLON) == RCC_CR_PLLON)
   {
     RCC_OscInitStruct->PLL.PLLState = RCC_PLL_ON;
@@ -1285,7 +1231,7 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   RCC_OscInitStruct->PLL.PLLSource = (uint32_t)(RCC->CFGR & RCC_CFGR_PLLSRC);
   RCC_OscInitStruct->PLL.PLLMUL = (uint32_t)(RCC->CFGR & RCC_CFGR_PLLMULL);
 #if defined(RCC_CR_PLL2ON)
-  /* Get the PLL2 configuration -----------------------------------------------*/
+  /* 获取 PLL2 配置 -----------------------------------------------*/
   if ((RCC->CR & RCC_CR_PLL2ON) == RCC_CR_PLL2ON)
   {
     RCC_OscInitStruct->PLL2.PLL2State = RCC_PLL2_ON;
@@ -1300,64 +1246,62 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
 }
 
 /**
-  * @brief  Get the RCC_ClkInitStruct according to the internal
-  * RCC configuration registers.
-  * @param  RCC_ClkInitStruct pointer to an RCC_ClkInitTypeDef structure that
-  * contains the current clock configuration.
-  * @param  pFLatency Pointer on the Flash Latency.
+  * @brief  获取 RCC 时钟配置（根据内部RCC配置寄存器的设置）
+  * @param  RCC_ClkInitStruct 用于存储配置的RCC_ClkInitTypeDef结构体的指针
+  * @param  pFLatency 存储Flash延迟的指针
   * @retval None
   */
 void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t *pFLatency)
 {
-  /* Check the parameters */
+  /* 检查参数合法性 */
   assert_param(RCC_ClkInitStruct != NULL);
   assert_param(pFLatency != NULL);
 
-  /* Set all possible values for the Clock type parameter --------------------*/
+  /* 设置时钟类型参数的所有可能值 --------------------*/
   RCC_ClkInitStruct->ClockType = RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
 
-  /* Get the SYSCLK configuration --------------------------------------------*/
+  /* 获取 SYSCLK 配置 --------------------------------------------*/
   RCC_ClkInitStruct->SYSCLKSource = (uint32_t)(RCC->CFGR & RCC_CFGR_SW);
 
-  /* Get the HCLK configuration ----------------------------------------------*/
+  /* 获取 HCLK 配置 ----------------------------------------------*/
   RCC_ClkInitStruct->AHBCLKDivider = (uint32_t)(RCC->CFGR & RCC_CFGR_HPRE);
 
-  /* Get the APB1 configuration ----------------------------------------------*/
+  /* 获取 APB1 配置 ----------------------------------------------*/
   RCC_ClkInitStruct->APB1CLKDivider = (uint32_t)(RCC->CFGR & RCC_CFGR_PPRE1);
 
-  /* Get the APB2 configuration ----------------------------------------------*/
+  /* 获取 APB2 配置 ----------------------------------------------*/
   RCC_ClkInitStruct->APB2CLKDivider = (uint32_t)((RCC->CFGR & RCC_CFGR_PPRE2) >> 3);
 
 #if   defined(FLASH_ACR_LATENCY)
-  /* Get the Flash Wait State (Latency) configuration ------------------------*/
+  /* 获取 Flash 等待周期 (Latency) 配置 ------------------------*/
   *pFLatency = (uint32_t)(FLASH->ACR & FLASH_ACR_LATENCY);
 #else
-  /* For VALUE lines devices, only LATENCY_0 can be set*/
+  /* 对于VALUE系列的芯片，只能设置LATENCY_0 */
   *pFLatency = (uint32_t)FLASH_LATENCY_0;
 #endif
 }
 
 /**
-  * @brief This function handles the RCC CSS interrupt request.
-  * @note This API should be called under the NMI_Handler().
+  * @brief 处理 RCC CSS（时钟安全系统）中断请求的函数
+  * @note 这个API应该在NMI_Handler()下调用。
   * @retval None
   */
 void HAL_RCC_NMI_IRQHandler(void)
 {
-  /* Check RCC CSSF flag  */
+  /* 检查 RCC CSSF 标志  */
   if (__HAL_RCC_GET_IT(RCC_IT_CSS))
   {
-    /* RCC Clock Security System interrupt user callback */
+    /* RCC 时钟安全系统中断用户回调 */
     HAL_RCC_CSSCallback();
 
-    /* Clear RCC CSS pending bit */
+    /* 清除 RCC CSS 挂起位 */
     __HAL_RCC_CLEAR_IT(RCC_IT_CSS);
   }
 }
 
 /**
-  * @brief  This function provides delay (in milliseconds) based on CPU cycles method.
-  * @param  mdelay: specifies the delay time length, in milliseconds.
+  * @brief  基于CPU周期方法的延迟(毫秒)
+  * @param  mdelay: 指定延迟时间长度，单位为毫秒。
   * @retval None
   */
 static void RCC_Delay(uint32_t mdelay)
@@ -1371,13 +1315,12 @@ static void RCC_Delay(uint32_t mdelay)
 }
 
 /**
-  * @brief  RCC Clock Security System interrupt callback
+  * @brief  RCC时钟安全系统中断回调
   * @retval none
   */
 __weak void HAL_RCC_CSSCallback(void)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
-    the HAL_RCC_CSSCallback could be implemented in the user file
+  /* NOTE : 当需要回调函数时，不应修改此函数，可以在用户文件中重写以覆盖此函数。
     */
 }
 
@@ -1398,3 +1341,4 @@ __weak void HAL_RCC_CSSCallback(void)
   * @}
   */
 
+ 

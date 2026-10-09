@@ -4,23 +4,19 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the ADC firmware 
-  *          library.
+  * @brief   本文件包含 ADC 固件库的全部函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供参考，其目的在于为客户提供有关其产品的编码信息，以帮助客户节省时间。
+  * 因此，对于因本固件的内容和/或客户将其中所含编码信息用于其产品而产生的任何索赔
+  * 所造成的任何直接、间接或后果性损害，STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_ADC_H
 #define __STM32F10x_ADC_H
 
@@ -28,55 +24,51 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup ADC
+/** @addtogroup ADC   ADC 模数转换
   * @{
   */
 
-/** @defgroup ADC_Exported_Types
+/** @defgroup ADC_Exported_Types   ADC 导出类型
   * @{
   */
 
-/** 
-  * @brief  ADC Init structure definition  
+/**
+  * @brief  ADC 初始化结构体定义
   */
 
 typedef struct
 {
-  uint32_t ADC_Mode;                      /*!< Configures the ADC to operate in independent or
-                                               dual mode. 
-                                               This parameter can be a value of @ref ADC_mode */
+  uint32_t ADC_Mode;                      /*!< 配置 ADC 工作在独立模式还是双重模式。
+                                               该参数可取 @ref ADC_mode 中的值 */
 
-  FunctionalState ADC_ScanConvMode;       /*!< Specifies whether the conversion is performed in
-                                               Scan (multichannels) or Single (one channel) mode.
-                                               This parameter can be set to ENABLE or DISABLE */
+  FunctionalState ADC_ScanConvMode;       /*!< 指定转换是在扫描（多通道）模式还是单次（单通道）模式下进行。
+                                               该参数可设为 ENABLE 或 DISABLE */
 
-  FunctionalState ADC_ContinuousConvMode; /*!< Specifies whether the conversion is performed in
-                                               Continuous or Single mode.
-                                               This parameter can be set to ENABLE or DISABLE. */
+  FunctionalState ADC_ContinuousConvMode; /*!< 指定转换是在连续模式还是单次模式下进行。
+                                               该参数可设为 ENABLE 或 DISABLE。 */
 
-  uint32_t ADC_ExternalTrigConv;          /*!< Defines the external trigger used to start the analog
-                                               to digital conversion of regular channels. This parameter
-                                               can be a value of @ref ADC_external_trigger_sources_for_regular_channels_conversion */
+  uint32_t ADC_ExternalTrigConv;          /*!< 定义用于启动规则通道模数转换的外部触发源。
+                                               该参数可取 @ref
+                                               ADC_external_trigger_sources_for_regular_channels_conversion 中的值 */
 
-  uint32_t ADC_DataAlign;                 /*!< Specifies whether the ADC data alignment is left or right.
-                                               This parameter can be a value of @ref ADC_data_align */
+  uint32_t ADC_DataAlign;                 /*!< 指定 ADC 数据是左对齐还是右对齐。
+                                               该参数可取 @ref ADC_data_align 中的值 */
 
-  uint8_t ADC_NbrOfChannel;               /*!< Specifies the number of ADC channels that will be converted
-                                               using the sequencer for regular channel group.
-                                               This parameter must range from 1 to 16. */
+  uint8_t ADC_NbrOfChannel;               /*!< 指定规则通道组将使用序列器转换的 ADC 通道数量。
+                                               该参数取值范围为 1 到 16。 */
 }ADC_InitTypeDef;
 /**
   * @}
   */
 
-/** @defgroup ADC_Exported_Constants
+/** @defgroup ADC_Exported_Constants   ADC 导出常量
   * @{
   */
 
@@ -87,7 +79,7 @@ typedef struct
 #define IS_ADC_DMA_PERIPH(PERIPH) (((PERIPH) == ADC1) || \
                                    ((PERIPH) == ADC3))
 
-/** @defgroup ADC_mode 
+/** @defgroup ADC_mode   ADC 工作模式
   * @{
   */
 
@@ -116,26 +108,27 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_external_trigger_sources_for_regular_channels_conversion 
+/** @defgroup ADC_external_trigger_sources_for_regular_channels_conversion
+  *           规则通道转换的外部触发源
   * @{
   */
 
-#define ADC_ExternalTrigConv_T1_CC1                ((uint32_t)0x00000000) /*!< For ADC1 and ADC2 */
-#define ADC_ExternalTrigConv_T1_CC2                ((uint32_t)0x00020000) /*!< For ADC1 and ADC2 */
-#define ADC_ExternalTrigConv_T2_CC2                ((uint32_t)0x00060000) /*!< For ADC1 and ADC2 */
-#define ADC_ExternalTrigConv_T3_TRGO               ((uint32_t)0x00080000) /*!< For ADC1 and ADC2 */
-#define ADC_ExternalTrigConv_T4_CC4                ((uint32_t)0x000A0000) /*!< For ADC1 and ADC2 */
-#define ADC_ExternalTrigConv_Ext_IT11_TIM8_TRGO    ((uint32_t)0x000C0000) /*!< For ADC1 and ADC2 */
+#define ADC_ExternalTrigConv_T1_CC1                ((uint32_t)0x00000000) /*!< 适用于 ADC1 与 ADC2 */
+#define ADC_ExternalTrigConv_T1_CC2                ((uint32_t)0x00020000) /*!< 适用于 ADC1 与 ADC2 */
+#define ADC_ExternalTrigConv_T2_CC2                ((uint32_t)0x00060000) /*!< 适用于 ADC1 与 ADC2 */
+#define ADC_ExternalTrigConv_T3_TRGO               ((uint32_t)0x00080000) /*!< 适用于 ADC1 与 ADC2 */
+#define ADC_ExternalTrigConv_T4_CC4                ((uint32_t)0x000A0000) /*!< 适用于 ADC1 与 ADC2 */
+#define ADC_ExternalTrigConv_Ext_IT11_TIM8_TRGO    ((uint32_t)0x000C0000) /*!< 适用于 ADC1 与 ADC2 */
 
-#define ADC_ExternalTrigConv_T1_CC3                ((uint32_t)0x00040000) /*!< For ADC1, ADC2 and ADC3 */
-#define ADC_ExternalTrigConv_None                  ((uint32_t)0x000E0000) /*!< For ADC1, ADC2 and ADC3 */
+#define ADC_ExternalTrigConv_T1_CC3                ((uint32_t)0x00040000) /*!< 适用于 ADC1、ADC2 与 ADC3 */
+#define ADC_ExternalTrigConv_None                  ((uint32_t)0x000E0000) /*!< 适用于 ADC1、ADC2 与 ADC3 */
 
-#define ADC_ExternalTrigConv_T3_CC1                ((uint32_t)0x00000000) /*!< For ADC3 only */
-#define ADC_ExternalTrigConv_T2_CC3                ((uint32_t)0x00020000) /*!< For ADC3 only */
-#define ADC_ExternalTrigConv_T8_CC1                ((uint32_t)0x00060000) /*!< For ADC3 only */
-#define ADC_ExternalTrigConv_T8_TRGO               ((uint32_t)0x00080000) /*!< For ADC3 only */
-#define ADC_ExternalTrigConv_T5_CC1                ((uint32_t)0x000A0000) /*!< For ADC3 only */
-#define ADC_ExternalTrigConv_T5_CC3                ((uint32_t)0x000C0000) /*!< For ADC3 only */
+#define ADC_ExternalTrigConv_T3_CC1                ((uint32_t)0x00000000) /*!< 仅适用于 ADC3 */
+#define ADC_ExternalTrigConv_T2_CC3                ((uint32_t)0x00020000) /*!< 仅适用于 ADC3 */
+#define ADC_ExternalTrigConv_T8_CC1                ((uint32_t)0x00060000) /*!< 仅适用于 ADC3 */
+#define ADC_ExternalTrigConv_T8_TRGO               ((uint32_t)0x00080000) /*!< 仅适用于 ADC3 */
+#define ADC_ExternalTrigConv_T5_CC1                ((uint32_t)0x000A0000) /*!< 仅适用于 ADC3 */
+#define ADC_ExternalTrigConv_T5_CC3                ((uint32_t)0x000C0000) /*!< 仅适用于 ADC3 */
 
 #define IS_ADC_EXT_TRIG(REGTRIG) (((REGTRIG) == ADC_ExternalTrigConv_T1_CC1) || \
                                   ((REGTRIG) == ADC_ExternalTrigConv_T1_CC2) || \
@@ -155,7 +148,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_data_align 
+/** @defgroup ADC_data_align   ADC 数据对齐方式
   * @{
   */
 
@@ -167,7 +160,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_channels 
+/** @defgroup ADC_channels   ADC 通道
   * @{
   */
 
@@ -206,7 +199,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_sampling_time 
+/** @defgroup ADC_sampling_time   ADC 采样时间
   * @{
   */
 
@@ -230,25 +223,26 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_external_trigger_sources_for_injected_channels_conversion 
+/** @defgroup ADC_external_trigger_sources_for_injected_channels_conversion
+  *           注入通道转换的外部触发源
   * @{
   */
 
-#define ADC_ExternalTrigInjecConv_T2_TRGO           ((uint32_t)0x00002000) /*!< For ADC1 and ADC2 */
-#define ADC_ExternalTrigInjecConv_T2_CC1            ((uint32_t)0x00003000) /*!< For ADC1 and ADC2 */
-#define ADC_ExternalTrigInjecConv_T3_CC4            ((uint32_t)0x00004000) /*!< For ADC1 and ADC2 */
-#define ADC_ExternalTrigInjecConv_T4_TRGO           ((uint32_t)0x00005000) /*!< For ADC1 and ADC2 */
-#define ADC_ExternalTrigInjecConv_Ext_IT15_TIM8_CC4 ((uint32_t)0x00006000) /*!< For ADC1 and ADC2 */
+#define ADC_ExternalTrigInjecConv_T2_TRGO           ((uint32_t)0x00002000) /*!< 适用于 ADC1 与 ADC2 */
+#define ADC_ExternalTrigInjecConv_T2_CC1            ((uint32_t)0x00003000) /*!< 适用于 ADC1 与 ADC2 */
+#define ADC_ExternalTrigInjecConv_T3_CC4            ((uint32_t)0x00004000) /*!< 适用于 ADC1 与 ADC2 */
+#define ADC_ExternalTrigInjecConv_T4_TRGO           ((uint32_t)0x00005000) /*!< 适用于 ADC1 与 ADC2 */
+#define ADC_ExternalTrigInjecConv_Ext_IT15_TIM8_CC4 ((uint32_t)0x00006000) /*!< 适用于 ADC1 与 ADC2 */
 
-#define ADC_ExternalTrigInjecConv_T1_TRGO           ((uint32_t)0x00000000) /*!< For ADC1, ADC2 and ADC3 */
-#define ADC_ExternalTrigInjecConv_T1_CC4            ((uint32_t)0x00001000) /*!< For ADC1, ADC2 and ADC3 */
-#define ADC_ExternalTrigInjecConv_None              ((uint32_t)0x00007000) /*!< For ADC1, ADC2 and ADC3 */
+#define ADC_ExternalTrigInjecConv_T1_TRGO           ((uint32_t)0x00000000) /*!< 适用于 ADC1、ADC2 与 ADC3 */
+#define ADC_ExternalTrigInjecConv_T1_CC4            ((uint32_t)0x00001000) /*!< 适用于 ADC1、ADC2 与 ADC3 */
+#define ADC_ExternalTrigInjecConv_None              ((uint32_t)0x00007000) /*!< 适用于 ADC1、ADC2 与 ADC3 */
 
-#define ADC_ExternalTrigInjecConv_T4_CC3            ((uint32_t)0x00002000) /*!< For ADC3 only */
-#define ADC_ExternalTrigInjecConv_T8_CC2            ((uint32_t)0x00003000) /*!< For ADC3 only */
-#define ADC_ExternalTrigInjecConv_T8_CC4            ((uint32_t)0x00004000) /*!< For ADC3 only */
-#define ADC_ExternalTrigInjecConv_T5_TRGO           ((uint32_t)0x00005000) /*!< For ADC3 only */
-#define ADC_ExternalTrigInjecConv_T5_CC4            ((uint32_t)0x00006000) /*!< For ADC3 only */
+#define ADC_ExternalTrigInjecConv_T4_CC3            ((uint32_t)0x00002000) /*!< 仅适用于 ADC3 */
+#define ADC_ExternalTrigInjecConv_T8_CC2            ((uint32_t)0x00003000) /*!< 仅适用于 ADC3 */
+#define ADC_ExternalTrigInjecConv_T8_CC4            ((uint32_t)0x00004000) /*!< 仅适用于 ADC3 */
+#define ADC_ExternalTrigInjecConv_T5_TRGO           ((uint32_t)0x00005000) /*!< 仅适用于 ADC3 */
+#define ADC_ExternalTrigInjecConv_T5_CC4            ((uint32_t)0x00006000) /*!< 仅适用于 ADC3 */
 
 #define IS_ADC_EXT_INJEC_TRIG(INJTRIG) (((INJTRIG) == ADC_ExternalTrigInjecConv_T1_TRGO) || \
                                         ((INJTRIG) == ADC_ExternalTrigInjecConv_T1_CC4) || \
@@ -267,7 +261,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_injected_channel_selection 
+/** @defgroup ADC_injected_channel_selection   ADC 注入通道选择
   * @{
   */
 
@@ -283,7 +277,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_analog_watchdog_selection 
+/** @defgroup ADC_analog_watchdog_selection   ADC 模拟看门狗选择
   * @{
   */
 
@@ -306,7 +300,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_interrupts_definition 
+/** @defgroup ADC_interrupts_definition   ADC 中断定义
   * @{
   */
 
@@ -322,7 +316,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_flags_definition 
+/** @defgroup ADC_flags_definition   ADC 标志定义
   * @{
   */
 
@@ -339,7 +333,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_thresholds 
+/** @defgroup ADC_thresholds   ADC 阈值
   * @{
   */
 
@@ -349,7 +343,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_injected_offset 
+/** @defgroup ADC_injected_offset   ADC 注入通道偏移量
   * @{
   */
 
@@ -359,7 +353,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_injected_length 
+/** @defgroup ADC_injected_length   ADC 注入序列长度
   * @{
   */
 
@@ -369,7 +363,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_injected_rank 
+/** @defgroup ADC_injected_rank   ADC 注入通道排序位置
   * @{
   */
 
@@ -380,7 +374,7 @@ typedef struct
   */ 
 
 
-/** @defgroup ADC_regular_length 
+/** @defgroup ADC_regular_length   ADC 规则序列长度
   * @{
   */
 
@@ -389,7 +383,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_regular_rank 
+/** @defgroup ADC_regular_rank   ADC 规则通道排序位置
   * @{
   */
 
@@ -399,7 +393,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_regular_discontinuous_mode_number 
+/** @defgroup ADC_regular_discontinuous_mode_number   ADC 规则组间断模式通道数
   * @{
   */
 
@@ -413,7 +407,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_Exported_Macros
+/** @defgroup ADC_Exported_Macros   ADC 导出宏
   * @{
   */
 
@@ -421,7 +415,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADC_Exported_Functions
+/** @defgroup ADC_Exported_Functions   ADC 导出函数
   * @{
   */
 
@@ -480,4 +474,4 @@ void ADC_ClearITPendingBit(ADC_TypeDef* ADCx, uint16_t ADC_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

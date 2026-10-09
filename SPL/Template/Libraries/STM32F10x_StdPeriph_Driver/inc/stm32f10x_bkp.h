@@ -4,23 +4,19 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the BKP firmware 
-  *          library.
+  * @brief   本文件包含 BKP 固件库的全部函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供参考，其目的在于为客户提供有关其产品的编码信息，以帮助客户节省时间。
+  * 因此，对于因本固件的内容和/或客户将其中所含编码信息用于其产品而产生的任何索赔
+  * 所造成的任何直接、间接或后果性损害，STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_BKP_H
 #define __STM32F10x_BKP_H
 
@@ -28,18 +24,18 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup BKP
+/** @addtogroup BKP   BKP 备份寄存器
   * @{
   */
 
-/** @defgroup BKP_Exported_Types
+/** @defgroup BKP_Exported_Types   BKP 导出类型
   * @{
   */
 
@@ -47,11 +43,11 @@
   * @}
   */
 
-/** @defgroup BKP_Exported_Constants
+/** @defgroup BKP_Exported_Constants   BKP 导出常量
   * @{
   */
 
-/** @defgroup Tamper_Pin_active_level 
+/** @defgroup Tamper_Pin_active_level   侵入检测引脚有效电平
   * @{
   */
 
@@ -63,7 +59,8 @@
   * @}
   */
 
-/** @defgroup RTC_output_source_to_output_on_the_Tamper_pin 
+/** @defgroup RTC_output_source_to_output_on_the_Tamper_pin
+  *           在侵入检测引脚上输出的 RTC 输出源
   * @{
   */
 
@@ -79,7 +76,7 @@
   * @}
   */
 
-/** @defgroup Data_Backup_Register 
+/** @defgroup Data_Backup_Register   数据备份寄存器
   * @{
   */
 
@@ -150,7 +147,7 @@
   * @}
   */
 
-/** @defgroup BKP_Exported_Macros
+/** @defgroup BKP_Exported_Macros   BKP 导出宏
   * @{
   */
 
@@ -158,7 +155,7 @@
   * @}
   */
 
-/** @defgroup BKP_Exported_Functions
+/** @defgroup BKP_Exported_Functions   BKP 导出函数
   * @{
   */
 
@@ -192,4 +189,4 @@ void BKP_ClearITPendingBit(void);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the GPIO 
-  *          firmware library.
+  * @brief   本文件包含 GPIO 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指引之用，旨在为客户提供有关其产品的编码信息，
+  * 以便客户节省时间。因此，对于因本固件内容及/或客户将本文
+  * 所含编码信息用于其产品而产生的任何索赔所导致的任何直接、
+  * 间接或后果性损害，STMicroelectronics 概不负责。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_GPIO_H
 #define __STM32F10x_GPIO_H
 
@@ -28,18 +25,18 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup GPIO
+/** @addtogroup GPIO  GPIO 驱动模块
   * @{
   */
 
-/** @defgroup GPIO_Exported_Types
+/** @defgroup GPIO_Exported_Types   GPIO 导出类型
   * @{
   */
 
@@ -51,8 +48,8 @@
                                     ((PERIPH) == GPIOF) || \
                                     ((PERIPH) == GPIOG))
                                      
-/** 
-  * @brief  Output Maximum frequency selection  
+/**
+  * @brief  输出最高频率选择
   */
 
 typedef enum
@@ -64,8 +61,8 @@ typedef enum
 #define IS_GPIO_SPEED(SPEED) (((SPEED) == GPIO_Speed_10MHz) || ((SPEED) == GPIO_Speed_2MHz) || \
                               ((SPEED) == GPIO_Speed_50MHz))
 
-/** 
-  * @brief  Configuration Mode enumeration  
+/**
+  * @brief  配置模式枚举
   */
 
 typedef enum
@@ -84,25 +81,25 @@ typedef enum
                             ((MODE) == GPIO_Mode_Out_OD) || ((MODE) == GPIO_Mode_Out_PP) || \
                             ((MODE) == GPIO_Mode_AF_OD) || ((MODE) == GPIO_Mode_AF_PP))
 
-/** 
-  * @brief  GPIO Init structure definition  
+/**
+  * @brief  GPIO 初始化结构定义
   */
 
 typedef struct
 {
-  uint16_t GPIO_Pin;             /*!< Specifies the GPIO pins to be configured.
-                                      This parameter can be any value of @ref GPIO_pins_define */
+  uint16_t GPIO_Pin;             /*!< 指定要配置的 GPIO 引脚。
+                                      该参数可取 @ref GPIO_pins_define 的任意值 */
 
-  GPIOSpeed_TypeDef GPIO_Speed;  /*!< Specifies the speed for the selected pins.
-                                      This parameter can be a value of @ref GPIOSpeed_TypeDef */
+  GPIOSpeed_TypeDef GPIO_Speed;  /*!< 指定所选引脚的速度。
+                                      该参数可取 @ref GPIOSpeed_TypeDef 的值 */
 
-  GPIOMode_TypeDef GPIO_Mode;    /*!< Specifies the operating mode for the selected pins.
-                                      This parameter can be a value of @ref GPIOMode_TypeDef */
+  GPIOMode_TypeDef GPIO_Mode;    /*!< 指定所选引脚的工作模式。
+                                      该参数可取 @ref GPIOMode_TypeDef 的值 */
 }GPIO_InitTypeDef;
 
 
-/** 
-  * @brief  Bit_SET and Bit_RESET enumeration  
+/**
+  * @brief  Bit_SET 和 Bit_RESET 枚举
   */
 
 typedef enum
@@ -116,31 +113,31 @@ typedef enum
   * @}
   */
 
-/** @defgroup GPIO_Exported_Constants
+/** @defgroup GPIO_Exported_Constants   GPIO 导出常量
   * @{
   */
 
-/** @defgroup GPIO_pins_define 
+/** @defgroup GPIO_pins_define   GPIO 引脚定义
   * @{
   */
 
-#define GPIO_Pin_0                 ((uint16_t)0x0001)  /*!< Pin 0 selected */
-#define GPIO_Pin_1                 ((uint16_t)0x0002)  /*!< Pin 1 selected */
-#define GPIO_Pin_2                 ((uint16_t)0x0004)  /*!< Pin 2 selected */
-#define GPIO_Pin_3                 ((uint16_t)0x0008)  /*!< Pin 3 selected */
-#define GPIO_Pin_4                 ((uint16_t)0x0010)  /*!< Pin 4 selected */
-#define GPIO_Pin_5                 ((uint16_t)0x0020)  /*!< Pin 5 selected */
-#define GPIO_Pin_6                 ((uint16_t)0x0040)  /*!< Pin 6 selected */
-#define GPIO_Pin_7                 ((uint16_t)0x0080)  /*!< Pin 7 selected */
-#define GPIO_Pin_8                 ((uint16_t)0x0100)  /*!< Pin 8 selected */
-#define GPIO_Pin_9                 ((uint16_t)0x0200)  /*!< Pin 9 selected */
-#define GPIO_Pin_10                ((uint16_t)0x0400)  /*!< Pin 10 selected */
-#define GPIO_Pin_11                ((uint16_t)0x0800)  /*!< Pin 11 selected */
-#define GPIO_Pin_12                ((uint16_t)0x1000)  /*!< Pin 12 selected */
-#define GPIO_Pin_13                ((uint16_t)0x2000)  /*!< Pin 13 selected */
-#define GPIO_Pin_14                ((uint16_t)0x4000)  /*!< Pin 14 selected */
-#define GPIO_Pin_15                ((uint16_t)0x8000)  /*!< Pin 15 selected */
-#define GPIO_Pin_All               ((uint16_t)0xFFFF)  /*!< All pins selected */
+#define GPIO_Pin_0                 ((uint16_t)0x0001)  /*!< 已选择引脚 0 */
+#define GPIO_Pin_1                 ((uint16_t)0x0002)  /*!< 已选择引脚 1 */
+#define GPIO_Pin_2                 ((uint16_t)0x0004)  /*!< 已选择引脚 2 */
+#define GPIO_Pin_3                 ((uint16_t)0x0008)  /*!< 已选择引脚 3 */
+#define GPIO_Pin_4                 ((uint16_t)0x0010)  /*!< 已选择引脚 4 */
+#define GPIO_Pin_5                 ((uint16_t)0x0020)  /*!< 已选择引脚 5 */
+#define GPIO_Pin_6                 ((uint16_t)0x0040)  /*!< 已选择引脚 6 */
+#define GPIO_Pin_7                 ((uint16_t)0x0080)  /*!< 已选择引脚 7 */
+#define GPIO_Pin_8                 ((uint16_t)0x0100)  /*!< 已选择引脚 8 */
+#define GPIO_Pin_9                 ((uint16_t)0x0200)  /*!< 已选择引脚 9 */
+#define GPIO_Pin_10                ((uint16_t)0x0400)  /*!< 已选择引脚 10 */
+#define GPIO_Pin_11                ((uint16_t)0x0800)  /*!< 已选择引脚 11 */
+#define GPIO_Pin_12                ((uint16_t)0x1000)  /*!< 已选择引脚 12 */
+#define GPIO_Pin_13                ((uint16_t)0x2000)  /*!< 已选择引脚 13 */
+#define GPIO_Pin_14                ((uint16_t)0x4000)  /*!< 已选择引脚 14 */
+#define GPIO_Pin_15                ((uint16_t)0x8000)  /*!< 已选择引脚 15 */
+#define GPIO_Pin_All               ((uint16_t)0xFFFF)  /*!< 已选择所有引脚 */
 
 #define IS_GPIO_PIN(PIN) ((((PIN) & (uint16_t)0x00) == 0x00) && ((PIN) != (uint16_t)0x00))
 
@@ -165,60 +162,60 @@ typedef enum
   * @}
   */
 
-/** @defgroup GPIO_Remap_define 
+/** @defgroup GPIO_Remap_define   GPIO 重映射定义
   * @{
   */
 
-#define GPIO_Remap_SPI1             ((uint32_t)0x00000001)  /*!< SPI1 Alternate Function mapping */
-#define GPIO_Remap_I2C1             ((uint32_t)0x00000002)  /*!< I2C1 Alternate Function mapping */
-#define GPIO_Remap_USART1           ((uint32_t)0x00000004)  /*!< USART1 Alternate Function mapping */
-#define GPIO_Remap_USART2           ((uint32_t)0x00000008)  /*!< USART2 Alternate Function mapping */
-#define GPIO_PartialRemap_USART3    ((uint32_t)0x00140010)  /*!< USART3 Partial Alternate Function mapping */
-#define GPIO_FullRemap_USART3       ((uint32_t)0x00140030)  /*!< USART3 Full Alternate Function mapping */
-#define GPIO_PartialRemap_TIM1      ((uint32_t)0x00160040)  /*!< TIM1 Partial Alternate Function mapping */
-#define GPIO_FullRemap_TIM1         ((uint32_t)0x001600C0)  /*!< TIM1 Full Alternate Function mapping */
-#define GPIO_PartialRemap1_TIM2     ((uint32_t)0x00180100)  /*!< TIM2 Partial1 Alternate Function mapping */
-#define GPIO_PartialRemap2_TIM2     ((uint32_t)0x00180200)  /*!< TIM2 Partial2 Alternate Function mapping */
-#define GPIO_FullRemap_TIM2         ((uint32_t)0x00180300)  /*!< TIM2 Full Alternate Function mapping */
-#define GPIO_PartialRemap_TIM3      ((uint32_t)0x001A0800)  /*!< TIM3 Partial Alternate Function mapping */
-#define GPIO_FullRemap_TIM3         ((uint32_t)0x001A0C00)  /*!< TIM3 Full Alternate Function mapping */
-#define GPIO_Remap_TIM4             ((uint32_t)0x00001000)  /*!< TIM4 Alternate Function mapping */
-#define GPIO_Remap1_CAN1            ((uint32_t)0x001D4000)  /*!< CAN1 Alternate Function mapping */
-#define GPIO_Remap2_CAN1            ((uint32_t)0x001D6000)  /*!< CAN1 Alternate Function mapping */
-#define GPIO_Remap_PD01             ((uint32_t)0x00008000)  /*!< PD01 Alternate Function mapping */
-#define GPIO_Remap_TIM5CH4_LSI      ((uint32_t)0x00200001)  /*!< LSI connected to TIM5 Channel4 input capture for calibration */
-#define GPIO_Remap_ADC1_ETRGINJ     ((uint32_t)0x00200002)  /*!< ADC1 External Trigger Injected Conversion remapping */
-#define GPIO_Remap_ADC1_ETRGREG     ((uint32_t)0x00200004)  /*!< ADC1 External Trigger Regular Conversion remapping */
-#define GPIO_Remap_ADC2_ETRGINJ     ((uint32_t)0x00200008)  /*!< ADC2 External Trigger Injected Conversion remapping */
-#define GPIO_Remap_ADC2_ETRGREG     ((uint32_t)0x00200010)  /*!< ADC2 External Trigger Regular Conversion remapping */
-#define GPIO_Remap_ETH              ((uint32_t)0x00200020)  /*!< Ethernet remapping (only for Connectivity line devices) */
-#define GPIO_Remap_CAN2             ((uint32_t)0x00200040)  /*!< CAN2 remapping (only for Connectivity line devices) */
-#define GPIO_Remap_SWJ_NoJTRST      ((uint32_t)0x00300100)  /*!< Full SWJ Enabled (JTAG-DP + SW-DP) but without JTRST */
-#define GPIO_Remap_SWJ_JTAGDisable  ((uint32_t)0x00300200)  /*!< JTAG-DP Disabled and SW-DP Enabled */
-#define GPIO_Remap_SWJ_Disable      ((uint32_t)0x00300400)  /*!< Full SWJ Disabled (JTAG-DP + SW-DP) */
-#define GPIO_Remap_SPI3             ((uint32_t)0x00201100)  /*!< SPI3/I2S3 Alternate Function mapping (only for Connectivity line devices) */
-#define GPIO_Remap_TIM2ITR1_PTP_SOF ((uint32_t)0x00202000)  /*!< Ethernet PTP output or USB OTG SOF (Start of Frame) connected
-                                                                 to TIM2 Internal Trigger 1 for calibration
-                                                                 (only for Connectivity line devices) */
-#define GPIO_Remap_PTP_PPS          ((uint32_t)0x00204000)  /*!< Ethernet MAC PPS_PTS output on PB05 (only for Connectivity line devices) */
+#define GPIO_Remap_SPI1             ((uint32_t)0x00000001)  /*!< SPI1 复用功能映射 */
+#define GPIO_Remap_I2C1             ((uint32_t)0x00000002)  /*!< I2C1 复用功能映射 */
+#define GPIO_Remap_USART1           ((uint32_t)0x00000004)  /*!< USART1 复用功能映射 */
+#define GPIO_Remap_USART2           ((uint32_t)0x00000008)  /*!< USART2 复用功能映射 */
+#define GPIO_PartialRemap_USART3    ((uint32_t)0x00140010)  /*!< USART3 部分复用功能映射 */
+#define GPIO_FullRemap_USART3       ((uint32_t)0x00140030)  /*!< USART3 完全复用功能映射 */
+#define GPIO_PartialRemap_TIM1      ((uint32_t)0x00160040)  /*!< TIM1 部分复用功能映射 */
+#define GPIO_FullRemap_TIM1         ((uint32_t)0x001600C0)  /*!< TIM1 完全复用功能映射 */
+#define GPIO_PartialRemap1_TIM2     ((uint32_t)0x00180100)  /*!< TIM2 部分复用功能映射 1 */
+#define GPIO_PartialRemap2_TIM2     ((uint32_t)0x00180200)  /*!< TIM2 部分复用功能映射 2 */
+#define GPIO_FullRemap_TIM2         ((uint32_t)0x00180300)  /*!< TIM2 完全复用功能映射 */
+#define GPIO_PartialRemap_TIM3      ((uint32_t)0x001A0800)  /*!< TIM3 部分复用功能映射 */
+#define GPIO_FullRemap_TIM3         ((uint32_t)0x001A0C00)  /*!< TIM3 完全复用功能映射 */
+#define GPIO_Remap_TIM4             ((uint32_t)0x00001000)  /*!< TIM4 复用功能映射 */
+#define GPIO_Remap1_CAN1            ((uint32_t)0x001D4000)  /*!< CAN1 复用功能映射 */
+#define GPIO_Remap2_CAN1            ((uint32_t)0x001D6000)  /*!< CAN1 复用功能映射 */
+#define GPIO_Remap_PD01             ((uint32_t)0x00008000)  /*!< PD01 复用功能映射 */
+#define GPIO_Remap_TIM5CH4_LSI      ((uint32_t)0x00200001)  /*!< LSI 连接到 TIM5 通道 4 输入捕获用于校准 */
+#define GPIO_Remap_ADC1_ETRGINJ     ((uint32_t)0x00200002)  /*!< ADC1 外部触发注入转换重映射 */
+#define GPIO_Remap_ADC1_ETRGREG     ((uint32_t)0x00200004)  /*!< ADC1 外部触发规则转换重映射 */
+#define GPIO_Remap_ADC2_ETRGINJ     ((uint32_t)0x00200008)  /*!< ADC2 外部触发注入转换重映射 */
+#define GPIO_Remap_ADC2_ETRGREG     ((uint32_t)0x00200010)  /*!< ADC2 外部触发规则转换重映射 */
+#define GPIO_Remap_ETH              ((uint32_t)0x00200020)  /*!< 以太网重映射（仅适用于互联型器件） */
+#define GPIO_Remap_CAN2             ((uint32_t)0x00200040)  /*!< CAN2 重映射（仅适用于互联型器件） */
+#define GPIO_Remap_SWJ_NoJTRST      ((uint32_t)0x00300100)  /*!< 使能全部 SWJ（JTAG-DP + SW-DP）但不含 JTRST */
+#define GPIO_Remap_SWJ_JTAGDisable  ((uint32_t)0x00300200)  /*!< 关闭 JTAG-DP 并使能 SW-DP */
+#define GPIO_Remap_SWJ_Disable      ((uint32_t)0x00300400)  /*!< 关闭全部 SWJ（JTAG-DP + SW-DP） */
+#define GPIO_Remap_SPI3             ((uint32_t)0x00201100)  /*!< SPI3/I2S3 复用功能映射（仅适用于互联型器件） */
+#define GPIO_Remap_TIM2ITR1_PTP_SOF ((uint32_t)0x00202000)  /*!< 以太网 PTP 输出或 USB OTG SOF（帧起始）连接到
+                                                                 TIM2 内部触发 1 用于校准
+                                                                 （仅适用于互联型器件） */
+#define GPIO_Remap_PTP_PPS          ((uint32_t)0x00204000)  /*!< PB05 上的以太网 MAC PPS_PTS 输出（仅适用于互联型器件） */
 
-#define GPIO_Remap_TIM15            ((uint32_t)0x80000001)  /*!< TIM15 Alternate Function mapping (only for Value line devices) */
-#define GPIO_Remap_TIM16            ((uint32_t)0x80000002)  /*!< TIM16 Alternate Function mapping (only for Value line devices) */
-#define GPIO_Remap_TIM17            ((uint32_t)0x80000004)  /*!< TIM17 Alternate Function mapping (only for Value line devices) */
-#define GPIO_Remap_CEC              ((uint32_t)0x80000008)  /*!< CEC Alternate Function mapping (only for Value line devices) */
-#define GPIO_Remap_TIM1_DMA         ((uint32_t)0x80000010)  /*!< TIM1 DMA requests mapping (only for Value line devices) */
+#define GPIO_Remap_TIM15            ((uint32_t)0x80000001)  /*!< TIM15 复用功能映射（仅适用于超值型器件） */
+#define GPIO_Remap_TIM16            ((uint32_t)0x80000002)  /*!< TIM16 复用功能映射（仅适用于超值型器件） */
+#define GPIO_Remap_TIM17            ((uint32_t)0x80000004)  /*!< TIM17 复用功能映射（仅适用于超值型器件） */
+#define GPIO_Remap_CEC              ((uint32_t)0x80000008)  /*!< CEC 复用功能映射（仅适用于超值型器件） */
+#define GPIO_Remap_TIM1_DMA         ((uint32_t)0x80000010)  /*!< TIM1 DMA 请求映射（仅适用于超值型器件） */
 
-#define GPIO_Remap_TIM9             ((uint32_t)0x80000020)  /*!< TIM9 Alternate Function mapping (only for XL-density devices) */
-#define GPIO_Remap_TIM10            ((uint32_t)0x80000040)  /*!< TIM10 Alternate Function mapping (only for XL-density devices) */
-#define GPIO_Remap_TIM11            ((uint32_t)0x80000080)  /*!< TIM11 Alternate Function mapping (only for XL-density devices) */
-#define GPIO_Remap_TIM13            ((uint32_t)0x80000100)  /*!< TIM13 Alternate Function mapping (only for High density Value line and XL-density devices) */
-#define GPIO_Remap_TIM14            ((uint32_t)0x80000200)  /*!< TIM14 Alternate Function mapping (only for High density Value line and XL-density devices) */
-#define GPIO_Remap_FSMC_NADV        ((uint32_t)0x80000400)  /*!< FSMC_NADV Alternate Function mapping (only for High density Value line and XL-density devices) */
+#define GPIO_Remap_TIM9             ((uint32_t)0x80000020)  /*!< TIM9 复用功能映射（仅适用于超大容量器件） */
+#define GPIO_Remap_TIM10            ((uint32_t)0x80000040)  /*!< TIM10 复用功能映射（仅适用于超大容量器件） */
+#define GPIO_Remap_TIM11            ((uint32_t)0x80000080)  /*!< TIM11 复用功能映射（仅适用于超大容量器件） */
+#define GPIO_Remap_TIM13            ((uint32_t)0x80000100)  /*!< TIM13 复用功能映射（仅适用于高容量超值型和超大容量器件） */
+#define GPIO_Remap_TIM14            ((uint32_t)0x80000200)  /*!< TIM14 复用功能映射（仅适用于高容量超值型和超大容量器件） */
+#define GPIO_Remap_FSMC_NADV        ((uint32_t)0x80000400)  /*!< FSMC_NADV 复用功能映射（仅适用于高容量超值型和超大容量器件） */
 
-#define GPIO_Remap_TIM67_DAC_DMA    ((uint32_t)0x80000800)  /*!< TIM6/TIM7 and DAC DMA requests remapping (only for High density Value line devices) */
-#define GPIO_Remap_TIM12            ((uint32_t)0x80001000)  /*!< TIM12 Alternate Function mapping (only for High density Value line devices) */
-#define GPIO_Remap_MISC             ((uint32_t)0x80002000)  /*!< Miscellaneous Remap (DMA2 Channel5 Position and DAC Trigger remapping, 
-                                                                 only for High density Value line devices) */                                                       
+#define GPIO_Remap_TIM67_DAC_DMA    ((uint32_t)0x80000800)  /*!< TIM6/TIM7 和 DAC DMA 请求重映射（仅适用于高容量超值型器件） */
+#define GPIO_Remap_TIM12            ((uint32_t)0x80001000)  /*!< TIM12 复用功能映射（仅适用于高容量超值型器件） */
+#define GPIO_Remap_MISC             ((uint32_t)0x80002000)  /*!< 杂项重映射（DMA2 通道 5 位置和 DAC 触发重映射，
+                                                                 仅适用于高容量超值型器件） */                                                       
 
 #define IS_GPIO_REMAP(REMAP) (((REMAP) == GPIO_Remap_SPI1) || ((REMAP) == GPIO_Remap_I2C1) || \
                               ((REMAP) == GPIO_Remap_USART1) || ((REMAP) == GPIO_Remap_USART2) || \
@@ -247,7 +244,7 @@ typedef enum
   * @}
   */ 
 
-/** @defgroup GPIO_Port_Sources 
+/** @defgroup GPIO_Port_Sources   GPIO 端口源
   * @{
   */
 
@@ -276,7 +273,7 @@ typedef enum
   * @}
   */
 
-/** @defgroup GPIO_Pin_sources 
+/** @defgroup GPIO_Pin_sources   GPIO 引脚源
   * @{
   */
 
@@ -318,7 +315,7 @@ typedef enum
   * @}
   */
 
-/** @defgroup Ethernet_Media_Interface 
+/** @defgroup Ethernet_Media_Interface   以太网媒体接口
   * @{
   */ 
 #define GPIO_ETH_MediaInterface_MII    ((u32)0x00000000) 
@@ -334,7 +331,7 @@ typedef enum
   * @}
   */
 
-/** @defgroup GPIO_Exported_Macros
+/** @defgroup GPIO_Exported_Macros   GPIO 导出宏
   * @{
   */
 
@@ -342,7 +339,7 @@ typedef enum
   * @}
   */
 
-/** @defgroup GPIO_Exported_Functions
+/** @defgroup GPIO_Exported_Functions   GPIO 导出函数
   * @{
   */
 
@@ -382,4 +379,4 @@ void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the TIM firmware 
-  *          library.
+  * @brief   本文件包含 TIM 固件库所有函数的原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指导之用，旨在为客户提供与其产品相关的编码信息，
+  * 以帮助客户节省时间。因此，对于因本固件的内容和/或客户将其中所含
+  * 编码信息用于其产品而产生的任何索赔所导致的任何直接、间接或
+  * 后果性损害，STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_TIM_H
 #define __STM32F10x_TIM_H
 
@@ -28,141 +25,141 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup TIM
+/** @addtogroup TIM  TIM 驱动模块
   * @{
   */ 
 
-/** @defgroup TIM_Exported_Types
+/** @defgroup TIM_Exported_Types  TIM 导出类型
   * @{
   */ 
 
-/** 
-  * @brief  TIM Time Base Init structure definition
-  * @note   This structure is used with all TIMx except for TIM6 and TIM7.    
+/**
+  * @brief  TIM 时基初始化结构体定义
+  * @note   该结构体适用于除 TIM6 和 TIM7 之外的所有 TIMx。
   */
 
 typedef struct
 {
-  uint16_t TIM_Prescaler;         /*!< Specifies the prescaler value used to divide the TIM clock.
-                                       This parameter can be a number between 0x0000 and 0xFFFF */
+  uint16_t TIM_Prescaler;         /*!< 指定用于对 TIM 时钟进行分频的预分频器值。
+                                       该参数可为 0x0000 到 0xFFFF 之间的数字 */
 
-  uint16_t TIM_CounterMode;       /*!< Specifies the counter mode.
-                                       This parameter can be a value of @ref TIM_Counter_Mode */
+  uint16_t TIM_CounterMode;       /*!< 指定计数器模式。
+                                       该参数可为 @ref TIM_Counter_Mode 中的取值 */
 
-  uint16_t TIM_Period;            /*!< Specifies the period value to be loaded into the active
-                                       Auto-Reload Register at the next update event.
-                                       This parameter must be a number between 0x0000 and 0xFFFF.  */ 
+  uint16_t TIM_Period;            /*!< 指定在下一个更新事件时装入自动重装载
+                                       寄存器的周期值。
+                                       该参数必须为 0x0000 到 0xFFFF 之间的数字。  */ 
 
-  uint16_t TIM_ClockDivision;     /*!< Specifies the clock division.
-                                      This parameter can be a value of @ref TIM_Clock_Division_CKD */
+  uint16_t TIM_ClockDivision;     /*!< 指定时钟分频。
+                                      该参数可为 @ref TIM_Clock_Division_CKD 中的取值 */
 
-  uint8_t TIM_RepetitionCounter;  /*!< Specifies the repetition counter value. Each time the RCR downcounter
-                                       reaches zero, an update event is generated and counting restarts
-                                       from the RCR value (N).
-                                       This means in PWM mode that (N+1) corresponds to:
-                                          - the number of PWM periods in edge-aligned mode
-                                          - the number of half PWM period in center-aligned mode
-                                       This parameter must be a number between 0x00 and 0xFF. 
-                                       @note This parameter is valid only for TIM1 and TIM8. */
+  uint8_t TIM_RepetitionCounter;  /*!< 指定重复计数器的值。每当 RCR 递减计数器
+                                       减到零时，就会产生一个更新事件，并从 RCR 值（N）
+                                       重新开始计数。
+                                       这意味着在 PWM 模式下 (N+1) 对应：
+                                          - 边沿对齐模式下的 PWM 周期数
+                                          - 中心对齐模式下的半个 PWM 周期数
+                                       该参数必须为 0x00 到 0xFF 之间的数字。
+                                       @note 该参数仅对 TIM1 和 TIM8 有效。 */
 } TIM_TimeBaseInitTypeDef;       
 
-/** 
-  * @brief  TIM Output Compare Init structure definition  
+/**
+  * @brief  TIM 输出比较初始化结构体定义
   */
 
 typedef struct
 {
-  uint16_t TIM_OCMode;        /*!< Specifies the TIM mode.
-                                   This parameter can be a value of @ref TIM_Output_Compare_and_PWM_modes */
+  uint16_t TIM_OCMode;        /*!< 指定 TIM 模式。
+                                   该参数可为 @ref TIM_Output_Compare_and_PWM_modes 中的取值 */
 
-  uint16_t TIM_OutputState;   /*!< Specifies the TIM Output Compare state.
-                                   This parameter can be a value of @ref TIM_Output_Compare_state */
+  uint16_t TIM_OutputState;   /*!< 指定 TIM 输出比较状态。
+                                   该参数可为 @ref TIM_Output_Compare_state 中的取值 */
 
-  uint16_t TIM_OutputNState;  /*!< Specifies the TIM complementary Output Compare state.
-                                   This parameter can be a value of @ref TIM_Output_Compare_N_state
-                                   @note This parameter is valid only for TIM1 and TIM8. */
+  uint16_t TIM_OutputNState;  /*!< 指定 TIM 互补输出比较状态。
+                                   该参数可为 @ref TIM_Output_Compare_N_state 中的取值
+                                   @note 该参数仅对 TIM1 和 TIM8 有效。 */
 
-  uint16_t TIM_Pulse;         /*!< Specifies the pulse value to be loaded into the Capture Compare Register. 
-                                   This parameter can be a number between 0x0000 and 0xFFFF */
+  uint16_t TIM_Pulse;         /*!< 指定要装入捕获比较寄存器的脉冲值。
+                                   该参数可为 0x0000 到 0xFFFF 之间的数字 */
 
-  uint16_t TIM_OCPolarity;    /*!< Specifies the output polarity.
-                                   This parameter can be a value of @ref TIM_Output_Compare_Polarity */
+  uint16_t TIM_OCPolarity;    /*!< 指定输出极性。
+                                   该参数可为 @ref TIM_Output_Compare_Polarity 中的取值 */
 
-  uint16_t TIM_OCNPolarity;   /*!< Specifies the complementary output polarity.
-                                   This parameter can be a value of @ref TIM_Output_Compare_N_Polarity
-                                   @note This parameter is valid only for TIM1 and TIM8. */
+  uint16_t TIM_OCNPolarity;   /*!< 指定互补输出极性。
+                                   该参数可为 @ref TIM_Output_Compare_N_Polarity 中的取值
+                                   @note 该参数仅对 TIM1 和 TIM8 有效。 */
 
-  uint16_t TIM_OCIdleState;   /*!< Specifies the TIM Output Compare pin state during Idle state.
-                                   This parameter can be a value of @ref TIM_Output_Compare_Idle_State
-                                   @note This parameter is valid only for TIM1 and TIM8. */
+  uint16_t TIM_OCIdleState;   /*!< 指定空闲状态下 TIM 输出比较引脚的状态。
+                                   该参数可为 @ref TIM_Output_Compare_Idle_State 中的取值
+                                   @note 该参数仅对 TIM1 和 TIM8 有效。 */
 
-  uint16_t TIM_OCNIdleState;  /*!< Specifies the TIM Output Compare pin state during Idle state.
-                                   This parameter can be a value of @ref TIM_Output_Compare_N_Idle_State
-                                   @note This parameter is valid only for TIM1 and TIM8. */
+  uint16_t TIM_OCNIdleState;  /*!< 指定空闲状态下 TIM 输出比较引脚的状态。
+                                   该参数可为 @ref TIM_Output_Compare_N_Idle_State 中的取值
+                                   @note 该参数仅对 TIM1 和 TIM8 有效。 */
 } TIM_OCInitTypeDef;
 
-/** 
-  * @brief  TIM Input Capture Init structure definition  
+/**
+  * @brief  TIM 输入捕获初始化结构体定义
   */
 
 typedef struct
 {
 
-  uint16_t TIM_Channel;      /*!< Specifies the TIM channel.
-                                  This parameter can be a value of @ref TIM_Channel */
+  uint16_t TIM_Channel;      /*!< 指定 TIM 通道。
+                                  该参数可为 @ref TIM_Channel 中的取值 */
 
-  uint16_t TIM_ICPolarity;   /*!< Specifies the active edge of the input signal.
-                                  This parameter can be a value of @ref TIM_Input_Capture_Polarity */
+  uint16_t TIM_ICPolarity;   /*!< 指定输入信号的有效边沿。
+                                  该参数可为 @ref TIM_Input_Capture_Polarity 中的取值 */
 
-  uint16_t TIM_ICSelection;  /*!< Specifies the input.
-                                  This parameter can be a value of @ref TIM_Input_Capture_Selection */
+  uint16_t TIM_ICSelection;  /*!< 指定输入。
+                                  该参数可为 @ref TIM_Input_Capture_Selection 中的取值 */
 
-  uint16_t TIM_ICPrescaler;  /*!< Specifies the Input Capture Prescaler.
-                                  This parameter can be a value of @ref TIM_Input_Capture_Prescaler */
+  uint16_t TIM_ICPrescaler;  /*!< 指定输入捕获预分频器。
+                                  该参数可为 @ref TIM_Input_Capture_Prescaler 中的取值 */
 
-  uint16_t TIM_ICFilter;     /*!< Specifies the input capture filter.
-                                  This parameter can be a number between 0x0 and 0xF */
+  uint16_t TIM_ICFilter;     /*!< 指定输入捕获滤波器。
+                                  该参数可为 0x0 到 0xF 之间的数字 */
 } TIM_ICInitTypeDef;
 
-/** 
-  * @brief  BDTR structure definition 
-  * @note   This structure is used only with TIM1 and TIM8.    
+/**
+  * @brief  BDTR 结构体定义
+  * @note   该结构体仅用于 TIM1 和 TIM8。
   */
 
 typedef struct
 {
 
-  uint16_t TIM_OSSRState;        /*!< Specifies the Off-State selection used in Run mode.
-                                      This parameter can be a value of @ref OSSR_Off_State_Selection_for_Run_mode_state */
+  uint16_t TIM_OSSRState;        /*!< 指定运行模式下使用的关断状态选择。
+                                      该参数可为 @ref OSSR_Off_State_Selection_for_Run_mode_state 中的取值 */
 
-  uint16_t TIM_OSSIState;        /*!< Specifies the Off-State used in Idle state.
-                                      This parameter can be a value of @ref OSSI_Off_State_Selection_for_Idle_mode_state */
+  uint16_t TIM_OSSIState;        /*!< 指定空闲状态下使用的关断状态。
+                                      该参数可为 @ref OSSI_Off_State_Selection_for_Idle_mode_state 中的取值 */
 
-  uint16_t TIM_LOCKLevel;        /*!< Specifies the LOCK level parameters.
-                                      This parameter can be a value of @ref Lock_level */ 
+  uint16_t TIM_LOCKLevel;        /*!< 指定 LOCK 级别参数。
+                                      该参数可为 @ref Lock_level 中的取值 */ 
 
-  uint16_t TIM_DeadTime;         /*!< Specifies the delay time between the switching-off and the
-                                      switching-on of the outputs.
-                                      This parameter can be a number between 0x00 and 0xFF  */
+  uint16_t TIM_DeadTime;         /*!< 指定输出关断与开启之间的死区延迟
+                                      时间。
+                                      该参数可为 0x00 到 0xFF 之间的数字  */
 
-  uint16_t TIM_Break;            /*!< Specifies whether the TIM Break input is enabled or not. 
-                                      This parameter can be a value of @ref Break_Input_enable_disable */
+  uint16_t TIM_Break;            /*!< 指定 TIM 刹车输入是否使能。
+                                      该参数可为 @ref Break_Input_enable_disable 中的取值 */
 
-  uint16_t TIM_BreakPolarity;    /*!< Specifies the TIM Break Input pin polarity.
-                                      This parameter can be a value of @ref Break_Polarity */
+  uint16_t TIM_BreakPolarity;    /*!< 指定 TIM 刹车输入引脚极性。
+                                      该参数可为 @ref Break_Polarity 中的取值 */
 
-  uint16_t TIM_AutomaticOutput;  /*!< Specifies whether the TIM Automatic Output feature is enabled or not. 
-                                      This parameter can be a value of @ref TIM_AOE_Bit_Set_Reset */
+  uint16_t TIM_AutomaticOutput;  /*!< 指定 TIM 自动输出功能是否使能。
+                                      该参数可为 @ref TIM_AOE_Bit_Set_Reset 中的取值 */
 } TIM_BDTRInitTypeDef;
 
-/** @defgroup TIM_Exported_constants 
+/** @defgroup TIM_Exported_constants  TIM 导出常量
   * @{
   */
 
@@ -184,18 +181,18 @@ typedef struct
                                    ((PERIPH) == TIM16)|| \
                                    ((PERIPH) == TIM17))
 
-/* LIST1: TIM 1 and 8 */
+/* LIST1: TIM 1 和 8 */
 #define IS_TIM_LIST1_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
                                       ((PERIPH) == TIM8))
 
-/* LIST2: TIM 1, 8, 15 16 and 17 */
+/* LIST2: TIM 1、8、15、16 和 17 */
 #define IS_TIM_LIST2_PERIPH(PERIPH) (((PERIPH) == TIM1) || \
                                      ((PERIPH) == TIM8) || \
                                      ((PERIPH) == TIM15)|| \
                                      ((PERIPH) == TIM16)|| \
                                      ((PERIPH) == TIM17)) 
 
-/* LIST3: TIM 1, 2, 3, 4, 5 and 8 */
+/* LIST3: TIM 1、2、3、4、5 和 8 */
 #define IS_TIM_LIST3_PERIPH(PERIPH) (((PERIPH) == TIM1) || \
                                      ((PERIPH) == TIM2) || \
                                      ((PERIPH) == TIM3) || \
@@ -203,7 +200,7 @@ typedef struct
                                      ((PERIPH) == TIM5) || \
                                      ((PERIPH) == TIM8)) 
 									                                 
-/* LIST4: TIM 1, 2, 3, 4, 5, 8, 15, 16 and 17 */
+/* LIST4: TIM 1、2、3、4、5、8、15、16 和 17 */
 #define IS_TIM_LIST4_PERIPH(PERIPH) (((PERIPH) == TIM1) || \
                                      ((PERIPH) == TIM2) || \
                                      ((PERIPH) == TIM3) || \
@@ -214,7 +211,7 @@ typedef struct
                                      ((PERIPH) == TIM16)|| \
                                      ((PERIPH) == TIM17))
 
-/* LIST5: TIM 1, 2, 3, 4, 5, 8 and 15 */                                            
+/* LIST5: TIM 1、2、3、4、5、8 和 15 */                                            
 #define IS_TIM_LIST5_PERIPH(PERIPH) (((PERIPH) == TIM1) || \
                                      ((PERIPH) == TIM2) || \
                                      ((PERIPH) == TIM3) || \
@@ -223,7 +220,7 @@ typedef struct
                                      ((PERIPH) == TIM8) || \
                                      ((PERIPH) == TIM15)) 
 
-/* LIST6: TIM 1, 2, 3, 4, 5, 8, 9, 12 and 15 */
+/* LIST6: TIM 1、2、3、4、5、8、9、12 和 15 */
 #define IS_TIM_LIST6_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
                                       ((PERIPH) == TIM2) || \
                                       ((PERIPH) == TIM3) || \
@@ -234,7 +231,7 @@ typedef struct
 									  ((PERIPH) == TIM12)|| \
                                       ((PERIPH) == TIM15))
 
-/* LIST7: TIM 1, 2, 3, 4, 5, 6, 7, 8, 9, 12 and 15 */
+/* LIST7: TIM 1、2、3、4、5、6、7、8、9、12 和 15 */
 #define IS_TIM_LIST7_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
                                       ((PERIPH) == TIM2) || \
                                       ((PERIPH) == TIM3) || \
@@ -247,7 +244,7 @@ typedef struct
                                       ((PERIPH) == TIM12)|| \
                                       ((PERIPH) == TIM15))                                    
 
-/* LIST8: TIM 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16 and 17 */                                        
+/* LIST8: TIM 1、2、3、4、5、8、9、10、11、12、13、14、15、16 和 17 */                                        
 #define IS_TIM_LIST8_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
                                       ((PERIPH) == TIM2) || \
                                       ((PERIPH) == TIM3) || \
@@ -264,7 +261,7 @@ typedef struct
                                       ((PERIPH) == TIM16)|| \
                                       ((PERIPH) == TIM17))
 
-/* LIST9: TIM 1, 2, 3, 4, 5, 6, 7, 8, 15, 16, and 17 */
+/* LIST9: TIM 1、2、3、4、5、6、7、8、15、16 和 17 */
 #define IS_TIM_LIST9_PERIPH(PERIPH)  (((PERIPH) == TIM1) || \
                                       ((PERIPH) == TIM2) || \
                                       ((PERIPH) == TIM3) || \
@@ -281,7 +278,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Output_Compare_and_PWM_modes 
+/** @defgroup TIM_Output_Compare_and_PWM_modes  TIM 输出比较与 PWM 模式
   * @{
   */
 
@@ -309,7 +306,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup TIM_One_Pulse_Mode 
+/** @defgroup TIM_One_Pulse_Mode  TIM 单脉冲模式
   * @{
   */
 
@@ -321,7 +318,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Channel 
+/** @defgroup TIM_Channel  TIM 通道
   * @{
   */
 
@@ -342,7 +339,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Clock_Division_CKD 
+/** @defgroup TIM_Clock_Division_CKD  TIM 时钟分频 CKD
   * @{
   */
 
@@ -356,7 +353,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup TIM_Counter_Mode 
+/** @defgroup TIM_Counter_Mode  TIM 计数器模式
   * @{
   */
 
@@ -374,7 +371,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Output_Compare_Polarity 
+/** @defgroup TIM_Output_Compare_Polarity  TIM 输出比较极性
   * @{
   */
 
@@ -386,7 +383,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup TIM_Output_Compare_N_Polarity 
+/** @defgroup TIM_Output_Compare_N_Polarity  TIM 互补输出比较极性
   * @{
   */
   
@@ -398,7 +395,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup TIM_Output_Compare_state 
+/** @defgroup TIM_Output_Compare_state  TIM 输出比较状态
   * @{
   */
 
@@ -410,7 +407,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Output_Compare_N_state 
+/** @defgroup TIM_Output_Compare_N_state  TIM 互补输出比较状态
   * @{
   */
 
@@ -422,7 +419,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Capture_Compare_state 
+/** @defgroup TIM_Capture_Compare_state  TIM 捕获比较状态
   * @{
   */
 
@@ -434,7 +431,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Capture_Compare_N_state 
+/** @defgroup TIM_Capture_Compare_N_state  TIM 互补捕获比较状态
   * @{
   */
 
@@ -446,7 +443,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup Break_Input_enable_disable 
+/** @defgroup Break_Input_enable_disable  刹车输入使能与关闭
   * @{
   */
 
@@ -458,7 +455,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup Break_Polarity 
+/** @defgroup Break_Polarity  刹车极性
   * @{
   */
 
@@ -470,7 +467,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_AOE_Bit_Set_Reset 
+/** @defgroup TIM_AOE_Bit_Set_Reset  TIM AOE 位置位与清零
   * @{
   */
 
@@ -482,7 +479,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup Lock_level 
+/** @defgroup Lock_level  锁定级别
   * @{
   */
 
@@ -498,7 +495,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup OSSI_Off_State_Selection_for_Idle_mode_state 
+/** @defgroup OSSI_Off_State_Selection_for_Idle_mode_state  空闲模式状态的 OSSI 关断状态选择
   * @{
   */
 
@@ -510,7 +507,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup OSSR_Off_State_Selection_for_Run_mode_state 
+/** @defgroup OSSR_Off_State_Selection_for_Run_mode_state  运行模式状态的 OSSR 关断状态选择
   * @{
   */
 
@@ -522,7 +519,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Output_Compare_Idle_State 
+/** @defgroup TIM_Output_Compare_Idle_State  TIM 输出比较空闲状态
   * @{
   */
 
@@ -534,7 +531,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Output_Compare_N_Idle_State 
+/** @defgroup TIM_Output_Compare_N_Idle_State  TIM 互补输出比较空闲状态
   * @{
   */
 
@@ -546,7 +543,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Input_Capture_Polarity 
+/** @defgroup TIM_Input_Capture_Polarity  TIM 输入捕获极性
   * @{
   */
 
@@ -562,15 +559,15 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Input_Capture_Selection 
+/** @defgroup TIM_Input_Capture_Selection  TIM 输入捕获选择
   * @{
   */
 
-#define TIM_ICSelection_DirectTI           ((uint16_t)0x0001) /*!< TIM Input 1, 2, 3 or 4 is selected to be 
-                                                                   connected to IC1, IC2, IC3 or IC4, respectively */
-#define TIM_ICSelection_IndirectTI         ((uint16_t)0x0002) /*!< TIM Input 1, 2, 3 or 4 is selected to be
-                                                                   connected to IC2, IC1, IC4 or IC3, respectively. */
-#define TIM_ICSelection_TRC                ((uint16_t)0x0003) /*!< TIM Input 1, 2, 3 or 4 is selected to be connected to TRC. */
+#define TIM_ICSelection_DirectTI           ((uint16_t)0x0001) /*!< 选择 TIM 输入 1、2、3 或 4 分别连接到
+                                                                   IC1、IC2、IC3 或 IC4 */
+#define TIM_ICSelection_IndirectTI         ((uint16_t)0x0002) /*!< 选择 TIM 输入 1、2、3 或 4 分别连接到
+                                                                   IC2、IC1、IC4 或 IC3。 */
+#define TIM_ICSelection_TRC                ((uint16_t)0x0003) /*!< 选择 TIM 输入 1、2、3 或 4 连接到 TRC。 */
 #define IS_TIM_IC_SELECTION(SELECTION) (((SELECTION) == TIM_ICSelection_DirectTI) || \
                                         ((SELECTION) == TIM_ICSelection_IndirectTI) || \
                                         ((SELECTION) == TIM_ICSelection_TRC))
@@ -578,14 +575,14 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Input_Capture_Prescaler 
+/** @defgroup TIM_Input_Capture_Prescaler  TIM 输入捕获预分频器
   * @{
   */
 
-#define TIM_ICPSC_DIV1                     ((uint16_t)0x0000) /*!< Capture performed each time an edge is detected on the capture input. */
-#define TIM_ICPSC_DIV2                     ((uint16_t)0x0004) /*!< Capture performed once every 2 events. */
-#define TIM_ICPSC_DIV4                     ((uint16_t)0x0008) /*!< Capture performed once every 4 events. */
-#define TIM_ICPSC_DIV8                     ((uint16_t)0x000C) /*!< Capture performed once every 8 events. */
+#define TIM_ICPSC_DIV1                     ((uint16_t)0x0000) /*!< 每次在捕获输入上检测到边沿时执行捕获。 */
+#define TIM_ICPSC_DIV2                     ((uint16_t)0x0004) /*!< 每 2 个事件执行一次捕获。 */
+#define TIM_ICPSC_DIV4                     ((uint16_t)0x0008) /*!< 每 4 个事件执行一次捕获。 */
+#define TIM_ICPSC_DIV8                     ((uint16_t)0x000C) /*!< 每 8 个事件执行一次捕获。 */
 #define IS_TIM_IC_PRESCALER(PRESCALER) (((PRESCALER) == TIM_ICPSC_DIV1) || \
                                         ((PRESCALER) == TIM_ICPSC_DIV2) || \
                                         ((PRESCALER) == TIM_ICPSC_DIV4) || \
@@ -594,7 +591,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_interrupt_sources 
+/** @defgroup TIM_interrupt_sources  TIM 中断源
   * @{
   */
 
@@ -620,7 +617,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_DMA_Base_address 
+/** @defgroup TIM_DMA_Base_address  TIM DMA 基地址
   * @{
   */
 
@@ -666,7 +663,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_DMA_Burst_Length 
+/** @defgroup TIM_DMA_Burst_Length  TIM DMA 突发长度
   * @{
   */
 
@@ -710,7 +707,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_DMA_sources 
+/** @defgroup TIM_DMA_sources  TIM DMA 源
   * @{
   */
 
@@ -727,7 +724,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_External_Trigger_Prescaler 
+/** @defgroup TIM_External_Trigger_Prescaler  TIM 外部触发预分频器
   * @{
   */
 
@@ -743,7 +740,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Internal_Trigger_Selection 
+/** @defgroup TIM_Internal_Trigger_Selection  TIM 内部触发选择
   * @{
   */
 
@@ -771,7 +768,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_TIx_External_Clock_Source 
+/** @defgroup TIM_TIx_External_Clock_Source  TIM TIx 外部时钟源
   * @{
   */
 
@@ -785,7 +782,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_External_Trigger_Polarity 
+/** @defgroup TIM_External_Trigger_Polarity  TIM 外部触发极性
   * @{
   */ 
 #define TIM_ExtTRGPolarity_Inverted        ((uint16_t)0x8000)
@@ -796,7 +793,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup TIM_Prescaler_Reload_Mode 
+/** @defgroup TIM_Prescaler_Reload_Mode  TIM 预分频器重装载模式
   * @{
   */
 
@@ -808,7 +805,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Forced_Action 
+/** @defgroup TIM_Forced_Action  TIM 强制动作
   * @{
   */
 
@@ -820,7 +817,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Encoder_Mode 
+/** @defgroup TIM_Encoder_Mode  TIM 编码器模式
   * @{
   */
 
@@ -835,7 +832,7 @@ typedef struct
   */ 
 
 
-/** @defgroup TIM_Event_Source 
+/** @defgroup TIM_Event_Source  TIM 事件源
   * @{
   */
 
@@ -853,21 +850,21 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Update_Source 
+/** @defgroup TIM_Update_Source  TIM 更新源
   * @{
   */
 
-#define TIM_UpdateSource_Global            ((uint16_t)0x0000) /*!< Source of update is the counter overflow/underflow
-                                                                   or the setting of UG bit, or an update generation
-                                                                   through the slave mode controller. */
-#define TIM_UpdateSource_Regular           ((uint16_t)0x0001) /*!< Source of update is counter overflow/underflow. */
+#define TIM_UpdateSource_Global            ((uint16_t)0x0000) /*!< 更新源为计数器上溢/下溢，
+                                                                   或者置位 UG 位，或者通过从模式控制器
+                                                                   产生更新。 */
+#define TIM_UpdateSource_Regular           ((uint16_t)0x0001) /*!< 更新源为计数器上溢/下溢。 */
 #define IS_TIM_UPDATE_SOURCE(SOURCE) (((SOURCE) == TIM_UpdateSource_Global) || \
                                       ((SOURCE) == TIM_UpdateSource_Regular))
 /**
   * @}
   */ 
 
-/** @defgroup TIM_Output_Compare_Preload_State 
+/** @defgroup TIM_Output_Compare_Preload_State  TIM 输出比较预装载状态
   * @{
   */
 
@@ -879,7 +876,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Output_Compare_Fast_State 
+/** @defgroup TIM_Output_Compare_Fast_State  TIM 输出比较快速状态
   * @{
   */
 
@@ -892,7 +889,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Output_Compare_Clear_State 
+/** @defgroup TIM_Output_Compare_Clear_State  TIM 输出比较清零状态
   * @{
   */
 
@@ -904,7 +901,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Trigger_Output_Source 
+/** @defgroup TIM_Trigger_Output_Source  TIM 触发输出源
   * @{
   */
 
@@ -928,7 +925,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Slave_Mode 
+/** @defgroup TIM_Slave_Mode  TIM 从模式
   * @{
   */
 
@@ -944,7 +941,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Master_Slave_Mode 
+/** @defgroup TIM_Master_Slave_Mode  TIM 主从模式
   * @{
   */
 
@@ -956,7 +953,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Flags 
+/** @defgroup TIM_Flags  TIM 标志
   * @{
   */
 
@@ -991,7 +988,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Input_Capture_Filer_Value 
+/** @defgroup TIM_Input_Capture_Filer_Value  TIM 输入捕获滤波器值
   * @{
   */
 
@@ -1000,7 +997,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_External_Trigger_Filter 
+/** @defgroup TIM_External_Trigger_Filter  TIM 外部触发滤波器
   * @{
   */
 
@@ -1009,7 +1006,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Legacy 
+/** @defgroup TIM_Legacy  TIM 旧版本兼容定义
   * @{
   */
 
@@ -1039,7 +1036,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup TIM_Exported_Macros
+/** @defgroup TIM_Exported_Macros  TIM 导出宏
   * @{
   */
 
@@ -1047,7 +1044,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup TIM_Exported_Functions
+/** @defgroup TIM_Exported_Functions  TIM 导出函数
   * @{
   */
 
@@ -1161,4 +1158,4 @@ void TIM_ClearITPendingBit(TIM_TypeDef* TIMx, uint16_t TIM_IT);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

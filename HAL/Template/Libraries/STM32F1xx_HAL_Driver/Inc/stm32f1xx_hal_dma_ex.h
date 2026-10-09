@@ -2,7 +2,7 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_dma_ex.h
   * @author  MCD Application Team
-  * @brief   Header file of DMA HAL extension module.
+  * @brief   DMA HAL 扩展模块头文件。
   ******************************************************************************
   * @attention
   *
@@ -16,7 +16,7 @@
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 防止递归包含的宏定义 ----------------------------------------------------*/
 #ifndef __STM32F1xx_HAL_DMA_EX_H
 #define __STM32F1xx_HAL_DMA_EX_H
 
@@ -24,7 +24,7 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 包含头文件 ----------------------------------------------------------------*/
 #include "stm32f1xx_hal_def.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -35,23 +35,23 @@
   * @{
   */
 
-/* Exported types ------------------------------------------------------------*/ 
-/* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-/** @defgroup DMAEx_Exported_Macros DMA Extended Exported Macros
+/* 导出的类型 ----------------------------------------------------------------*/ 
+/* 导出的常量 ----------------------------------------------------------------*/
+/* 导出的宏 ------------------------------------------------------------------*/
+/** @defgroup DMAEx_Exported_Macros DMA 扩展导出宏
   * @{
   */
-/* Interrupt & Flag management */
+/* 中断和标志管理 */
 #if defined (STM32F100xE) || defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || \
     defined (STM32F103xG) || defined (STM32F105xC) || defined (STM32F107xC)
-/** @defgroup DMAEx_High_density_XL_density_Product_devices DMAEx High density and XL density product devices
+/** @defgroup DMAEx_High_density_XL_density_Product_devices DMAEx 高容量和超高容量（XL）产品设备
   * @{
   */
 
 /**
-  * @brief  Returns the current DMA Channel transfer complete flag.
-  * @param  __HANDLE__: DMA handle
-  * @retval The specified transfer complete flag index.
+  * @brief  返回当前 DMA 通道传输完成标志。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 指定的传输完成标志索引。
   */
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_TC1 :\
@@ -68,9 +68,9 @@
    DMA_FLAG_TC5)
 
 /**
-  * @brief  Returns the current DMA Channel half transfer complete flag.
-  * @param  __HANDLE__: DMA handle
-  * @retval The specified half transfer complete flag index.
+  * @brief  返回当前 DMA 通道过半传输完成标志。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 指定的过半传输完成标志索引。
   */      
 #define __HAL_DMA_GET_HT_FLAG_INDEX(__HANDLE__)\
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_HT1 :\
@@ -87,9 +87,9 @@
    DMA_FLAG_HT5)
 
 /**
-  * @brief  Returns the current DMA Channel transfer error flag.
-  * @param  __HANDLE__: DMA handle
-  * @retval The specified transfer error flag index.
+  * @brief  返回当前 DMA 通道传输错误标志。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 指定的传输错误标志索引。
   */
 #define __HAL_DMA_GET_TE_FLAG_INDEX(__HANDLE__)\
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_TE1 :\
@@ -106,9 +106,9 @@
    DMA_FLAG_TE5)
 
 /**
-  * @brief  Return the current DMA Channel Global interrupt flag.
-  * @param  __HANDLE__: DMA handle
-  * @retval The specified transfer error flag index.
+  * @brief  返回当前 DMA 通道全局中断标志。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 指定的传输错误标志索引。
   */
 #define __HAL_DMA_GET_GI_FLAG_INDEX(__HANDLE__)\
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_GL1 :\
@@ -125,30 +125,30 @@
    DMA_FLAG_GL5)
    
 /**
-  * @brief  Get the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: Get the specified flag.
-  *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEx:  Transfer error flag
-  *         Where x can be 1_7 or 1_5 (depending on DMA1 or DMA2) to select the DMA Channel flag.   
-  * @retval The state of FLAG (SET or RESET).
+  * @brief  获取 DMA 通道挂起标志位。
+  * @param  __HANDLE__: DMA 句柄
+  * @param  __FLAG__: 获取指定的标志位。
+  *          该参数可以是以下值的任意组合：
+  *            @arg DMA_FLAG_TCx:  传输完成标志
+  *            @arg DMA_FLAG_HTx:  半传输完成标志
+  *            @arg DMA_FLAG_TEx:  传输错误标志
+  *         其中 x 可以是 1_7 或 1_5（取决于 DMA1 还是 DMA2）以选择对应的 DMA 通道标志位。   
+  * @retval FLAG 的状态（SET 或 RESET）。
   */
 #define __HAL_DMA_GET_FLAG(__HANDLE__, __FLAG__)\
 (((uint32_t)((__HANDLE__)->Instance) > (uint32_t)DMA1_Channel7)? (DMA2->ISR & (__FLAG__)) :\
   (DMA1->ISR & (__FLAG__)))
 
 /**
-  * @brief  Clears the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: specifies the flag to clear.
-  *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEx:  Transfer error flag
-  *         Where x can be 1_7 or 1_5 (depending on DMA1 or DMA2) to select the DMA Channel flag.   
-  * @retval None
+  * @brief  清除 DMA 通道挂起标志位。
+  * @param  __HANDLE__: DMA 句柄
+  * @param  __FLAG__: 指定要清除的标志位。
+  *          该参数可以是以下值的任意组合：
+  *            @arg DMA_FLAG_TCx:  传输完成标志
+  *            @arg DMA_FLAG_HTx:  半传输完成标志
+  *            @arg DMA_FLAG_TEx:  传输错误标志
+  *         其中 x 可以是 1_7 或 1_5（取决于 DMA1 还是 DMA2）以选择对应的 DMA 通道标志位。   
+  * @retval 无
   */
 #define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) \
 (((uint32_t)((__HANDLE__)->Instance) > (uint32_t)DMA1_Channel7)? (DMA2->IFCR = (__FLAG__)) :\
@@ -159,14 +159,14 @@
   */
 
 #else
-/** @defgroup DMA_Low_density_Medium_density_Product_devices DMA Low density and Medium density product devices
+/** @defgroup DMA_Low_density_Medium_density_Product_devices DMA 小容量和中容量产品设备
   * @{
   */
 
 /**
-  * @brief  Returns the current DMA Channel transfer complete flag.
-  * @param  __HANDLE__: DMA handle
-  * @retval The specified transfer complete flag index.
+  * @brief  返回当前 DMA 通道的传输完成标志位。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 指定的传输完成标志位索引。
   */
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_TC1 :\
@@ -178,9 +178,9 @@
    DMA_FLAG_TC7)
 
 /**
-  * @brief  Return the current DMA Channel half transfer complete flag.
-  * @param  __HANDLE__: DMA handle
-  * @retval The specified half transfer complete flag index.
+  * @brief  返回当前 DMA 通道的半传输完成标志位。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 指定的半传输完成标志位索引。
   */
 #define __HAL_DMA_GET_HT_FLAG_INDEX(__HANDLE__)\
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_HT1 :\
@@ -192,9 +192,9 @@
    DMA_FLAG_HT7)
 
 /**
-  * @brief  Return the current DMA Channel transfer error flag.
-  * @param  __HANDLE__: DMA handle
-  * @retval The specified transfer error flag index.
+  * @brief  返回当前 DMA 通道的传输错误标志位。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 指定的传输错误标志位索引。
   */
 #define __HAL_DMA_GET_TE_FLAG_INDEX(__HANDLE__)\
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_TE1 :\
@@ -206,9 +206,9 @@
    DMA_FLAG_TE7)
 
 /**
-  * @brief  Return the current DMA Channel Global interrupt flag.
-  * @param  __HANDLE__: DMA handle
-  * @retval The specified transfer error flag index.
+  * @brief  返回当前 DMA 通道的全局中断标志位。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 指定的传输错误标志位索引。
   */
 #define __HAL_DMA_GET_GI_FLAG_INDEX(__HANDLE__)\
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_GL1 :\
@@ -220,31 +220,31 @@
    DMA_FLAG_GL7)
 
 /**
-  * @brief  Get the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: Get the specified flag.
-  *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEx:  Transfer error flag
-  *            @arg DMA_FLAG_GLx:  Global interrupt flag
-  *         Where x can be 1_7 to select the DMA Channel flag.   
-  * @retval The state of FLAG (SET or RESET).
+  * @brief  获取 DMA 通道挂起标志位。
+  * @param  __HANDLE__: DMA 句柄
+  * @param  __FLAG__: 获取指定的标志位。
+  *          该参数可以是以下值的任意组合：
+  *            @arg DMA_FLAG_TCx:  传输完成标志
+  *            @arg DMA_FLAG_HTx:  半传输完成标志
+  *            @arg DMA_FLAG_TEx:  传输错误标志
+  *            @arg DMA_FLAG_GLx:  全局中断标志
+  *         其中 x 可以是 1_7 以选择对应的 DMA 通道标志位。   
+  * @retval FLAG 的状态（SET 或 RESET）。
   */
 
 #define __HAL_DMA_GET_FLAG(__HANDLE__, __FLAG__)   (DMA1->ISR & (__FLAG__))
 
 /**
-  * @brief  Clear the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: specifies the flag to clear.
-  *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEx:  Transfer error flag
-  *            @arg DMA_FLAG_GLx:  Global interrupt flag
-  *         Where x can be 1_7 to select the DMA Channel flag.   
-  * @retval None
+  * @brief  清除 DMA 通道挂起标志位。
+  * @param  __HANDLE__: DMA 句柄
+  * @param  __FLAG__: 指定要清除的标志位。
+  *          该参数可以是以下值的任意组合：
+  *            @arg DMA_FLAG_TCx:  传输完成标志
+  *            @arg DMA_FLAG_HTx:  半传输完成标志
+  *            @arg DMA_FLAG_TEx:  传输错误标志
+  *            @arg DMA_FLAG_GLx:  全局中断标志
+  *         其中 x 可以是 1_7 以选择对应的 DMA 通道标志位。   
+  * @retval 无
   */
 #define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) (DMA1->IFCR = (__FLAG__))
 

@@ -4,35 +4,32 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file provides all the CAN firmware functions.
+  * @brief   本文件提供全部 CAN 固件函数。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供参考，其目的在于为客户提供有关其产品的编码信息，以帮助客户节省时间。
+  * 因此，对于因本固件的内容和/或客户将其中所含编码信息用于其产品而产生的任何索赔
+  * 所造成的任何直接、间接或后果性损害，STMicroelectronics 概不承担任何责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x_can.h"
 #include "stm32f10x_rcc.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @defgroup CAN 
-  * @brief CAN driver modules
+/** @defgroup CAN   CAN 总线驱动
+  * @brief CAN 驱动模块
   * @{
   */ 
 
-/** @defgroup CAN_Private_TypesDefinitions
+/** @defgroup CAN_Private_TypesDefinitions   CAN 私有类型定义
   * @{
   */
 
@@ -40,39 +37,39 @@
   * @}
   */
 
-/** @defgroup CAN_Private_Defines
+/** @defgroup CAN_Private_Defines   CAN 私有宏定义
   * @{
   */
 
-/* CAN Master Control Register bits */
+/* CAN 主控制寄存器位 */
 
-#define MCR_DBF      ((uint32_t)0x00010000) /* software master reset */
+#define MCR_DBF      ((uint32_t)0x00010000) /* 软件主复位 */
 
-/* CAN Mailbox Transmit Request */
-#define TMIDxR_TXRQ  ((uint32_t)0x00000001) /* Transmit mailbox request */
+/* CAN 邮箱发送请求 */
+#define TMIDxR_TXRQ  ((uint32_t)0x00000001) /* 发送邮箱请求 */
 
-/* CAN Filter Master Register bits */
-#define FMR_FINIT    ((uint32_t)0x00000001) /* Filter init mode */
+/* CAN 过滤器主寄存器位 */
+#define FMR_FINIT    ((uint32_t)0x00000001) /* 过滤器初始化模式 */
 
-/* Time out for INAK bit */
+/* INAK 位的超时时间 */
 #define INAK_TIMEOUT        ((uint32_t)0x0000FFFF)
-/* Time out for SLAK bit */
+/* SLAK 位的超时时间 */
 #define SLAK_TIMEOUT        ((uint32_t)0x0000FFFF)
 
 
 
-/* Flags in TSR register */
+/* TSR 寄存器中的各标志 */
 #define CAN_FLAGS_TSR              ((uint32_t)0x08000000) 
-/* Flags in RF1R register */
+/* RF1R 寄存器中的各标志 */
 #define CAN_FLAGS_RF1R             ((uint32_t)0x04000000) 
-/* Flags in RF0R register */
+/* RF0R 寄存器中的各标志 */
 #define CAN_FLAGS_RF0R             ((uint32_t)0x02000000) 
-/* Flags in MSR register */
+/* MSR 寄存器中的各标志 */
 #define CAN_FLAGS_MSR              ((uint32_t)0x01000000) 
-/* Flags in ESR register */
+/* ESR 寄存器中的各标志 */
 #define CAN_FLAGS_ESR              ((uint32_t)0x00F00000) 
 
-/* Mailboxes definition */
+/* 邮箱定义 */
 #define CAN_TXMAILBOX_0                   ((uint8_t)0x00)
 #define CAN_TXMAILBOX_1                   ((uint8_t)0x01)
 #define CAN_TXMAILBOX_2                   ((uint8_t)0x02) 
@@ -84,7 +81,7 @@
   * @}
   */
 
-/** @defgroup CAN_Private_Macros
+/** @defgroup CAN_Private_Macros   CAN 私有宏
   * @{
   */
 
@@ -92,7 +89,7 @@
   * @}
   */
 
-/** @defgroup CAN_Private_Variables
+/** @defgroup CAN_Private_Variables   CAN 私有变量
   * @{
   */
 
@@ -100,7 +97,7 @@
   * @}
   */
 
-/** @defgroup CAN_Private_FunctionPrototypes
+/** @defgroup CAN_Private_FunctionPrototypes   CAN 私有函数原型
   * @{
   */
 
@@ -110,52 +107,49 @@ static ITStatus CheckITStatus(uint32_t CAN_Reg, uint32_t It_Bit);
   * @}
   */
 
-/** @defgroup CAN_Private_Functions
+/** @defgroup CAN_Private_Functions   CAN 私有函数
   * @{
   */
 
 /**
-  * @brief  Deinitializes the CAN peripheral registers to their default reset values.
-  * @param  CANx: where x can be 1 or 2 to select the CAN peripheral.
-  * @retval None.
+  * @brief  将 CAN 外设寄存器反初始化，恢复为默认复位值。
+  * @param  CANx: x 可取 1 或 2，用于选择 CAN 外设。
+  * @retval 无。
   */
 void CAN_DeInit(CAN_TypeDef* CANx)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
  
   if (CANx == CAN1)
   {
-    /* Enable CAN1 reset state */
+    /* 使 CAN1 进入复位状态 */
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_CAN1, ENABLE);
-    /* Release CAN1 from reset state */
+    /* 将 CAN1 从复位状态释放 */
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_CAN1, DISABLE);
   }
   else
   {  
-    /* Enable CAN2 reset state */
+    /* 使 CAN2 进入复位状态 */
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_CAN2, ENABLE);
-    /* Release CAN2 from reset state */
+    /* 将 CAN2 从复位状态释放 */
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_CAN2, DISABLE);
   }
 }
 
 /**
-  * @brief  Initializes the CAN peripheral according to the specified
-  *         parameters in the CAN_InitStruct.
-  * @param  CANx:           where x can be 1 or 2 to to select the CAN 
-  *                         peripheral.
-  * @param  CAN_InitStruct: pointer to a CAN_InitTypeDef structure that
-  *                         contains the configuration information for the 
-  *                         CAN peripheral.
-  * @retval Constant indicates initialization succeed which will be 
-  *         CAN_InitStatus_Failed or CAN_InitStatus_Success.
+  * @brief  根据 CAN_InitStruct 中指定的参数初始化 CAN 外设。
+  * @param  CANx:           x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  CAN_InitStruct: 指向 CAN_InitTypeDef 结构体的指针，
+  *                         该结构体包含 CAN 外设的配置信息。
+  * @retval 该常量指示初始化是否成功，取值可为
+  *         CAN_InitStatus_Failed 或 CAN_InitStatus_Success。
   */
 uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
 {
   uint8_t InitStatus = CAN_InitStatus_Failed;
   uint32_t wait_ack = 0x00000000;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_FUNCTIONAL_STATE(CAN_InitStruct->CAN_TTCM));
   assert_param(IS_FUNCTIONAL_STATE(CAN_InitStruct->CAN_ABOM));
@@ -169,26 +163,26 @@ uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
   assert_param(IS_CAN_BS2(CAN_InitStruct->CAN_BS2));
   assert_param(IS_CAN_PRESCALER(CAN_InitStruct->CAN_Prescaler));
 
-  /* Exit from sleep mode */
+  /* 退出睡眠模式 */
   CANx->MCR &= (~(uint32_t)CAN_MCR_SLEEP);
 
-  /* Request initialisation */
+  /* 请求进入初始化模式 */
   CANx->MCR |= CAN_MCR_INRQ ;
 
-  /* Wait the acknowledge */
+  /* 等待应答 */
   while (((CANx->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) && (wait_ack != INAK_TIMEOUT))
   {
     wait_ack++;
   }
 
-  /* Check acknowledge */
+  /* 检查应答 */
   if ((CANx->MSR & CAN_MSR_INAK) != CAN_MSR_INAK)
   {
     InitStatus = CAN_InitStatus_Failed;
   }
   else 
   {
-    /* Set the time triggered communication mode */
+    /* 设置时间触发通信模式 */
     if (CAN_InitStruct->CAN_TTCM == ENABLE)
     {
       CANx->MCR |= CAN_MCR_TTCM;
@@ -198,7 +192,7 @@ uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
       CANx->MCR &= ~(uint32_t)CAN_MCR_TTCM;
     }
 
-    /* Set the automatic bus-off management */
+    /* 设置自动总线关闭管理 */
     if (CAN_InitStruct->CAN_ABOM == ENABLE)
     {
       CANx->MCR |= CAN_MCR_ABOM;
@@ -208,7 +202,7 @@ uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
       CANx->MCR &= ~(uint32_t)CAN_MCR_ABOM;
     }
 
-    /* Set the automatic wake-up mode */
+    /* 设置自动唤醒模式 */
     if (CAN_InitStruct->CAN_AWUM == ENABLE)
     {
       CANx->MCR |= CAN_MCR_AWUM;
@@ -218,7 +212,7 @@ uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
       CANx->MCR &= ~(uint32_t)CAN_MCR_AWUM;
     }
 
-    /* Set the no automatic retransmission */
+    /* 设置禁止自动重传 */
     if (CAN_InitStruct->CAN_NART == ENABLE)
     {
       CANx->MCR |= CAN_MCR_NART;
@@ -228,7 +222,7 @@ uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
       CANx->MCR &= ~(uint32_t)CAN_MCR_NART;
     }
 
-    /* Set the receive FIFO locked mode */
+    /* 设置接收 FIFO 锁定模式 */
     if (CAN_InitStruct->CAN_RFLM == ENABLE)
     {
       CANx->MCR |= CAN_MCR_RFLM;
@@ -238,7 +232,7 @@ uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
       CANx->MCR &= ~(uint32_t)CAN_MCR_RFLM;
     }
 
-    /* Set the transmit FIFO priority */
+    /* 设置发送 FIFO 优先级 */
     if (CAN_InitStruct->CAN_TXFP == ENABLE)
     {
       CANx->MCR |= CAN_MCR_TXFP;
@@ -248,17 +242,17 @@ uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
       CANx->MCR &= ~(uint32_t)CAN_MCR_TXFP;
     }
 
-    /* Set the bit timing register */
+    /* 设置位时序寄存器 */
     CANx->BTR = (uint32_t)((uint32_t)CAN_InitStruct->CAN_Mode << 30) | \
                 ((uint32_t)CAN_InitStruct->CAN_SJW << 24) | \
                 ((uint32_t)CAN_InitStruct->CAN_BS1 << 16) | \
                 ((uint32_t)CAN_InitStruct->CAN_BS2 << 20) | \
                ((uint32_t)CAN_InitStruct->CAN_Prescaler - 1);
 
-    /* Request leave initialisation */
+    /* 请求退出初始化模式 */
     CANx->MCR &= ~(uint32_t)CAN_MCR_INRQ;
 
-   /* Wait the acknowledge */
+   /* 等待应答 */
    wait_ack = 0;
 
    while (((CANx->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) && (wait_ack != INAK_TIMEOUT))
@@ -266,7 +260,7 @@ uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
      wait_ack++;
    }
 
-    /* ...and check acknowledged */
+    /* ...并检查是否已应答 */
     if ((CANx->MSR & CAN_MSR_INAK) == CAN_MSR_INAK)
     {
       InitStatus = CAN_InitStatus_Failed;
@@ -277,22 +271,20 @@ uint8_t CAN_Init(CAN_TypeDef* CANx, CAN_InitTypeDef* CAN_InitStruct)
     }
   }
 
-  /* At this step, return the status of initialization */
+  /* 到此步，返回初始化状态 */
   return InitStatus;
 }
 
 /**
-  * @brief  Initializes the CAN peripheral according to the specified
-  *         parameters in the CAN_FilterInitStruct.
-  * @param  CAN_FilterInitStruct: pointer to a CAN_FilterInitTypeDef
-  *                               structure that contains the configuration 
-  *                               information.
-  * @retval None.
+  * @brief  根据 CAN_FilterInitStruct 中指定的参数初始化 CAN 外设。
+  * @param  CAN_FilterInitStruct: 指向 CAN_FilterInitTypeDef
+  *                               结构体的指针，该结构体包含配置信息。
+  * @retval 无。
   */
 void CAN_FilterInit(CAN_FilterInitTypeDef* CAN_FilterInitStruct)
 {
   uint32_t filter_number_bit_pos = 0;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_FILTER_NUMBER(CAN_FilterInitStruct->CAN_FilterNumber));
   assert_param(IS_CAN_FILTER_MODE(CAN_FilterInitStruct->CAN_FilterMode));
   assert_param(IS_CAN_FILTER_SCALE(CAN_FilterInitStruct->CAN_FilterScale));
@@ -301,26 +293,26 @@ void CAN_FilterInit(CAN_FilterInitTypeDef* CAN_FilterInitStruct)
 
   filter_number_bit_pos = ((uint32_t)1) << CAN_FilterInitStruct->CAN_FilterNumber;
 
-  /* Initialisation mode for the filter */
+  /* 过滤器的初始化模式 */
   CAN1->FMR |= FMR_FINIT;
 
-  /* Filter Deactivation */
+  /* 关闭过滤器 */
   CAN1->FA1R &= ~(uint32_t)filter_number_bit_pos;
 
-  /* Filter Scale */
+  /* 过滤器位宽 */
   if (CAN_FilterInitStruct->CAN_FilterScale == CAN_FilterScale_16bit)
   {
-    /* 16-bit scale for the filter */
+    /* 过滤器位宽为 16 位 */
     CAN1->FS1R &= ~(uint32_t)filter_number_bit_pos;
 
-    /* First 16-bit identifier and First 16-bit mask */
-    /* Or First 16-bit identifier and Second 16-bit identifier */
+    /* 第一个 16 位标识符与第一个 16 位掩码 */
+    /* 或者第一个 16 位标识符与第二个 16 位标识符 */
     CAN1->sFilterRegister[CAN_FilterInitStruct->CAN_FilterNumber].FR1 = 
     ((0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdLow) << 16) |
         (0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdLow);
 
-    /* Second 16-bit identifier and Second 16-bit mask */
-    /* Or Third 16-bit identifier and Fourth 16-bit identifier */
+    /* 第二个 16 位标识符与第二个 16 位掩码 */
+    /* 或者第三个 16 位标识符与第四个 16 位标识符 */
     CAN1->sFilterRegister[CAN_FilterInitStruct->CAN_FilterNumber].FR2 = 
     ((0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdHigh) << 16) |
         (0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdHigh);
@@ -328,200 +320,197 @@ void CAN_FilterInit(CAN_FilterInitTypeDef* CAN_FilterInitStruct)
 
   if (CAN_FilterInitStruct->CAN_FilterScale == CAN_FilterScale_32bit)
   {
-    /* 32-bit scale for the filter */
+    /* 过滤器位宽为 32 位 */
     CAN1->FS1R |= filter_number_bit_pos;
-    /* 32-bit identifier or First 32-bit identifier */
+    /* 32 位标识符，或第一个 32 位标识符 */
     CAN1->sFilterRegister[CAN_FilterInitStruct->CAN_FilterNumber].FR1 = 
     ((0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdHigh) << 16) |
         (0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdLow);
-    /* 32-bit mask or Second 32-bit identifier */
+    /* 32 位掩码，或第二个 32 位标识符 */
     CAN1->sFilterRegister[CAN_FilterInitStruct->CAN_FilterNumber].FR2 = 
     ((0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdHigh) << 16) |
         (0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdLow);
   }
 
-  /* Filter Mode */
+  /* 过滤器模式 */
   if (CAN_FilterInitStruct->CAN_FilterMode == CAN_FilterMode_IdMask)
   {
-    /*Id/Mask mode for the filter*/
+    /* 过滤器的标识符/掩码模式 */
     CAN1->FM1R &= ~(uint32_t)filter_number_bit_pos;
   }
   else /* CAN_FilterInitStruct->CAN_FilterMode == CAN_FilterMode_IdList */
   {
-    /*Identifier list mode for the filter*/
+    /* 过滤器的标识符列表模式 */
     CAN1->FM1R |= (uint32_t)filter_number_bit_pos;
   }
 
-  /* Filter FIFO assignment */
+  /* 过滤器 FIFO 分配 */
   if (CAN_FilterInitStruct->CAN_FilterFIFOAssignment == CAN_Filter_FIFO0)
   {
-    /* FIFO 0 assignation for the filter */
+    /* 将过滤器分配到 FIFO 0 */
     CAN1->FFA1R &= ~(uint32_t)filter_number_bit_pos;
   }
 
   if (CAN_FilterInitStruct->CAN_FilterFIFOAssignment == CAN_Filter_FIFO1)
   {
-    /* FIFO 1 assignation for the filter */
+    /* 将过滤器分配到 FIFO 1 */
     CAN1->FFA1R |= (uint32_t)filter_number_bit_pos;
   }
   
-  /* Filter activation */
+  /* 激活过滤器 */
   if (CAN_FilterInitStruct->CAN_FilterActivation == ENABLE)
   {
     CAN1->FA1R |= filter_number_bit_pos;
   }
 
-  /* Leave the initialisation mode for the filter */
+  /* 退出过滤器的初始化模式 */
   CAN1->FMR &= ~FMR_FINIT;
 }
 
 /**
-  * @brief  Fills each CAN_InitStruct member with its default value.
-  * @param  CAN_InitStruct: pointer to a CAN_InitTypeDef structure which
-  *                         will be initialized.
-  * @retval None.
+  * @brief  将 CAN_InitStruct 的每个成员填充为默认值。
+  * @param  CAN_InitStruct: 指向待初始化的 CAN_InitTypeDef 结构体的指针。
+  * @retval 无。
   */
 void CAN_StructInit(CAN_InitTypeDef* CAN_InitStruct)
 {
-  /* Reset CAN init structure parameters values */
+  /* 复位 CAN 初始化结构体各成员的值 */
   
-  /* Initialize the time triggered communication mode */
+  /* 初始化时间触发通信模式 */
   CAN_InitStruct->CAN_TTCM = DISABLE;
   
-  /* Initialize the automatic bus-off management */
+  /* 初始化自动总线关闭管理 */
   CAN_InitStruct->CAN_ABOM = DISABLE;
   
-  /* Initialize the automatic wake-up mode */
+  /* 初始化自动唤醒模式 */
   CAN_InitStruct->CAN_AWUM = DISABLE;
   
-  /* Initialize the no automatic retransmission */
+  /* 初始化禁止自动重传 */
   CAN_InitStruct->CAN_NART = DISABLE;
   
-  /* Initialize the receive FIFO locked mode */
+  /* 初始化接收 FIFO 锁定模式 */
   CAN_InitStruct->CAN_RFLM = DISABLE;
   
-  /* Initialize the transmit FIFO priority */
+  /* 初始化发送 FIFO 优先级 */
   CAN_InitStruct->CAN_TXFP = DISABLE;
   
-  /* Initialize the CAN_Mode member */
+  /* 初始化 CAN_Mode 成员 */
   CAN_InitStruct->CAN_Mode = CAN_Mode_Normal;
   
-  /* Initialize the CAN_SJW member */
+  /* 初始化 CAN_SJW 成员 */
   CAN_InitStruct->CAN_SJW = CAN_SJW_1tq;
   
-  /* Initialize the CAN_BS1 member */
+  /* 初始化 CAN_BS1 成员 */
   CAN_InitStruct->CAN_BS1 = CAN_BS1_4tq;
   
-  /* Initialize the CAN_BS2 member */
+  /* 初始化 CAN_BS2 成员 */
   CAN_InitStruct->CAN_BS2 = CAN_BS2_3tq;
   
-  /* Initialize the CAN_Prescaler member */
+  /* 初始化 CAN_Prescaler 成员 */
   CAN_InitStruct->CAN_Prescaler = 1;
 }
 
 /**
-  * @brief  Select the start bank filter for slave CAN.
-  * @note   This function applies only to STM32 Connectivity line devices.
-  * @param  CAN_BankNumber: Select the start slave bank filter from 1..27.
-  * @retval None.
+  * @brief  选择从 CAN 的起始过滤器组。
+  * @note   本函数仅适用于 STM32 互联型（Connectivity line）器件。
+  * @param  CAN_BankNumber: 从 1..27 中选择起始的从过滤器组。
+  * @retval 无。
   */
 void CAN_SlaveStartBank(uint8_t CAN_BankNumber) 
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_BANKNUMBER(CAN_BankNumber));
   
-  /* Enter Initialisation mode for the filter */
+  /* 进入过滤器的初始化模式 */
   CAN1->FMR |= FMR_FINIT;
   
-  /* Select the start slave bank */
+  /* 选择起始从过滤器组 */
   CAN1->FMR &= (uint32_t)0xFFFFC0F1 ;
   CAN1->FMR |= (uint32_t)(CAN_BankNumber)<<8;
   
-  /* Leave Initialisation mode for the filter */
+  /* 退出过滤器的初始化模式 */
   CAN1->FMR &= ~FMR_FINIT;
 }
 
 /**
-  * @brief  Enables or disables the DBG Freeze for CAN.
-  * @param  CANx:     where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  NewState: new state of the CAN peripheral. This parameter can 
-  *                   be: ENABLE or DISABLE.
-  * @retval None.
+  * @brief  使能或关闭 CAN 的调试冻结（DBG Freeze）。
+  * @param  CANx:     x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  NewState: CAN 外设的新状态。该参数可取：
+  *                   ENABLE 或 DISABLE。
+  * @retval 无。
   */
 void CAN_DBGFreeze(CAN_TypeDef* CANx, FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   
   if (NewState != DISABLE)
   {
-    /* Enable Debug Freeze  */
+    /* 使能调试冻结 */
     CANx->MCR |= MCR_DBF;
   }
   else
   {
-    /* Disable Debug Freeze */
+    /* 关闭调试冻结 */
     CANx->MCR &= ~MCR_DBF;
   }
 }
 
 
 /**
-  * @brief  Enables or disabes the CAN Time TriggerOperation communication mode.
-  * @param  CANx:      where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  NewState : Mode new state , can be one of @ref FunctionalState.
-  * @note   when enabled, Time stamp (TIME[15:0]) value is sent in the last 
-  *         two data bytes of the 8-byte message: TIME[7:0] in data byte 6 
-  *         and TIME[15:8] in data byte 7 
-  * @note   DLC must be programmed as 8 in order Time Stamp (2 bytes) to be 
-  *         sent over the CAN bus.  
-  * @retval None
+  * @brief  使能或关闭 CAN 的时间触发通信模式。
+  * @param  CANx:      x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  NewState : 模式的新状态，可取 @ref FunctionalState 之一。
+  * @note   使能后，时间戳（TIME[15:0]）值将随 8 字节报文的最后两个数据字节一起发送：
+  *         TIME[7:0] 位于数据字节 6，TIME[15:8] 位于数据字节 7。
+  * @note   为使时间戳（2 字节）能通过 CAN 总线发送，DLC 必须配置为 8。
+  * @retval 无
   */
 void CAN_TTComModeCmd(CAN_TypeDef* CANx, FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
   if (NewState != DISABLE)
   {
-    /* Enable the TTCM mode */
+    /* 使能 TTCM 模式 */
     CANx->MCR |= CAN_MCR_TTCM;
 
-    /* Set TGT bits */
+    /* 设置 TGT 位 */
     CANx->sTxMailBox[0].TDTR |= ((uint32_t)CAN_TDT0R_TGT);
     CANx->sTxMailBox[1].TDTR |= ((uint32_t)CAN_TDT1R_TGT);
     CANx->sTxMailBox[2].TDTR |= ((uint32_t)CAN_TDT2R_TGT);
   }
   else
   {
-    /* Disable the TTCM mode */
+    /* 关闭 TTCM 模式 */
     CANx->MCR &= (uint32_t)(~(uint32_t)CAN_MCR_TTCM);
 
-    /* Reset TGT bits */
+    /* 复位 TGT 位 */
     CANx->sTxMailBox[0].TDTR &= ((uint32_t)~CAN_TDT0R_TGT);
     CANx->sTxMailBox[1].TDTR &= ((uint32_t)~CAN_TDT1R_TGT);
     CANx->sTxMailBox[2].TDTR &= ((uint32_t)~CAN_TDT2R_TGT);
   }
 }
 /**
-  * @brief  Initiates the transmission of a message.
-  * @param  CANx:      where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  TxMessage: pointer to a structure which contains CAN Id, CAN
-  *                    DLC and CAN data.
-  * @retval The number of the mailbox that is used for transmission
-  *                    or CAN_TxStatus_NoMailBox if there is no empty mailbox.
+  * @brief  启动一条报文的发送。
+  * @param  CANx:      x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  TxMessage: 指向一个结构体的指针，该结构体包含 CAN 标识符、
+  *                    CAN DLC 与 CAN 数据。
+  * @retval 用于发送的邮箱编号；
+  *                    若无空闲邮箱则为 CAN_TxStatus_NoMailBox。
   */
 uint8_t CAN_Transmit(CAN_TypeDef* CANx, CanTxMsg* TxMessage)
 {
   uint8_t transmit_mailbox = 0;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_IDTYPE(TxMessage->IDE));
   assert_param(IS_CAN_RTR(TxMessage->RTR));
   assert_param(IS_CAN_DLC(TxMessage->DLC));
 
-  /* Select one empty transmit mailbox */
+  /* 选择一个空闲的发送邮箱 */
   if ((CANx->TSR&CAN_TSR_TME0) == CAN_TSR_TME0)
   {
     transmit_mailbox = 0;
@@ -541,7 +530,7 @@ uint8_t CAN_Transmit(CAN_TypeDef* CANx, CanTxMsg* TxMessage)
 
   if (transmit_mailbox != CAN_TxStatus_NoMailBox)
   {
-    /* Set up the Id */
+    /* 设置标识符 */
     CANx->sTxMailBox[transmit_mailbox].TIR &= TMIDxR_TXRQ;
     if (TxMessage->IDE == CAN_Id_Standard)
     {
@@ -557,12 +546,12 @@ uint8_t CAN_Transmit(CAN_TypeDef* CANx, CanTxMsg* TxMessage)
                                                   TxMessage->RTR);
     }
     
-    /* Set up the DLC */
+    /* 设置 DLC */
     TxMessage->DLC &= (uint8_t)0x0000000F;
     CANx->sTxMailBox[transmit_mailbox].TDTR &= (uint32_t)0xFFFFFFF0;
     CANx->sTxMailBox[transmit_mailbox].TDTR |= TxMessage->DLC;
 
-    /* Set up the data field */
+    /* 设置数据域 */
     CANx->sTxMailBox[transmit_mailbox].TDLR = (((uint32_t)TxMessage->Data[3] << 24) | 
                                              ((uint32_t)TxMessage->Data[2] << 16) |
                                              ((uint32_t)TxMessage->Data[1] << 8) | 
@@ -571,26 +560,24 @@ uint8_t CAN_Transmit(CAN_TypeDef* CANx, CanTxMsg* TxMessage)
                                              ((uint32_t)TxMessage->Data[6] << 16) |
                                              ((uint32_t)TxMessage->Data[5] << 8) |
                                              ((uint32_t)TxMessage->Data[4]));
-    /* Request transmission */
+    /* 请求发送 */
     CANx->sTxMailBox[transmit_mailbox].TIR |= TMIDxR_TXRQ;
   }
   return transmit_mailbox;
 }
 
 /**
-  * @brief  Checks the transmission of a message.
-  * @param  CANx:            where x can be 1 or 2 to to select the 
-  *                          CAN peripheral.
-  * @param  TransmitMailbox: the number of the mailbox that is used for 
-  *                          transmission.
-  * @retval CAN_TxStatus_Ok if the CAN driver transmits the message, CAN_TxStatus_Failed 
-  *         in an other case.
+  * @brief  检查一条报文的发送情况。
+  * @param  CANx:            x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  TransmitMailbox: 用于发送的邮箱编号。
+  * @retval 若 CAN 驱动成功发送该报文则为 CAN_TxStatus_Ok，
+  *         否则为 CAN_TxStatus_Failed。
   */
 uint8_t CAN_TransmitStatus(CAN_TypeDef* CANx, uint8_t TransmitMailbox)
 {
   uint32_t state = 0;
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_TRANSMITMAILBOX(TransmitMailbox));
  
@@ -611,17 +598,17 @@ uint8_t CAN_TransmitStatus(CAN_TypeDef* CANx, uint8_t TransmitMailbox)
   }
   switch (state)
   {
-      /* transmit pending  */
+      /* 发送挂起 */
     case (0x0): state = CAN_TxStatus_Pending;
       break;
-      /* transmit failed  */
+      /* 发送失败 */
      case (CAN_TSR_RQCP0 | CAN_TSR_TME0): state = CAN_TxStatus_Failed;
       break;
      case (CAN_TSR_RQCP1 | CAN_TSR_TME1): state = CAN_TxStatus_Failed;
       break;
      case (CAN_TSR_RQCP2 | CAN_TSR_TME2): state = CAN_TxStatus_Failed;
       break;
-      /* transmit succeeded  */
+      /* 发送成功 */
     case (CAN_TSR_RQCP0 | CAN_TSR_TXOK0 | CAN_TSR_TME0):state = CAN_TxStatus_Ok;
       break;
     case (CAN_TSR_RQCP1 | CAN_TSR_TXOK1 | CAN_TSR_TME1):state = CAN_TxStatus_Ok;
@@ -635,17 +622,17 @@ uint8_t CAN_TransmitStatus(CAN_TypeDef* CANx, uint8_t TransmitMailbox)
 }
 
 /**
-  * @brief  Cancels a transmit request.
-  * @param  CANx:     where x can be 1 or 2 to to select the CAN peripheral. 
-  * @param  Mailbox:  Mailbox number.
-  * @retval None.
+  * @brief  取消一次发送请求。
+  * @param  CANx:     x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  Mailbox:  邮箱编号。
+  * @retval 无。
   */
 void CAN_CancelTransmit(CAN_TypeDef* CANx, uint8_t Mailbox)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_TRANSMITMAILBOX(Mailbox));
-  /* abort transmission */
+  /* 中止发送 */
   switch (Mailbox)
   {
     case (CAN_TXMAILBOX_0): CANx->TSR |= CAN_TSR_ABRQ0;
@@ -661,19 +648,19 @@ void CAN_CancelTransmit(CAN_TypeDef* CANx, uint8_t Mailbox)
 
 
 /**
-  * @brief  Receives a message.
-  * @param  CANx:       where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  FIFONumber: Receive FIFO number, CAN_FIFO0 or CAN_FIFO1.
-  * @param  RxMessage:  pointer to a structure receive message which contains 
-  *                     CAN Id, CAN DLC, CAN datas and FMI number.
-  * @retval None.
+  * @brief  接收一条报文。
+  * @param  CANx:       x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  FIFONumber: 接收 FIFO 编号，CAN_FIFO0 或 CAN_FIFO1。
+  * @param  RxMessage:  指向接收报文结构体的指针，该结构体包含
+  *                     CAN 标识符、CAN DLC、CAN 数据与 FMI 编号。
+  * @retval 无。
   */
 void CAN_Receive(CAN_TypeDef* CANx, uint8_t FIFONumber, CanRxMsg* RxMessage)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_FIFO(FIFONumber));
-  /* Get the Id */
+  /* 获取标识符 */
   RxMessage->IDE = (uint8_t)0x04 & CANx->sFIFOMailBox[FIFONumber].RIR;
   if (RxMessage->IDE == CAN_Id_Standard)
   {
@@ -685,11 +672,11 @@ void CAN_Receive(CAN_TypeDef* CANx, uint8_t FIFONumber, CanRxMsg* RxMessage)
   }
   
   RxMessage->RTR = (uint8_t)0x02 & CANx->sFIFOMailBox[FIFONumber].RIR;
-  /* Get the DLC */
+  /* 获取 DLC */
   RxMessage->DLC = (uint8_t)0x0F & CANx->sFIFOMailBox[FIFONumber].RDTR;
-  /* Get the FMI */
+  /* 获取 FMI */
   RxMessage->FMI = (uint8_t)0xFF & (CANx->sFIFOMailBox[FIFONumber].RDTR >> 8);
-  /* Get the data field */
+  /* 获取数据域 */
   RxMessage->Data[0] = (uint8_t)0xFF & CANx->sFIFOMailBox[FIFONumber].RDLR;
   RxMessage->Data[1] = (uint8_t)0xFF & (CANx->sFIFOMailBox[FIFONumber].RDLR >> 8);
   RxMessage->Data[2] = (uint8_t)0xFF & (CANx->sFIFOMailBox[FIFONumber].RDLR >> 16);
@@ -698,13 +685,13 @@ void CAN_Receive(CAN_TypeDef* CANx, uint8_t FIFONumber, CanRxMsg* RxMessage)
   RxMessage->Data[5] = (uint8_t)0xFF & (CANx->sFIFOMailBox[FIFONumber].RDHR >> 8);
   RxMessage->Data[6] = (uint8_t)0xFF & (CANx->sFIFOMailBox[FIFONumber].RDHR >> 16);
   RxMessage->Data[7] = (uint8_t)0xFF & (CANx->sFIFOMailBox[FIFONumber].RDHR >> 24);
-  /* Release the FIFO */
-  /* Release FIFO0 */
+  /* 释放 FIFO */
+  /* 释放 FIFO0 */
   if (FIFONumber == CAN_FIFO0)
   {
     CANx->RF0R |= CAN_RF0R_RFOM0;
   }
-  /* Release FIFO1 */
+  /* 释放 FIFO1 */
   else /* FIFONumber == CAN_FIFO1 */
   {
     CANx->RF1R |= CAN_RF1R_RFOM1;
@@ -712,22 +699,22 @@ void CAN_Receive(CAN_TypeDef* CANx, uint8_t FIFONumber, CanRxMsg* RxMessage)
 }
 
 /**
-  * @brief  Releases the specified FIFO.
-  * @param  CANx:       where x can be 1 or 2 to to select the CAN peripheral. 
-  * @param  FIFONumber: FIFO to release, CAN_FIFO0 or CAN_FIFO1.
-  * @retval None.
+  * @brief  释放指定的 FIFO。
+  * @param  CANx:       x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  FIFONumber: 要释放的 FIFO，CAN_FIFO0 或 CAN_FIFO1。
+  * @retval 无。
   */
 void CAN_FIFORelease(CAN_TypeDef* CANx, uint8_t FIFONumber)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_FIFO(FIFONumber));
-  /* Release FIFO0 */
+  /* 释放 FIFO0 */
   if (FIFONumber == CAN_FIFO0)
   {
     CANx->RF0R |= CAN_RF0R_RFOM0;
   }
-  /* Release FIFO1 */
+  /* 释放 FIFO1 */
   else /* FIFONumber == CAN_FIFO1 */
   {
     CANx->RF1R |= CAN_RF1R_RFOM1;
@@ -735,15 +722,15 @@ void CAN_FIFORelease(CAN_TypeDef* CANx, uint8_t FIFONumber)
 }
 
 /**
-  * @brief  Returns the number of pending messages.
-  * @param  CANx:       where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  FIFONumber: Receive FIFO number, CAN_FIFO0 or CAN_FIFO1.
-  * @retval NbMessage : which is the number of pending message.
+  * @brief  返回待处理报文的数目。
+  * @param  CANx:       x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  FIFONumber: 接收 FIFO 编号，CAN_FIFO0 或 CAN_FIFO1。
+  * @retval NbMessage : 即待处理报文的数目。
   */
 uint8_t CAN_MessagePending(CAN_TypeDef* CANx, uint8_t FIFONumber)
 {
   uint8_t message_pending=0;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_FIFO(FIFONumber));
   if (FIFONumber == CAN_FIFO0)
@@ -763,31 +750,30 @@ uint8_t CAN_MessagePending(CAN_TypeDef* CANx, uint8_t FIFONumber)
 
 
 /**
-  * @brief   Select the CAN Operation mode.
-  * @param CAN_OperatingMode : CAN Operating Mode. This parameter can be one 
-  *                            of @ref CAN_OperatingMode_TypeDef enumeration.
-  * @retval status of the requested mode which can be 
-  *         - CAN_ModeStatus_Failed    CAN failed entering the specific mode 
-  *         - CAN_ModeStatus_Success   CAN Succeed entering the specific mode 
-
+  * @brief   选择 CAN 的工作模式。
+  * @param CAN_OperatingMode : CAN 工作模式。该参数可取
+  *                            @ref CAN_OperatingMode_TypeDef 枚举之一。
+  * @retval 所请求模式的状态，可为
+  *         - CAN_ModeStatus_Failed    CAN 进入该模式失败
+  *         - CAN_ModeStatus_Success   CAN 成功进入该模式
   */
 uint8_t CAN_OperatingModeRequest(CAN_TypeDef* CANx, uint8_t CAN_OperatingMode)
 {
   uint8_t status = CAN_ModeStatus_Failed;
   
-  /* Timeout for INAK or also for SLAK bits*/
+  /* INAK 或 SLAK 位的超时时间 */
   uint32_t timeout = INAK_TIMEOUT; 
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_OPERATING_MODE(CAN_OperatingMode));
 
   if (CAN_OperatingMode == CAN_OperatingMode_Initialization)
   {
-    /* Request initialisation */
+    /* 请求进入初始化模式 */
     CANx->MCR = (uint32_t)((CANx->MCR & (uint32_t)(~(uint32_t)CAN_MCR_SLEEP)) | CAN_MCR_INRQ);
 
-    /* Wait the acknowledge */
+    /* 等待应答 */
     while (((CANx->MSR & CAN_MODE_MASK) != CAN_MSR_INAK) && (timeout != 0))
     {
       timeout--;
@@ -803,10 +789,10 @@ uint8_t CAN_OperatingModeRequest(CAN_TypeDef* CANx, uint8_t CAN_OperatingMode)
   }
   else  if (CAN_OperatingMode == CAN_OperatingMode_Normal)
   {
-    /* Request leave initialisation and sleep mode  and enter Normal mode */
+    /* 请求退出初始化模式与睡眠模式，并进入正常模式 */
     CANx->MCR &= (uint32_t)(~(CAN_MCR_SLEEP|CAN_MCR_INRQ));
 
-    /* Wait the acknowledge */
+    /* 等待应答 */
     while (((CANx->MSR & CAN_MODE_MASK) != 0) && (timeout!=0))
     {
       timeout--;
@@ -822,10 +808,10 @@ uint8_t CAN_OperatingModeRequest(CAN_TypeDef* CANx, uint8_t CAN_OperatingMode)
   }
   else  if (CAN_OperatingMode == CAN_OperatingMode_Sleep)
   {
-    /* Request Sleep mode */
+    /* 请求进入睡眠模式 */
     CANx->MCR = (uint32_t)((CANx->MCR & (uint32_t)(~(uint32_t)CAN_MCR_INRQ)) | CAN_MCR_SLEEP);
 
-    /* Wait the acknowledge */
+    /* 等待应答 */
     while (((CANx->MSR & CAN_MODE_MASK) != CAN_MSR_SLAK) && (timeout!=0))
     {
       timeout--;
@@ -848,528 +834,521 @@ uint8_t CAN_OperatingModeRequest(CAN_TypeDef* CANx, uint8_t CAN_OperatingMode)
 }
 
 /**
-  * @brief  Enters the low power mode.
-  * @param  CANx:   where x can be 1 or 2 to to select the CAN peripheral.
-  * @retval status: CAN_Sleep_Ok if sleep entered, CAN_Sleep_Failed in an 
-  *                 other case.
+  * @brief  进入低功耗模式。
+  * @param  CANx:   x 可取 1 或 2，用于选择 CAN 外设。
+  * @retval status: 若已进入睡眠则为 CAN_Sleep_Ok，
+  *                 否则为 CAN_Sleep_Failed。
   */
 uint8_t CAN_Sleep(CAN_TypeDef* CANx)
 {
   uint8_t sleepstatus = CAN_Sleep_Failed;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
     
-  /* Request Sleep mode */
+  /* 请求进入睡眠模式 */
    CANx->MCR = (((CANx->MCR) & (uint32_t)(~(uint32_t)CAN_MCR_INRQ)) | CAN_MCR_SLEEP);
    
-  /* Sleep mode status */
+  /* 睡眠模式状态 */
   if ((CANx->MSR & (CAN_MSR_SLAK|CAN_MSR_INAK)) == CAN_MSR_SLAK)
   {
-    /* Sleep mode not entered */
+    /* 未进入睡眠模式 */
     sleepstatus =  CAN_Sleep_Ok;
   }
-  /* return sleep mode status */
+  /* 返回睡眠模式状态 */
    return (uint8_t)sleepstatus;
 }
 
 /**
-  * @brief  Wakes the CAN up.
-  * @param  CANx:    where x can be 1 or 2 to to select the CAN peripheral.
-  * @retval status:  CAN_WakeUp_Ok if sleep mode left, CAN_WakeUp_Failed in an 
-  *                  other case.
+  * @brief  将 CAN 唤醒。
+  * @param  CANx:    x 可取 1 或 2，用于选择 CAN 外设。
+  * @retval status:  若已退出睡眠模式则为 CAN_WakeUp_Ok，
+  *                  否则为 CAN_WakeUp_Failed。
   */
 uint8_t CAN_WakeUp(CAN_TypeDef* CANx)
 {
   uint32_t wait_slak = SLAK_TIMEOUT;
   uint8_t wakeupstatus = CAN_WakeUp_Failed;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
     
-  /* Wake up request */
+  /* 唤醒请求 */
   CANx->MCR &= ~(uint32_t)CAN_MCR_SLEEP;
     
-  /* Sleep mode status */
+  /* 睡眠模式状态 */
   while(((CANx->MSR & CAN_MSR_SLAK) == CAN_MSR_SLAK)&&(wait_slak!=0x00))
   {
    wait_slak--;
   }
   if((CANx->MSR & CAN_MSR_SLAK) != CAN_MSR_SLAK)
   {
-   /* wake up done : Sleep mode exited */
+   /* 唤醒完成：已退出睡眠模式 */
     wakeupstatus = CAN_WakeUp_Ok;
   }
-  /* return wakeup status */
+  /* 返回唤醒状态 */
   return (uint8_t)wakeupstatus;
 }
 
 
 /**
-  * @brief  Returns the CANx's last error code (LEC).
-  * @param  CANx:          where x can be 1 or 2 to to select the CAN peripheral.  
-  * @retval CAN_ErrorCode: specifies the Error code : 
-  *                        - CAN_ERRORCODE_NoErr            No Error  
-  *                        - CAN_ERRORCODE_StuffErr         Stuff Error
-  *                        - CAN_ERRORCODE_FormErr          Form Error
-  *                        - CAN_ERRORCODE_ACKErr           Acknowledgment Error
-  *                        - CAN_ERRORCODE_BitRecessiveErr  Bit Recessive Error
-  *                        - CAN_ERRORCODE_BitDominantErr   Bit Dominant Error
-  *                        - CAN_ERRORCODE_CRCErr           CRC Error
-  *                        - CAN_ERRORCODE_SoftwareSetErr   Software Set Error  
+  * @brief  返回 CANx 最近一次的错误码（LEC）。
+  * @param  CANx:          x 可取 1 或 2，用于选择 CAN 外设。
+  * @retval CAN_ErrorCode: 指定错误码：
+  *                        - CAN_ERRORCODE_NoErr            无错误
+  *                        - CAN_ERRORCODE_StuffErr         填充错误
+  *                        - CAN_ERRORCODE_FormErr          格式错误
+  *                        - CAN_ERRORCODE_ACKErr           应答错误
+  *                        - CAN_ERRORCODE_BitRecessiveErr  隐性位错误
+  *                        - CAN_ERRORCODE_BitDominantErr   显性位错误
+  *                        - CAN_ERRORCODE_CRCErr           CRC 错误
+  *                        - CAN_ERRORCODE_SoftwareSetErr   软件设置错误
   */
  
 uint8_t CAN_GetLastErrorCode(CAN_TypeDef* CANx)
 {
   uint8_t errorcode=0;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   
-  /* Get the error code*/
+  /* 获取错误码 */
   errorcode = (((uint8_t)CANx->ESR) & (uint8_t)CAN_ESR_LEC);
   
-  /* Return the error code*/
+  /* 返回错误码 */
   return errorcode;
 }
 /**
-  * @brief  Returns the CANx Receive Error Counter (REC).
-  * @note   In case of an error during reception, this counter is incremented 
-  *         by 1 or by 8 depending on the error condition as defined by the CAN 
-  *         standard. After every successful reception, the counter is 
-  *         decremented by 1 or reset to 120 if its value was higher than 128. 
-  *         When the counter value exceeds 127, the CAN controller enters the 
-  *         error passive state.  
-  * @param  CANx: where x can be 1 or 2 to to select the CAN peripheral.  
-  * @retval CAN Receive Error Counter. 
+  * @brief  返回 CANx 的接收错误计数器（REC）。
+  * @note   接收过程中若发生错误，该计数器会根据 CAN 标准所定义的错误情形
+  *         加 1 或加 8。每次成功接收后，计数器减 1；若其值大于 128，
+  *         则被复位为 120。当计数器值超过 127 时，CAN 控制器进入错误被动状态。
+  * @param  CANx: x 可取 1 或 2，用于选择 CAN 外设。
+  * @retval CAN 接收错误计数器的值。
   */
 uint8_t CAN_GetReceiveErrorCounter(CAN_TypeDef* CANx)
 {
   uint8_t counter=0;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   
-  /* Get the Receive Error Counter*/
+  /* 获取接收错误计数器 */
   counter = (uint8_t)((CANx->ESR & CAN_ESR_REC)>> 24);
   
-  /* Return the Receive Error Counter*/
+  /* 返回接收错误计数器 */
   return counter;
 }
 
 
 /**
-  * @brief  Returns the LSB of the 9-bit CANx Transmit Error Counter(TEC).
-  * @param  CANx:   where x can be 1 or 2 to to select the CAN peripheral.  
-  * @retval LSB of the 9-bit CAN Transmit Error Counter. 
+  * @brief  返回 9 位 CANx 发送错误计数器（TEC）的低 8 位。
+  * @param  CANx:   x 可取 1 或 2，用于选择 CAN 外设。
+  * @retval 9 位 CAN 发送错误计数器的低 8 位。
   */
 uint8_t CAN_GetLSBTransmitErrorCounter(CAN_TypeDef* CANx)
 {
   uint8_t counter=0;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   
-  /* Get the LSB of the 9-bit CANx Transmit Error Counter(TEC) */
+  /* 获取 9 位 CANx 发送错误计数器（TEC）的低 8 位 */
   counter = (uint8_t)((CANx->ESR & CAN_ESR_TEC)>> 16);
   
-  /* Return the LSB of the 9-bit CANx Transmit Error Counter(TEC) */
+  /* 返回 9 位 CANx 发送错误计数器（TEC）的低 8 位 */
   return counter;
 }
 
 
 /**
-  * @brief  Enables or disables the specified CANx interrupts.
-  * @param  CANx:   where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  CAN_IT: specifies the CAN interrupt sources to be enabled or disabled.
-  *                 This parameter can be: 
-  *                 - CAN_IT_TME, 
-  *                 - CAN_IT_FMP0, 
+  * @brief  使能或关闭指定的 CANx 中断。
+  * @param  CANx:   x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  CAN_IT: 指定要使能或关闭的 CAN 中断源。
+  *                 该参数可取：
+  *                 - CAN_IT_TME,
+  *                 - CAN_IT_FMP0,
   *                 - CAN_IT_FF0,
-  *                 - CAN_IT_FOV0, 
-  *                 - CAN_IT_FMP1, 
+  *                 - CAN_IT_FOV0,
+  *                 - CAN_IT_FMP1,
   *                 - CAN_IT_FF1,
-  *                 - CAN_IT_FOV1, 
-  *                 - CAN_IT_EWG, 
+  *                 - CAN_IT_FOV1,
+  *                 - CAN_IT_EWG,
   *                 - CAN_IT_EPV,
-  *                 - CAN_IT_LEC, 
-  *                 - CAN_IT_ERR, 
-  *                 - CAN_IT_WKU or 
-  *                 - CAN_IT_SLK.
-  * @param  NewState: new state of the CAN interrupts.
-  *                   This parameter can be: ENABLE or DISABLE.
-  * @retval None.
+  *                 - CAN_IT_LEC,
+  *                 - CAN_IT_ERR,
+  *                 - CAN_IT_WKU 或
+  *                 - CAN_IT_SLK。
+  * @param  NewState: CAN 中断的新状态。
+  *                   该参数可取：ENABLE 或 DISABLE。
+  * @retval 无。
   */
 void CAN_ITConfig(CAN_TypeDef* CANx, uint32_t CAN_IT, FunctionalState NewState)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_IT(CAN_IT));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
 
   if (NewState != DISABLE)
   {
-    /* Enable the selected CANx interrupt */
+    /* 使能所选的 CANx 中断 */
     CANx->IER |= CAN_IT;
   }
   else
   {
-    /* Disable the selected CANx interrupt */
+    /* 关闭所选的 CANx 中断 */
     CANx->IER &= ~CAN_IT;
   }
 }
 /**
-  * @brief  Checks whether the specified CAN flag is set or not.
-  * @param  CANx:     where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  CAN_FLAG: specifies the flag to check.
-  *                   This parameter can be one of the following flags: 
+  * @brief  检查指定的 CAN 标志是否已置位。
+  * @param  CANx:     x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  CAN_FLAG: 指定要检查的标志。
+  *                   该参数可取下列标志之一：
   *                  - CAN_FLAG_EWG
-  *                  - CAN_FLAG_EPV 
+  *                  - CAN_FLAG_EPV
   *                  - CAN_FLAG_BOF
   *                  - CAN_FLAG_RQCP0
   *                  - CAN_FLAG_RQCP1
   *                  - CAN_FLAG_RQCP2
-  *                  - CAN_FLAG_FMP1   
-  *                  - CAN_FLAG_FF1       
-  *                  - CAN_FLAG_FOV1   
-  *                  - CAN_FLAG_FMP0   
-  *                  - CAN_FLAG_FF0       
-  *                  - CAN_FLAG_FOV0   
-  *                  - CAN_FLAG_WKU 
-  *                  - CAN_FLAG_SLAK  
-  *                  - CAN_FLAG_LEC       
-  * @retval The new state of CAN_FLAG (SET or RESET).
+  *                  - CAN_FLAG_FMP1
+  *                  - CAN_FLAG_FF1
+  *                  - CAN_FLAG_FOV1
+  *                  - CAN_FLAG_FMP0
+  *                  - CAN_FLAG_FF0
+  *                  - CAN_FLAG_FOV0
+  *                  - CAN_FLAG_WKU
+  *                  - CAN_FLAG_SLAK
+  *                  - CAN_FLAG_LEC
+  * @retval CAN_FLAG 的新状态（SET 或 RESET）。
   */
 FlagStatus CAN_GetFlagStatus(CAN_TypeDef* CANx, uint32_t CAN_FLAG)
 {
   FlagStatus bitstatus = RESET;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_GET_FLAG(CAN_FLAG));
   
 
   if((CAN_FLAG & CAN_FLAGS_ESR) != (uint32_t)RESET)
   { 
-    /* Check the status of the specified CAN flag */
+    /* 检查指定 CAN 标志的状态 */
     if ((CANx->ESR & (CAN_FLAG & 0x000FFFFF)) != (uint32_t)RESET)
     { 
-      /* CAN_FLAG is set */
+      /* CAN_FLAG 已置位 */
       bitstatus = SET;
     }
     else
     { 
-      /* CAN_FLAG is reset */
+      /* CAN_FLAG 已清零 */
       bitstatus = RESET;
     }
   }
   else if((CAN_FLAG & CAN_FLAGS_MSR) != (uint32_t)RESET)
   { 
-    /* Check the status of the specified CAN flag */
+    /* 检查指定 CAN 标志的状态 */
     if ((CANx->MSR & (CAN_FLAG & 0x000FFFFF)) != (uint32_t)RESET)
     { 
-      /* CAN_FLAG is set */
+      /* CAN_FLAG 已置位 */
       bitstatus = SET;
     }
     else
     { 
-      /* CAN_FLAG is reset */
+      /* CAN_FLAG 已清零 */
       bitstatus = RESET;
     }
   }
   else if((CAN_FLAG & CAN_FLAGS_TSR) != (uint32_t)RESET)
   { 
-    /* Check the status of the specified CAN flag */
+    /* 检查指定 CAN 标志的状态 */
     if ((CANx->TSR & (CAN_FLAG & 0x000FFFFF)) != (uint32_t)RESET)
     { 
-      /* CAN_FLAG is set */
+      /* CAN_FLAG 已置位 */
       bitstatus = SET;
     }
     else
     { 
-      /* CAN_FLAG is reset */
+      /* CAN_FLAG 已清零 */
       bitstatus = RESET;
     }
   }
   else if((CAN_FLAG & CAN_FLAGS_RF0R) != (uint32_t)RESET)
   { 
-    /* Check the status of the specified CAN flag */
+    /* 检查指定 CAN 标志的状态 */
     if ((CANx->RF0R & (CAN_FLAG & 0x000FFFFF)) != (uint32_t)RESET)
     { 
-      /* CAN_FLAG is set */
+      /* CAN_FLAG 已置位 */
       bitstatus = SET;
     }
     else
     { 
-      /* CAN_FLAG is reset */
+      /* CAN_FLAG 已清零 */
       bitstatus = RESET;
     }
   }
-  else /* If(CAN_FLAG & CAN_FLAGS_RF1R != (uint32_t)RESET) */
+  else /* 若 (CAN_FLAG & CAN_FLAGS_RF1R) != (uint32_t)RESET */
   { 
-    /* Check the status of the specified CAN flag */
+    /* 检查指定 CAN 标志的状态 */
     if ((uint32_t)(CANx->RF1R & (CAN_FLAG & 0x000FFFFF)) != (uint32_t)RESET)
     { 
-      /* CAN_FLAG is set */
+      /* CAN_FLAG 已置位 */
       bitstatus = SET;
     }
     else
     { 
-      /* CAN_FLAG is reset */
+      /* CAN_FLAG 已清零 */
       bitstatus = RESET;
     }
   }
-  /* Return the CAN_FLAG status */
+  /* 返回 CAN_FLAG 的状态 */
   return  bitstatus;
 }
 
 /**
-  * @brief  Clears the CAN's pending flags.
-  * @param  CANx:     where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  CAN_FLAG: specifies the flag to clear.
-  *                   This parameter can be one of the following flags: 
+  * @brief  清除 CAN 的待处理标志。
+  * @param  CANx:     x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  CAN_FLAG: 指定要清除的标志。
+  *                   该参数可取下列标志之一：
   *                    - CAN_FLAG_RQCP0
   *                    - CAN_FLAG_RQCP1
   *                    - CAN_FLAG_RQCP2
-  *                    - CAN_FLAG_FF1       
-  *                    - CAN_FLAG_FOV1   
-  *                    - CAN_FLAG_FF0       
-  *                    - CAN_FLAG_FOV0   
-  *                    - CAN_FLAG_WKU   
-  *                    - CAN_FLAG_SLAK    
-  *                    - CAN_FLAG_LEC       
-  * @retval None.
+  *                    - CAN_FLAG_FF1
+  *                    - CAN_FLAG_FOV1
+  *                    - CAN_FLAG_FF0
+  *                    - CAN_FLAG_FOV0
+  *                    - CAN_FLAG_WKU
+  *                    - CAN_FLAG_SLAK
+  *                    - CAN_FLAG_LEC
+  * @retval 无。
   */
 void CAN_ClearFlag(CAN_TypeDef* CANx, uint32_t CAN_FLAG)
 {
   uint32_t flagtmp=0;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_CLEAR_FLAG(CAN_FLAG));
   
-  if (CAN_FLAG == CAN_FLAG_LEC) /* ESR register */
+  if (CAN_FLAG == CAN_FLAG_LEC) /* ESR 寄存器 */
   {
-    /* Clear the selected CAN flags */
+    /* 清除所选的 CAN 标志 */
     CANx->ESR = (uint32_t)RESET;
   }
-  else /* MSR or TSR or RF0R or RF1R */
+  else /* MSR 或 TSR 或 RF0R 或 RF1R */
   {
     flagtmp = CAN_FLAG & 0x000FFFFF;
 
     if ((CAN_FLAG & CAN_FLAGS_RF0R)!=(uint32_t)RESET)
     {
-      /* Receive Flags */
+      /* 接收标志 */
       CANx->RF0R = (uint32_t)(flagtmp);
     }
     else if ((CAN_FLAG & CAN_FLAGS_RF1R)!=(uint32_t)RESET)
     {
-      /* Receive Flags */
+      /* 接收标志 */
       CANx->RF1R = (uint32_t)(flagtmp);
     }
     else if ((CAN_FLAG & CAN_FLAGS_TSR)!=(uint32_t)RESET)
     {
-      /* Transmit Flags */
+      /* 发送标志 */
       CANx->TSR = (uint32_t)(flagtmp);
     }
-    else /* If((CAN_FLAG & CAN_FLAGS_MSR)!=(uint32_t)RESET) */
+    else /* 若 ((CAN_FLAG & CAN_FLAGS_MSR) != (uint32_t)RESET) */
     {
-      /* Operating mode Flags */
+      /* 工作模式标志 */
       CANx->MSR = (uint32_t)(flagtmp);
     }
   }
 }
 
 /**
-  * @brief  Checks whether the specified CANx interrupt has occurred or not.
-  * @param  CANx:    where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  CAN_IT:  specifies the CAN interrupt source to check.
-  *                  This parameter can be one of the following flags: 
-  *                 -  CAN_IT_TME               
-  *                 -  CAN_IT_FMP0              
-  *                 -  CAN_IT_FF0               
-  *                 -  CAN_IT_FOV0              
-  *                 -  CAN_IT_FMP1              
-  *                 -  CAN_IT_FF1               
-  *                 -  CAN_IT_FOV1              
-  *                 -  CAN_IT_WKU  
-  *                 -  CAN_IT_SLK  
-  *                 -  CAN_IT_EWG    
-  *                 -  CAN_IT_EPV    
-  *                 -  CAN_IT_BOF    
-  *                 -  CAN_IT_LEC    
-  *                 -  CAN_IT_ERR 
-  * @retval The current state of CAN_IT (SET or RESET).
+  * @brief  检查指定的 CANx 中断是否已经发生。
+  * @param  CANx:    x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  CAN_IT:  指定要检查的 CAN 中断源。
+  *                  该参数可取下列标志之一：
+  *                 -  CAN_IT_TME
+  *                 -  CAN_IT_FMP0
+  *                 -  CAN_IT_FF0
+  *                 -  CAN_IT_FOV0
+  *                 -  CAN_IT_FMP1
+  *                 -  CAN_IT_FF1
+  *                 -  CAN_IT_FOV1
+  *                 -  CAN_IT_WKU
+  *                 -  CAN_IT_SLK
+  *                 -  CAN_IT_EWG
+  *                 -  CAN_IT_EPV
+  *                 -  CAN_IT_BOF
+  *                 -  CAN_IT_LEC
+  *                 -  CAN_IT_ERR
+  * @retval CAN_IT 的当前状态（SET 或 RESET）。
   */
 ITStatus CAN_GetITStatus(CAN_TypeDef* CANx, uint32_t CAN_IT)
 {
   ITStatus itstatus = RESET;
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_IT(CAN_IT));
   
-  /* check the enable interrupt bit */
+  /* 检查中断使能位 */
  if((CANx->IER & CAN_IT) != RESET)
  {
-   /* in case the Interrupt is enabled, .... */
+   /* 若中断已使能，则 ... */
     switch (CAN_IT)
     {
       case CAN_IT_TME:
-               /* Check CAN_TSR_RQCPx bits */
+               /* 检查 CAN_TSR_RQCPx 位 */
 	             itstatus = CheckITStatus(CANx->TSR, CAN_TSR_RQCP0|CAN_TSR_RQCP1|CAN_TSR_RQCP2);  
 	      break;
       case CAN_IT_FMP0:
-               /* Check CAN_RF0R_FMP0 bit */
+               /* 检查 CAN_RF0R_FMP0 位 */
 	             itstatus = CheckITStatus(CANx->RF0R, CAN_RF0R_FMP0);  
 	      break;
       case CAN_IT_FF0:
-               /* Check CAN_RF0R_FULL0 bit */
+               /* 检查 CAN_RF0R_FULL0 位 */
                itstatus = CheckITStatus(CANx->RF0R, CAN_RF0R_FULL0);  
 	      break;
       case CAN_IT_FOV0:
-               /* Check CAN_RF0R_FOVR0 bit */
+               /* 检查 CAN_RF0R_FOVR0 位 */
                itstatus = CheckITStatus(CANx->RF0R, CAN_RF0R_FOVR0);  
 	      break;
       case CAN_IT_FMP1:
-               /* Check CAN_RF1R_FMP1 bit */
+               /* 检查 CAN_RF1R_FMP1 位 */
                itstatus = CheckITStatus(CANx->RF1R, CAN_RF1R_FMP1);  
 	      break;
       case CAN_IT_FF1:
-               /* Check CAN_RF1R_FULL1 bit */
+               /* 检查 CAN_RF1R_FULL1 位 */
 	             itstatus = CheckITStatus(CANx->RF1R, CAN_RF1R_FULL1);  
 	      break;
       case CAN_IT_FOV1:
-               /* Check CAN_RF1R_FOVR1 bit */
+               /* 检查 CAN_RF1R_FOVR1 位 */
 	             itstatus = CheckITStatus(CANx->RF1R, CAN_RF1R_FOVR1);  
 	      break;
       case CAN_IT_WKU:
-               /* Check CAN_MSR_WKUI bit */
+               /* 检查 CAN_MSR_WKUI 位 */
                itstatus = CheckITStatus(CANx->MSR, CAN_MSR_WKUI);  
 	      break;
       case CAN_IT_SLK:
-               /* Check CAN_MSR_SLAKI bit */
+               /* 检查 CAN_MSR_SLAKI 位 */
 	             itstatus = CheckITStatus(CANx->MSR, CAN_MSR_SLAKI);  
 	      break;
       case CAN_IT_EWG:
-               /* Check CAN_ESR_EWGF bit */
+               /* 检查 CAN_ESR_EWGF 位 */
 	             itstatus = CheckITStatus(CANx->ESR, CAN_ESR_EWGF);  
 	      break;
       case CAN_IT_EPV:
-               /* Check CAN_ESR_EPVF bit */
+               /* 检查 CAN_ESR_EPVF 位 */
 	             itstatus = CheckITStatus(CANx->ESR, CAN_ESR_EPVF);  
 	      break;
       case CAN_IT_BOF:
-               /* Check CAN_ESR_BOFF bit */
+               /* 检查 CAN_ESR_BOFF 位 */
 	             itstatus = CheckITStatus(CANx->ESR, CAN_ESR_BOFF);  
 	      break;
       case CAN_IT_LEC:
-               /* Check CAN_ESR_LEC bit */
+               /* 检查 CAN_ESR_LEC 位 */
 	             itstatus = CheckITStatus(CANx->ESR, CAN_ESR_LEC);  
 	      break;
       case CAN_IT_ERR:
-               /* Check CAN_MSR_ERRI bit */ 
+               /* 检查 CAN_MSR_ERRI 位 */ 
                itstatus = CheckITStatus(CANx->MSR, CAN_MSR_ERRI); 
 	      break;
       default :
-               /* in case of error, return RESET */
+               /* 若发生错误，则返回 RESET */
               itstatus = RESET;
               break;
     }
   }
   else
   {
-   /* in case the Interrupt is not enabled, return RESET */
+   /* 若中断未使能，则返回 RESET */
     itstatus  = RESET;
   }
   
-  /* Return the CAN_IT status */
+  /* 返回 CAN_IT 的状态 */
   return  itstatus;
 }
 
 /**
-  * @brief  Clears the CANx's interrupt pending bits.
-  * @param  CANx:    where x can be 1 or 2 to to select the CAN peripheral.
-  * @param  CAN_IT: specifies the interrupt pending bit to clear.
-  *                  -  CAN_IT_TME                     
-  *                  -  CAN_IT_FF0               
-  *                  -  CAN_IT_FOV0                     
-  *                  -  CAN_IT_FF1               
-  *                  -  CAN_IT_FOV1              
-  *                  -  CAN_IT_WKU  
-  *                  -  CAN_IT_SLK  
-  *                  -  CAN_IT_EWG    
-  *                  -  CAN_IT_EPV    
-  *                  -  CAN_IT_BOF    
-  *                  -  CAN_IT_LEC    
-  *                  -  CAN_IT_ERR 
-  * @retval None.
+  * @brief  清除 CANx 的中断待处理位。
+  * @param  CANx:    x 可取 1 或 2，用于选择 CAN 外设。
+  * @param  CAN_IT: 指定要清除的中断待处理位。
+  *                  -  CAN_IT_TME
+  *                  -  CAN_IT_FF0
+  *                  -  CAN_IT_FOV0
+  *                  -  CAN_IT_FF1
+  *                  -  CAN_IT_FOV1
+  *                  -  CAN_IT_WKU
+  *                  -  CAN_IT_SLK
+  *                  -  CAN_IT_EWG
+  *                  -  CAN_IT_EPV
+  *                  -  CAN_IT_BOF
+  *                  -  CAN_IT_LEC
+  *                  -  CAN_IT_ERR
+  * @retval 无。
   */
 void CAN_ClearITPendingBit(CAN_TypeDef* CANx, uint32_t CAN_IT)
 {
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
   assert_param(IS_CAN_CLEAR_IT(CAN_IT));
 
   switch (CAN_IT)
   {
       case CAN_IT_TME:
-              /* Clear CAN_TSR_RQCPx (rc_w1)*/
+              /* 清除 CAN_TSR_RQCPx（读后写 1 清除） */
 	      CANx->TSR = CAN_TSR_RQCP0|CAN_TSR_RQCP1|CAN_TSR_RQCP2;  
 	      break;
       case CAN_IT_FF0:
-              /* Clear CAN_RF0R_FULL0 (rc_w1)*/
+              /* 清除 CAN_RF0R_FULL0（读后写 1 清除） */
 	      CANx->RF0R = CAN_RF0R_FULL0; 
 	      break;
       case CAN_IT_FOV0:
-              /* Clear CAN_RF0R_FOVR0 (rc_w1)*/
+              /* 清除 CAN_RF0R_FOVR0（读后写 1 清除） */
 	      CANx->RF0R = CAN_RF0R_FOVR0; 
 	      break;
       case CAN_IT_FF1:
-              /* Clear CAN_RF1R_FULL1 (rc_w1)*/
+              /* 清除 CAN_RF1R_FULL1（读后写 1 清除） */
 	      CANx->RF1R = CAN_RF1R_FULL1;  
 	      break;
       case CAN_IT_FOV1:
-              /* Clear CAN_RF1R_FOVR1 (rc_w1)*/
+              /* 清除 CAN_RF1R_FOVR1（读后写 1 清除） */
 	      CANx->RF1R = CAN_RF1R_FOVR1; 
 	      break;
       case CAN_IT_WKU:
-              /* Clear CAN_MSR_WKUI (rc_w1)*/
+              /* 清除 CAN_MSR_WKUI（读后写 1 清除） */
 	      CANx->MSR = CAN_MSR_WKUI;  
 	      break;
       case CAN_IT_SLK:
-              /* Clear CAN_MSR_SLAKI (rc_w1)*/ 
+              /* 清除 CAN_MSR_SLAKI（读后写 1 清除） */ 
 	      CANx->MSR = CAN_MSR_SLAKI;   
 	      break;
       case CAN_IT_EWG:
-              /* Clear CAN_MSR_ERRI (rc_w1) */
+              /* 清除 CAN_MSR_ERRI（读后写 1 清除） */
 	      CANx->MSR = CAN_MSR_ERRI;
-              /* Note : the corresponding Flag is cleared by hardware depending 
-                        of the CAN Bus status*/ 
+              /* 注意：相应的标志由硬件根据 CAN 总线状态清除 */ 
 	      break;
       case CAN_IT_EPV:
-              /* Clear CAN_MSR_ERRI (rc_w1) */
+              /* 清除 CAN_MSR_ERRI（读后写 1 清除） */
 	      CANx->MSR = CAN_MSR_ERRI; 
-              /* Note : the corresponding Flag is cleared by hardware depending 
-                        of the CAN Bus status*/
+              /* 注意：相应的标志由硬件根据 CAN 总线状态清除 */
 	      break;
       case CAN_IT_BOF:
-              /* Clear CAN_MSR_ERRI (rc_w1) */ 
+              /* 清除 CAN_MSR_ERRI（读后写 1 清除） */ 
 	      CANx->MSR = CAN_MSR_ERRI; 
-              /* Note : the corresponding Flag is cleared by hardware depending 
-                        of the CAN Bus status*/
+              /* 注意：相应的标志由硬件根据 CAN 总线状态清除 */
 	      break;
       case CAN_IT_LEC:
-              /*  Clear LEC bits */
+              /* 清除 LEC 位 */
 	      CANx->ESR = RESET; 
-              /* Clear CAN_MSR_ERRI (rc_w1) */
+              /* 清除 CAN_MSR_ERRI（读后写 1 清除） */
 	      CANx->MSR = CAN_MSR_ERRI; 
 	      break;
       case CAN_IT_ERR:
-              /*Clear LEC bits */
+              /* 清除 LEC 位 */
 	      CANx->ESR = RESET; 
-              /* Clear CAN_MSR_ERRI (rc_w1) */
+              /* 清除 CAN_MSR_ERRI（读后写 1 清除） */
 	      CANx->MSR = CAN_MSR_ERRI; 
-	      /* Note : BOFF, EPVF and EWGF Flags are cleared by hardware depending 
-                  of the CAN Bus status*/
+	      /* 注意：BOFF、EPVF 与 EWGF 标志由硬件根据 CAN 总线状态清除 */
 	      break;
       default :
 	      break;
@@ -1377,10 +1356,10 @@ void CAN_ClearITPendingBit(CAN_TypeDef* CANx, uint32_t CAN_IT)
 }
 
 /**
-  * @brief  Checks whether the CAN interrupt has occurred or not.
-  * @param  CAN_Reg: specifies the CAN interrupt register to check.
-  * @param  It_Bit:  specifies the interrupt source bit to check.
-  * @retval The new state of the CAN Interrupt (SET or RESET).
+  * @brief  检查 CAN 中断是否已经发生。
+  * @param  CAN_Reg: 指定要检查的 CAN 中断寄存器。
+  * @param  It_Bit:  指定要检查的中断源位。
+  * @retval CAN 中断的新状态（SET 或 RESET）。
   */
 static ITStatus CheckITStatus(uint32_t CAN_Reg, uint32_t It_Bit)
 {
@@ -1388,12 +1367,12 @@ static ITStatus CheckITStatus(uint32_t CAN_Reg, uint32_t It_Bit)
   
   if ((CAN_Reg & It_Bit) != (uint32_t)RESET)
   {
-    /* CAN_IT is set */
+    /* CAN_IT 已置位 */
     pendingbitstatus = SET;
   }
   else
   {
-    /* CAN_IT is reset */
+    /* CAN_IT 已清零 */
     pendingbitstatus = RESET;
   }
   return pendingbitstatus;
@@ -1412,4 +1391,4 @@ static ITStatus CheckITStatus(uint32_t CAN_Reg, uint32_t It_Bit)
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

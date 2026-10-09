@@ -2,12 +2,11 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @brief   This file provides firmware functions to manage the following 
-  *          functionalities of the Analog to Digital Convertor (ADC)
-  *          peripheral:
-  *           + Peripheral Control functions
-  *          Other functions (generic functions) are available in file 
-  *          "stm32f1xx_hal_adc.c".
+  * @brief   本文件提供固件函数，用于管理模数转换器 (ADC)
+  *          外设的以下功能：
+  *           + 外设控制功能
+  *          其他函数（通用函数）可在文件
+  *          "stm32f1xx_hal_adc.c" 中找到。
   *
   ******************************************************************************
   * @attention
@@ -15,20 +14,19 @@
   * Copyright (c) 2016 STMicroelectronics.
   * All rights reserved.
   *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * 本软件根据可在本软件组件根目录下的 LICENSE 文件中找到的条款进行许可。
+  * 如果本软件未附带 LICENSE 文件，则按“原样 (AS-IS)”提供。
   *
   ******************************************************************************
   @verbatim
   [..] 
-  (@) Sections "ADC peripheral features" and "How to use this driver" are
-      available in file of generic functions "stm32f1xx_hal_adc.c".
+  (@) “ADC 外设特性”和“如何使用此驱动程序”章节
+      可在通用函数文件 "stm32f1xx_hal_adc.c" 中找到。
   [..]
   @endverbatim
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ----------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -36,85 +34,84 @@
   */
 
 /** @defgroup ADCEx ADCEx
-  * @brief ADC Extension HAL module driver
+  * @brief ADC 扩展 HAL 模块驱动程序
   * @{
   */
 
 #ifdef HAL_ADC_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/** @defgroup ADCEx_Private_Constants ADCEx Private Constants
+/* 私有类型定义 --------------------------------------------------------------*/
+/* 私有宏定义 ----------------------------------------------------------------*/
+/** @defgroup ADCEx_Private_Constants ADCEx 私有常量
   * @{
   */
 
-  /* Delay for ADC calibration:                                               */
-  /* Hardware prerequisite before starting a calibration: the ADC must have   */
-  /* been in power-on state for at least two ADC clock cycles.                */
-  /* Unit: ADC clock cycles                                                   */
+  /* ADC 校准延时：                                                           */
+  /* 启动校准前的硬件先决条件：ADC 必须已处于上电状态                         */
+  /* 至少持续两个 ADC 时钟周期。                                              */
+  /* 单位：ADC 时钟周期                                                       */
   #define ADC_PRECALIBRATION_DELAY_ADCCLOCKCYCLES       2U
 
-  /* Timeout value for ADC calibration                                        */
-  /* Value defined to be higher than worst cases: low clocks freq,            */
-  /* maximum prescaler.                                                       */
-  /* Ex of profile low frequency : Clock source at 0.1 MHz, ADC clock         */
-  /* prescaler 4, sampling time 12.5 ADC clock cycles, resolution 12 bits.    */
-  /* Unit: ms                                                                 */
+  /* ADC 校准超时时间                                                         */
+  /* 该值设定为高于最坏情况：低时钟频率、                                     */
+  /* 最大预分频比。                                                           */
+  /* 低频配置示例：时钟源为 0.1 MHz，ADC 时钟                                 */
+  /* 预分频器为 4，采样时间为 12.5 个 ADC 时钟周期，分辨率为 12 位。    */
+  /* 单位：ms                                                                 */
   #define ADC_CALIBRATION_TIMEOUT          10U
 
-  /* Delay for temperature sensor stabilization time.                         */
-  /* Maximum delay is 10us (refer to device datasheet, parameter tSTART).     */
-  /* Unit: us                                                                 */
+  /* 温度传感器稳定时间延迟。                                                 */
+  /* 最大延迟为 10us（请参阅器件数据手册中的参数 tSTART）。                   */
+  /* 单位：us                                                                 */
   #define ADC_TEMPSENSOR_DELAY_US         10U
 
 /**
   * @}
   */
 
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* 私有宏 -------------------------------------------------------------------*/
+/* 私有变量 -----------------------------------------------------------------*/
+/* 私有函数原型 -------------------------------------------------------------*/
+/* 私有函数 -----------------------------------------------------------------*/
 
-/** @defgroup ADCEx_Exported_Functions ADCEx Exported Functions
+/** @defgroup ADCEx_Exported_Functions ADCEx 导出函数
   * @{
   */
 
-/** @defgroup ADCEx_Exported_Functions_Group1 Extended Extended IO operation functions
- *  @brief    Extended Extended Input and Output operation functions
+/** @defgroup ADCEx_Exported_Functions_Group1 扩展 IO 操作函数
+ *  @brief    扩展输入和输出操作函数
  *
 @verbatim    
  ===============================================================================
-                      ##### IO operation functions #####
+                      ##### IO 操作函数 #####
  ===============================================================================
-    [..]  This section provides functions allowing to:
-      (+) Start conversion of injected group.
-      (+) Stop conversion of injected group.
-      (+) Poll for conversion complete on injected group.
-      (+) Get result of injected channel conversion.
-      (+) Start conversion of injected group and enable interruptions.
-      (+) Stop conversion of injected group and disable interruptions.
+    [..]  本节提供了实现以下功能的函数：
+      (+) 启动注入组转换。
+      (+) 停止注入组转换。
+      (+) 轮询注入组转换完成状态。
+      (+) 获取注入通道转换结果。
+      (+) 启动注入组转换并使能中断。
+      (+) 停止注入组转换并禁用中断。
 
-      (+) Start multimode and enable DMA transfer.
-      (+) Stop multimode and disable ADC DMA transfer.
-      (+) Get result of multimode conversion.
+      (+) 启动多重模式并使能 DMA 传输。
+      (+) 停止多重模式并禁用 ADC DMA 传输。
+      (+) 获取多重模式转换结果。
 
-      (+) Perform the ADC self-calibration for single or differential ending.
-      (+) Get calibration factors for single or differential ending.
-      (+) Set calibration factors for single or differential ending.
+      (+) 执行单端或差分输入的 ADC 自校准。
+      (+) 获取单端或差分输入的校准因子。
+      (+) 设置单端或差分输入的校准因子。
       
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Perform an ADC automatic self-calibration
-  *         Calibration prerequisite: ADC must be disabled (execute this
-  *         function before HAL_ADC_Start() or after HAL_ADC_Stop() ).
-  *         During calibration process, ADC is enabled. ADC is let enabled at
-  *         the completion of this function.
-  * @param  hadc: ADC handle
-  * @retval HAL status
+  * @brief  执行 ADC 自动自校准
+  *         校准前提条件：必须禁用 ADC（在调用 HAL_ADC_Start() 之前或调用
+  *         HAL_ADC_Stop() 之后执行此函数）。
+  *         在校准过程中，ADC 将被使能。该函数执行完成后，ADC 将保持使能状态。
+  * @param  hadc: ADC 句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
 {
@@ -122,30 +119,30 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
   uint32_t tickstart;
   __IO uint32_t wait_loop_index = 0U;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
 
-  /* Process locked */
+  /* 进程已锁定 */
   __HAL_LOCK(hadc);
     
-   /* 1. Disable ADC peripheral                                                 */
+   /* 1. 禁用 ADC 外设                                                          */
    tmp_hal_status = ADC_ConversionStop_Disable(hadc);
   
-   /* 2. Calibration prerequisite delay before starting the calibration.       */
-   /*    - ADC must be enabled for at least two ADC clock cycles               */
+   /* 2. 开始校准前的校准前置延时。                                             */
+   /*    - ADC 必须至少使能两个 ADC 时钟周期                                     */
    tmp_hal_status = ADC_Enable(hadc);
 
-   /* Check if ADC is effectively enabled */
+   /* 检查 ADC 是否已实际使能 */
    if (tmp_hal_status == HAL_OK)
    {
-     /* Set ADC state */
+     /* 设置 ADC 状态 */
      ADC_STATE_CLR_SET(hadc->State,
                        HAL_ADC_STATE_REG_BUSY | HAL_ADC_STATE_INJ_BUSY,
                        HAL_ADC_STATE_BUSY_INTERNAL);
     
-    /* Hardware prerequisite: delay before starting the calibration.          */
-    /*  - Computation of CPU clock cycles corresponding to ADC clock cycles.  */
-    /*  - Wait for the expected ADC clock cycles delay */
+    /* 硬件前置条件：开始校准前的延时。                                          */
+    /*  - 计算与 ADC 时钟周期对应的 CPU 时钟周期数。                              */
+    /*  - 等待预期的 ADC 时钟周期延时 */
     wait_loop_index = ((SystemCoreClock
                         / HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_ADC))
                        * ADC_PRECALIBRATION_DELAY_ADCCLOCKCYCLES        );
@@ -155,25 +152,25 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
       wait_loop_index--;
     }
 
-    /* 3. Resets ADC calibration registers */  
+    /* 3. 复位 ADC 校准寄存器 */  
     SET_BIT(hadc->Instance->CR2, ADC_CR2_RSTCAL);
     
     tickstart = HAL_GetTick();  
 
-    /* Wait for calibration reset completion */
+    /* 等待校准复位完成 */
     while(HAL_IS_BIT_SET(hadc->Instance->CR2, ADC_CR2_RSTCAL))
     {
       if((HAL_GetTick() - tickstart) > ADC_CALIBRATION_TIMEOUT)
       {
-        /* New check to avoid false timeout detection in case of preemption */
+        /* 新增检查项，以避免在发生任务抢占时误判为超时 */
         if(HAL_IS_BIT_SET(hadc->Instance->CR2, ADC_CR2_RSTCAL))
         {
-          /* Update ADC state machine to error */
+          /* 将 ADC 状态机更新为错误状态 */
           ADC_STATE_CLR_SET(hadc->State,
                             HAL_ADC_STATE_BUSY_INTERNAL,
                             HAL_ADC_STATE_ERROR_INTERNAL);
 
-          /* Process unlocked */
+          /* 进程解锁 */
           __HAL_UNLOCK(hadc);
 
           return HAL_ERROR;
@@ -181,25 +178,25 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
       }
     }
     
-    /* 4. Start ADC calibration */
+    /* 4. 启动 ADC 校准 */
     SET_BIT(hadc->Instance->CR2, ADC_CR2_CAL);
     
     tickstart = HAL_GetTick();  
 
-    /* Wait for calibration completion */
+    /* 等待校准完成 */
     while(HAL_IS_BIT_SET(hadc->Instance->CR2, ADC_CR2_CAL))
     {
       if((HAL_GetTick() - tickstart) > ADC_CALIBRATION_TIMEOUT)
       {
-        /* New check to avoid false timeout detection in case of preemption */
+        /* 新增检查以避免发生抢占时出现误判超时 */
         if(HAL_IS_BIT_SET(hadc->Instance->CR2, ADC_CR2_CAL))
         {
-          /* Update ADC state machine to error */
+          /* 将 ADC 状态机更新为错误状态 */
           ADC_STATE_CLR_SET(hadc->State,
                             HAL_ADC_STATE_BUSY_INTERNAL,
                             HAL_ADC_STATE_ERROR_INTERNAL);
 
-          /* Process unlocked */
+          /* 解锁进程 */
           __HAL_UNLOCK(hadc);
 
           return HAL_ERROR;
@@ -207,50 +204,50 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
       }
     }
     
-    /* Set ADC state */
+    /* 设置 ADC 状态 */
     ADC_STATE_CLR_SET(hadc->State,
                       HAL_ADC_STATE_BUSY_INTERNAL,
                       HAL_ADC_STATE_READY);
   }
   
-  /* Process unlocked */
+  /* 解锁进程 */
   __HAL_UNLOCK(hadc);
   
-  /* Return function status */
+  /* 返回函数状态 */
   return tmp_hal_status;
 }
 
 /**
-  * @brief  Enables ADC, starts conversion of injected group.
-  *         Interruptions enabled in this function: None.
-  * @param  hadc: ADC handle
-  * @retval HAL status
+  * @brief  使能 ADC，启动注入组转换。
+  *         此函数中使能的中断：无。
+  * @param  hadc: ADC 句柄
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedStart(ADC_HandleTypeDef* hadc)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
   
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
   
-  /* Process locked */
+  /* 锁定进程 */
   __HAL_LOCK(hadc);
     
-  /* Enable the ADC peripheral */
+  /* 使能 ADC 外设 */
   tmp_hal_status = ADC_Enable(hadc);
   
-  /* Start conversion if ADC is effectively enabled */
+  /* 若 ADC 已有效使能，则启动转换 */
   if (tmp_hal_status == HAL_OK)
   {
-    /* Set ADC state                                                          */
-    /* - Clear state bitfield related to injected group conversion results    */
-    /* - Set state bitfield related to injected operation                     */
+    /* 设置 ADC 状态                                                          */
+    /* - 清除与注入组转换结果相关的状态位域                                   */
+    /* - 设置与注入操作相关的状态位域                                         */
     ADC_STATE_CLR_SET(hadc->State,
                       HAL_ADC_STATE_READY | HAL_ADC_STATE_INJ_EOC,
                       HAL_ADC_STATE_INJ_BUSY);
     
-    /* Case of independent mode or multimode (for devices with several ADCs): */
-    /* Set multimode state.                                                   */
+    /* 独立模式或多重模式的情况（适用于具有多个 ADC 的器件）：               */
+    /* 设置多重模式状态。                                                     */
     if (ADC_NONMULTIMODE_OR_MULTIMODEMASTER(hadc))
     {
       CLEAR_BIT(hadc->State, HAL_ADC_STATE_MULTIMODE_SLAVE);
@@ -260,98 +257,98 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStart(ADC_HandleTypeDef* hadc)
       SET_BIT(hadc->State, HAL_ADC_STATE_MULTIMODE_SLAVE);
     }
     
-    /* Check if a regular conversion is ongoing */
-    /* Note: On this device, there is no ADC error code fields related to     */
-    /*       conversions on group injected only. In case of conversion on     */
-    /*       going on group regular, no error code is reset.                  */
+    /* 检查规则通道转换是否正在进行 */
+    /* 注意：在该器件上，没有仅与注入组转换相关的 ADC 错误代码字段。           */
+    /*       如果规则组的转换正在进行，则不会复位任何错误代码。                */
+    /*                                                                         */
     if (HAL_IS_BIT_CLR(hadc->State, HAL_ADC_STATE_REG_BUSY))
     {
-      /* Reset ADC all error code fields */
+      /* 复位所有 ADC 错误代码字段 */
       ADC_CLEAR_ERRORCODE(hadc);
     }
     
-    /* Process unlocked */
-    /* Unlock before starting ADC conversions: in case of potential           */
-    /* interruption, to let the process to ADC IRQ Handler.                   */
+    /* 进程已解锁 */
+    /* 在启动 ADC 转换前解锁：以防发生潜在的中断，                             */
+    /* 从而允许处理流程进入 ADC IRQ 中断服务函数。                             */
     __HAL_UNLOCK(hadc);
     
-    /* Clear injected group conversion flag */
-    /* (To ensure of no unknown state from potential previous ADC operations) */
+    /* 清除注入组转换标志 */
+    /* （以确保消除先前潜在 ADC 操作所遗留的未知状态）                         */
     __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_JEOC);
         
-    /* Enable conversion of injected group.                                   */
-    /* If software start has been selected, conversion starts immediately.    */
-    /* If external trigger has been selected, conversion will start at next   */
-    /* trigger event.                                                         */
-    /* If automatic injected conversion is enabled, conversion will start     */
-    /* after next regular group conversion.                                   */
-    /* Case of multimode enabled (for devices with several ADCs): if ADC is   */
-    /* slave, ADC is enabled only (conversion is not started). If ADC is      */
-    /* master, ADC is enabled and conversion is started.                      */
+    /* 使能注入组转换。                                                       */
+    /* 如果选择了软件触发启动，转换将立即开始。                               */
+    /* 如果选择了外部触发，转换将在下一个触发事件到达时开始。                 */
+    /*                                                                         */
+    /* 如果使能了注入通道自动转换，转换将在                                    */
+    /* 下一次规则组转换完成后启动。                                            */
+    /* 使能多重模式的情况（适用于具有多个 ADC 的器件）：如果 ADC 为            */
+    /* 从机，则仅使能 ADC（不启动转换）。如果 ADC 为                          */
+    /* 主机，则使能 ADC 并启动转换。                                          */
     if (HAL_IS_BIT_CLR(hadc->Instance->CR1, ADC_CR1_JAUTO))
     {
       if (ADC_IS_SOFTWARE_START_INJECTED(hadc)     &&
           ADC_NONMULTIMODE_OR_MULTIMODEMASTER(hadc)  )
       {
-        /* Start ADC conversion on injected group with SW start */
+        /* 通过软件触发启动注入组的 ADC 转换 */
         SET_BIT(hadc->Instance->CR2, (ADC_CR2_JSWSTART | ADC_CR2_JEXTTRIG));
       }
       else
       {
-        /* Start ADC conversion on injected group with external trigger */
+        /* 通过外部触发启动注入组的 ADC 转换 */
         SET_BIT(hadc->Instance->CR2, ADC_CR2_JEXTTRIG);
       }
     }
   }
   else
   {
-    /* Process unlocked */
+    /* 进程解锁 */
     __HAL_UNLOCK(hadc);
   }
   
-  /* Return function status */
+  /* 返回函数状态 */
   return tmp_hal_status;
 }
 
 /**
-  * @brief  Stop conversion of injected channels. Disable ADC peripheral if
-  *         no regular conversion is on going.
-  * @note   If ADC must be disabled and if conversion is on going on 
-  *         regular group, function HAL_ADC_Stop must be used to stop both
-  *         injected and regular groups, and disable the ADC.
-  * @note   If injected group mode auto-injection is enabled,
-  *         function HAL_ADC_Stop must be used.
-  * @note   In case of auto-injection mode, HAL_ADC_Stop must be used.
-  * @param  hadc: ADC handle
-  * @retval None
+  * @brief  停止注入通道的转换。如果当前没有规则组转换在进行，
+  *         则禁用 ADC 外设。
+  * @note   如果必须禁用 ADC 且规则组上正在进行转换，
+  *         必须使用函数 HAL_ADC_Stop 来同时停止
+  *         注入组和规则组，并禁用 ADC。
+  * @note   如果使能了注入组的自动注入模式，
+  *         必须使用函数 HAL_ADC_Stop。
+  * @note   在自动注入模式下，必须使用 HAL_ADC_Stop。
+  * @param  hadc: ADC 句柄
+  * @retval 无
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedStop(ADC_HandleTypeDef* hadc)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
 
-  /* Process locked */
+  /* 进程加锁 */
   __HAL_LOCK(hadc);
     
-  /* Stop potential conversion and disable ADC peripheral                     */
-  /* Conditioned to:                                                          */
-  /* - No conversion on the other group (regular group) is intended to        */
-  /*   continue (injected and regular groups stop conversion and ADC disable  */
-  /*   are common)                                                            */
-  /* - In case of auto-injection mode, HAL_ADC_Stop must be used.             */
+  /* 停止潜在的转换并禁用 ADC 外设                                           */
+  /* 条件为：                                                                */
+  /* - 另一个组（规则组）上没有转换计划                                      */
+  /*   继续（注入组和规则组停止转换以及禁用 ADC 的操作是公用的）              */
+  /*                                                                           */
+  /* - 若处于自动注入模式，必须使用 HAL_ADC_Stop。                             */
   if(((hadc->State & HAL_ADC_STATE_REG_BUSY) == RESET)  &&
      HAL_IS_BIT_CLR(hadc->Instance->CR1, ADC_CR1_JAUTO)   )
   {
-    /* Stop potential conversion on going, on regular and injected groups */
-    /* Disable ADC peripheral */
+    /* 停止规则组和注入组上可能正在进行的转换 */
+    /* 禁用 ADC 外设 */
     tmp_hal_status = ADC_ConversionStop_Disable(hadc);
     
-    /* Check if ADC is effectively disabled */
+    /* 检查 ADC 是否已有效禁用 */
     if (tmp_hal_status == HAL_OK)
     {
-      /* Set ADC state */
+      /* 设置 ADC 状态 */
       ADC_STATE_CLR_SET(hadc->State,
                         HAL_ADC_STATE_REG_BUSY | HAL_ADC_STATE_INJ_BUSY,
                         HAL_ADC_STATE_READY);
@@ -359,73 +356,73 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop(ADC_HandleTypeDef* hadc)
   }
   else
   {
-    /* Update ADC state machine to error */
+    /* 将 ADC 状态机更新为错误状态 */
     SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
       
     tmp_hal_status = HAL_ERROR;
   }
   
-  /* Process unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hadc);
   
-  /* Return function status */
+  /* 返回函数状态 */
   return tmp_hal_status;
 }
 
 /**
-  * @brief  Wait for injected group conversion to be completed.
-  * @param  hadc: ADC handle
-  * @param  Timeout: Timeout value in millisecond.
-  * @retval HAL status
+  * @brief  等待注入组转换完成。
+  * @param  hadc: ADC 句柄
+  * @param  Timeout: 超时时间（毫秒）。
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, uint32_t Timeout)
 {
   uint32_t tickstart;
 
-  /* Variables for polling in case of scan mode enabled and polling for each  */
-  /* conversion.                                                              */
+  /* 使能扫描模式且对每次转换进行轮询时，用于轮询的变量                        */
+  /*                                                                           */
   __IO uint32_t Conversion_Timeout_CPU_cycles = 0U;
   uint32_t Conversion_Timeout_CPU_cycles_max = 0U;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
 
-  /* Get timeout */
+  /* 获取超时时间 */
   tickstart = HAL_GetTick();  
      
-  /* Polling for end of conversion: differentiation if single/sequence        */
-  /* conversion.                                                              */
-  /* For injected group, flag JEOC is set only at the end of the sequence,    */
-  /* not for each conversion within the sequence.                             */
-  /*  - If single conversion for injected group (scan mode disabled or        */
-  /*    InjectedNbrOfConversion ==1), flag JEOC is used to determine the      */
-  /*    conversion completion.                                                */
-  /*  - If sequence conversion for injected group (scan mode enabled and      */
-  /*    InjectedNbrOfConversion >=2), flag JEOC is set only at the end of the */
-  /*    sequence.                                                             */
-  /*    To poll for each conversion, the maximum conversion time is computed  */
-  /*    from ADC conversion time (selected sampling time + conversion time of */
-  /*    12.5 ADC clock cycles) and APB2/ADC clock prescalers (depending on    */
-  /*    settings, conversion time range can be from 28 to 32256 CPU cycles).  */
-  /*    As flag JEOC is not set after each conversion, no timeout status can  */
-  /*    be set.                                                               */
+  /* 轮询转换结束：区分单次转换与序列转换。                                  */
+  /*                                                                          */
+  /* 对于注入组，标志位 JEOC 仅在序列结束时置位，                             */
+  /* 而不会在序列中的每次转换完成时都置位。                                   */
+  /*  - 若注入组为单次转换（禁用扫描模式或                                    */
+  /*    InjectedNbrOfConversion == 1），则使用标志位 JEOC 来判定              */
+  /*    转换是否完成。                                                        */
+  /*  - 若注入组为序列转换（使能扫描模式且                                    */
+  /*    InjectedNbrOfConversion >= 2），则标志位 JEOC 仅在序列结束时置位。    */
+  /*                                                                          */
+  /*    若要轮询每次转换，最大转换时间是根据                                  */
+  /*    ADC 转换时间（所选采样时间 + 12.5 个 ADC 时钟周期的转换时间）         */
+  /*    以及 APB2/ADC 时钟分频器计算得出的（取决于配置，                      */
+  /*    转换时间范围可为 28 到 32256 个 CPU 周期）。                          */
+  /*    由于每次转换后不会置位标志位 JEOC，因此无法                           */
+  /*    被置位。                                                              */
   if ((hadc->Instance->JSQR & ADC_JSQR_JL) == RESET)
   {
-    /* Wait until End of Conversion flag is raised */
+    /* 等待转换结束（End of Conversion）标志位置位 */
     while(HAL_IS_BIT_CLR(hadc->Instance->SR, ADC_FLAG_JEOC))
     {
-      /* Check if timeout is disabled (set to infinite wait) */
+      /* 检查是否禁用了超时（设置为无限等待） */
       if(Timeout != HAL_MAX_DELAY)
       {
         if((Timeout == 0U) || ((HAL_GetTick() - tickstart ) > Timeout))
         {
-          /* New check to avoid false timeout detection in case of preemption */
+          /* 新增检查以避免在发生抢占时产生误判超时 */
           if(HAL_IS_BIT_CLR(hadc->Instance->SR, ADC_FLAG_JEOC))
           {
-            /* Update ADC state machine to timeout */
+            /* 将 ADC 状态机更新为超时状态 */
             SET_BIT(hadc->State, HAL_ADC_STATE_TIMEOUT);
 
-            /* Process unlocked */
+            /* 进程解锁 */
             __HAL_UNLOCK(hadc);
 
             return HAL_TIMEOUT;
@@ -436,28 +433,28 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, u
   }
   else
   {
-    /* Replace polling by wait for maximum conversion time */
-    /*  - Computation of CPU clock cycles corresponding to ADC clock cycles   */
-    /*    and ADC maximum conversion cycles on all channels.                  */
-    /*  - Wait for the expected ADC clock cycles delay                        */
+    /* 将轮询替换为等待最大转换时间 */
+    /*  - 计算与 ADC 时钟周期以及所有通道上 ADC 最大转换周期对应的 CPU 时钟周期  */
+    /*    数。                                                                */
+    /*  - 等待预期的 ADC 时钟周期延迟                                         */
     Conversion_Timeout_CPU_cycles_max = ((SystemCoreClock
                                           / HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_ADC))
                                          * ADC_CONVCYCLES_MAX_RANGE(hadc)                 );
     
     while(Conversion_Timeout_CPU_cycles < Conversion_Timeout_CPU_cycles_max)
     {
-      /* Check if timeout is disabled (set to infinite wait) */
+      /* 检查是否禁用了超时（设置为无限等待） */
       if(Timeout != HAL_MAX_DELAY)
       {
         if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
         {
-          /* New check to avoid false timeout detection in case of preemption */
+          /* 新增检查以避免在发生抢占时产生误判超时 */
           if(Conversion_Timeout_CPU_cycles < Conversion_Timeout_CPU_cycles_max)
           {
-            /* Update ADC state machine to timeout */
+            /* 将 ADC 状态机更新为超时状态 */
             SET_BIT(hadc->State, HAL_ADC_STATE_TIMEOUT);
 
-            /* Process unlocked */
+            /* 进程解锁 */
             __HAL_UNLOCK(hadc);
 
             return HAL_TIMEOUT;
@@ -468,23 +465,23 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, u
     }
   }
 
-  /* Clear injected group conversion flag */
-  /* Note: On STM32F1 ADC, clear regular conversion flag raised               */
-  /* simultaneously.                                                          */
+  /* 清除注入组转换标志位 */
+  /* 注意：在 STM32F1 ADC 上，清除同时置位的规则转换标志位                   */
+  /* 。                                                                       */
   __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_JSTRT | ADC_FLAG_JEOC | ADC_FLAG_EOC);
   
-  /* Update ADC state machine */
+  /* 更新 ADC 状态机 */
   SET_BIT(hadc->State, HAL_ADC_STATE_INJ_EOC);
   
-  /* Determine whether any further conversion upcoming on group injected      */
-  /* by external trigger or by automatic injected conversion                  */
-  /* from group regular.                                                      */
+  /* 判断注入组是否将进行下一次转换                                           */
+  /* （无论是通过外部触发还是通过规则组的自动注入转换）。                     */
+  /*                                                                          */
   if(ADC_IS_SOFTWARE_START_INJECTED(hadc)                     || 
      (HAL_IS_BIT_CLR(hadc->Instance->CR1, ADC_CR1_JAUTO) &&     
      (ADC_IS_SOFTWARE_START_REGULAR(hadc)        &&
       (hadc->Init.ContinuousConvMode == DISABLE)   )        )   )
   {
-    /* Set ADC state */
+    /* 设置 ADC 状态 */
     CLEAR_BIT(hadc->State, HAL_ADC_STATE_INJ_BUSY);   
     
     if (HAL_IS_BIT_CLR(hadc->State, HAL_ADC_STATE_REG_BUSY))
@@ -493,42 +490,42 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedPollForConversion(ADC_HandleTypeDef* hadc, u
     }
   }
   
-  /* Return ADC state */
+  /* 返回 ADC 状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Enables ADC, starts conversion of injected group with interruption.
-  *          - JEOC (end of conversion of injected group)
-  *         Each of these interruptions has its dedicated callback function.
-  * @param  hadc: ADC handle
-  * @retval HAL status.
+  * @brief  使能 ADC，并在中断模式下启动注入组转换。
+  *          - JEOC（注入组转换完成）
+  *         这些中断中每个都有其专用的回调函数。
+  * @param  hadc: ADC 句柄
+  * @retval HAL 状态。
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedStart_IT(ADC_HandleTypeDef* hadc)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
   
-  /* Process locked */
+  /* 进程加锁 */
   __HAL_LOCK(hadc);
     
-  /* Enable the ADC peripheral */
+  /* 使能 ADC 外设 */
   tmp_hal_status = ADC_Enable(hadc);
   
-  /* Start conversion if ADC is effectively enabled */
+  /* 如果 ADC 已实际使能，则启动转换 */
   if (tmp_hal_status == HAL_OK)
   {
-    /* Set ADC state                                                          */
-    /* - Clear state bitfield related to injected group conversion results    */
-    /* - Set state bitfield related to injected operation                     */
+    /* 设置 ADC 状态                                                          */
+    /* - 清除与注入组转换结果相关的状态位域                                   */
+    /* - 设置与注入组操作相关的状态位域                                       */
     ADC_STATE_CLR_SET(hadc->State,
                       HAL_ADC_STATE_READY | HAL_ADC_STATE_INJ_EOC,
                       HAL_ADC_STATE_INJ_BUSY);
     
-    /* Case of independent mode or multimode (for devices with several ADCs): */
-    /* Set multimode state.                                                   */
+    /* 独立模式或多重模式（适用于具有多个 ADC 的器件）的情况：                */
+    /* 设置多重模式状态。                                                     */
     if (ADC_NONMULTIMODE_OR_MULTIMODEMASTER(hadc))
     {
       CLEAR_BIT(hadc->State, HAL_ADC_STATE_MULTIMODE_SLAVE);
@@ -538,101 +535,100 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStart_IT(ADC_HandleTypeDef* hadc)
       SET_BIT(hadc->State, HAL_ADC_STATE_MULTIMODE_SLAVE);
     }
     
-    /* Check if a regular conversion is ongoing */
-    /* Note: On this device, there is no ADC error code fields related to     */
-    /*       conversions on group injected only. In case of conversion on     */
-    /*       going on group regular, no error code is reset.                  */
+    /* 检查规则组转换是否正在进行 */
+    /* 注意：在该器件上，没有仅与注入组转换相关的 ADC 错误代码字段。           */
+    /*       如果规则组的转换正在进行，则不会复位任何错误代码。               */
+    /*                                                                         */
     if (HAL_IS_BIT_CLR(hadc->State, HAL_ADC_STATE_REG_BUSY))
     {
-      /* Reset ADC all error code fields */
+      /* 复位所有 ADC 错误代码字段 */
       ADC_CLEAR_ERRORCODE(hadc);
     }
     
-    /* Process unlocked */
-    /* Unlock before starting ADC conversions: in case of potential           */
-    /* interruption, to let the process to ADC IRQ Handler.                   */
+    /* 进程已解锁 */
+    /* 在启动 ADC 转换前解锁：以防发生中断时，将控制权让给 ADC 中断处理程序。 */
+    /*                                                                         */
     __HAL_UNLOCK(hadc);
     
-    /* Clear injected group conversion flag */
-    /* (To ensure of no unknown state from potential previous ADC operations) */
+    /* 清除注入组转换标志 */
+    /* （以确保消除先前 ADC 操作可能带来的未知状态）                         */
     __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_JEOC);
     
-    /* Enable end of conversion interrupt for injected channels */
+    /* 使能注入通道转换结束中断 */
     __HAL_ADC_ENABLE_IT(hadc, ADC_IT_JEOC);
     
-    /* Start conversion of injected group if software start has been selected */
-    /* and if automatic injected conversion is disabled.                      */
-    /* If external trigger has been selected, conversion will start at next   */
-    /* trigger event.                                                         */
-    /* If automatic injected conversion is enabled, conversion will start     */
-    /* after next regular group conversion.                                   */
+    /* 如果已选择软件触发，则启动注入组转换 */
+    /* 且自动注入转换已禁用。                                                  */
+    /* 如果选择了外部触发，转换将在下一个                                      */
+    /* 触发事件到来时启动。                                                    */
+    /* 如果启用了自动注入转换，转换将在                                        */
+    /* 下一次规则组转换完成后启动。                                            */
     if (HAL_IS_BIT_CLR(hadc->Instance->CR1, ADC_CR1_JAUTO))
     {
       if (ADC_IS_SOFTWARE_START_INJECTED(hadc)     &&
           ADC_NONMULTIMODE_OR_MULTIMODEMASTER(hadc)  )
       {
-        /* Start ADC conversion on injected group with SW start */
+        /* 通过软件触发启动注入组的 ADC 转换 */
         SET_BIT(hadc->Instance->CR2, (ADC_CR2_JSWSTART | ADC_CR2_JEXTTRIG));
       }
       else
       {
-        /* Start ADC conversion on injected group with external trigger */
+        /* 通过外部触发启动注入组的 ADC 转换 */
         SET_BIT(hadc->Instance->CR2, ADC_CR2_JEXTTRIG);
       }
     }
   }
   else
   {
-    /* Process unlocked */
+    /* 解锁进程 */
     __HAL_UNLOCK(hadc);
   }
   
-  /* Return function status */
+  /* 返回函数状态 */
   return tmp_hal_status;
 }
 
 /**
-  * @brief  Stop conversion of injected channels, disable interruption of 
-  *         end-of-conversion. Disable ADC peripheral if no regular conversion
-  *         is on going.
-  * @note   If ADC must be disabled and if conversion is on going on 
-  *         regular group, function HAL_ADC_Stop must be used to stop both
-  *         injected and regular groups, and disable the ADC.
-  * @note   If injected group mode auto-injection is enabled,
-  *         function HAL_ADC_Stop must be used.
-  * @param  hadc: ADC handle
-  * @retval None
+  * @brief  停止注入通道转换，禁用转换结束中断。
+  *         若当前没有正在进行的规则转换，则禁用 ADC 外设。
+  * @note   如果必须禁用 ADC 且规则组转换正在进行，
+  *         则必须使用函数 HAL_ADC_Stop 同时停止注入组和规则组，
+  *         并禁用 ADC。
+  * @note   如果注入组使能了自动注入模式，
+  *         则必须使用函数 HAL_ADC_Stop。
+  * @param  hadc: ADC 句柄
+  * @retval 无
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedStop_IT(ADC_HandleTypeDef* hadc)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
 
-  /* Process locked */
+  /* 上锁进程 */
   __HAL_LOCK(hadc);
     
-  /* Stop potential conversion and disable ADC peripheral                     */
-  /* Conditioned to:                                                          */
-  /* - No conversion on the other group (regular group) is intended to        */
-  /*   continue (injected and regular groups stop conversion and ADC disable  */
-  /*   are common)                                                            */
-  /* - In case of auto-injection mode, HAL_ADC_Stop must be used.             */ 
+  /* 停止潜在的转换并禁用 ADC 外设                                           */
+  /* 取决于以下条件：                                                        */
+  /* - 另一个组（规则组）没有转换计划                                        */
+  /*   继续（注入组和规则组停止转换以及 ADC 禁用的操作是通用的）                  */
+  /*                                                                           */
+  /* - 若处于自动注入模式，则必须使用 HAL_ADC_Stop。                           */ 
   if(((hadc->State & HAL_ADC_STATE_REG_BUSY) == RESET)  &&
      HAL_IS_BIT_CLR(hadc->Instance->CR1, ADC_CR1_JAUTO)   )
   {
-    /* Stop potential conversion on going, on regular and injected groups */
-    /* Disable ADC peripheral */
+    /* 停止规则组和注入组上可能正在进行的转换 */
+    /* 禁用 ADC 外设 */
     tmp_hal_status = ADC_ConversionStop_Disable(hadc);
     
-    /* Check if ADC is effectively disabled */
+    /* 检查 ADC 是否已真正禁用 */
     if (tmp_hal_status == HAL_OK)
     {
-      /* Disable ADC end of conversion interrupt for injected channels */
+      /* 禁用注入通道的 ADC 转换完成中断 */
       __HAL_ADC_DISABLE_IT(hadc, ADC_IT_JEOC);
       
-      /* Set ADC state */
+      /* 设置 ADC 状态 */
       ADC_STATE_CLR_SET(hadc->State,
                         HAL_ADC_STATE_REG_BUSY | HAL_ADC_STATE_INJ_BUSY,
                         HAL_ADC_STATE_READY);
@@ -640,162 +636,158 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop_IT(ADC_HandleTypeDef* hadc)
   }
   else
   {
-    /* Update ADC state machine to error */
+    /* 更新 ADC 状态机为错误状态 */
     SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
       
     tmp_hal_status = HAL_ERROR;
   }
   
-  /* Process unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hadc);
   
-  /* Return function status */
+  /* 返回函数状态 */
   return tmp_hal_status;
 }
 
 #if defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F105xC) || defined (STM32F107xC) || defined (STM32F103xE) || defined (STM32F103xG)
 /**
-  * @brief  Enables ADC, starts conversion of regular group and transfers result
-  *         through DMA.
-  *         Multimode must have been previously configured using 
-  *         HAL_ADCEx_MultiModeConfigChannel() function.
-  *         Interruptions enabled in this function:
-  *          - DMA transfer complete
-  *          - DMA half transfer
-  *         Each of these interruptions has its dedicated callback function.
-  * @note:  On STM32F1 devices, ADC slave regular group must be configured 
-  *         with conversion trigger ADC_SOFTWARE_START.
-  * @note:  ADC slave can be enabled preliminarily using single-mode  
-  *         HAL_ADC_Start() function.
-  * @param  hadc: ADC handle of ADC master (handle of ADC slave must not be used)
-  * @param  pData: The destination Buffer address.
-  * @param  Length: The length of data to be transferred from ADC peripheral to memory.
-  * @retval None
+  * @brief  使能 ADC，启动规则组转换并通过 DMA 传输结果。
+  *         必须预先使用 HAL_ADCEx_MultiModeConfigChannel() 函数
+  *         配置多重模式。
+  *         此函数中使能的中断：
+  *          - DMA 传输完成中断
+  *          - DMA 过半传输中断
+  *         这些中断各具有专用的回调函数。
+  * @note:  在 STM32F1 系列器件上，从 ADC 的规则组必须配置
+  *         转换触发源为 ADC_SOFTWARE_START。
+  * @note:  从 ADC 可以预先使用单模式的 HAL_ADC_Start() 函数使能。
+  * @param  hadc: 主 ADC 的 ADC 句柄（切勿使用从 ADC 的句柄）
+  * @param  pData: 目标缓冲区地址。
+  * @param  Length: 从 ADC 外设传输至内存的数据长度。
+  * @retval 无
   */
 HAL_StatusTypeDef HAL_ADCEx_MultiModeStart_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
   ADC_HandleTypeDef tmphadcSlave={0};
 
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_MULTIMODE_MASTER_INSTANCE(hadc->Instance));
   assert_param(IS_FUNCTIONAL_STATE(hadc->Init.ContinuousConvMode));
   
-  /* Process locked */
+  /* 进程加锁 */
   __HAL_LOCK(hadc);
 
-  /* Set a temporary handle of the ADC slave associated to the ADC master     */
+  /* 设置与主 ADC 关联的从 ADC 的临时句柄                                     */
   ADC_MULTI_SLAVE(hadc, &tmphadcSlave);
   
-  /* On STM32F1 devices, ADC slave regular group must be configured with      */
-  /* conversion trigger ADC_SOFTWARE_START.                                   */
-  /* Note: External trigger of ADC slave must be enabled, it is already done  */
-  /*       into function "HAL_ADC_Init()".                                    */
+  /* 在 STM32F1 系列器件上，从 ADC 规则组必须配置为                             */
+  /* 转换触发源 ADC_SOFTWARE_START。                                           */
+  /* 注意：从 ADC 的外部触发必须使能，该操作已在                                */
+  /*       函数 "HAL_ADC_Init()" 中完成。                                      */
   if(!ADC_IS_SOFTWARE_START_REGULAR(&tmphadcSlave))  
   {
-    /* Update ADC state machine to error */
+    /* 将 ADC 状态机更新为错误状态 */
     SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
     
-    /* Process unlocked */
+    /* 进程解锁 */
     __HAL_UNLOCK(hadc);
     
     return HAL_ERROR;
   }
   
-  /* Enable the ADC peripherals: master and slave (in case if not already     */
-  /* enabled previously)                                                      */
+  /* 使能 ADC 外设：主 ADC 与从 ADC（以防先前尚未使能）                         */
+  /*                                                                          */
   tmp_hal_status = ADC_Enable(hadc);
   if (tmp_hal_status == HAL_OK)
   {
     tmp_hal_status = ADC_Enable(&tmphadcSlave);
   }
   
-  /* Start conversion if all ADCs of multimode are effectively enabled */
+  /* 若多重模式下的所有 ADC 均已有效使能，则启动转换 */
   if (tmp_hal_status == HAL_OK)
   {
-    /* Set ADC state (ADC master)                                             */
-    /* - Clear state bitfield related to regular group conversion results     */
-    /* - Set state bitfield related to regular operation                      */
+    /* 设置 ADC 状态（主 ADC）                                                 */
+    /* - 清除与规则组转换结果相关的状态位域                                      */
+    /* - 置位与规则组运行相关的状态位域                                          */
     ADC_STATE_CLR_SET(hadc->State,
                       HAL_ADC_STATE_READY | HAL_ADC_STATE_REG_EOC | HAL_ADC_STATE_MULTIMODE_SLAVE,
                       HAL_ADC_STATE_REG_BUSY);
       
-    /* If conversions on group regular are also triggering group injected,    */
-    /* update ADC state.                                                      */
+    /* 若规则组的转换同时触发了注入组转换，                                      */
+    /* 则更新 ADC 状态。                                                        */
     if (READ_BIT(hadc->Instance->CR1, ADC_CR1_JAUTO) != RESET)
     {
       ADC_STATE_CLR_SET(hadc->State, HAL_ADC_STATE_INJ_EOC, HAL_ADC_STATE_INJ_BUSY);  
     }
     
-    /* Process unlocked */
-    /* Unlock before starting ADC conversions: in case of potential           */
-    /* interruption, to let the process to ADC IRQ Handler.                   */
+    /* 进程解锁 */
+    /* 在启动 ADC 转换前解锁：以防发生潜在的中断时，                             */
+    /* 能够将处理流程交由 ADC 中断处理函数（ADC IRQ Handler）。                 */
     __HAL_UNLOCK(hadc);
     
-    /* Set ADC error code to none */
+    /* 将 ADC 错误码清零（设置为无错误） */
     ADC_CLEAR_ERRORCODE(hadc);
     
     
-    /* Set the DMA transfer complete callback */
+    /* 设置 DMA 传输完成回调函数 */
     hadc->DMA_Handle->XferCpltCallback = ADC_DMAConvCplt;
        
-    /* Set the DMA half transfer complete callback */
+    /* 设置 DMA 半传输完成回调函数 */
     hadc->DMA_Handle->XferHalfCpltCallback = ADC_DMAHalfConvCplt;
     
-    /* Set the DMA error callback */
+    /* 设置 DMA 错误回调函数 */
     hadc->DMA_Handle->XferErrorCallback = ADC_DMAError;
 
     
-    /* Manage ADC and DMA start: ADC overrun interruption, DMA start, ADC     */
-    /* start (in case of SW start):                                           */
+    /* 处理 ADC 和 DMA 的启动：ADC 过载中断、DMA 启动、ADC                      */
+    /* 启动（若为软件触发启动）：                                             */
     
-    /* Clear regular group conversion flag and overrun flag */
-    /* (To ensure of no unknown state from potential previous ADC operations) */
+    /* 清除规则组转换标志位和过载（overrun）标志位 */
+    /* （以确保消除先前潜在 ADC 操作可能遗留的未知状态） */
     __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_EOC);
     
-    /* Enable ADC DMA mode of ADC master */
+    /* 使能主 ADC 的 ADC DMA 模式 */
     SET_BIT(hadc->Instance->CR2, ADC_CR2_DMA);
     
-    /* Start the DMA channel */
+    /* 启动 DMA 通道 */
     HAL_DMA_Start_IT(hadc->DMA_Handle, (uint32_t)&hadc->Instance->DR, (uint32_t)pData, Length);
     
-    /* Start conversion of regular group if software start has been selected. */
-    /* If external trigger has been selected, conversion will start at next   */
-    /* trigger event.                                                         */
-    /* Note: Alternate trigger for single conversion could be to force an     */
-    /*       additional set of bit ADON "hadc->Instance->CR2 |= ADC_CR2_ADON;"*/
+    /* 若选择了软件触发，则启动规则组转换。                                   */
+    /* 若选择了外部触发，转换将在下一次                                       */
+    /* 触发事件到来时启动。                                                   */
+    /* 注意：单次转换的备选触发方式可以是强制再次置位 ADON 位          */
+    /*       "hadc->Instance->CR2 |= ADC_CR2_ADON;"                         */
     if (ADC_IS_SOFTWARE_START_REGULAR(hadc))
     {
-      /* Start ADC conversion on regular group with SW start */
+      /* 通过软件触发启动规则组的 ADC 转换 */
       SET_BIT(hadc->Instance->CR2, (ADC_CR2_SWSTART | ADC_CR2_EXTTRIG));
     }
     else
     {
-      /* Start ADC conversion on regular group with external trigger */
+      /* 通过外部触发启动规则组的 ADC 转换 */
       SET_BIT(hadc->Instance->CR2, ADC_CR2_EXTTRIG);
     }
   }
   else
   {
-    /* Process unlocked */
+    /* 进程解锁 */
     __HAL_UNLOCK(hadc);
   }
   
-  /* Return function status */
+  /* 返回函数状态 */
   return tmp_hal_status;
 }
 
 /**
-  * @brief  Stop ADC conversion of regular group (and injected channels in 
-  *         case of auto_injection mode), disable ADC DMA transfer, disable 
-  *         ADC peripheral.
-  * @note   Multimode is kept enabled after this function. To disable multimode 
-  *         (set with HAL_ADCEx_MultiModeConfigChannel(), ADC must be 
-  *         reinitialized using HAL_ADC_Init() or HAL_ADC_ReInit().
-  * @note   In case of DMA configured in circular mode, function 
-  *         HAL_ADC_Stop_DMA must be called after this function with handle of
-  *         ADC slave, to properly disable the DMA channel.
-  * @param  hadc: ADC handle of ADC master (handle of ADC slave must not be used)
+  * @brief  停止规则组的 ADC 转换（在自动注入模式下还包括注入通道），
+  *         禁用 ADC DMA 传输，禁用 ADC 外设。
+  * @note   执行此函数后多重模式仍保持使能。若要禁用多重模式
+  *         （通过 HAL_ADCEx_MultiModeConfigChannel() 设置），必须使用
+  *         HAL_ADC_Init() 或 HAL_ADC_ReInit() 重新初始化 ADC。
+  * @note   若 DMA 配置为循环模式，必须在此函数之后调用 HAL_ADC_Stop_DMA
+  *         函数（传入从 ADC 句柄），以正确禁用 DMA 通道。
+  * @param  hadc: 主 ADC 的 ADC 句柄（切勿使用从 ADC 的句柄）
   * @retval None
   */
 HAL_StatusTypeDef HAL_ADCEx_MultiModeStop_DMA(ADC_HandleTypeDef* hadc)
@@ -803,98 +795,98 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStop_DMA(ADC_HandleTypeDef* hadc)
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
   ADC_HandleTypeDef tmphadcSlave={0};
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_MULTIMODE_MASTER_INSTANCE(hadc->Instance));
   
-  /* Process locked */
+  /* 进程加锁 */
   __HAL_LOCK(hadc);
 
-  /* Stop potential conversion on going, on regular and injected groups */
-  /* Disable ADC master peripheral */
+  /* 停止规则组和注入组上可能正在进行的转换 */
+  /* 禁用主 ADC 外设 */
   tmp_hal_status = ADC_ConversionStop_Disable(hadc);
   
-  /* Check if ADC is effectively disabled */
+  /* 检查 ADC 是否已有效禁用 */
   if(tmp_hal_status == HAL_OK)
   {
-    /* Set a temporary handle of the ADC slave associated to the ADC master   */
+    /* 设置与主 ADC 关联的从 ADC 临时句柄                                   */
     ADC_MULTI_SLAVE(hadc, &tmphadcSlave);
 
-    /* Disable ADC slave peripheral */
+    /* 禁用从 ADC 外设 */
     tmp_hal_status = ADC_ConversionStop_Disable(&tmphadcSlave);
 
-    /* Check if ADC is effectively disabled */
+    /* 检查 ADC 是否已有效禁用 */
     if(tmp_hal_status != HAL_OK)
     {
-      /* Update ADC state machine to error */
+      /* 将 ADC 状态机更新为错误状态 */
       SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_INTERNAL);
 
-      /* Process unlocked */
+      /* 进程解锁 */
       __HAL_UNLOCK(hadc);
 
       return HAL_ERROR;
     }
 
-    /* Disable ADC DMA mode */
+    /* 禁用 ADC DMA 模式 */
     CLEAR_BIT(hadc->Instance->CR2, ADC_CR2_DMA);
     
-    /* Reset configuration of ADC DMA continuous request for dual mode */
+    /* 复位双重模式下 ADC DMA 连续请求的配置 */
     CLEAR_BIT(hadc->Instance->CR1, ADC_CR1_DUALMOD);
         
-    /* Disable the DMA channel (in case of DMA in circular mode or stop while */
-    /* while DMA transfer is on going)                                        */
+    /* 禁用 DMA 通道（用于 DMA 处于循环模式，或在 */
+    /* DMA 传输正在进行时停止的情况）                                        */
     tmp_hal_status = HAL_DMA_Abort(hadc->DMA_Handle);
 
-    /* Change ADC state (ADC master) */
+    /* 更改 ADC 状态（主 ADC） */
     ADC_STATE_CLR_SET(hadc->State,
                       HAL_ADC_STATE_REG_BUSY | HAL_ADC_STATE_INJ_BUSY,
                       HAL_ADC_STATE_READY);
   }
   
-  /* Process unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hadc);
   
-  /* Return function status */
+  /* 返回函数状态 */
   return tmp_hal_status;
 }
 #endif /* defined STM32F103x6 || defined STM32F103xB || defined STM32F105xC || defined STM32F107xC || defined STM32F103xE || defined STM32F103xG */
 
 /**
-  * @brief  Get ADC injected group conversion result.
-  * @note   Reading register JDRx automatically clears ADC flag JEOC
-  *         (ADC group injected end of unitary conversion).
-  * @note   This function does not clear ADC flag JEOS 
-  *         (ADC group injected end of sequence conversion)
-  *         Occurrence of flag JEOS rising:
-  *          - If sequencer is composed of 1 rank, flag JEOS is equivalent
-  *            to flag JEOC.
-  *          - If sequencer is composed of several ranks, during the scan
-  *            sequence flag JEOC only is raised, at the end of the scan sequence
-  *            both flags JEOC and EOS are raised.
-  *         Flag JEOS must not be cleared by this function because
-  *         it would not be compliant with low power features
-  *         (feature low power auto-wait, not available on all STM32 families).
-  *         To clear this flag, either use function: 
-  *         in programming model IT: @ref HAL_ADC_IRQHandler(), in programming
-  *         model polling: @ref HAL_ADCEx_InjectedPollForConversion() 
-  *         or @ref __HAL_ADC_CLEAR_FLAG(&hadc, ADC_FLAG_JEOS).
-  * @param  hadc: ADC handle
-  * @param  InjectedRank: the converted ADC injected rank.
-  *          This parameter can be one of the following values:
-  *            @arg ADC_INJECTED_RANK_1: Injected Channel1 selected
-  *            @arg ADC_INJECTED_RANK_2: Injected Channel2 selected
-  *            @arg ADC_INJECTED_RANK_3: Injected Channel3 selected
-  *            @arg ADC_INJECTED_RANK_4: Injected Channel4 selected
-  * @retval ADC group injected conversion data
+  * @brief  获取 ADC 注入组转换结果。
+  * @note   读取寄存器 JDRx 会自动清除 ADC 标志位 JEOC
+  *         （ADC 注入组单次转换结束）。
+  * @note   此函数不会清除 ADC 标志位 JEOS
+  *         （ADC 注入组序列转换结束）
+  *         标志位 JEOS 置位的时机：
+  *          - 如果序列发生器仅由 1 个序列级别（rank）组成，标志位 JEOS 等效于
+  *            标志位 JEOC。
+  *          - 如果序列发生器由多个序列级别组成，在扫描序列
+  *            进行期间仅置位标志位 JEOC，在扫描序列结束时
+  *            标志位 JEOC 和 EOS 会同时置位。
+  *         此函数不得清除标志位 JEOS，因为
+  *         这会导致与低功耗特性不兼容
+  *         （低功耗自动等待特性，并非所有 STM32 系列都支持）。
+  *         若要清除此标志位，可使用以下函数：
+  *         中断编程模型下：@ref HAL_ADC_IRQHandler()；轮询编程
+  *         模型下：@ref HAL_ADCEx_InjectedPollForConversion()
+  *         或 @ref __HAL_ADC_CLEAR_FLAG(&hadc, ADC_FLAG_JEOS)。
+  * @param  hadc: ADC 句柄
+  * @param  InjectedRank: 转换的 ADC 注入序列级别。
+  *          该参数可以是以下值之一：
+  *            @arg ADC_INJECTED_RANK_1: 选中注入通道 1
+  *            @arg ADC_INJECTED_RANK_2: 选中注入通道 2
+  *            @arg ADC_INJECTED_RANK_3: 选中注入通道 3
+  *            @arg ADC_INJECTED_RANK_4: 选中注入通道 4
+  * @retval ADC 注入组转换数据
   */
 uint32_t HAL_ADCEx_InjectedGetValue(ADC_HandleTypeDef* hadc, uint32_t InjectedRank)
 {
   uint32_t tmp_jdr = 0U;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
   assert_param(IS_ADC_INJECTED_RANK(InjectedRank));
   
-  /* Get ADC converted value */ 
+  /* 获取 ADC 转换值 */ 
   switch(InjectedRank)
   {  
     case ADC_INJECTED_RANK_4: 
@@ -912,32 +904,31 @@ uint32_t HAL_ADCEx_InjectedGetValue(ADC_HandleTypeDef* hadc, uint32_t InjectedRa
       break;
   }
   
-  /* Return ADC converted value */ 
+  /* 返回 ADC 转换值 */ 
   return tmp_jdr;
 }
 
 #if defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F105xC) || defined (STM32F107xC) || defined (STM32F103xE) || defined (STM32F103xG)
 /**
-  * @brief  Returns the last ADC Master&Slave regular conversions results data
-  *         in the selected multi mode.
-  * @param  hadc: ADC handle of ADC master (handle of ADC slave must not be used)
-  * @retval The converted data value.
+  * @brief  在选定的多重模式下，返回最新的主从 ADC 规则转换结果数据。
+  * @param  hadc: 主 ADC 的 ADC 句柄（不得使用从 ADC 的句柄）
+  * @retval 转换后的数据值。
   */
 uint32_t HAL_ADCEx_MultiModeGetValue(ADC_HandleTypeDef* hadc)
 {
   uint32_t tmpDR = 0U;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_MULTIMODE_MASTER_INSTANCE(hadc->Instance));
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
 
-  /* Note: EOC flag is not cleared here by software because automatically     */
-  /*       cleared by hardware when reading register DR.                      */
+  /* 注意：此处无需软件清除 EOC 标志，因为在读取数据寄存器 DR 时      */
+  /*       硬件会自动将其清除。                                       */
   
-  /* On STM32F1 devices, ADC1 data register DR contains ADC2 conversions      */
-  /* only if ADC1 DMA mode is enabled.                                        */
+  /* 在 STM32F1 系列器件上，仅当使能 ADC1 的 DMA 模式时，ADC1 数据寄存器 DR */
+  /* 才会包含 ADC2 的转换结果。                                             */
   tmpDR = hadc->Instance->DR;
 
   if (HAL_IS_BIT_CLR(ADC1->CR2, ADC_CR2_DMA))
@@ -945,22 +936,22 @@ uint32_t HAL_ADCEx_MultiModeGetValue(ADC_HandleTypeDef* hadc)
     tmpDR |= (ADC2->DR << 16U);
   }
     
-  /* Return ADC converted value */ 
+  /* 返回 ADC 转换值 */ 
   return tmpDR;
 }
 #endif /* defined STM32F103x6 || defined STM32F103xB || defined STM32F105xC || defined STM32F107xC || defined STM32F103xE || defined STM32F103xG */
 
 /**
-  * @brief  Injected conversion complete callback in non blocking mode 
-  * @param  hadc: ADC handle
-  * @retval None
+  * @brief  非阻塞模式下的注入组转换完成回调函数
+  * @param  hadc: ADC 句柄
+  * @retval 无
   */
 __weak void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-  /* Prevent unused argument(s) compilation warning */
+  /* 防止出现未引用的参数编译警告 */
   UNUSED(hadc);
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_ADCEx_InjectedConvCpltCallback could be implemented in the user file
+  /* 注意：不应修改此函数，当需要使用该回调函数时，
+            可以在用户文件中重新实现 HAL_ADCEx_InjectedConvCpltCallback
   */
 }
 
@@ -968,41 +959,38 @@ __weak void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
   * @}
   */
 
-/** @defgroup ADCEx_Exported_Functions_Group2 Extended Peripheral Control functions
-  * @brief    Extended Peripheral Control functions
+/** @defgroup ADCEx_Exported_Functions_Group2 扩展外设控制函数
+  * @brief    扩展外设控制函数
   *
 @verbatim   
  ===============================================================================
-             ##### Peripheral Control functions #####
+             ##### 外设控制函数 #####
  ===============================================================================  
-    [..]  This section provides functions allowing to:
-      (+) Configure channels on injected group
-      (+) Configure multimode
+    [..]  本节提供的函数可用于：
+      (+) 配置注入组通道
+      (+) 配置双重/多重模式
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Configures the ADC injected group and the selected channel to be
-  *         linked to the injected group.
-  * @note   Possibility to update parameters on the fly:
-  *         This function initializes injected group, following calls to this 
-  *         function can be used to reconfigure some parameters of structure
-  *         "ADC_InjectionConfTypeDef" on the fly, without resetting the ADC.
-  *         The setting of these parameters is conditioned to ADC state: 
-  *         this function must be called when ADC is not under conversion.
-  * @param  hadc: ADC handle
-  * @param  sConfigInjected: Structure of ADC injected group and ADC channel for
-  *         injected group.
-  * @retval None
+  * @brief  配置 ADC 注入组以及关联到注入组的选定通道。
+  * @note   支持动态更新参数：
+  *         该函数初始化注入组，后续调用此函数可在不复位 ADC 的情况下，
+  *         动态重新配置结构体 "ADC_InjectionConfTypeDef" 中的部分参数。
+  *         这些参数的设置受 ADC 状态限制：
+  *         必须在 ADC 未处于转换状态时调用此函数。
+  * @param  hadc: ADC 句柄
+  * @param  sConfigInjected: ADC 注入组及注入通道配置结构体。
+  * @retval 无
   */
 HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_InjectionConfTypeDef* sConfigInjected)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
   __IO uint32_t wait_loop_index = 0U;
   
-  /* Check the parameters */
+  /* 检查参数 */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
   assert_param(IS_ADC_CHANNEL(sConfigInjected->InjectedChannel));
   assert_param(IS_ADC_SAMPLE_TIME(sConfigInjected->InjectedSamplingTime));
@@ -1017,23 +1005,23 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
     assert_param(IS_FUNCTIONAL_STATE(sConfigInjected->InjectedDiscontinuousConvMode));
   }
   
-  /* Process locked */
+  /* 进程已锁定 */
   __HAL_LOCK(hadc);
   
-  /* Configuration of injected group sequencer:                               */
-  /* - if scan mode is disabled, injected channels sequence length is set to  */
-  /*   0x00: 1 channel converted (channel on regular rank 1)                  */
-  /*   Parameter "InjectedNbrOfConversion" is discarded.                      */
-  /*   Note: Scan mode is present by hardware on this device and, if          */
-  /*   disabled, discards automatically nb of conversions. Anyway, nb of      */
-  /*   conversions is forced to 0x00 for alignment over all STM32 devices.    */
-  /* - if scan mode is enabled, injected channels sequence length is set to   */
-  /*   parameter "InjectedNbrOfConversion".                                   */
+  /* 注入组序列器的配置：                                                     */
+  /* - 若扫描模式被禁用，注入通道序列长度设置为                               */
+  /*   0x00：转换 1 个通道（规则排序 1 上的通道）                             */
+  /*   参数 "InjectedNbrOfConversion" 将被忽略。                              */
+  /*   注意：该器件在硬件上支持扫描模式，若将其                               */
+  /*   禁用，会自动忽略转换通道数。无论如何，转换                             */
+  /*   通道数仍被强制设为 0x00，以便在所有 STM32 器件间保持一致。              */
+  /* - 若扫描模式被使能，注入通道序列长度设置为                               */
+  /*   参数 "InjectedNbrOfConversion"。                                       */
   if (hadc->Init.ScanConvMode == ADC_SCAN_DISABLE)
   {
     if (sConfigInjected->InjectedRank == ADC_INJECTED_RANK_1)
     {
-      /* Clear the old SQx bits for all injected ranks */
+      /* 清除所有注入排序旧的 SQx 位 */
       MODIFY_REG(hadc->Instance->JSQR                             ,
                  ADC_JSQR_JL   |
                  ADC_JSQR_JSQ4 |
@@ -1044,11 +1032,11 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
                                   ADC_INJECTED_RANK_1,
                                   0x01U));
     }
-    /* If another injected rank than rank1 was intended to be set, and could  */
-    /* not due to ScanConvMode disabled, error is reported.                   */
+    /* 若本意欲配置除 rank1 以外的其他注入排序，但由于                         */
+    /* ScanConvMode 被禁用而无法配置，则报告错误。                             */
     else
     {
-      /* Update ADC state machine to error */
+      /* 更新 ADC 状态机为错误状态 */
       SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
       
       tmp_hal_status = HAL_ERROR;
@@ -1056,13 +1044,13 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
   }
   else
   {
-    /* Since injected channels rank conv. order depends on total number of   */
-    /* injected conversions, selected rank must be below or equal to total   */
-    /* number of injected conversions to be updated.                         */
+    /* 由于注入通道排序转换顺序取决于注入通道总数                             */
+    /* 注入转换，所选排序（rank）必须小于或等于要更新的注入转换总数。 */
+    /*                                                                           */
     if (sConfigInjected->InjectedRank <= sConfigInjected->InjectedNbrOfConversion)
     {
-      /* Clear the old SQx bits for the selected rank */
-      /* Set the SQx bits for the selected rank */
+      /* 清除所选排序的原 SQx 位 */
+      /* 设置所选排序的 SQx 位 */
       MODIFY_REG(hadc->Instance->JSQR                                         ,
                  
                  ADC_JSQR_JL                                               |
@@ -1077,7 +1065,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
     }
     else
     {
-      /* Clear the old SQx bits for the selected rank */
+      /* 清除所选排序的原 SQx 位 */
       MODIFY_REG(hadc->Instance->JSQR                                       ,
                  
                  ADC_JSQR_JL                                               |
@@ -1089,15 +1077,15 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
     }
   } 
     
-  /* Configuration of injected group                                          */
-  /* Parameters update conditioned to ADC state:                              */
-  /* Parameters that can be updated only when ADC is disabled:                */
-  /*  - external trigger to start conversion                                  */
-  /* Parameters update not conditioned to ADC state:                          */
-  /*  - Automatic injected conversion                                         */
-  /*  - Injected discontinuous mode                                           */
-  /* Note: In case of ADC already enabled, caution to not launch an unwanted  */
-  /*       conversion while modifying register CR2 by writing 1 to bit ADON.  */
+  /* 注入组配置                                                               */
+  /* 参数更新取决于 ADC 状态：                                                */
+  /* 仅在 ADC 禁用时才可更新的参数：                                          */
+  /*  - 启动转换的外部触发                                                    */
+  /* 参数更新不受 ADC 状态限制：                                              */
+  /*  - 自动注入转换                                                          */
+  /*  - 注入间断模式                                                          */
+  /* 注意：如果 ADC 已使能，修改 CR2 寄存器时应注意避免向 ADON 位写入 1，     */
+  /*       从而触发非预期的转换。                                             */
   if (ADC_IS_ENABLE(hadc) == RESET)
   {    
     MODIFY_REG(hadc->Instance->CR2                                           ,
@@ -1107,12 +1095,12 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
   }
   
   
-  /* Configuration of injected group                                          */
-  /*  - Automatic injected conversion                                         */
-  /*  - Injected discontinuous mode                                           */
+  /* 注入组配置                                                               */
+  /*  - 自动注入转换                                                         */
+  /*  - 注入间断模式                                                         */
   
-    /* Automatic injected conversion can be enabled if injected group         */
-    /* external triggers are disabled.                                        */
+    /* 仅当注入组外部触发被禁用时，                                            */
+    /* 才能使能自动注入转换。                                                  */
     if (sConfigInjected->AutoInjectedConv == ENABLE)
     {
       if (sConfigInjected->ExternalTrigInjecConv == ADC_INJECTED_SOFTWARE_START)
@@ -1121,15 +1109,15 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
       }
       else
       {
-        /* Update ADC state machine to error */
+        /* 更新 ADC 状态机为错误状态 */
         SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
         
         tmp_hal_status = HAL_ERROR;
       }
     }
     
-    /* Injected discontinuous can be enabled only if auto-injected mode is    */
-    /* disabled.                                                              */  
+    /* 仅当自动注入模式被禁用时，                                              */
+    /* 才能使能注入间断模式。                                                  */  
     if (sConfigInjected->InjectedDiscontinuousConvMode == ENABLE)
     {
       if (sConfigInjected->AutoInjectedConv == DISABLE)
@@ -1138,7 +1126,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
       } 
       else
       {
-        /* Update ADC state machine to error */
+        /* 更新 ADC 状态机为错误状态 */
         SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
         
         tmp_hal_status = HAL_ERROR;
@@ -1146,23 +1134,23 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
     }
 
 
-  /* InjectedChannel sampling time configuration */
-  /* For channels 10 to 17 */
+  /* InjectedChannel 采样时间配置 */
+  /* 适用于通道 10 到 17 */
   if (sConfigInjected->InjectedChannel >= ADC_CHANNEL_10)
   {
     MODIFY_REG(hadc->Instance->SMPR1                                                             ,
                ADC_SMPR1(ADC_SMPR1_SMP10, sConfigInjected->InjectedChannel)                      ,
                ADC_SMPR1(sConfigInjected->InjectedSamplingTime, sConfigInjected->InjectedChannel) );
   }
-  else /* For channels 0 to 9 */
+  else /* 适用于通道 0 到 9 */
   {
     MODIFY_REG(hadc->Instance->SMPR2                                                             ,
                ADC_SMPR2(ADC_SMPR2_SMP0, sConfigInjected->InjectedChannel)                       ,
                ADC_SMPR2(sConfigInjected->InjectedSamplingTime, sConfigInjected->InjectedChannel) );
   }
   
-  /* If ADC1 InjectedChannel_16 or InjectedChannel_17 is selected, enable Temperature sensor  */
-  /* and VREFINT measurement path.                                            */
+  /* 如果选择了 ADC1 InjectedChannel_16 或 InjectedChannel_17，使能内部温度传感器 */
+  /* 和 VREFINT 测量通道。                                                    */
   if ((sConfigInjected->InjectedChannel == ADC_CHANNEL_TEMPSENSOR) ||
       (sConfigInjected->InjectedChannel == ADC_CHANNEL_VREFINT)      )
   {
@@ -1170,23 +1158,23 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
   }
   
   
-  /* Configure the offset: offset enable/disable, InjectedChannel, offset value */
+  /* 配置偏移量：使能/禁用偏移、InjectedChannel、偏移值 */
   switch(sConfigInjected->InjectedRank)
   {
     case 1:
-      /* Set injected channel 1 offset */
+      /* 设置注入通道 1 的偏移量 */
       MODIFY_REG(hadc->Instance->JOFR1,
                  ADC_JOFR1_JOFFSET1,
                  sConfigInjected->InjectedOffset);
       break;
     case 2:
-      /* Set injected channel 2 offset */
+      /* 设置注入通道 2 偏移量 */
       MODIFY_REG(hadc->Instance->JOFR2,
                  ADC_JOFR2_JOFFSET2,
                  sConfigInjected->InjectedOffset);
       break;
     case 3:
-      /* Set injected channel 3 offset */
+      /* 设置注入通道 3 偏移量 */
       MODIFY_REG(hadc->Instance->JOFR3,
                  ADC_JOFR3_JOFFSET3,
                  sConfigInjected->InjectedOffset);
@@ -1199,14 +1187,14 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
       break;
   }
   
-  /* If ADC1 Channel_16 or Channel_17 is selected, enable Temperature sensor  */
-  /* and VREFINT measurement path.                                            */
+  /* 若选择了 ADC1 通道 16 或通道 17，则使能温度传感器 */
+  /* 和 VREFINT 测量通路。 */
   if ((sConfigInjected->InjectedChannel == ADC_CHANNEL_TEMPSENSOR) ||
       (sConfigInjected->InjectedChannel == ADC_CHANNEL_VREFINT)      )
   {
-    /* For STM32F1 devices with several ADC: Only ADC1 can access internal    */
-    /* measurement channels (VrefInt/TempSensor). If these channels are       */
-    /* intended to be set on other ADC instances, an error is reported.       */
+    /* 对于具有多个 ADC 的 STM32F1 器件：仅 ADC1 可以访问内部 */
+    /* 测量通道（VrefInt/TempSensor）。若尝试在其他 ADC 实例上 */
+    /* 配置这些通道，将报告错误。 */
     if (hadc->Instance == ADC1)
     {
       if (READ_BIT(hadc->Instance->CR2, ADC_CR2_TSVREFE) == RESET)
@@ -1215,8 +1203,8 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
         
         if ((sConfigInjected->InjectedChannel == ADC_CHANNEL_TEMPSENSOR))
         {
-          /* Delay for temperature sensor stabilization time */
-          /* Compute number of CPU cycles to wait for */
+          /* 延时以等待温度传感器稳定时间 */
+          /* 计算需要等待的 CPU 周期数 */
           wait_loop_index = (ADC_TEMPSENSOR_DELAY_US * (SystemCoreClock / 1000000U));
           while(wait_loop_index != 0U)
           {
@@ -1227,60 +1215,58 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
     }
     else
     {
-      /* Update ADC state machine to error */
+      /* 将 ADC 状态机更新为错误状态 */
       SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
       
       tmp_hal_status = HAL_ERROR;
     }
   }
   
-  /* Process unlocked */
+  /* 进程解锁 */
   __HAL_UNLOCK(hadc);
   
-  /* Return function status */
+  /* 返回函数状态 */
   return tmp_hal_status;
 }
 
 #if defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F105xC) || defined (STM32F107xC) || defined (STM32F103xE) || defined (STM32F103xG)
 /**
-  * @brief  Enable ADC multimode and configure multimode parameters
-  * @note   Possibility to update parameters on the fly:
-  *         This function initializes multimode parameters, following  
-  *         calls to this function can be used to reconfigure some parameters 
-  *         of structure "ADC_MultiModeTypeDef" on the fly, without resetting 
-  *         the ADCs (both ADCs of the common group).
-  *         The setting of these parameters is conditioned to ADC state.
-  *         For parameters constraints, see comments of structure 
-  *         "ADC_MultiModeTypeDef".
-  * @note   To change back configuration from multimode to single mode, ADC must
-  *         be reset (using function HAL_ADC_Init() ).
-  * @param  hadc: ADC handle
-  * @param  multimode: Structure of ADC multimode configuration
-  * @retval HAL status
+  * @brief  使能 ADC 多重模式并配置多重模式参数
+  * @note   支持动态更新参数：
+  *         该函数用于初始化多重模式参数，随后调用该函数可用于
+  *         在运行过程中动态重配置结构体 "ADC_MultiModeTypeDef" 的部分参数，
+  *         而无需复位各 ADC（共用组中的两个 ADC）。
+  *         这些参数的设置受 ADC 状态约束。
+  *         有关参数约束条件，请参阅结构体 "ADC_MultiModeTypeDef" 的注释说明。
+  * @note   若要从多重模式切回单模式，必须对 ADC 进行复位
+  *         （使用函数 HAL_ADC_Init() ）。
+  * @param  hadc: ADC 句柄
+  * @param  multimode: ADC 多重模式配置结构体
+  * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_ADCEx_MultiModeConfigChannel(ADC_HandleTypeDef* hadc, ADC_MultiModeTypeDef* multimode)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
   ADC_HandleTypeDef tmphadcSlave={0};
   
-  /* Check the parameters */
+  /* 检查参数有效性 */
   assert_param(IS_ADC_MULTIMODE_MASTER_INSTANCE(hadc->Instance));
   assert_param(IS_ADC_MODE(multimode->Mode));
   
-  /* Process locked */
+  /* 进程上锁 */
   __HAL_LOCK(hadc);
   
-  /* Set a temporary handle of the ADC slave associated to the ADC master     */
+  /* 设置与主 ADC 关联的从 ADC 的临时句柄     */
   ADC_MULTI_SLAVE(hadc, &tmphadcSlave);
   
-  /* Parameters update conditioned to ADC state:                              */
-  /* Parameters that can be updated when ADC is disabled or enabled without   */
-  /* conversion on going on regular group:                                    */
-  /*  - ADC master and ADC slave DMA configuration                            */
-  /* Parameters that can be updated only when ADC is disabled:                */
-  /*  - Multimode mode selection                                              */
-  /* To optimize code, all multimode settings can be set when both ADCs of    */
-  /* the common group are in state: disabled.                                 */
+  /* 参数更新取决于 ADC 状态：                              */
+  /* 在 ADC 禁用或启用但规则组没有正在进行的转换时，可更新的参数： */
+  /*                                    */
+  /*  - 主 ADC 和从 ADC 的 DMA 配置                            */
+  /* 仅在 ADC 禁用时可更新的参数：                */
+  /*  - 双重/多重模式选择                                              */
+  /* 为优化代码，当共用组的两个 ADC 都处于禁用状态时，可以配置所有多重模式设置。 */
+  /*                                 */
   if ((ADC_IS_ENABLE(hadc) == RESET)                     &&
       (ADC_IS_ENABLE(&tmphadcSlave) == RESET)            &&
       (IS_ADC_MULTIMODE_MASTER_INSTANCE(hadc->Instance))   )
@@ -1289,21 +1275,21 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeConfigChannel(ADC_HandleTypeDef* hadc, ADC_
                ADC_CR1_DUALMOD    ,
                multimode->Mode     );
   }
-  /* If one of the ADC sharing the same common group is enabled, no update    */
-  /* could be done on neither of the multimode structure parameters.          */
+  /* 如果共享同一共用组的其中一个 ADC 已使能，则不能对多重模式结构的任何参数进行更新。 */
+  /*          */
   else
   {
-    /* Update ADC state machine to error */
+    /* 将 ADC 状态机更新为错误状态 */
     SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
     
     tmp_hal_status = HAL_ERROR;
   }
     
     
-  /* Process unlocked */
+  /* 进程已解锁 */
   __HAL_UNLOCK(hadc);
   
-  /* Return function status */
+  /* 返回函数状态 */
   return tmp_hal_status;
 } 
 #endif /* defined STM32F103x6 || defined STM32F103xB || defined STM32F105xC || defined STM32F107xC || defined STM32F103xE || defined STM32F103xG */

@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the EXTI firmware
-  *          library.
+  * @brief   本文件包含 EXTI 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供参考，旨在为客户提供有关其产品的编码信息，以便客户节省时间。
+  * 因此，对于因本固件的内容和/或客户将本文所含编码信息用于其产品
+  * 而产生的任何索赔所导致的任何直接、间接或后果性损害，
+  * 意法半导体概不承担责任。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_EXTI_H
 #define __STM32F10x_EXTI_H
 
@@ -28,23 +25,23 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup EXTI
+/** @addtogroup EXTI   EXTI 驱动模块
   * @{
   */
 
-/** @defgroup EXTI_Exported_Types
+/** @defgroup EXTI_Exported_Types   EXTI 导出类型
   * @{
   */
 
-/** 
-  * @brief  EXTI mode enumeration  
+/**
+  * @brief  EXTI 模式枚举
   */
 
 typedef enum
@@ -55,8 +52,8 @@ typedef enum
 
 #define IS_EXTI_MODE(MODE) (((MODE) == EXTI_Mode_Interrupt) || ((MODE) == EXTI_Mode_Event))
 
-/** 
-  * @brief  EXTI Trigger enumeration  
+/**
+  * @brief  EXTI 触发枚举
   */
 
 typedef enum
@@ -69,58 +66,58 @@ typedef enum
 #define IS_EXTI_TRIGGER(TRIGGER) (((TRIGGER) == EXTI_Trigger_Rising) || \
                                   ((TRIGGER) == EXTI_Trigger_Falling) || \
                                   ((TRIGGER) == EXTI_Trigger_Rising_Falling))
-/** 
-  * @brief  EXTI Init Structure definition  
+/**
+  * @brief  EXTI 初始化结构体定义
   */
 
 typedef struct
 {
-  uint32_t EXTI_Line;               /*!< Specifies the EXTI lines to be enabled or disabled.
-                                         This parameter can be any combination of @ref EXTI_Lines */
+  uint32_t EXTI_Line;               /*!< 指定要使能或关闭的 EXTI 线。
+                                         该参数可以是 @ref EXTI_Lines 的任意组合 */
    
-  EXTIMode_TypeDef EXTI_Mode;       /*!< Specifies the mode for the EXTI lines.
-                                         This parameter can be a value of @ref EXTIMode_TypeDef */
+  EXTIMode_TypeDef EXTI_Mode;       /*!< 指定 EXTI 线的模式。
+                                         该参数可以是 @ref EXTIMode_TypeDef 的值 */
 
-  EXTITrigger_TypeDef EXTI_Trigger; /*!< Specifies the trigger signal active edge for the EXTI lines.
-                                         This parameter can be a value of @ref EXTIMode_TypeDef */
+  EXTITrigger_TypeDef EXTI_Trigger; /*!< 指定 EXTI 线的触发信号有效边沿。
+                                         该参数可以是 @ref EXTIMode_TypeDef 的值 */
 
-  FunctionalState EXTI_LineCmd;     /*!< Specifies the new state of the selected EXTI lines.
-                                         This parameter can be set either to ENABLE or DISABLE */ 
+  FunctionalState EXTI_LineCmd;     /*!< 指定所选 EXTI 线的新状态。
+                                         该参数可设置为 ENABLE 或 DISABLE */ 
 }EXTI_InitTypeDef;
 
 /**
   * @}
   */
 
-/** @defgroup EXTI_Exported_Constants
+/** @defgroup EXTI_Exported_Constants   EXTI 导出常量
   * @{
   */
 
-/** @defgroup EXTI_Lines 
+/** @defgroup EXTI_Lines   EXTI 线
   * @{
   */
 
-#define EXTI_Line0       ((uint32_t)0x00001)  /*!< External interrupt line 0 */
-#define EXTI_Line1       ((uint32_t)0x00002)  /*!< External interrupt line 1 */
-#define EXTI_Line2       ((uint32_t)0x00004)  /*!< External interrupt line 2 */
-#define EXTI_Line3       ((uint32_t)0x00008)  /*!< External interrupt line 3 */
-#define EXTI_Line4       ((uint32_t)0x00010)  /*!< External interrupt line 4 */
-#define EXTI_Line5       ((uint32_t)0x00020)  /*!< External interrupt line 5 */
-#define EXTI_Line6       ((uint32_t)0x00040)  /*!< External interrupt line 6 */
-#define EXTI_Line7       ((uint32_t)0x00080)  /*!< External interrupt line 7 */
-#define EXTI_Line8       ((uint32_t)0x00100)  /*!< External interrupt line 8 */
-#define EXTI_Line9       ((uint32_t)0x00200)  /*!< External interrupt line 9 */
-#define EXTI_Line10      ((uint32_t)0x00400)  /*!< External interrupt line 10 */
-#define EXTI_Line11      ((uint32_t)0x00800)  /*!< External interrupt line 11 */
-#define EXTI_Line12      ((uint32_t)0x01000)  /*!< External interrupt line 12 */
-#define EXTI_Line13      ((uint32_t)0x02000)  /*!< External interrupt line 13 */
-#define EXTI_Line14      ((uint32_t)0x04000)  /*!< External interrupt line 14 */
-#define EXTI_Line15      ((uint32_t)0x08000)  /*!< External interrupt line 15 */
-#define EXTI_Line16      ((uint32_t)0x10000)  /*!< External interrupt line 16 Connected to the PVD Output */
-#define EXTI_Line17      ((uint32_t)0x20000)  /*!< External interrupt line 17 Connected to the RTC Alarm event */
-#define EXTI_Line18      ((uint32_t)0x40000)  /*!< External interrupt line 18 Connected to the USB Device/USB OTG FS
-                                                   Wakeup from suspend event */                                    
-#define EXTI_Line19      ((uint32_t)0x80000)  /*!< External interrupt line 19 Connected to the Ethernet Wakeup event */
+#define EXTI_Line0       ((uint32_t)0x00001)  /*!< 外部中断线 0 */
+#define EXTI_Line1       ((uint32_t)0x00002)  /*!< 外部中断线 1 */
+#define EXTI_Line2       ((uint32_t)0x00004)  /*!< 外部中断线 2 */
+#define EXTI_Line3       ((uint32_t)0x00008)  /*!< 外部中断线 3 */
+#define EXTI_Line4       ((uint32_t)0x00010)  /*!< 外部中断线 4 */
+#define EXTI_Line5       ((uint32_t)0x00020)  /*!< 外部中断线 5 */
+#define EXTI_Line6       ((uint32_t)0x00040)  /*!< 外部中断线 6 */
+#define EXTI_Line7       ((uint32_t)0x00080)  /*!< 外部中断线 7 */
+#define EXTI_Line8       ((uint32_t)0x00100)  /*!< 外部中断线 8 */
+#define EXTI_Line9       ((uint32_t)0x00200)  /*!< 外部中断线 9 */
+#define EXTI_Line10      ((uint32_t)0x00400)  /*!< 外部中断线 10 */
+#define EXTI_Line11      ((uint32_t)0x00800)  /*!< 外部中断线 11 */
+#define EXTI_Line12      ((uint32_t)0x01000)  /*!< 外部中断线 12 */
+#define EXTI_Line13      ((uint32_t)0x02000)  /*!< 外部中断线 13 */
+#define EXTI_Line14      ((uint32_t)0x04000)  /*!< 外部中断线 14 */
+#define EXTI_Line15      ((uint32_t)0x08000)  /*!< 外部中断线 15 */
+#define EXTI_Line16      ((uint32_t)0x10000)  /*!< 外部中断线 16 连接到 PVD 输出 */
+#define EXTI_Line17      ((uint32_t)0x20000)  /*!< 外部中断线 17 连接到 RTC 闹钟事件 */
+#define EXTI_Line18      ((uint32_t)0x40000)  /*!< 外部中断线 18 连接到 USB 设备/USB OTG FS
+                                                   从挂起唤醒事件 */                                    
+#define EXTI_Line19      ((uint32_t)0x80000)  /*!< 外部中断线 19 连接到以太网唤醒事件 */
                                           
 #define IS_EXTI_LINE(LINE) ((((LINE) & (uint32_t)0xFFF00000) == 0x00) && ((LINE) != (uint16_t)0x00))
 #define IS_GET_EXTI_LINE(LINE) (((LINE) == EXTI_Line0) || ((LINE) == EXTI_Line1) || \
@@ -143,7 +140,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup EXTI_Exported_Macros
+/** @defgroup EXTI_Exported_Macros   EXTI 导出宏
   * @{
   */
 
@@ -151,7 +148,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup EXTI_Exported_Functions
+/** @defgroup EXTI_Exported_Functions   EXTI 导出函数
   * @{
   */
 
@@ -181,4 +178,4 @@ void EXTI_ClearITPendingBit(uint32_t EXTI_Line);
   * @}
   */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

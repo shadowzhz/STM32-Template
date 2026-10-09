@@ -2,37 +2,35 @@
   ******************************************************************************
   * @file    stm32f1xx_hal.c
   * @author  MCD Application Team
-  * @brief   HAL module driver.
-  *          This is the common part of the HAL initialization
+  * @brief   HAL库 模块驱动
+  *          这是HAL库初始化的公共部分
   *
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.
+  * 版权所有 (c) 2016 STMicroelectronics。
+  * 保留所有权利。
   *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * 本软件根据可以在此软件组件的根目录中找到的 LICENSE 文件中的条款进行许可。
+  * 如果此软件没有附带 LICENSE 文件，则按原样提供。
   *
   ******************************************************************************
   @verbatim
   ==============================================================================
-                     ##### How to use this driver #####
+                     ##### 如何使用驱动 #####
   ==============================================================================
     [..]
-    The common HAL driver contains a set of generic and common APIs that can be
-    used by the PPP peripheral drivers and the user to start using the HAL.
+    公共HAL驱动程序包含一组公共的api, PPP外设驱动程序和用户可以使用这些api来开始使用HAL。
     [..]
-    The HAL contains two APIs' categories:
-         (+) Common HAL APIs
-         (+) Services HAL APIs
+    HAL包含两个api类别:
+         (+) 公共 HAL APIs
+         (+) 服务 HAL APIs
 
   @endverbatim
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件 ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -40,25 +38,25 @@
   */
 
 /** @defgroup HAL HAL
-  * @brief HAL module driver.
+  * @brief HAL 模块驱动
   * @{
   */
 
 #ifdef HAL_MODULE_ENABLED
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
+/* 私有类型 -----------------------------------------------------------*/
+/* 私有定义 ------------------------------------------------------------*/
 
-/** @defgroup HAL_Private_Constants HAL Private Constants
+/** @defgroup HAL_Private_Constants HAL 私有常量
   * @{
   */
 /**
- * @brief STM32F1xx HAL Driver version number
+ * @brief STM32F1xx HAL 驱动版本号
    */
-#define __STM32F1xx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define __STM32F1xx_HAL_VERSION_SUB1   (0x01U) /*!< [23:16] sub1 version */
-#define __STM32F1xx_HAL_VERSION_SUB2   (0x0AU) /*!< [15:8]  sub2 version */
-#define __STM32F1xx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
+#define __STM32F1xx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] 主版本号 */
+#define __STM32F1xx_HAL_VERSION_SUB1   (0x01U) /*!< [23:16] 子版本号1 */
+#define __STM32F1xx_HAL_VERSION_SUB2   (0x09U) /*!< [15:8]  子版本号2 */
+#define __STM32F1xx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  待发布版本 */
 #define __STM32F1xx_HAL_VERSION         ((__STM32F1xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32F1xx_HAL_VERSION_SUB1 << 16)\
                                         |(__STM32F1xx_HAL_VERSION_SUB2 << 8 )\
@@ -70,111 +68,94 @@
   * @}
   */
 
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
+/* 私有宏 -------------------------------------------------------------*/
+/* 私有变量 ---------------------------------------------------------*/
 
-/** @defgroup HAL_Private_Variables HAL Private Variables
+/** @defgroup HAL_Private_Variables HAL 私有变量
   * @{
   */
 __IO uint32_t uwTick;
-uint32_t uwTickPrio   = (1UL << __NVIC_PRIO_BITS); /* Invalid PRIO */
+uint32_t uwTickPrio   = (1UL << __NVIC_PRIO_BITS); /* 无效的 PRIO */
 HAL_TickFreqTypeDef uwTickFreq = HAL_TICK_FREQ_DEFAULT;  /* 1KHz */
 /**
   * @}
   */
-/* Private function prototypes -----------------------------------------------*/
-/* Exported functions ---------------------------------------------------------*/
+/* 私有函数原型 -----------------------------------------------*/
+/* 导出函数 ---------------------------------------------------------*/
 
-/** @defgroup HAL_Exported_Functions HAL Exported Functions
+/** @defgroup HAL_Exported_Functions HAL 导出函数
   * @{
   */
 
-/** @defgroup HAL_Exported_Functions_Group1 Initialization and de-initialization Functions
- *  @brief    Initialization and de-initialization functions
+/** @defgroup HAL_Exported_Functions_Group1 初始化和反初始化函数
+ *  @brief    初始化和反初始化函数
  *
 @verbatim
  ===============================================================================
-              ##### Initialization and de-initialization functions #####
+              ##### 初始化和反初始化函数 #####
  ===============================================================================
-   [..]  This section provides functions allowing to:
-      (+) Initializes the Flash interface, the NVIC allocation and initial clock
-          configuration. It initializes the systick also when timeout is needed
-          and the backup domain when enabled.
-      (+) de-Initializes common part of the HAL.
-      (+) Configure The time base source to have 1ms time base with a dedicated
-          Tick interrupt priority.
-        (++) SysTick timer is used by default as source of time base, but user
-             can eventually implement his proper time base source (a general purpose
-             timer for example or other time source), keeping in mind that Time base
-             duration should be kept 1ms since PPP_TIMEOUT_VALUEs are defined and
-             handled in milliseconds basis.
-        (++) Time base configuration function (HAL_InitTick ()) is called automatically
-             at the beginning of the program after reset by HAL_Init() or at any time
-             when clock is configured, by HAL_RCC_ClockConfig().
-        (++) Source of time base is configured  to generate interrupts at regular
-             time intervals. Care must be taken if HAL_Delay() is called from a
-             peripheral ISR process, the Tick interrupt line must have higher priority
-            (numerically lower) than the peripheral interrupt. Otherwise the caller
-            ISR process will be blocked.
-       (++) functions affecting time base configurations are declared as __weak
-             to make  override possible  in case of other  implementations in user file.
+   [..]  本节提供的函数允许:
+      (+) 初始化闪存接口、NVIC分配和初始时钟配置。
+          如果需要超时功能，则还会初始化systick，如果启用，则初始化备份域。
+      (+) 反初始化HAL的公共部分。
+      (+) 配置时间基准源，使其具有专用的Tick中断优先级，以便每1毫秒产生一次中断。
+        (++) 默认情况下，SysTick定时器用作时间基准源，但用户可以自己实现其自己的时间基准源（例如通用定时器或其他时间源），
+             但需要注意的是，时间基准持续时间应保持为1毫秒，因为PPP_TIMEOUT_VALUE是以毫秒为单位定义和处理的。
+        (++) 时间基准配置函数（HAL_InitTick()）在程序重置后由HAL_Init()自动调用或在任何时候在时钟配置时由HAL_RCC_ClockConfig()调用。
+        (++) 时间基准源被配置为定期产生中断。如果在外设中断过程中调用HAL_Delay（），
+             则必须注意Tick中断线必须具有比外设中断更高的优先级（数字更低）。否则，调用者中断过程将被阻塞。
+       (++)  为了在用户文件中进行其他实现时能够进行覆盖，影响时间基准配置的函数被声明为__weak（弱引用）。
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  This function is used to initialize the HAL Library; it must be the first
-  *         instruction to be executed in the main program (before to call any other
-  *         HAL function), it performs the following:
-  *           Configure the Flash prefetch.
-  *           Configures the SysTick to generate an interrupt each 1 millisecond,
-  *           which is clocked by the HSI (at this stage, the clock is not yet
-  *           configured and thus the system is running from the internal HSI at 16 MHz).
-  *           Set NVIC Group Priority to 4.
-  *           Calls the HAL_MspInit() callback function defined in user file
-  *           "stm32f1xx_hal_msp.c" to do the global low level hardware initialization
+  * @brief  初始化HAL库
+  * @note   它必须是主程序中执行的第一条指令（在调用任何其他HAL函数之前），它执行以下操作：
+  *           配置Flash预取。
+  *           配置SysTick以每1毫秒产生一次中断，其由HSI时钟（在此阶段，时钟尚未配置，因此系统正在从内部HSI运行，频率为16 MHz）时钟。
+  *           将NVIC优先级组设置为4。
+  *           调用“stm32f1xx_hal_msp.c”用户文件中定义的HAL_MspInit()回调函数进行全局底层硬件初始化。
   *
-  * @note   SysTick is used as time base for the HAL_Delay() function, the application
-  *         need to ensure that the SysTick time base is always set to 1 millisecond
-  *         to have correct HAL operation.
+  * @note   SysTick用作HAL_Delay()函数的时间基准，
+  *         应用程序需要确保SysTick时间基准始终设置为1毫秒，以确保HAL正确运行。
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_Init(void)
 {
-  /* Configure Flash prefetch */
+  /* 配置Flash预取 */
 #if (PREFETCH_ENABLE != 0)
 #if defined(STM32F101x6) || defined(STM32F101xB) || defined(STM32F101xE) || defined(STM32F101xG) || \
     defined(STM32F102x6) || defined(STM32F102xB) || \
     defined(STM32F103x6) || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG) || \
     defined(STM32F105xC) || defined(STM32F107xC)
 
-  /* Prefetch buffer is not available on value line devices */
+  /* 有些设备上不支持预取缓冲区 */
   __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
 #endif
 #endif /* PREFETCH_ENABLE */
 
-  /* Set Interrupt Group Priority */
+  /* 设置中断优先级组 */
   HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
-  /* Use systick as time base source and configure 1ms tick (default clock after Reset is HSI) */
+  /* 将SysTick用作时间基准源，并配置为1毫秒的滴答（复位后的默认时钟为HSI） */
   HAL_InitTick(TICK_INT_PRIORITY);
 
-  /* Init the low level hardware */
+  /* 初始化底层硬件 */
   HAL_MspInit();
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief This function de-Initializes common part of the HAL and stops the systick.
-  *        of time base.
-  * @note This function is optional.
+  * @brief 反初始化HAL的公共部分并停止SysTick作为时间基准
+  * @note  此函数是可选的
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DeInit(void)
 {
-  /* Reset of all peripherals */
+  /* 重置全部外设 */
   __HAL_RCC_APB1_FORCE_RESET();
   __HAL_RCC_APB1_RELEASE_RESET();
 
@@ -186,60 +167,53 @@ HAL_StatusTypeDef HAL_DeInit(void)
   __HAL_RCC_AHB_RELEASE_RESET();
 #endif
 
-  /* De-Init the low level hardware */
+  /* 反初始化底层硬件 */
   HAL_MspDeInit();
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
 /**
-  * @brief  Initialize the MSP.
+  * @brief  初始化 MSP.
   * @retval None
   */
 __weak void HAL_MspInit(void)
 {
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_MspInit could be implemented in the user file
+  /* NOTE : 当需要回调函数时，不应修改此函数，可以在用户文件中重写以覆盖此函数。
    */
 }
 
 /**
-  * @brief  DeInitializes the MSP.
+  * @brief  反初始化 MSP.
   * @retval None
   */
 __weak void HAL_MspDeInit(void)
 {
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_MspDeInit could be implemented in the user file
+  /* NOTE : 当需要回调函数时，不应修改此函数，可以在用户文件中重写以覆盖此函数。
    */
 }
 
 /**
-  * @brief This function configures the source of the time base.
-  *        The time source is configured  to have 1ms time base with a dedicated
-  *        Tick interrupt priority.
-  * @note This function is called  automatically at the beginning of program after
-  *       reset by HAL_Init() or at any time when clock is reconfigured  by HAL_RCC_ClockConfig().
-  * @note In the default implementation, SysTick timer is the source of time base.
-  *       It is used to generate interrupts at regular time intervals.
-  *       Care must be taken if HAL_Delay() is called from a peripheral ISR process,
-  *       The SysTick interrupt must have higher priority (numerically lower)
-  *       than the peripheral interrupt. Otherwise the caller ISR process will be blocked.
-  *       The function is declared as __weak  to be overwritten  in case of other
-  *       implementation  in user file.
-  * @param TickPriority Tick interrupt priority.
+  * @brief 配置时间基准的源：
+  *        时间源被配置为具有1毫秒时间基准和专用的Tick中断优先级。
+  * @note  此函数在程序开始时由HAL_Init()自动调用，或者在通过HAL_RCC_ClockConfig()重新配置时调用。
+  * @note  在默认实现中，SysTick定时器是时间基准的源。
+  *        它用于定期生成中断。
+  *        如果从外设的ISR过程中调用HAL_Delay()，必须注意SysTick中断的优先级必须高于外设中断（数字较低）。
+  *        否则，调用者的ISR过程将被阻塞。 此函数声明为__weak，以便在用户文件中根据其他实现进行重写。
+  * @param TickPriority Tick中断优先级。
   * @retval HAL status
   */
 __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
-  /* Configure the SysTick to have interrupt in 1ms time basis*/
+  /* 配置SysTick以在1毫秒的时间基准上产生中断。*/
   if (HAL_SYSTICK_Config(SystemCoreClock / (1000U / uwTickFreq)) > 0U)
   {
     return HAL_ERROR;
   }
 
-  /* Configure the SysTick IRQ priority */
+  /* 配置 SysTick 中断优先级 */
   if (TickPriority < (1UL << __NVIC_PRIO_BITS))
   {
     HAL_NVIC_SetPriority(SysTick_IRQn, TickPriority, 0U);
@@ -250,7 +224,7 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     return HAL_ERROR;
   }
 
-  /* Return function status */
+  /* 返回函数状态 */
   return HAL_OK;
 }
 
@@ -258,36 +232,33 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   * @}
   */
 
-/** @defgroup HAL_Exported_Functions_Group2 HAL Control functions
-  *  @brief    HAL Control functions
+/** @defgroup HAL_Exported_Functions_Group2 HAL 控制函数
+  *  @brief    HAL 控制函数
   *
 @verbatim
  ===============================================================================
-                      ##### HAL Control functions #####
+                      ##### HAL 控制函数 #####
  ===============================================================================
-    [..]  This section provides functions allowing to:
-      (+) Provide a tick value in millisecond
-      (+) Provide a blocking delay in millisecond
-      (+) Suspend the time base source interrupt
-      (+) Resume the time base source interrupt
-      (+) Get the HAL API driver version
-      (+) Get the device identifier
-      (+) Get the device revision identifier
-      (+) Enable/Disable Debug module during SLEEP mode
-      (+) Enable/Disable Debug module during STOP mode
-      (+) Enable/Disable Debug module during STANDBY mode
+    [..]  此部分提供了以下功能的函数：
+      (+) 提供以毫秒为单位的滴答值
+      (+) 提供以毫秒为单位的阻塞延迟
+      (+) 暂停时间基准源中断
+      (+) 恢复时间基准源中断
+      (+) 获取HAL API驱动程序版本
+      (+) 获取设备标识符
+      (+) 获取设备修订标识符
+      (+) 启用/禁用 在睡眠模式中使用调试模块
+      (+) 启用/禁用 在停止模式中使用调试模块
+      (+) 启用/禁用 在待机模式中使用调试模块
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief This function is called to increment  a global variable "uwTick"
-  *        used as application time base.
-  * @note In the default implementation, this variable is incremented each 1ms
-  *       in SysTick ISR.
-  * @note This function is declared as __weak to be overwritten in case of other
-  *      implementations in user file.
+  * @brief 用于全局变量"uwTick"增加，作为应用程序的时间基准。
+  * @note  在默认实现中，该变量在SysTick中断服务例程中每1毫秒递增一次。
+  * @note  此函数被声明为__weak，以便在用户文件中有其他实现时进行覆盖。
   * @retval None
   */
 __weak void HAL_IncTick(void)
@@ -296,9 +267,8 @@ __weak void HAL_IncTick(void)
 }
 
 /**
-  * @brief Provides a tick value in millisecond.
-  * @note  This function is declared as __weak to be overwritten in case of other
-  *       implementations in user file.
+  * @brief 获取以毫秒为单位的滴答值。
+  * @note  此函数被声明为__weak，以便在用户文件中有其他实现时进行覆盖。
   * @retval tick value
   */
 __weak uint32_t HAL_GetTick(void)
@@ -307,8 +277,8 @@ __weak uint32_t HAL_GetTick(void)
 }
 
 /**
-  * @brief This function returns a tick priority.
-  * @retval tick priority
+  * @brief  返回滴答优先级
+  * @retval 滴答优先级
   */
 uint32_t HAL_GetTickPrio(void)
 {
@@ -316,7 +286,7 @@ uint32_t HAL_GetTickPrio(void)
 }
 
 /**
-  * @brief Set new tick Freq.
+  * @brief 设置新的滴答频率
   * @retval status
   */
 HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq)
@@ -328,18 +298,18 @@ HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq)
 
   if (uwTickFreq != Freq)
   {
-    /* Back up uwTickFreq frequency */
+    /* 备份uwTickFreq频率 */
     prevTickFreq = uwTickFreq;
 
-    /* Update uwTickFreq global variable used by HAL_InitTick() */
+    /* 更新HAL_InitTick()使用的全局变量uwTickFreq */
     uwTickFreq = Freq;
 
-    /* Apply the new tick Freq  */
+    /* 应用新的滴答频率  */
     status = HAL_InitTick(uwTickPrio);
 
     if (status != HAL_OK)
     {
-      /* Restore previous tick frequency */
+      /* 恢复先前的Tick频率 */
       uwTickFreq = prevTickFreq;
     }
   }
@@ -348,9 +318,9 @@ HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq)
 }
 
 /**
-  * @brief Return tick frequency.
-  * @retval Tick frequency.
-  *         Value of @ref HAL_TickFreqTypeDef.
+  * @brief 返回滴答频率
+  * @retval 滴答频率
+  *         滴答周期的频率（单位为Hz）
   */
 HAL_TickFreqTypeDef HAL_GetTickFreq(void)
 {
@@ -358,14 +328,10 @@ HAL_TickFreqTypeDef HAL_GetTickFreq(void)
 }
 
 /**
-  * @brief This function provides minimum delay (in milliseconds) based
-  *        on variable incremented.
-  * @note In the default implementation , SysTick timer is the source of time base.
-  *       It is used to generate interrupts at regular time intervals where uwTick
-  *       is incremented.
-  * @note This function is declared as __weak to be overwritten in case of other
-  *       implementations in user file.
-  * @param Delay specifies the delay time length, in milliseconds.
+  * @brief 根据递增的变量提供最小延迟（以毫秒为单位）
+  * @note  在默认实现中，SysTick定时器是时间基准的来源。它用于在固定时间间隔内生成中断，从而递增uwTick。
+  * @note  此函数被声明为__weak，在用户文件中有其他实现时可以被覆盖。
+  * @param Delay 指定延迟时间长度，单位为毫秒。
   * @retval None
   */
 __weak void HAL_Delay(uint32_t Delay)
@@ -373,7 +339,7 @@ __weak void HAL_Delay(uint32_t Delay)
   uint32_t tickstart = HAL_GetTick();
   uint32_t wait = Delay;
 
-  /* Add a freq to guarantee minimum wait */
+  /* 添加一个频率以确保最小等待时间 */
   if (wait < HAL_MAX_DELAY)
   {
     wait += (uint32_t)(uwTickFreq);
@@ -385,40 +351,34 @@ __weak void HAL_Delay(uint32_t Delay)
 }
 
 /**
-  * @brief Suspend Tick increment.
-  * @note In the default implementation , SysTick timer is the source of time base. It is
-  *       used to generate interrupts at regular time intervals. Once HAL_SuspendTick()
-  *       is called, the SysTick interrupt will be disabled and so Tick increment
-  *       is suspended.
-  * @note This function is declared as __weak to be overwritten in case of other
-  *       implementations in user file.
+  * @brief 暂停时间基准源中断
+  * @note  在默认实现中，SysTick定时器是时间基准的来源。它用于在固定的时间间隔内生成中断。
+  *        一旦调用了HAL_SuspendTick()函数，SysTick中断将被禁用，因此滴答值的增加将被暂停。
+  * @note  此函数被声明为__weak，在用户文件中有其他实现时可以被覆盖。
   * @retval None
   */
 __weak void HAL_SuspendTick(void)
 {
-  /* Disable SysTick Interrupt */
+  /* 关闭系统滴答中断 */
   CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
 }
 
 /**
-  * @brief Resume Tick increment.
-  * @note In the default implementation , SysTick timer is the source of time base. It is
-  *       used to generate interrupts at regular time intervals. Once HAL_ResumeTick()
-  *       is called, the SysTick interrupt will be enabled and so Tick increment
-  *       is resumed.
-  * @note This function is declared as __weak to be overwritten in case of other
-  *       implementations in user file.
+  * @brief 恢复时间基准源中断
+  * @note  在默认实现中，SysTick定时器是时间基准的来源。它用于在固定的时间间隔内生成中断。
+  *        一旦调用了HAL_ResumeTick()函数，SysTick中断将被启用，因此滴答值的增加将被恢复。
+  * @note  此函数被声明为__weak，在用户文件中有其他实现时可以被覆盖。
   * @retval None
   */
 __weak void HAL_ResumeTick(void)
 {
-  /* Enable SysTick Interrupt */
+  /* 开启系统滴答中断 */
   SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
 }
 
 /**
-  * @brief  Returns the HAL revision
-  * @retval version 0xXYZR (8bits for each decimal, R for RC)
+  * @brief  返回HAL版本
+  * @retval 版本 0xXYZR (每个十进制数有8位，R代表RC)
   */
 uint32_t HAL_GetHalVersion(void)
 {
@@ -426,15 +386,14 @@ uint32_t HAL_GetHalVersion(void)
 }
 
 /**
-  * @brief Returns the device revision identifier.
-  * Note: On devices STM32F10xx8 and STM32F10xxB,
-  *                  STM32F101xC/D/E and STM32F103xC/D/E,
-  *                  STM32F101xF/G and STM32F103xF/G
-  *                  STM32F10xx4 and STM32F10xx6
-  *       Debug registers DBGMCU_IDCODE and DBGMCU_CR are accessible only in
-  *       debug mode (not accessible by the user software in normal mode).
-  *       Refer to errata sheet of these devices for more details.
-  * @retval Device revision identifier
+  * @brief 返回设备的修订标识符。
+  * @note  在设备 STM32F10xx8 和 STM32F10xxB,
+  *                  STM32F101xC/D/E 和 STM32F103xC/D/E,
+  *                  STM32F101xF/G 和 STM32F103xF/G
+  *                  STM32F10xx4 和 STM32F10xx6
+  *        调试寄存器DBGMCU_IDCODE和DBGMCU_CR仅在调试模式下可访问（在正常模式下用户软件无法访问）。
+  *        有关更多详细信息，请参阅这些设备的勘误表。
+  * @retval 设备修订标识符
   */
 uint32_t HAL_GetREVID(void)
 {
@@ -442,15 +401,14 @@ uint32_t HAL_GetREVID(void)
 }
 
 /**
-  * @brief  Returns the device identifier.
-  * Note: On devices STM32F10xx8 and STM32F10xxB,
-  *                  STM32F101xC/D/E and STM32F103xC/D/E,
-  *                  STM32F101xF/G and STM32F103xF/G
-  *                  STM32F10xx4 and STM32F10xx6
-  *       Debug registers DBGMCU_IDCODE and DBGMCU_CR are accessible only in
-  *       debug mode (not accessible by the user software in normal mode).
-  *       Refer to errata sheet of these devices for more details.
-  * @retval Device identifier
+  * @brief 返回设备标识符
+  * @note  在设备 STM32F10xx8 和 STM32F10xxB,
+  *                  STM32F101xC/D/E 和 STM32F103xC/D/E,
+  *                  STM32F101xF/G 和 STM32F103xF/G
+  *                  STM32F10xx4 和 STM32F10xx6
+  *       调试寄存器DBGMCU_IDCODE和DBGMCU_CR仅在调试模式下可访问（在正常模式下用户软件无法访问）。
+  *       有关更多详细信息，请参阅这些设备的勘误表。
+  * @retval 设备标识符
   */
 uint32_t HAL_GetDEVID(void)
 {
@@ -458,8 +416,8 @@ uint32_t HAL_GetDEVID(void)
 }
 
 /**
-  * @brief  Returns first word of the unique device identifier (UID based on 96 bits)
-  * @retval Device identifier
+  * @brief  返回唯一设备标识符（基于96位的UID）的第一个字。
+  * @retval 设备标识符
   */
 uint32_t HAL_GetUIDw0(void)
 {
@@ -467,8 +425,8 @@ uint32_t HAL_GetUIDw0(void)
 }
 
 /**
-  * @brief  Returns second word of the unique device identifier (UID based on 96 bits)
-  * @retval Device identifier
+  * @brief  返回唯一设备标识符（基于96位的UID）的第二个字。
+  * @retval 设备标识符
   */
 uint32_t HAL_GetUIDw1(void)
 {
@@ -476,8 +434,8 @@ uint32_t HAL_GetUIDw1(void)
 }
 
 /**
-  * @brief  Returns third word of the unique device identifier (UID based on 96 bits)
-  * @retval Device identifier
+  * @brief  返回唯一设备标识符（基于96位的UID）的第三个字。
+  * @retval 设备标识符
   */
 uint32_t HAL_GetUIDw2(void)
 {
@@ -485,7 +443,13 @@ uint32_t HAL_GetUIDw2(void)
 }
 
 /**
-  * @brief  Enable the Debug Module during SLEEP mode
+  * @brief 在睡眠模式中 启用 调试模块
+  * @note  在设备 STM32F10xx8 和 STM32F10xxB,
+  *                  STM32F101xC/D/E 和 STM32F103xC/D/E,
+  *                  STM32F101xF/G 和 STM32F103xF/G
+  *                  STM32F10xx4 和 STM32F10xx6
+  *       调试寄存器DBGMCU_IDCODE和DBGMCU_CR仅在调试模式下可访问（在正常模式下用户软件无法访问）。
+  *       有关更多详细信息，请参阅这些设备的勘误表。
   * @retval None
   */
 void HAL_DBGMCU_EnableDBGSleepMode(void)
@@ -494,14 +458,13 @@ void HAL_DBGMCU_EnableDBGSleepMode(void)
 }
 
 /**
-  * @brief  Disable the Debug Module during SLEEP mode
-  * Note: On devices STM32F10xx8 and STM32F10xxB,
-  *                  STM32F101xC/D/E and STM32F103xC/D/E,
-  *                  STM32F101xF/G and STM32F103xF/G
-  *                  STM32F10xx4 and STM32F10xx6
-  *       Debug registers DBGMCU_IDCODE and DBGMCU_CR are accessible only in
-  *       debug mode (not accessible by the user software in normal mode).
-  *       Refer to errata sheet of these devices for more details.
+  * @brief 在睡眠模式中 禁用 调试模块
+  * @note  在设备 STM32F10xx8 和 STM32F10xxB,
+  *                  STM32F101xC/D/E 和 STM32F103xC/D/E,
+  *                  STM32F101xF/G 和 STM32F103xF/G
+  *                  STM32F10xx4 和 STM32F10xx6
+  *       调试寄存器DBGMCU_IDCODE和DBGMCU_CR仅在调试模式下可访问（在正常模式下用户软件无法访问）。
+  *       有关更多详细信息，请参阅这些设备的勘误表。
   * @retval None
   */
 void HAL_DBGMCU_DisableDBGSleepMode(void)
@@ -510,28 +473,17 @@ void HAL_DBGMCU_DisableDBGSleepMode(void)
 }
 
 /**
-  * @brief  Enable the Debug Module during STOP mode
-  * Note: On devices STM32F10xx8 and STM32F10xxB,
-  *                  STM32F101xC/D/E and STM32F103xC/D/E,
-  *                  STM32F101xF/G and STM32F103xF/G
-  *                  STM32F10xx4 and STM32F10xx6
-  *       Debug registers DBGMCU_IDCODE and DBGMCU_CR are accessible only in
-  *       debug mode (not accessible by the user software in normal mode).
-  *       Refer to errata sheet of these devices for more details.
-  * Note: On all STM32F1 devices:
-  *       If the system tick timer interrupt is enabled during the Stop mode
-  *       debug (DBG_STOP bit set in the DBGMCU_CR register ), it will wakeup
-  *       the system from Stop mode.
-  *       Workaround: To debug the Stop mode, disable the system tick timer
-  *       interrupt.
-  *       Refer to errata sheet of these devices for more details.
-  * Note: On all STM32F1 devices:
-  *       If the system tick timer interrupt is enabled during the Stop mode
-  *       debug (DBG_STOP bit set in the DBGMCU_CR register ), it will wakeup
-  *       the system from Stop mode.
-  *       Workaround: To debug the Stop mode, disable the system tick timer
-  *       interrupt.
-  *       Refer to errata sheet of these devices for more details.
+  * @brief 在停止模式中 启用 调试模块
+  * @note  在设备 STM32F10xx8 和 STM32F10xxB,
+  *                  STM32F101xC/D/E 和 STM32F103xC/D/E,
+  *                  STM32F101xF/G 和 STM32F103xF/G
+  *                  STM32F10xx4 和 STM32F10xx6
+  *       调试寄存器DBGMCU_IDCODE和DBGMCU_CR仅在调试模式下可访问（在正常模式下用户软件无法访问）。
+  *       有关更多详细信息，请参阅这些设备的勘误表。
+  * @note 对于所有STM32F1设备：
+  *       如果在Stop模式调试期间启用系统时钟定时器中断（在DBGMCU_CR寄存器中设置DBG_STOP位），它将唤醒系统退出Stop模式。
+  *       解决方法：要调试Stop模式，请禁用系统时钟定时器中断。
+  *       有关更多详细信息，请参阅这些设备的勘误表。
   * @retval None
   */
 void HAL_DBGMCU_EnableDBGStopMode(void)
@@ -540,14 +492,13 @@ void HAL_DBGMCU_EnableDBGStopMode(void)
 }
 
 /**
-  * @brief  Disable the Debug Module during STOP mode
-  * Note: On devices STM32F10xx8 and STM32F10xxB,
-  *                  STM32F101xC/D/E and STM32F103xC/D/E,
-  *                  STM32F101xF/G and STM32F103xF/G
-  *                  STM32F10xx4 and STM32F10xx6
-  *       Debug registers DBGMCU_IDCODE and DBGMCU_CR are accessible only in
-  *       debug mode (not accessible by the user software in normal mode).
-  *       Refer to errata sheet of these devices for more details.
+  * @brief 在停止模式中 禁用 调试模块
+  * @note  在设备 STM32F10xx8 和 STM32F10xxB,
+  *                  STM32F101xC/D/E 和 STM32F103xC/D/E,
+  *                  STM32F101xF/G 和 STM32F103xF/G
+  *                  STM32F10xx4 和 STM32F10xx6
+  *       调试寄存器DBGMCU_IDCODE和DBGMCU_CR仅在调试模式下可访问（在正常模式下用户软件无法访问）。
+  *       有关更多详细信息，请参阅这些设备的勘误表。
   * @retval None
   */
 void HAL_DBGMCU_DisableDBGStopMode(void)
@@ -556,14 +507,13 @@ void HAL_DBGMCU_DisableDBGStopMode(void)
 }
 
 /**
-  * @brief  Enable the Debug Module during STANDBY mode
-  * Note: On devices STM32F10xx8 and STM32F10xxB,
-  *                  STM32F101xC/D/E and STM32F103xC/D/E,
-  *                  STM32F101xF/G and STM32F103xF/G
-  *                  STM32F10xx4 and STM32F10xx6
-  *       Debug registers DBGMCU_IDCODE and DBGMCU_CR are accessible only in
-  *       debug mode (not accessible by the user software in normal mode).
-  *       Refer to errata sheet of these devices for more details.
+  * @brief 在待机模式中 启用 调试模块
+  * @note  在设备 STM32F10xx8 和 STM32F10xxB,
+  *                  STM32F101xC/D/E 和 STM32F103xC/D/E,
+  *                  STM32F101xF/G 和 STM32F103xF/G
+  *                  STM32F10xx4 和 STM32F10xx6
+  *       调试寄存器DBGMCU_IDCODE和DBGMCU_CR仅在调试模式下可访问（在正常模式下用户软件无法访问）。
+  *       有关更多详细信息，请参阅这些设备的勘误表。
   * @retval None
   */
 void HAL_DBGMCU_EnableDBGStandbyMode(void)
@@ -572,14 +522,13 @@ void HAL_DBGMCU_EnableDBGStandbyMode(void)
 }
 
 /**
-  * @brief  Disable the Debug Module during STANDBY mode
-  * Note: On devices STM32F10xx8 and STM32F10xxB,
-  *                  STM32F101xC/D/E and STM32F103xC/D/E,
-  *                  STM32F101xF/G and STM32F103xF/G
-  *                  STM32F10xx4 and STM32F10xx6
-  *       Debug registers DBGMCU_IDCODE and DBGMCU_CR are accessible only in
-  *       debug mode (not accessible by the user software in normal mode).
-  *       Refer to errata sheet of these devices for more details.
+  * @brief 在待机模式中 禁用 调试模块
+  * @note  在设备 STM32F10xx8 和 STM32F10xxB,
+  *                  STM32F101xC/D/E 和 STM32F103xC/D/E,
+  *                  STM32F101xF/G 和 STM32F103xF/G
+  *                  STM32F10xx4 和 STM32F10xx6
+  *       调试寄存器DBGMCU_IDCODE和DBGMCU_CR仅在调试模式下可访问（在正常模式下用户软件无法访问）。
+  *       有关更多详细信息，请参阅这些设备的勘误表。
   * @retval None
   */
 void HAL_DBGMCU_DisableDBGStandbyMode(void)
@@ -605,3 +554,4 @@ void HAL_DBGMCU_DisableDBGStandbyMode(void)
   */
 
 
+  

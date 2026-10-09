@@ -4,23 +4,20 @@
   * @author  MCD Application Team
   * @version V3.5.0
   * @date    11-March-2011
-  * @brief   This file contains all the functions prototypes for the FSMC firmware 
-  *          library.
+  * @brief   本文件包含 FSMC 固件库的所有函数原型。
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * 本固件仅供指引之用，旨在为客户提供有关其产品的编码信息，
+  * 以便客户节省时间。因此，对于因本固件内容及/或客户将本文
+  * 所含编码信息用于其产品而产生的任何索赔所导致的任何直接、
+  * 间接或后果性损害，STMicroelectronics 概不负责。
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 定义以下宏，以防止本头文件被递归包含 -------------------------------------*/
 #ifndef __STM32F10x_FSMC_H
 #define __STM32F10x_FSMC_H
 
@@ -28,222 +25,219 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件包含 ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Driver
+/** @addtogroup STM32F10x_StdPeriph_Driver   STM32F10x 标准外设驱动
   * @{
   */
 
-/** @addtogroup FSMC
+/** @addtogroup FSMC  FSMC 驱动模块
   * @{
   */
 
-/** @defgroup FSMC_Exported_Types
+/** @defgroup FSMC_Exported_Types   FSMC 导出类型
   * @{
   */
 
-/** 
-  * @brief  Timing parameters For NOR/SRAM Banks  
+/**
+  * @brief  NOR/SRAM Bank 的时序参数
   */
 
 typedef struct
 {
-  uint32_t FSMC_AddressSetupTime;       /*!< Defines the number of HCLK cycles to configure
-                                             the duration of the address setup time. 
-                                             This parameter can be a value between 0 and 0xF.
-                                             @note: It is not used with synchronous NOR Flash memories. */
+  uint32_t FSMC_AddressSetupTime;       /*!< 定义用于配置地址建立时间持续时间的
+                                             HCLK 周期数。
+                                             该参数可取 0 到 0xF 之间的值。
+                                             @note: 该参数不用于同步 NOR Flash 存储器。 */
 
-  uint32_t FSMC_AddressHoldTime;        /*!< Defines the number of HCLK cycles to configure
-                                             the duration of the address hold time.
-                                             This parameter can be a value between 0 and 0xF. 
-                                             @note: It is not used with synchronous NOR Flash memories.*/
+  uint32_t FSMC_AddressHoldTime;        /*!< 定义用于配置地址保持时间持续时间的
+                                             HCLK 周期数。
+                                             该参数可取 0 到 0xF 之间的值。
+                                             @note: 该参数不用于同步 NOR Flash 存储器。*/
 
-  uint32_t FSMC_DataSetupTime;          /*!< Defines the number of HCLK cycles to configure
-                                             the duration of the data setup time.
-                                             This parameter can be a value between 0 and 0xFF.
-                                             @note: It is used for SRAMs, ROMs and asynchronous multiplexed NOR Flash memories. */
+  uint32_t FSMC_DataSetupTime;          /*!< 定义用于配置数据建立时间持续时间的
+                                             HCLK 周期数。
+                                             该参数可取 0 到 0xFF 之间的值。
+                                             @note: 该参数用于 SRAM、ROM 和异步复用 NOR Flash 存储器。 */
 
-  uint32_t FSMC_BusTurnAroundDuration;  /*!< Defines the number of HCLK cycles to configure
-                                             the duration of the bus turnaround.
-                                             This parameter can be a value between 0 and 0xF.
-                                             @note: It is only used for multiplexed NOR Flash memories. */
+  uint32_t FSMC_BusTurnAroundDuration;  /*!< 定义用于配置总线周转持续时间的
+                                             HCLK 周期数。
+                                             该参数可取 0 到 0xF 之间的值。
+                                             @note: 该参数仅用于复用 NOR Flash 存储器。 */
 
-  uint32_t FSMC_CLKDivision;            /*!< Defines the period of CLK clock output signal, expressed in number of HCLK cycles.
-                                             This parameter can be a value between 1 and 0xF.
-                                             @note: This parameter is not used for asynchronous NOR Flash, SRAM or ROM accesses. */
+  uint32_t FSMC_CLKDivision;            /*!< 定义 CLK 时钟输出信号的周期，以 HCLK 周期数表示。
+                                             该参数可取 1 到 0xF 之间的值。
+                                             @note: 该参数不用于异步 NOR Flash、SRAM 或 ROM 访问。 */
 
-  uint32_t FSMC_DataLatency;            /*!< Defines the number of memory clock cycles to issue
-                                             to the memory before getting the first data.
-                                             The value of this parameter depends on the memory type as shown below:
-                                              - It must be set to 0 in case of a CRAM
-                                              - It is don't care in asynchronous NOR, SRAM or ROM accesses
-                                              - It may assume a value between 0 and 0xF in NOR Flash memories
-                                                with synchronous burst mode enable */
+  uint32_t FSMC_DataLatency;            /*!< 定义在获取第一个数据之前向存储器发出的
+                                             存储器时钟周期数。
+                                             该参数的值取决于存储器类型，如下所示：
+                                              - 对于 CRAM，该参数必须设置为 0
+                                              - 在异步 NOR、SRAM 或 ROM 访问中该参数无关紧要
+                                              - 在使能同步突发模式的 NOR Flash 存储器中
+                                                该参数可取 0 到 0xF 之间的值 */
 
-  uint32_t FSMC_AccessMode;             /*!< Specifies the asynchronous access mode. 
-                                             This parameter can be a value of @ref FSMC_Access_Mode */
+  uint32_t FSMC_AccessMode;             /*!< 指定异步访问模式。
+                                             该参数可取 @ref FSMC_Access_Mode 的值 */
 }FSMC_NORSRAMTimingInitTypeDef;
 
-/** 
-  * @brief  FSMC NOR/SRAM Init structure definition
+/**
+  * @brief  FSMC NOR/SRAM 初始化结构定义
   */
 
 typedef struct
 {
-  uint32_t FSMC_Bank;                /*!< Specifies the NOR/SRAM memory bank that will be used.
-                                          This parameter can be a value of @ref FSMC_NORSRAM_Bank */
+  uint32_t FSMC_Bank;                /*!< 指定将要使用的 NOR/SRAM 存储块。
+                                          该参数可取 @ref FSMC_NORSRAM_Bank 的值 */
 
-  uint32_t FSMC_DataAddressMux;      /*!< Specifies whether the address and data values are
-                                          multiplexed on the databus or not. 
-                                          This parameter can be a value of @ref FSMC_Data_Address_Bus_Multiplexing */
+  uint32_t FSMC_DataAddressMux;      /*!< 指定地址和数据值是否
+                                          在数据总线上复用。
+                                          该参数可取 @ref FSMC_Data_Address_Bus_Multiplexing 的值 */
 
-  uint32_t FSMC_MemoryType;          /*!< Specifies the type of external memory attached to
-                                          the corresponding memory bank.
-                                          This parameter can be a value of @ref FSMC_Memory_Type */
+  uint32_t FSMC_MemoryType;          /*!< 指定连接到相应存储块的
+                                          外部存储器类型。
+                                          该参数可取 @ref FSMC_Memory_Type 的值 */
 
-  uint32_t FSMC_MemoryDataWidth;     /*!< Specifies the external memory device width.
-                                          This parameter can be a value of @ref FSMC_Data_Width */
+  uint32_t FSMC_MemoryDataWidth;     /*!< 指定外部存储器件的宽度。
+                                          该参数可取 @ref FSMC_Data_Width 的值 */
 
-  uint32_t FSMC_BurstAccessMode;     /*!< Enables or disables the burst access mode for Flash memory,
-                                          valid only with synchronous burst Flash memories.
-                                          This parameter can be a value of @ref FSMC_Burst_Access_Mode */
+  uint32_t FSMC_BurstAccessMode;     /*!< 使能或关闭 Flash 存储器的突发访问模式，
+                                          仅对同步突发 Flash 存储器有效。
+                                          该参数可取 @ref FSMC_Burst_Access_Mode 的值 */
                                        
-  uint32_t FSMC_AsynchronousWait;     /*!< Enables or disables wait signal during asynchronous transfers,
-                                          valid only with asynchronous Flash memories.
-                                          This parameter can be a value of @ref FSMC_AsynchronousWait */
+  uint32_t FSMC_AsynchronousWait;     /*!< 使能或关闭异步传输期间的等待信号，
+                                          仅对异步 Flash 存储器有效。
+                                          该参数可取 @ref FSMC_AsynchronousWait 的值 */
 
-  uint32_t FSMC_WaitSignalPolarity;  /*!< Specifies the wait signal polarity, valid only when accessing
-                                          the Flash memory in burst mode.
-                                          This parameter can be a value of @ref FSMC_Wait_Signal_Polarity */
+  uint32_t FSMC_WaitSignalPolarity;  /*!< 指定等待信号极性，仅在突发模式下
+                                          访问 Flash 存储器时有效。
+                                          该参数可取 @ref FSMC_Wait_Signal_Polarity 的值 */
 
-  uint32_t FSMC_WrapMode;            /*!< Enables or disables the Wrapped burst access mode for Flash
-                                          memory, valid only when accessing Flash memories in burst mode.
-                                          This parameter can be a value of @ref FSMC_Wrap_Mode */
+  uint32_t FSMC_WrapMode;            /*!< 使能或关闭 Flash 存储器的回绕突发访问模式，
+                                          仅在突发模式下访问 Flash 存储器时有效。
+                                          该参数可取 @ref FSMC_Wrap_Mode 的值 */
 
-  uint32_t FSMC_WaitSignalActive;    /*!< Specifies if the wait signal is asserted by the memory one
-                                          clock cycle before the wait state or during the wait state,
-                                          valid only when accessing memories in burst mode. 
-                                          This parameter can be a value of @ref FSMC_Wait_Timing */
+  uint32_t FSMC_WaitSignalActive;    /*!< 指定等待信号是由存储器在等待状态前
+                                          一个时钟周期还是在等待状态期间置起，
+                                          仅在突发模式下访问存储器时有效。
+                                          该参数可取 @ref FSMC_Wait_Timing 的值 */
 
-  uint32_t FSMC_WriteOperation;      /*!< Enables or disables the write operation in the selected bank by the FSMC. 
-                                          This parameter can be a value of @ref FSMC_Write_Operation */
+  uint32_t FSMC_WriteOperation;      /*!< 使能或关闭 FSMC 在所选 bank 中的写操作。
+                                          该参数可取 @ref FSMC_Write_Operation 的值 */
 
-  uint32_t FSMC_WaitSignal;          /*!< Enables or disables the wait-state insertion via wait
-                                          signal, valid for Flash memory access in burst mode. 
-                                          This parameter can be a value of @ref FSMC_Wait_Signal */
+  uint32_t FSMC_WaitSignal;          /*!< 使能或关闭通过等待信号插入等待状态，
+                                          对突发模式下的 Flash 存储器访问有效。
+                                          该参数可取 @ref FSMC_Wait_Signal 的值 */
 
-  uint32_t FSMC_ExtendedMode;        /*!< Enables or disables the extended mode.
-                                          This parameter can be a value of @ref FSMC_Extended_Mode */
+  uint32_t FSMC_ExtendedMode;        /*!< 使能或关闭扩展模式。
+                                          该参数可取 @ref FSMC_Extended_Mode 的值 */
 
-  uint32_t FSMC_WriteBurst;          /*!< Enables or disables the write burst operation.
-                                          This parameter can be a value of @ref FSMC_Write_Burst */ 
+  uint32_t FSMC_WriteBurst;          /*!< 使能或关闭写突发操作。
+                                          该参数可取 @ref FSMC_Write_Burst 的值 */ 
 
-  FSMC_NORSRAMTimingInitTypeDef* FSMC_ReadWriteTimingStruct; /*!< Timing Parameters for write and read access if the  ExtendedMode is not used*/  
+  FSMC_NORSRAMTimingInitTypeDef* FSMC_ReadWriteTimingStruct; /*!< 未使用 ExtendedMode 时读写访问的时序参数*/  
 
-  FSMC_NORSRAMTimingInitTypeDef* FSMC_WriteTimingStruct;     /*!< Timing Parameters for write access if the  ExtendedMode is used*/      
+  FSMC_NORSRAMTimingInitTypeDef* FSMC_WriteTimingStruct;     /*!< 使用 ExtendedMode 时写访问的时序参数*/      
 }FSMC_NORSRAMInitTypeDef;
 
-/** 
-  * @brief  Timing parameters For FSMC NAND and PCCARD Banks
+/**
+  * @brief  FSMC NAND 和 PCCARD Bank 的时序参数
   */
 
 typedef struct
 {
-  uint32_t FSMC_SetupTime;      /*!< Defines the number of HCLK cycles to setup address before
-                                     the command assertion for NAND-Flash read or write access
-                                     to common/Attribute or I/O memory space (depending on
-                                     the memory space timing to be configured).
-                                     This parameter can be a value between 0 and 0xFF.*/
+  uint32_t FSMC_SetupTime;      /*!< 定义对 common/Attribute 或 I/O 存储空间（取决于
+                                     要配置的存储空间时序）进行 NAND-Flash 读或写访问时，
+                                     在命令置起之前建立地址所需的
+                                     HCLK 周期数。
+                                     该参数可取 0 到 0xFF 之间的值。*/
 
-  uint32_t FSMC_WaitSetupTime;  /*!< Defines the minimum number of HCLK cycles to assert the
-                                     command for NAND-Flash read or write access to
-                                     common/Attribute or I/O memory space (depending on the
-                                     memory space timing to be configured). 
-                                     This parameter can be a number between 0x00 and 0xFF */
+  uint32_t FSMC_WaitSetupTime;  /*!< 定义对 common/Attribute 或 I/O 存储空间（取决于
+                                     要配置的存储空间时序）进行 NAND-Flash 读或写访问时
+                                     置起命令所需的最少 HCLK 周期数。
+                                     该参数可取 0x00 到 0xFF 之间的数值 */
 
-  uint32_t FSMC_HoldSetupTime;  /*!< Defines the number of HCLK clock cycles to hold address
-                                     (and data for write access) after the command deassertion
-                                     for NAND-Flash read or write access to common/Attribute
-                                     or I/O memory space (depending on the memory space timing
-                                     to be configured).
-                                     This parameter can be a number between 0x00 and 0xFF */
+  uint32_t FSMC_HoldSetupTime;  /*!< 定义对 common/Attribute 或 I/O 存储空间（取决于
+                                     要配置的存储空间时序）进行 NAND-Flash 读或写访问时，
+                                     在命令撤销之后保持地址（写访问时还包括数据）
+                                     所需的 HCLK 时钟周期数。
+                                     该参数可取 0x00 到 0xFF 之间的数值 */
 
-  uint32_t FSMC_HiZSetupTime;   /*!< Defines the number of HCLK clock cycles during which the
-                                     databus is kept in HiZ after the start of a NAND-Flash
-                                     write access to common/Attribute or I/O memory space (depending
-                                     on the memory space timing to be configured).
-                                     This parameter can be a number between 0x00 and 0xFF */
+  uint32_t FSMC_HiZSetupTime;   /*!< 定义对 common/Attribute 或 I/O 存储空间（取决于
+                                     要配置的存储空间时序）开始 NAND-Flash 写访问之后，
+                                     数据总线保持高阻态的 HCLK 时钟周期数。
+                                     该参数可取 0x00 到 0xFF 之间的数值 */
 }FSMC_NAND_PCCARDTimingInitTypeDef;
 
-/** 
-  * @brief  FSMC NAND Init structure definition
+/**
+  * @brief  FSMC NAND 初始化结构定义
   */
 
 typedef struct
 {
-  uint32_t FSMC_Bank;              /*!< Specifies the NAND memory bank that will be used.
-                                      This parameter can be a value of @ref FSMC_NAND_Bank */
+  uint32_t FSMC_Bank;              /*!< 指定将要使用的 NAND 存储块。
+                                      该参数可取 @ref FSMC_NAND_Bank 的值 */
 
-  uint32_t FSMC_Waitfeature;      /*!< Enables or disables the Wait feature for the NAND Memory Bank.
-                                       This parameter can be any value of @ref FSMC_Wait_feature */
+  uint32_t FSMC_Waitfeature;      /*!< 使能或关闭 NAND 存储块的等待功能。
+                                       该参数可取 @ref FSMC_Wait_feature 的任意值 */
 
-  uint32_t FSMC_MemoryDataWidth;  /*!< Specifies the external memory device width.
-                                       This parameter can be any value of @ref FSMC_Data_Width */
+  uint32_t FSMC_MemoryDataWidth;  /*!< 指定外部存储器件的宽度。
+                                       该参数可取 @ref FSMC_Data_Width 的任意值 */
 
-  uint32_t FSMC_ECC;              /*!< Enables or disables the ECC computation.
-                                       This parameter can be any value of @ref FSMC_ECC */
+  uint32_t FSMC_ECC;              /*!< 使能或关闭 ECC 计算。
+                                       该参数可取 @ref FSMC_ECC 的任意值 */
 
-  uint32_t FSMC_ECCPageSize;      /*!< Defines the page size for the extended ECC.
-                                       This parameter can be any value of @ref FSMC_ECC_Page_Size */
+  uint32_t FSMC_ECCPageSize;      /*!< 定义扩展 ECC 的页大小。
+                                       该参数可取 @ref FSMC_ECC_Page_Size 的任意值 */
 
-  uint32_t FSMC_TCLRSetupTime;    /*!< Defines the number of HCLK cycles to configure the
-                                       delay between CLE low and RE low.
-                                       This parameter can be a value between 0 and 0xFF. */
+  uint32_t FSMC_TCLRSetupTime;    /*!< 定义用于配置 CLE 为低与 RE 为低之间
+                                       延迟的 HCLK 周期数。
+                                       该参数可取 0 到 0xFF 之间的值。 */
 
-  uint32_t FSMC_TARSetupTime;     /*!< Defines the number of HCLK cycles to configure the
-                                       delay between ALE low and RE low.
-                                       This parameter can be a number between 0x0 and 0xFF */ 
+  uint32_t FSMC_TARSetupTime;     /*!< 定义用于配置 ALE 为低与 RE 为低之间
+                                       延迟的 HCLK 周期数。
+                                       该参数可取 0x0 到 0xFF 之间的数值 */ 
 
-  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_CommonSpaceTimingStruct;   /*!< FSMC Common Space Timing */ 
+  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_CommonSpaceTimingStruct;   /*!< FSMC 公共空间时序 */ 
 
-  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_AttributeSpaceTimingStruct; /*!< FSMC Attribute Space Timing */
+  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_AttributeSpaceTimingStruct; /*!< FSMC 属性空间时序 */
 }FSMC_NANDInitTypeDef;
 
-/** 
-  * @brief  FSMC PCCARD Init structure definition
+/**
+  * @brief  FSMC PCCARD 初始化结构定义
   */
 
 typedef struct
 {
-  uint32_t FSMC_Waitfeature;    /*!< Enables or disables the Wait feature for the Memory Bank.
-                                    This parameter can be any value of @ref FSMC_Wait_feature */
+  uint32_t FSMC_Waitfeature;    /*!< 使能或关闭存储块的等待功能。
+                                    该参数可取 @ref FSMC_Wait_feature 的任意值 */
 
-  uint32_t FSMC_TCLRSetupTime;  /*!< Defines the number of HCLK cycles to configure the
-                                     delay between CLE low and RE low.
-                                     This parameter can be a value between 0 and 0xFF. */
+  uint32_t FSMC_TCLRSetupTime;  /*!< 定义用于配置 CLE 为低与 RE 为低之间
+                                     延迟的 HCLK 周期数。
+                                     该参数可取 0 到 0xFF 之间的值。 */
 
-  uint32_t FSMC_TARSetupTime;   /*!< Defines the number of HCLK cycles to configure the
-                                     delay between ALE low and RE low.
-                                     This parameter can be a number between 0x0 and 0xFF */ 
+  uint32_t FSMC_TARSetupTime;   /*!< 定义用于配置 ALE 为低与 RE 为低之间
+                                     延迟的 HCLK 周期数。
+                                     该参数可取 0x0 到 0xFF 之间的数值 */ 
 
   
-  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_CommonSpaceTimingStruct; /*!< FSMC Common Space Timing */
+  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_CommonSpaceTimingStruct; /*!< FSMC 公共空间时序 */
 
-  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_AttributeSpaceTimingStruct;  /*!< FSMC Attribute Space Timing */ 
+  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_AttributeSpaceTimingStruct;  /*!< FSMC 属性空间时序 */ 
   
-  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_IOSpaceTimingStruct; /*!< FSMC IO Space Timing */  
+  FSMC_NAND_PCCARDTimingInitTypeDef*  FSMC_IOSpaceTimingStruct; /*!< FSMC IO 空间时序 */  
 }FSMC_PCCARDInitTypeDef;
 
 /**
   * @}
   */
 
-/** @defgroup FSMC_Exported_Constants
+/** @defgroup FSMC_Exported_Constants   FSMC 导出常量
   * @{
   */
 
-/** @defgroup FSMC_NORSRAM_Bank 
+/** @defgroup FSMC_NORSRAM_Bank   FSMC NOR/SRAM Bank
   * @{
   */
 #define FSMC_Bank1_NORSRAM1                             ((uint32_t)0x00000000)
@@ -254,7 +248,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_NAND_Bank 
+/** @defgroup FSMC_NAND_Bank   FSMC NAND Bank
   * @{
   */  
 #define FSMC_Bank2_NAND                                 ((uint32_t)0x00000010)
@@ -263,7 +257,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_PCCARD_Bank 
+/** @defgroup FSMC_PCCARD_Bank   FSMC PCCARD Bank
   * @{
   */    
 #define FSMC_Bank4_PCCARD                               ((uint32_t)0x00001000)
@@ -287,11 +281,11 @@ typedef struct
                                ((BANK) == FSMC_Bank3_NAND) || \
                                ((BANK) == FSMC_Bank4_PCCARD))
 
-/** @defgroup NOR_SRAM_Controller 
+/** @defgroup NOR_SRAM_Controller   NOR/SRAM 控制器
   * @{
   */
 
-/** @defgroup FSMC_Data_Address_Bus_Multiplexing 
+/** @defgroup FSMC_Data_Address_Bus_Multiplexing   FSMC 数据地址总线复用
   * @{
   */
 
@@ -304,7 +298,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Memory_Type 
+/** @defgroup FSMC_Memory_Type   FSMC 存储器类型
   * @{
   */
 
@@ -319,7 +313,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Data_Width 
+/** @defgroup FSMC_Data_Width   FSMC 数据宽度
   * @{
   */
 
@@ -332,7 +326,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Burst_Access_Mode 
+/** @defgroup FSMC_Burst_Access_Mode   FSMC 突发访问模式
   * @{
   */
 
@@ -344,7 +338,7 @@ typedef struct
   * @}
   */
   
-/** @defgroup FSMC_AsynchronousWait 
+/** @defgroup FSMC_AsynchronousWait   FSMC 异步等待
   * @{
   */
 #define FSMC_AsynchronousWait_Disable                   ((uint32_t)0x00000000)
@@ -356,7 +350,7 @@ typedef struct
   * @}
   */
   
-/** @defgroup FSMC_Wait_Signal_Polarity 
+/** @defgroup FSMC_Wait_Signal_Polarity   FSMC 等待信号极性
   * @{
   */
 
@@ -369,7 +363,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Wrap_Mode 
+/** @defgroup FSMC_Wrap_Mode   FSMC 回绕模式
   * @{
   */
 
@@ -382,7 +376,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Wait_Timing 
+/** @defgroup FSMC_Wait_Timing   FSMC 等待时序
   * @{
   */
 
@@ -395,7 +389,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Write_Operation 
+/** @defgroup FSMC_Write_Operation   FSMC 写操作
   * @{
   */
 
@@ -408,7 +402,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Wait_Signal 
+/** @defgroup FSMC_Wait_Signal   FSMC 等待信号
   * @{
   */
 
@@ -420,7 +414,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Extended_Mode 
+/** @defgroup FSMC_Extended_Mode   FSMC 扩展模式
   * @{
   */
 
@@ -434,7 +428,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Write_Burst 
+/** @defgroup FSMC_Write_Burst   FSMC 写突发
   * @{
   */
 
@@ -446,7 +440,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Address_Setup_Time 
+/** @defgroup FSMC_Address_Setup_Time   FSMC 地址建立时间
   * @{
   */
 
@@ -456,7 +450,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Address_Hold_Time 
+/** @defgroup FSMC_Address_Hold_Time   FSMC 地址保持时间
   * @{
   */
 
@@ -466,7 +460,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Data_Setup_Time 
+/** @defgroup FSMC_Data_Setup_Time   FSMC 数据建立时间
   * @{
   */
 
@@ -476,7 +470,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Bus_Turn_around_Duration 
+/** @defgroup FSMC_Bus_Turn_around_Duration   FSMC 总线周转持续时间
   * @{
   */
 
@@ -486,7 +480,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_CLK_Division 
+/** @defgroup FSMC_CLK_Division   FSMC CLK 分频
   * @{
   */
 
@@ -496,7 +490,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Data_Latency 
+/** @defgroup FSMC_Data_Latency   FSMC 数据等待周期
   * @{
   */
 
@@ -506,7 +500,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Access_Mode 
+/** @defgroup FSMC_Access_Mode   FSMC 访问模式
   * @{
   */
 
@@ -527,11 +521,11 @@ typedef struct
   * @}
   */
   
-/** @defgroup NAND_PCCARD_Controller 
+/** @defgroup NAND_PCCARD_Controller   NAND/PCCARD 控制器
   * @{
   */
 
-/** @defgroup FSMC_Wait_feature 
+/** @defgroup FSMC_Wait_feature   FSMC 等待功能
   * @{
   */
 
@@ -545,7 +539,7 @@ typedef struct
   */
 
 
-/** @defgroup FSMC_ECC 
+/** @defgroup FSMC_ECC   FSMC ECC
   * @{
   */
 
@@ -558,7 +552,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_ECC_Page_Size 
+/** @defgroup FSMC_ECC_Page_Size   FSMC ECC 页大小
   * @{
   */
 
@@ -579,7 +573,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_TCLR_Setup_Time 
+/** @defgroup FSMC_TCLR_Setup_Time   FSMC TCLR 建立时间
   * @{
   */
 
@@ -589,7 +583,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_TAR_Setup_Time 
+/** @defgroup FSMC_TAR_Setup_Time   FSMC TAR 建立时间
   * @{
   */
 
@@ -599,7 +593,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Setup_Time 
+/** @defgroup FSMC_Setup_Time   FSMC 建立时间
   * @{
   */
 
@@ -609,7 +603,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Wait_Setup_Time 
+/** @defgroup FSMC_Wait_Setup_Time   FSMC 等待建立时间
   * @{
   */
 
@@ -619,7 +613,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Hold_Setup_Time 
+/** @defgroup FSMC_Hold_Setup_Time   FSMC 保持建立时间
   * @{
   */
 
@@ -629,7 +623,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_HiZ_Setup_Time 
+/** @defgroup FSMC_HiZ_Setup_Time   FSMC 高阻态建立时间
   * @{
   */
 
@@ -639,7 +633,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Interrupt_sources 
+/** @defgroup FSMC_Interrupt_sources   FSMC 中断源
   * @{
   */
 
@@ -654,7 +648,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Flags 
+/** @defgroup FSMC_Flags   FSMC 标志
   * @{
   */
 
@@ -681,7 +675,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Exported_Macros
+/** @defgroup FSMC_Exported_Macros   FSMC 导出宏
   * @{
   */
 
@@ -689,7 +683,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FSMC_Exported_Functions
+/** @defgroup FSMC_Exported_Functions   FSMC 导出函数
   * @{
   */
 
@@ -730,4 +724,4 @@ void FSMC_ClearITPendingBit(uint32_t FSMC_Bank, uint32_t FSMC_IT);
   * @}
   */ 
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****文件结束****/

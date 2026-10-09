@@ -2,21 +2,20 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_dma.h
   * @author  MCD Application Team
-  * @brief   Header file of DMA HAL module.
+  * @brief   DMA HAL 模块头文件。
   ******************************************************************************
   * @attention
   *
   * Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.
+  * 保留所有权利。
   *
-  * This software is licensed under terms that can be found in the LICENSE file in
-  * the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * 本软件根据可在该软件组件根目录下的 LICENSE 文件中找到的条款获得许可。
+  * 若本软件未随附 LICENSE 文件，则按“原样”提供。
   *
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* 用于防止递归包含的宏定义 -------------------------------------------------*/
 #ifndef __STM32F1xx_HAL_DMA_H
 #define __STM32F1xx_HAL_DMA_H
 
@@ -24,7 +23,7 @@
  extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+/* 包含的头文件 --------------------------------------------------------------*/
 #include "stm32f1xx_hal_def.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -35,198 +34,198 @@
   * @{
   */
 
-/* Exported types ------------------------------------------------------------*/
+/* 导出的类型 ----------------------------------------------------------------*/
 
-/** @defgroup DMA_Exported_Types DMA Exported Types
+/** @defgroup DMA_Exported_Types DMA 导出类型
   * @{
   */
 
 /**
-  * @brief  DMA Configuration Structure definition
+  * @brief  DMA 配置结构体定义
   */
 typedef struct
 {
-  uint32_t Direction;                 /*!< Specifies if the data will be transferred from memory to peripheral, 
-                                           from memory to memory or from peripheral to memory.
-                                           This parameter can be a value of @ref DMA_Data_transfer_direction */
+  uint32_t Direction;                 /*!< 指定数据传输方向：从内存到外设、
+                                           从内存到内存或从外设到内存。
+                                           该参数可以是 @ref DMA_Data_transfer_direction 的值 */
 
-  uint32_t PeriphInc;                 /*!< Specifies whether the Peripheral address register should be incremented or not.
-                                           This parameter can be a value of @ref DMA_Peripheral_incremented_mode */
+  uint32_t PeriphInc;                 /*!< 指定外设地址寄存器是否递增。
+                                           该参数可以是 @ref DMA_Peripheral_incremented_mode 的值 */
 
-  uint32_t MemInc;                    /*!< Specifies whether the memory address register should be incremented or not.
-                                           This parameter can be a value of @ref DMA_Memory_incremented_mode */
+  uint32_t MemInc;                    /*!< 指定内存地址寄存器是否递增。
+                                           该参数可以是 @ref DMA_Memory_incremented_mode 的值 */
 
-  uint32_t PeriphDataAlignment;       /*!< Specifies the Peripheral data width.
-                                           This parameter can be a value of @ref DMA_Peripheral_data_size */
+  uint32_t PeriphDataAlignment;       /*!< 指定外设数据宽度。
+                                           该参数可以是 @ref DMA_Peripheral_data_size 的值 */
 
-  uint32_t MemDataAlignment;          /*!< Specifies the Memory data width.
-                                           This parameter can be a value of @ref DMA_Memory_data_size */
+  uint32_t MemDataAlignment;          /*!< 指定内存数据宽度。
+                                           该参数可以是 @ref DMA_Memory_data_size 的值 */
 
-  uint32_t Mode;                      /*!< Specifies the operation mode of the DMAy Channelx.
-                                           This parameter can be a value of @ref DMA_mode
-                                           @note The circular buffer mode cannot be used if the memory-to-memory
-                                                 data transfer is configured on the selected Channel */
+  uint32_t Mode;                      /*!< 指定 DMAy Channelx 的操作模式。
+                                           该参数可以是 @ref DMA_mode 的值
+                                           @note 若在所选通道上配置了内存到内存的数据传输，
+                                                 则不能使用循环缓冲区模式 */
 
-  uint32_t Priority;                  /*!< Specifies the software priority for the DMAy Channelx.
-                                           This parameter can be a value of @ref DMA_Priority_level */
+  uint32_t Priority;                  /*!< 指定 DMAy Channelx 的软件优先级。
+                                           该参数可以是 @ref DMA_Priority_level 的值 */
 } DMA_InitTypeDef;
 
 /**
-  * @brief  HAL DMA State structures definition
+  * @brief  HAL DMA 状态结构体定义
   */
 typedef enum
 {
-  HAL_DMA_STATE_RESET             = 0x00U,  /*!< DMA not yet initialized or disabled    */
-  HAL_DMA_STATE_READY             = 0x01U,  /*!< DMA initialized and ready for use      */
-  HAL_DMA_STATE_BUSY              = 0x02U,  /*!< DMA process is ongoing                 */
-  HAL_DMA_STATE_TIMEOUT           = 0x03U   /*!< DMA timeout state                      */
+  HAL_DMA_STATE_RESET             = 0x00U,  /*!< DMA 尚未初始化或已禁用                  */
+  HAL_DMA_STATE_READY             = 0x01U,  /*!< DMA 已初始化且就绪可用                  */
+  HAL_DMA_STATE_BUSY              = 0x02U,  /*!< DMA 传输正在进行中                      */
+  HAL_DMA_STATE_TIMEOUT           = 0x03U   /*!< DMA 超时状态                           */
 }HAL_DMA_StateTypeDef;
 
 /**
-  * @brief  HAL DMA Error Code structure definition
+  * @brief  HAL DMA 错误码结构体定义
   */
 typedef enum
 {
-  HAL_DMA_FULL_TRANSFER           = 0x00U,    /*!< Full transfer     */
-  HAL_DMA_HALF_TRANSFER           = 0x01U     /*!< Half Transfer     */
+  HAL_DMA_FULL_TRANSFER           = 0x00U,    /*!< 传输完成           */
+  HAL_DMA_HALF_TRANSFER           = 0x01U     /*!< 半传输完成         */
 }HAL_DMA_LevelCompleteTypeDef;
 
 /** 
-  * @brief  HAL DMA Callback ID structure definition
+  * @brief  HAL DMA 回调函数 ID 结构体定义
   */
 typedef enum
 {
-  HAL_DMA_XFER_CPLT_CB_ID          = 0x00U,    /*!< Full transfer     */
-  HAL_DMA_XFER_HALFCPLT_CB_ID      = 0x01U,    /*!< Half transfer     */
-  HAL_DMA_XFER_ERROR_CB_ID         = 0x02U,    /*!< Error             */ 
-  HAL_DMA_XFER_ABORT_CB_ID         = 0x03U,    /*!< Abort             */ 
-  HAL_DMA_XFER_ALL_CB_ID           = 0x04U     /*!< All               */ 
+  HAL_DMA_XFER_CPLT_CB_ID          = 0x00U,    /*!< 传输完成           */
+  HAL_DMA_XFER_HALFCPLT_CB_ID      = 0x01U,    /*!< 半传输完成         */
+  HAL_DMA_XFER_ERROR_CB_ID         = 0x02U,    /*!< 错误               */ 
+  HAL_DMA_XFER_ABORT_CB_ID         = 0x03U,    /*!< 中止               */ 
+  HAL_DMA_XFER_ALL_CB_ID           = 0x04U     /*!< 全部               */ 
     
 }HAL_DMA_CallbackIDTypeDef;
 
 /** 
-  * @brief  DMA handle Structure definition
+  * @brief  DMA 句柄结构体定义
   */
 typedef struct __DMA_HandleTypeDef
 {
-  DMA_Channel_TypeDef        *Instance;                                                    /*!< Register base address                  */
+  DMA_Channel_TypeDef        *Instance;                                                    /*!< 寄存器基地址                          */
   
-  DMA_InitTypeDef            Init;                                                         /*!< DMA communication parameters           */
+  DMA_InitTypeDef            Init;                                                         /*!< DMA 通信参数                           */
   
-  HAL_LockTypeDef            Lock;                                                         /*!< DMA locking object                     */
+  HAL_LockTypeDef            Lock;                                                         /*!< DMA 锁对象                             */
   
-  __IO HAL_DMA_StateTypeDef  State;                                                        /*!< DMA transfer state                     */
+  __IO HAL_DMA_StateTypeDef  State;                                                        /*!< DMA 传输状态                           */
   
-  void                       *Parent;                                                      /*!< Parent object state                    */
+  void                       *Parent;                                                      /*!< 父对象状态                             */
   
-  void                       (* XferCpltCallback)( struct __DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback         */
+  void                       (* XferCpltCallback)( struct __DMA_HandleTypeDef * hdma);     /*!< DMA 传输完成回调函数                   */
   
-  void                       (* XferHalfCpltCallback)( struct __DMA_HandleTypeDef * hdma); /*!< DMA Half transfer complete callback    */
+  void                       (* XferHalfCpltCallback)( struct __DMA_HandleTypeDef * hdma); /*!< DMA 半传输完成回调函数                 */
   
-  void                       (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
+  void                       (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA 传输错误回调函数                   */
 
-  void                       (* XferAbortCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer abort callback            */
+  void                       (* XferAbortCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA 传输中止回调函数                   */
   
-  __IO uint32_t              ErrorCode;                                                    /*!< DMA Error code                         */
+  __IO uint32_t              ErrorCode;                                                    /*!< DMA 错误代码                           */
 
-  DMA_TypeDef                *DmaBaseAddress;                                             /*!< DMA Channel Base Address               */
+  DMA_TypeDef                *DmaBaseAddress;                                             /*!< DMA 通道基地址                         */
   
-  uint32_t                   ChannelIndex;                                                /*!< DMA Channel Index                      */
+  uint32_t                   ChannelIndex;                                                /*!< DMA 通道索引                           */
 
 } DMA_HandleTypeDef;    
 /**
   * @}
   */
 
-/* Exported constants --------------------------------------------------------*/
+/* 导出常量 ------------------------------------------------------------------*/
 
-/** @defgroup DMA_Exported_Constants DMA Exported Constants
+/** @defgroup DMA_Exported_Constants DMA 导出常量
   * @{
   */
 
-/** @defgroup DMA_Error_Code DMA Error Code
+/** @defgroup DMA_Error_Code DMA 错误代码
   * @{
   */
-#define HAL_DMA_ERROR_NONE                     0x00000000U    /*!< No error             */
-#define HAL_DMA_ERROR_TE                       0x00000001U    /*!< Transfer error       */
-#define HAL_DMA_ERROR_NO_XFER                  0x00000004U    /*!< no ongoing transfer  */
-#define HAL_DMA_ERROR_TIMEOUT                  0x00000020U    /*!< Timeout error        */
-#define HAL_DMA_ERROR_NOT_SUPPORTED            0x00000100U    /*!< Not supported mode                    */ 
+#define HAL_DMA_ERROR_NONE                     0x00000000U    /*!< 无错误               */
+#define HAL_DMA_ERROR_TE                       0x00000001U    /*!< 传输错误             */
+#define HAL_DMA_ERROR_NO_XFER                  0x00000004U    /*!< 无正在进行的传输     */
+#define HAL_DMA_ERROR_TIMEOUT                  0x00000020U    /*!< 超时错误             */
+#define HAL_DMA_ERROR_NOT_SUPPORTED            0x00000100U    /*!< 不支持的模式                          */ 
 /**
   * @}
   */
 
-/** @defgroup DMA_Data_transfer_direction DMA Data transfer direction
+/** @defgroup DMA_Data_transfer_direction DMA 数据传输方向
   * @{
   */
-#define DMA_PERIPH_TO_MEMORY         0x00000000U                 /*!< Peripheral to memory direction */
-#define DMA_MEMORY_TO_PERIPH         ((uint32_t)DMA_CCR_DIR)     /*!< Memory to peripheral direction */
-#define DMA_MEMORY_TO_MEMORY         ((uint32_t)DMA_CCR_MEM2MEM) /*!< Memory to memory direction     */
+#define DMA_PERIPH_TO_MEMORY         0x00000000U                 /*!< 外设到存储器方向               */
+#define DMA_MEMORY_TO_PERIPH         ((uint32_t)DMA_CCR_DIR)     /*!< 存储器到外设方向               */
+#define DMA_MEMORY_TO_MEMORY         ((uint32_t)DMA_CCR_MEM2MEM) /*!< 存储器到存储器方向             */
 
 /**
   * @}
   */
 
-/** @defgroup DMA_Peripheral_incremented_mode DMA Peripheral incremented mode
+/** @defgroup DMA_Peripheral_incremented_mode DMA 外设地址自增模式
   * @{
   */
-#define DMA_PINC_ENABLE        ((uint32_t)DMA_CCR_PINC)  /*!< Peripheral increment mode Enable */
-#define DMA_PINC_DISABLE       0x00000000U               /*!< Peripheral increment mode Disable */
+#define DMA_PINC_ENABLE        ((uint32_t)DMA_CCR_PINC)  /*!< 使能外设地址自增模式             */
+#define DMA_PINC_DISABLE       0x00000000U               /*!< 禁用外设地址自增模式             */
 /**
   * @}
   */
 
-/** @defgroup DMA_Memory_incremented_mode DMA Memory incremented mode
+/** @defgroup DMA_Memory_incremented_mode DMA 内存地址递增模式
   * @{
   */
-#define DMA_MINC_ENABLE         ((uint32_t)DMA_CCR_MINC)  /*!< Memory increment mode Enable  */
-#define DMA_MINC_DISABLE        0x00000000U               /*!< Memory increment mode Disable */
+#define DMA_MINC_ENABLE         ((uint32_t)DMA_CCR_MINC)  /*!< 使能内存地址递增模式  */
+#define DMA_MINC_DISABLE        0x00000000U               /*!< 禁用内存地址递增模式 */
 /**
   * @}
   */
 
-/** @defgroup DMA_Peripheral_data_size DMA Peripheral data size
+/** @defgroup DMA_Peripheral_data_size DMA 外设数据宽度
   * @{
   */
-#define DMA_PDATAALIGN_BYTE          0x00000000U                  /*!< Peripheral data alignment: Byte     */
-#define DMA_PDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_PSIZE_0)  /*!< Peripheral data alignment: HalfWord */
-#define DMA_PDATAALIGN_WORD          ((uint32_t)DMA_CCR_PSIZE_1)  /*!< Peripheral data alignment: Word     */
+#define DMA_PDATAALIGN_BYTE          0x00000000U                  /*!< 外设数据对齐：字节     */
+#define DMA_PDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_PSIZE_0)  /*!< 外设数据对齐：半字 */
+#define DMA_PDATAALIGN_WORD          ((uint32_t)DMA_CCR_PSIZE_1)  /*!< 外设数据对齐：字     */
 /**
   * @}
   */
 
-/** @defgroup DMA_Memory_data_size DMA Memory data size
+/** @defgroup DMA_Memory_data_size DMA 内存数据宽度
   * @{
   */
-#define DMA_MDATAALIGN_BYTE          0x00000000U                  /*!< Memory data alignment: Byte     */
-#define DMA_MDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_MSIZE_0)  /*!< Memory data alignment: HalfWord */
-#define DMA_MDATAALIGN_WORD          ((uint32_t)DMA_CCR_MSIZE_1)  /*!< Memory data alignment: Word     */
+#define DMA_MDATAALIGN_BYTE          0x00000000U                  /*!< 内存数据对齐：字节     */
+#define DMA_MDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_MSIZE_0)  /*!< 内存数据对齐：半字 */
+#define DMA_MDATAALIGN_WORD          ((uint32_t)DMA_CCR_MSIZE_1)  /*!< 内存数据对齐：字     */
 /**
   * @}
   */
 
-/** @defgroup DMA_mode DMA mode
+/** @defgroup DMA_mode DMA 模式
   * @{
   */
-#define DMA_NORMAL         0x00000000U                  /*!< Normal mode                  */
-#define DMA_CIRCULAR       ((uint32_t)DMA_CCR_CIRC)     /*!< Circular mode                */
+#define DMA_NORMAL         0x00000000U                  /*!< 正常模式                      */
+#define DMA_CIRCULAR       ((uint32_t)DMA_CCR_CIRC)     /*!< 循环模式                      */
 /**
   * @}
   */
 
-/** @defgroup DMA_Priority_level DMA Priority level
+/** @defgroup DMA_Priority_level DMA 优先级
   * @{
   */
-#define DMA_PRIORITY_LOW             0x00000000U               /*!< Priority level : Low       */
-#define DMA_PRIORITY_MEDIUM          ((uint32_t)DMA_CCR_PL_0)  /*!< Priority level : Medium    */
-#define DMA_PRIORITY_HIGH            ((uint32_t)DMA_CCR_PL_1)  /*!< Priority level : High      */
-#define DMA_PRIORITY_VERY_HIGH       ((uint32_t)DMA_CCR_PL)    /*!< Priority level : Very_High */
+#define DMA_PRIORITY_LOW             0x00000000U               /*!< 优先级：低                 */
+#define DMA_PRIORITY_MEDIUM          ((uint32_t)DMA_CCR_PL_0)  /*!< 优先级：中                 */
+#define DMA_PRIORITY_HIGH            ((uint32_t)DMA_CCR_PL_1)  /*!< 优先级：高                 */
+#define DMA_PRIORITY_VERY_HIGH       ((uint32_t)DMA_CCR_PL)    /*!< 优先级：非常高             */
 /**
   * @}
   */
 
 
-/** @defgroup DMA_interrupt_enable_definitions DMA interrupt enable definitions
+/** @defgroup DMA_interrupt_enable_definitions DMA 中断使能定义
   * @{
   */
 #define DMA_IT_TC                         ((uint32_t)DMA_CCR_TCIE)
@@ -236,7 +235,7 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/** @defgroup DMA_flag_definitions DMA flag definitions
+/** @defgroup DMA_flag_definitions DMA 标志位定义
   * @{
   */
 #define DMA_FLAG_GL1                      0x00000001U
@@ -276,74 +275,74 @@ typedef struct __DMA_HandleTypeDef
   */
 
 
-/* Exported macros -----------------------------------------------------------*/
-/** @defgroup DMA_Exported_Macros DMA Exported Macros
+/* 导出宏 -----------------------------------------------------------*/
+/** @defgroup DMA_Exported_Macros DMA 导出宏
   * @{
   */
 
-/** @brief  Reset DMA handle state.
-  * @param  __HANDLE__: DMA handle
-  * @retval None
+/** @brief  复位 DMA 句柄状态。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 无
   */
 #define __HAL_DMA_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_DMA_STATE_RESET)
 
 /**
-  * @brief  Enable the specified DMA Channel.
-  * @param  __HANDLE__: DMA handle
-  * @retval None
+  * @brief  使能指定的 DMA 通道。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 无
   */
 #define __HAL_DMA_ENABLE(__HANDLE__)        (SET_BIT((__HANDLE__)->Instance->CCR, DMA_CCR_EN))
 
 /**
-  * @brief  Disable the specified DMA Channel.
-  * @param  __HANDLE__: DMA handle
-  * @retval None
+  * @brief  禁用指定的 DMA 通道。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 无
   */
 #define __HAL_DMA_DISABLE(__HANDLE__)       (CLEAR_BIT((__HANDLE__)->Instance->CCR, DMA_CCR_EN))
 
 
-/* Interrupt & Flag management */
+/* 中断和标志位管理 */
 
 /**
-  * @brief  Enables the specified DMA Channel interrupts.
-  * @param  __HANDLE__: DMA handle
-  * @param __INTERRUPT__: specifies the DMA interrupt sources to be enabled or disabled.
-  *          This parameter can be any combination of the following values:
-  *            @arg DMA_IT_TC:  Transfer complete interrupt mask
-  *            @arg DMA_IT_HT:  Half transfer complete interrupt mask
-  *            @arg DMA_IT_TE:  Transfer error interrupt mask
-  * @retval None
+  * @brief  使能指定的 DMA 通道中断。
+  * @param  __HANDLE__: DMA 句柄
+  * @param __INTERRUPT__: 指定要使能或禁用的 DMA 中断源。
+  *          该参数可以是以下值的任意组合：
+  *            @arg DMA_IT_TC:  传输完成中断屏蔽位
+  *            @arg DMA_IT_HT:  传输过半中断屏蔽位
+  *            @arg DMA_IT_TE:  传输错误中断屏蔽位
+  * @retval 无
   */
 #define __HAL_DMA_ENABLE_IT(__HANDLE__, __INTERRUPT__)   (SET_BIT((__HANDLE__)->Instance->CCR, (__INTERRUPT__)))
 
 /**
-  * @brief  Disable the specified DMA Channel interrupts.
-  * @param  __HANDLE__: DMA handle
-  * @param  __INTERRUPT__: specifies the DMA interrupt sources to be enabled or disabled.
-  *          This parameter can be any combination of the following values:
-  *            @arg DMA_IT_TC:  Transfer complete interrupt mask
-  *            @arg DMA_IT_HT:  Half transfer complete interrupt mask
-  *            @arg DMA_IT_TE:  Transfer error interrupt mask
-  * @retval None
+  * @brief  禁用指定的 DMA 通道中断。
+  * @param  __HANDLE__: DMA 句柄
+  * @param  __INTERRUPT__: 指定要使能或禁用的 DMA 中断源。
+  *          该参数可以是以下值的任意组合：
+  *            @arg DMA_IT_TC:  传输完成中断屏蔽位
+  *            @arg DMA_IT_HT:  传输过半中断屏蔽位
+  *            @arg DMA_IT_TE:  传输错误中断屏蔽位
+  * @retval 无
   */
 #define __HAL_DMA_DISABLE_IT(__HANDLE__, __INTERRUPT__)  (CLEAR_BIT((__HANDLE__)->Instance->CCR , (__INTERRUPT__)))
 
 /**
-  * @brief  Check whether the specified DMA Channel interrupt is enabled or not.
-  * @param  __HANDLE__: DMA handle
-  * @param  __INTERRUPT__: specifies the DMA interrupt source to check.
-  *          This parameter can be one of the following values:
-  *            @arg DMA_IT_TC:  Transfer complete interrupt mask
-  *            @arg DMA_IT_HT:  Half transfer complete interrupt mask
-  *            @arg DMA_IT_TE:  Transfer error interrupt mask
-  * @retval The state of DMA_IT (SET or RESET).
+  * @brief  检查指定的 DMA 通道中断是否已使能。
+  * @param  __HANDLE__: DMA 句柄
+  * @param  __INTERRUPT__: 指定要检查的 DMA 中断源。
+  *          该参数可以是以下值之一：
+  *            @arg DMA_IT_TC:  传输完成中断屏蔽位
+  *            @arg DMA_IT_HT:  传输过半中断屏蔽位
+  *            @arg DMA_IT_TE:  传输错误中断屏蔽位
+  * @retval DMA_IT 的状态（SET 或 RESET）。
   */
 #define __HAL_DMA_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)  ((((__HANDLE__)->Instance->CCR & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
 
 /**
-  * @brief  Return the number of remaining data units in the current DMA Channel transfer.
-  * @param  __HANDLE__: DMA handle
-  * @retval The number of remaining data units in the current DMA Channel transfer.
+  * @brief  返回当前 DMA 通道传输中剩余的数据单元数量。
+  * @param  __HANDLE__: DMA 句柄
+  * @retval 当前 DMA 通道传输中剩余的数据单元数量。
   */
 #define __HAL_DMA_GET_COUNTER(__HANDLE__) ((__HANDLE__)->Instance->CNDTR)
 
@@ -351,10 +350,10 @@ typedef struct __DMA_HandleTypeDef
   * @}
   */
 
-/* Include DMA HAL Extension module */
+/* 包含 DMA HAL 扩展模块 */
 #include "stm32f1xx_hal_dma_ex.h"   
 
-/* Exported functions --------------------------------------------------------*/
+/* 导出函数 --------------------------------------------------------*/
 /** @addtogroup DMA_Exported_Functions
   * @{
   */
@@ -362,7 +361,7 @@ typedef struct __DMA_HandleTypeDef
 /** @addtogroup DMA_Exported_Functions_Group1
   * @{
   */
-/* Initialization and de-initialization functions *****************************/
+/* 初始化和反初始化函数 ********************************************************/
 HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
 /**
@@ -372,7 +371,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
 /** @addtogroup DMA_Exported_Functions_Group2
   * @{
   */
-/* IO operation functions *****************************************************/
+/* IO 操作函数 *****************************************************************/
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
@@ -389,7 +388,7 @@ HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_Ca
 /** @addtogroup DMA_Exported_Functions_Group3
   * @{
   */
-/* Peripheral State and Error functions ***************************************/
+/* 外设状态与错误处理函数 *******************************************************/
 HAL_DMA_StateTypeDef HAL_DMA_GetState(DMA_HandleTypeDef *hdma);
 uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
 /**
@@ -400,8 +399,8 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
   * @}
   */
 
-/* Private macros ------------------------------------------------------------*/
-/** @defgroup DMA_Private_Macros DMA Private Macros
+/* 私有宏 --------------------------------------------------------------------*/
+/** @defgroup DMA_Private_Macros DMA 私有宏
   * @{
   */
 
@@ -437,7 +436,7 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
   * @}
   */ 
 
-/* Private functions ---------------------------------------------------------*/
+/* 私有函数 ------------------------------------------------------------------*/
 
 /**
   * @}

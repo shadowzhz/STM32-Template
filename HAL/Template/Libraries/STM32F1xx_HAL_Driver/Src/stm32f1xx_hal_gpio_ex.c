@@ -2,41 +2,39 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_gpio_ex.c
   * @author  MCD Application Team
-  * @brief   GPIO Extension HAL module driver.
-  *         This file provides firmware functions to manage the following
-  *          functionalities of the General Purpose Input/Output (GPIO) extension peripheral.
-  *           + Extended features functions
+  * @brief   HAL库 GPIO扩展模块驱动
+  *          本文件提供了管理通用输入/输出（GPIO）扩展外设的以下功能的固件函数。
+  *           + 扩展功能函数
   *
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.
+  * 版权所有 (c) 2016 STMicroelectronics。
+  * 保留所有权利。
   *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * 本软件根据可以在此软件组件的根目录中找到的 LICENSE 文件中的条款进行许可。
+  * 如果此软件没有附带 LICENSE 文件，则按原样提供。
   *
   ******************************************************************************
   @verbatim
   ==============================================================================
-                    ##### GPIO Peripheral extension features #####
+                    ##### GPIO 外设扩展特性 #####
   ==============================================================================
-  [..] GPIO module on STM32F1 family, manage also the AFIO register:
-       (+) Possibility to use the EVENTOUT Cortex feature
+  [..] STM32F1系列的GPIO模块，管理着AFIO寄存器：
+       (+) 可以使用 EVENTOUT Cortex 功能
 
-                     ##### How to use this driver #####
+                     ##### 如何使用驱动 #####
   ==============================================================================
-  [..] This driver provides functions to use EVENTOUT Cortex feature
-    (#) Configure EVENTOUT Cortex feature using the function HAL_GPIOEx_ConfigEventout()
-    (#) Activate EVENTOUT Cortex feature using the HAL_GPIOEx_EnableEventout()
-    (#) Deactivate EVENTOUT Cortex feature using the HAL_GPIOEx_DisableEventout()
+  [..] 此驱动程序提供了使用 EVENTOUT Cortex 功能的函数。
+    (#) 使用函数 HAL_GPIOEx_ConfigEventout() 配置 EVENTOUT Cortex 功能。
+    (#) 使用 HAL_GPIOEx_EnableEventout() 激活 EVENTOUT Cortex 功能。
+    (#) 使用 HAL_GPIOEx_DisableEventout() 停用 EVENTOUT Cortex 功能。
 
   @endverbatim
   ******************************************************************************
   */
 
-/* Includes ------------------------------------------------------------------*/
+/* 头文件 ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
@@ -44,52 +42,52 @@
   */
 
 /** @defgroup GPIOEx GPIOEx
-  * @brief GPIO HAL module driver
+  * @brief GPIO HAL 模块驱动
   * @{
   */
 
 #ifdef HAL_GPIO_MODULE_ENABLED
 
-/** @defgroup GPIOEx_Exported_Functions GPIOEx Exported Functions
+/** @defgroup GPIOEx_Exported_Functions GPIOEx 导出函数
   * @{
   */
 
-/** @defgroup GPIOEx_Exported_Functions_Group1 Extended features functions
- *  @brief    Extended features functions
+/** @defgroup GPIOEx_Exported_Functions_Group1 扩展特性函数
+ *  @brief    扩展特性函数
  *
 @verbatim
   ==============================================================================
-                 ##### Extended features functions #####
+                 ##### 扩展特性函数 #####
   ==============================================================================
-    [..]  This section provides functions allowing to:
-    (+) Configure EVENTOUT Cortex feature using the function HAL_GPIOEx_ConfigEventout()
-    (+) Activate EVENTOUT Cortex feature using the HAL_GPIOEx_EnableEventout()
-    (+) Deactivate EVENTOUT Cortex feature using the HAL_GPIOEx_DisableEventout()
+    [..]  本节提供了以下功能的函数：
+    (+) 使用函数 HAL_GPIOEx_ConfigEventout() 配置 EVENTOUT Cortex 功能。
+    (+) 使用 HAL_GPIOEx_EnableEventout() 激活 EVENTOUT Cortex 功能。
+    (+) 使用 HAL_GPIOEx_DisableEventout() 停用 EVENTOUT Cortex 功能。
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Configures the port and pin on which the EVENTOUT Cortex signal will be connected.
-  * @param  GPIO_PortSource Select the port used to output the Cortex EVENTOUT signal.
-  *   This parameter can be a value of @ref GPIOEx_EVENTOUT_PORT.
-  * @param  GPIO_PinSource Select the pin used to output the Cortex EVENTOUT signal.
-  *   This parameter can be a value of @ref GPIOEx_EVENTOUT_PIN.
+  * @brief  配置 EVENTOUT Cortex 信号将连接的端口和引脚
+  * @param  GPIO_PortSource 选择用于输出 Cortex EVENTOUT 信号的端口。
+  *   该参数可以是 @ref GPIOEx_EVENTOUT_PORT 中的值。
+  * @param  GPIO_PinSource 选择用于输出 Cortex EVENTOUT 信号的引脚。
+  *   该参数可以是 @ref GPIOEx_EVENTOUT_PIN 中的值。
   * @retval None
   */
 void HAL_GPIOEx_ConfigEventout(uint32_t GPIO_PortSource, uint32_t GPIO_PinSource)
 {
-  /* Verify the parameters */
+  /* 检查参数 */
   assert_param(IS_AFIO_EVENTOUT_PORT(GPIO_PortSource));
   assert_param(IS_AFIO_EVENTOUT_PIN(GPIO_PinSource));
 
-  /* Apply the new configuration */
+  /* 应用新配置 */
   MODIFY_REG(AFIO->EVCR, (AFIO_EVCR_PORT) | (AFIO_EVCR_PIN), (GPIO_PortSource) | (GPIO_PinSource));
 }
 
 /**
-  * @brief  Enables the Event Output.
+  * @brief  启用事件输出
   * @retval None
   */
 void HAL_GPIOEx_EnableEventout(void)
@@ -98,7 +96,7 @@ void HAL_GPIOEx_EnableEventout(void)
 }
 
 /**
-  * @brief  Disables the Event Output.
+  * @brief  禁用事件输出
   * @retval None
   */
 void HAL_GPIOEx_DisableEventout(void)
