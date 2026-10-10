@@ -117,11 +117,11 @@ typedef struct
   * @{
   */ 
   
-#define USART_WordLength_8b                  ((uint16_t)0x0000)
-#define USART_WordLength_9b                  ((uint16_t)0x1000)
+#define USART_WordLength_8b                  ((uint16_t)0x0000)  /*!< 8 位数据字长（最常用的标准无校验数据格式） */
+#define USART_WordLength_9b                  ((uint16_t)0x1000)  /*!< 9 位数据字长（常用配合奇偶校验位或多机通信地址位） */
                                     
 #define IS_USART_WORD_LENGTH(LENGTH) (((LENGTH) == USART_WordLength_8b) || \
-                                      ((LENGTH) == USART_WordLength_9b))
+                                      ((LENGTH) == USART_WordLength_9b)) /*!< 参数校验宏：供库底层 assert_param 断言检查字长有效性 */
 /**
   * @}
   */ 
@@ -130,14 +130,14 @@ typedef struct
   * @{
   */ 
   
-#define USART_StopBits_1                     ((uint16_t)0x0000)
-#define USART_StopBits_0_5                   ((uint16_t)0x1000)
-#define USART_StopBits_2                     ((uint16_t)0x2000)
-#define USART_StopBits_1_5                   ((uint16_t)0x3000)
+#define USART_StopBits_1                     ((uint16_t)0x0000)  /*!< 1 个停止位（常规异步通信最常用默认配置） */
+#define USART_StopBits_0_5                   ((uint16_t)0x1000)  /*!< 0.5 个停止位（智能卡 Smartcard 接收时使用） */
+#define USART_StopBits_2                     ((uint16_t)0x2000)  /*!< 2 个停止位（常规模式、长距离或调制解调器抗噪使用） */
+#define USART_StopBits_1_5                   ((uint16_t)0x3000)  /*!< 1.5 个停止位（智能卡 Smartcard 收发模式使用） */
 #define IS_USART_STOPBITS(STOPBITS) (((STOPBITS) == USART_StopBits_1) || \
                                      ((STOPBITS) == USART_StopBits_0_5) || \
                                      ((STOPBITS) == USART_StopBits_2) || \
-                                     ((STOPBITS) == USART_StopBits_1_5))
+                                     ((STOPBITS) == USART_StopBits_1_5)) /*!< 参数校验宏：供库底层 assert_param 断言检查停止位有效性 */
 /**
   * @}
   */ 
@@ -146,12 +146,12 @@ typedef struct
   * @{
   */ 
   
-#define USART_Parity_No                      ((uint16_t)0x0000)
-#define USART_Parity_Even                    ((uint16_t)0x0400)
-#define USART_Parity_Odd                     ((uint16_t)0x0600) 
+#define USART_Parity_No                      ((uint16_t)0x0000)  /*!< 无校验（常规最常用配置，数据直接传输，8-N-1） */
+#define USART_Parity_Even                    ((uint16_t)0x0400)  /*!< 偶校验（数据位中 1 的个数加上校验位后为偶数） */
+#define USART_Parity_Odd                     ((uint16_t)0x0600)  /*!< 奇校验（数据位中 1 的个数加上校验位后为奇数） */
 #define IS_USART_PARITY(PARITY) (((PARITY) == USART_Parity_No) || \
                                  ((PARITY) == USART_Parity_Even) || \
-                                 ((PARITY) == USART_Parity_Odd))
+                                 ((PARITY) == USART_Parity_Odd)) /*!< 参数校验宏：供库底层 assert_param 断言检查校验位有效性 */
 /**
   * @}
   */ 
@@ -160,9 +160,9 @@ typedef struct
   * @{
   */ 
   
-#define USART_Mode_Rx                        ((uint16_t)0x0004)
-#define USART_Mode_Tx                        ((uint16_t)0x0008)
-#define IS_USART_MODE(MODE) ((((MODE) & (uint16_t)0xFFF3) == 0x00) && ((MODE) != (uint16_t)0x00))
+#define USART_Mode_Rx                        ((uint16_t)0x0004)  /*!< 接收使能（开启 USART 接收器电路） */
+#define USART_Mode_Tx                        ((uint16_t)0x0008)  /*!< 发送使能（开启 USART 发送器电路；双向通信使用 (USART_Mode_Rx | USART_Mode_Tx)） */
+#define IS_USART_MODE(MODE) ((((MODE) & (uint16_t)0xFFF3) == 0x00) && ((MODE) != (uint16_t)0x00)) /*!< 参数校验宏：供库底层 assert_param 断言检查传输模式有效性 */
 /**
   * @}
   */ 
@@ -170,15 +170,15 @@ typedef struct
 /** @defgroup USART_Hardware_Flow_Control  USART 硬件流控制
   * @{
   */ 
-#define USART_HardwareFlowControl_None       ((uint16_t)0x0000)
-#define USART_HardwareFlowControl_RTS        ((uint16_t)0x0100)
-#define USART_HardwareFlowControl_CTS        ((uint16_t)0x0200)
-#define USART_HardwareFlowControl_RTS_CTS    ((uint16_t)0x0300)
+#define USART_HardwareFlowControl_None       ((uint16_t)0x0000)  /*!< 无硬件流控制（常规串口最常用默认配置） */
+#define USART_HardwareFlowControl_RTS        ((uint16_t)0x0100)  /*!< 仅使能 RTS 硬件流控制（准备好接收数据时拉低 RTS 引脚） */
+#define USART_HardwareFlowControl_CTS        ((uint16_t)0x0200)  /*!< 仅使能 CTS 硬件流控制（发送数据前检测 CTS 引脚是否允许发送） */
+#define USART_HardwareFlowControl_RTS_CTS    ((uint16_t)0x0300)  /*!< 同时使能 RTS 和 CTS 硬件流控制 */
 #define IS_USART_HARDWARE_FLOW_CONTROL(CONTROL)\
                               (((CONTROL) == USART_HardwareFlowControl_None) || \
                                ((CONTROL) == USART_HardwareFlowControl_RTS) || \
                                ((CONTROL) == USART_HardwareFlowControl_CTS) || \
-                               ((CONTROL) == USART_HardwareFlowControl_RTS_CTS))
+                               ((CONTROL) == USART_HardwareFlowControl_RTS_CTS)) /*!< 参数校验宏：供库底层 assert_param 断言检查流控有效性 */
 /**
   * @}
   */ 

@@ -54,26 +54,26 @@
 
 typedef enum
 { 
-  GPIO_Speed_10MHz = 1,
-  GPIO_Speed_2MHz, 
-  GPIO_Speed_50MHz
+  GPIO_Speed_10MHz = 1, /*!< 输出最高频率 10MHz（中速，功耗适中，适合一般频率输出） */
+  GPIO_Speed_2MHz,      /*!< 输出最高频率 2MHz（低速，功耗最低、电磁辐射最小，适合按键/慢速控制） */
+  GPIO_Speed_50MHz      /*!< 输出最高频率 50MHz（高速，驱动能力强，适合 SPI、PWM、高速通信等） */
 }GPIOSpeed_TypeDef;
 #define IS_GPIO_SPEED(SPEED) (((SPEED) == GPIO_Speed_10MHz) || ((SPEED) == GPIO_Speed_2MHz) || \
-                              ((SPEED) == GPIO_Speed_50MHz))
+                              ((SPEED) == GPIO_Speed_50MHz)) /*!< 参数校验宏：供库底层 assert_param 断言检查引脚速度有效性 */
 
 /**
   * @brief  配置模式枚举
   */
 
 typedef enum
-{ GPIO_Mode_AIN = 0x0,
-  GPIO_Mode_IN_FLOATING = 0x04,
-  GPIO_Mode_IPD = 0x28,
-  GPIO_Mode_IPU = 0x48,
-  GPIO_Mode_Out_OD = 0x14,
-  GPIO_Mode_Out_PP = 0x10,
-  GPIO_Mode_AF_OD = 0x1C,
-  GPIO_Mode_AF_PP = 0x18
+{ GPIO_Mode_AIN = 0x0,          /*!< 模拟输入模式（关闭施密特触发器，用于 ADC 采样采集模拟信号） */
+  GPIO_Mode_IN_FLOATING = 0x04, /*!< 浮空输入模式（无内部上下拉，电平完全由外部输入决定，常用作外部输入检测） */
+  GPIO_Mode_IPD = 0x28,         /*!< 下拉输入模式（内部连接弱下拉电阻至 GND，悬空时默认为稳定低电平） */
+  GPIO_Mode_IPU = 0x48,         /*!< 上拉输入模式（内部连接弱上拉电阻至 VDD，悬空时默认为稳定高电平，常用如按键接地检测） */
+  GPIO_Mode_Out_OD = 0x14,      /*!< 开漏输出模式（只能主动输出低电平，高电平需外接上拉，常用于 I2C 总线、多机通信） */
+  GPIO_Mode_Out_PP = 0x10,      /*!< 推挽输出模式（能主动驱动输出高电平或低电平，最常用普通输出模式，如控制 LED、继电器） */
+  GPIO_Mode_AF_OD = 0x1C,       /*!< 复用开漏输出（由片上外设硬件直接控制输出，开漏特性，常用于硬件 I2C 引脚） */
+  GPIO_Mode_AF_PP = 0x18        /*!< 复用推挽输出（由片上外设硬件直接控制输出，推挽特性，常用于 USART TX、SPI SCK/MOSI、PWM 输出等） */
 }GPIOMode_TypeDef;
 
 #define IS_GPIO_MODE(MODE) (((MODE) == GPIO_Mode_AIN) || ((MODE) == GPIO_Mode_IN_FLOATING) || \

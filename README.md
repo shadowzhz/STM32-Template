@@ -45,8 +45,8 @@ brew install arm-none-eabi-gcc make openocd
 
 ### Windows (原生 PowerShell，无需进入 MSYS2 终端)
 
-1. **安装 MSYS2**：`winget install --id MSYS2.MSYS2 -e`（或官网安装包，路径保持默认 `C:\msys64`）。
-   - *(若纯净 Windows 尚未安装 Git，可先执行 `winget install Git.Git`)*
+1. **安装 MSYS2**：前往 [清华镜像 MSYS2 目录](https://mirrors.tuna.tsinghua.edu.cn/msys2/distrib/x86_64/) 下载日期最新的 `msys2-x86_64-*.exe` 安装（路径保持默认 `C:\msys64`）。
+   - *(若尚未安装 Git，可在 [清华镜像 Git 目录](https://mirrors.tuna.tsinghua.edu.cn/github-release/git-for-windows/git/) 下载安装)*
 2. **安装 make 与 openocd**（PowerShell 运行，自动换清华源加速）：
    ```powershell
    C:\msys64\usr\bin\bash -lc "sed -i 's#https://mirror.msys2.org#https://mirrors.tuna.tsinghua.edu.cn/msys2#g' /etc/pacman.d/mirrorlist.* && pacman -Syu --noconfirm && pacman -S --noconfirm make mingw-w64-x86_64-openocd"
@@ -56,9 +56,8 @@ brew install arm-none-eabi-gcc make openocd
    ```powershell
    [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path","User") + ";C:\msys64\usr\bin;C:\msys64\mingw64\bin", "User")
    ```
-4. **安装 [Arm GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)**：
-   - **方案 A（推荐命令行）**：PowerShell 执行 `winget install Arm.GnuArmEmbeddedToolchain`
-   - **方案 B（官网手动下载）**：下载形如 `arm-gnu-toolchain-*-mingw-w64-i686-arm-none-eabi.exe` 的安装包（**切勿选 aarch64 或 zip 压缩包**），安装时勾选 **Add to PATH**。
+4. **安装 Arm GNU Toolchain**：
+   - 前往 [清华镜像 arm-gnu-toolchain 目录](https://mirrors.tuna.tsinghua.edu.cn/arm-gnu-toolchain/)，进入最新版本号文件夹，下载形如 `arm-gnu-toolchain-*-mingw-w64-i686-arm-none-eabi.exe` 的安装包（**切勿选 aarch64 或 zip 压缩包**），安装时勾选 **Add to PATH**。
    - *（若安装时漏选 Add to PATH，在 PowerShell 执行以下命令自动补全）*：
      ```powershell
      $arm = (Get-ChildItem -Path "C:\Program Files", "C:\Program Files (x86)" -Filter "arm-none-eabi-gcc.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName; if ($arm) { [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path","User") + ";$arm", "User"); Write-Host "已补全 Arm PATH: $arm" -ForegroundColor Green }

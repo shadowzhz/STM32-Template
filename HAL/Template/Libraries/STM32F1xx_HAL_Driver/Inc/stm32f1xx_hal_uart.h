@@ -266,8 +266,8 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Word_Length UART 数据字长
   * @{
   */
-#define UART_WORDLENGTH_8B                  0x00000000U
-#define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
+#define UART_WORDLENGTH_8B                  0x00000000U               /*!< 8 位数据字长（最常用标准无校验数据格式，8-N-1） */
+#define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)   /*!< 9 位数据字长（常用于携带奇偶校验位或多机通信地址位） */
 /**
   * @}
   */
@@ -275,8 +275,8 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Stop_Bits UART 停止位个数
   * @{
   */
-#define UART_STOPBITS_1                     0x00000000U
-#define UART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
+#define UART_STOPBITS_1                     0x00000000U               /*!< 1 个停止位（常规异步通信最常用默认配置） */
+#define UART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1) /*!< 2 个停止位（用于抗噪声干扰或长距离通信） */
 /**
   * @}
   */
@@ -284,9 +284,9 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Parity UART 奇偶校验
   * @{
   */
-#define UART_PARITY_NONE                    0x00000000U
-#define UART_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
-#define UART_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS))
+#define UART_PARITY_NONE                    0x00000000U               /*!< 无校验（常规最常用配置，数据直接传输，无校验开销） */
+#define UART_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE) /*!< 偶校验（数据中 1 的个数加上校验位后为偶数） */
+#define UART_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) /*!< 奇校验（数据中 1 的个数加上校验位后为奇数） */
 /**
   * @}
   */
@@ -294,10 +294,10 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Hardware_Flow_Control UART 硬件流控制
   * @{
   */
-#define UART_HWCONTROL_NONE                  0x00000000U
-#define UART_HWCONTROL_RTS                   ((uint32_t)USART_CR3_RTSE)
-#define UART_HWCONTROL_CTS                   ((uint32_t)USART_CR3_CTSE)
-#define UART_HWCONTROL_RTS_CTS               ((uint32_t)(USART_CR3_RTSE | USART_CR3_CTSE))
+#define UART_HWCONTROL_NONE                  0x00000000U               /*!< 无硬件流控制（常规串口最常用默认配置） */
+#define UART_HWCONTROL_RTS                   ((uint32_t)USART_CR3_RTSE)/*!< 仅使能 RTS 硬件流控制（准备好接收数据时拉低 RTS 引脚） */
+#define UART_HWCONTROL_CTS                   ((uint32_t)USART_CR3_CTSE)/*!< 仅使能 CTS 硬件流控制（发送数据前检测 CTS 引脚是否允许发送） */
+#define UART_HWCONTROL_RTS_CTS               ((uint32_t)(USART_CR3_RTSE | USART_CR3_CTSE)) /*!< 同时使能 RTS 和 CTS 全硬件流控制 */
 /**
   * @}
   */
@@ -305,9 +305,9 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Mode UART 传输模式
   * @{
   */
-#define UART_MODE_RX                        ((uint32_t)USART_CR1_RE)
-#define UART_MODE_TX                        ((uint32_t)USART_CR1_TE)
-#define UART_MODE_TX_RX                     ((uint32_t)(USART_CR1_TE | USART_CR1_RE))
+#define UART_MODE_RX                        ((uint32_t)USART_CR1_RE)   /*!< 仅使能接收模式 */
+#define UART_MODE_TX                        ((uint32_t)USART_CR1_TE)   /*!< 仅使能发送模式 */
+#define UART_MODE_TX_RX                     ((uint32_t)(USART_CR1_TE | USART_CR1_RE)) /*!< 同时使能发送和接收模式（全双工双向收发，最常用） */
 /**
   * @}
   */

@@ -13,11 +13,11 @@ sudo apt install gcc-arm-none-eabi libnewlib-arm-none-eabi make openocd   # Debi
 
 **Windows（原生，全程 PowerShell，不需要打开 MSYS2 终端）**:
 
-1. 安装 MSYS2: `winget install --id MSYS2.MSYS2 -e`; 没有 winget 就去 [msys2.org](https://www.msys2.org) 下安装包双击, 路径保持默认 `C:\msys64`
-2. PowerShell 直接驱动它装 make 和 openocd（若因运行时自更新中断, 再执行一遍）:
+1. 安装 MSYS2: 去 [清华镜像 MSYS2 目录](https://mirrors.tuna.tsinghua.edu.cn/msys2/distrib/x86_64/) 下载最新的 `msys2-x86_64-*.exe` 双击安装, 路径保持默认 `C:\msys64`
+2. PowerShell 换清华源并装 make 和 openocd（若因运行时自更新中断, 再执行一遍）:
 
    ```powershell
-   C:\msys64\usr\bin\bash -lc "pacman -Syu --noconfirm && pacman -S --noconfirm make mingw-w64-x86_64-openocd"
+   C:\msys64\usr\bin\bash -lc "sed -i 's#https://mirror.msys2.org#https://mirrors.tuna.tsinghua.edu.cn/msys2#g' /etc/pacman.d/mirrorlist.* && pacman -Syu --noconfirm && pacman -S --noconfirm make mingw-w64-x86_64-openocd"
    ```
 
 3. 把工具加入用户 PATH, 重开终端生效:
@@ -26,7 +26,7 @@ sudo apt install gcc-arm-none-eabi libnewlib-arm-none-eabi make openocd   # Debi
    [Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path","User") + ";C:\msys64\usr\bin;C:\msys64\mingw64\bin", "User")
    ```
 
-4. 安装 [Arm GNU Toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)（选 `arm-none-eabi` 的 Windows mingw-w64 安装包, 安装时勾选 *Add to PATH*）
+4. 安装 Arm GNU Toolchain: 去 [清华镜像 arm-gnu-toolchain 目录](https://mirrors.tuna.tsinghua.edu.cn/arm-gnu-toolchain/) 进最新版本文件夹, 下载 `arm-gnu-toolchain-*-mingw-w64-i686-arm-none-eabi.exe`, 安装时勾选 *Add to PATH*
 5. 安装 ST-Link 驱动 STSW-LINK009（st.com 下载）, VSCode + C/C++ 扩展打开工程即可
 
 > 注意: make 必须用 MSYS2 提供的版本（含 POSIX shell, Makefile 配方需要 awk/rm 等）,
