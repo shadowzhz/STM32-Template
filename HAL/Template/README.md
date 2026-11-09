@@ -8,7 +8,7 @@
 **Linux / macOS**:
 
 ```bash
-sudo apt install gcc-arm-none-eabi libnewlib-arm-none-eabi make openocd   # Debian/Ubuntu, macOS 用 brew
+sudo apt update && sudo apt install -y gcc-arm-none-eabi make openocd libnewlib-arm-none-eabi 2>/dev/null || sudo apt install -y gcc-arm-none-eabi make openocd   # Debian/Ubuntu, macOS 用 brew
 ```
 
 **Windows（原生，全程 PowerShell，不需要打开 MSYS2 终端）**:
@@ -74,4 +74,4 @@ LL 用法示例见 `User/main.c` 的注释（LL 大部分函数内联在头文�
 ## 更多
 
 F1 专属坑（AFIO/重映射/JTAG 引脚）、中断回调规则、DMA 注意事项、编译烧录故障速查,
-见仓库 `STM32/HAL/新手注意事项.md`（随 Template 复制时不自动携带, 建议工程目录里保留一份）。
+见 [HAL/新手注意事项.md](../新手注意事项.md)（随 Template 复制时不自动携带, 建议工程目录里保留一份）。

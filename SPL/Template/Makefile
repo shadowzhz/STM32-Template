@@ -14,12 +14,14 @@ FLASH_SIZE = 65536
 RAM_SIZE   = 20480
 
 
+OPT ?= -O0
+
 CFLAGS = $(MCU) \
          -std=gnu11 \
          -Wall \
          -ffunction-sections \
          -fdata-sections \
-         -O0 \
+         $(OPT) \
          -g3 \
          -DUSE_STDPERIPH_DRIVER \
          -DSTM32F10X_MD \
@@ -31,10 +33,12 @@ CFLAGS = $(MCU) \
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
 
+# 规格文件：优先使用 Newlib-nano + nosys；若在移除 newlib 的现代 Linux (Ubuntu 24.10+) 下则自动切换为 picolibc
+SPECS ?= $(shell $(CC) --specs=nano.specs -E -x c - < /dev/null > /dev/null 2>&1 && echo "--specs=nano.specs --specs=nosys.specs" || echo "--specs=picolibc.specs")
 
 LDFLAGS = $(MCU) \
           -TSTM32F103C8T6.ld \
-          --specs=nano.specs \
+          $(SPECS) \
           -Wl,--gc-sections \
           -Wl,-Map=$(BUILD_DIR)/$(TARGET).map
 
@@ -88,14 +92,10 @@ all: $(BUILD_DIR)/$(TARGET).hex
 # ============================================================
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ)
-
 	@mkdir -p $(dir $@)
-
 	$(CC) $(OBJ) $(LDFLAGS) -o $@
-
 	@echo ""
 	@echo "========== Memory Usage =========="
-
 	@TEXT=$$($(SIZE) $@ | tail -n 1 | awk '{print $$1}'); \
 	DATA=$$($(SIZE) $@ | tail -n 1 | awk '{print $$2}'); \
 	BSS=$$($(SIZE) $@ | tail -n 1 | awk '{print $$3}'); \
@@ -104,17 +104,8 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJ)
 	FLASH_PCT=$$(awk "BEGIN {printf \"%.2f\", $$FLASH / $(FLASH_SIZE) * 100}"); \
 	RAM_PCT=$$(awk "BEGIN {printf \"%.2f\", $$RAM / $(RAM_SIZE) * 100}"); \
 	echo "Flash: $$FLASH / $(FLASH_SIZE) bytes ($$FLASH_PCT%)"; \
-	echo "RAM:   $$RAM / $(RAM_SIZE) bytes ($$RAM_PCT%)"
-
-	@echo "================================="
-
-	@$(SIZE) $@
-
-	@TEXT=$$($(SIZE) $@ | tail -n 1 | awk '{print $$1}'); \
-	DATA=$$($(SIZE) $@ | tail -n 1 | awk '{print $$2}'); \
-	BSS=$$($(SIZE) $@ | tail -n 1 | awk '{print $$3}'); \
-	FLASH=$$((TEXT + DATA)); \
-	RAM=$$((DATA + BSS)); \
+	echo "RAM:   $$RAM / $(RAM_SIZE) bytes ($$RAM_PCT%)"; \
+	echo "================================="; \
 	if [ $$FLASH -gt $(FLASH_SIZE) ]; then \
 		echo "ERROR: Flash overflow!"; \
 		exit 1; \
@@ -123,6 +114,7 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJ)
 		echo "ERROR: RAM overflow!"; \
 		exit 1; \
 	fi
+	@$(SIZE) $@
 
 # ============================================================
 # C编译
@@ -175,8 +167,7 @@ $(BUILD_DIR)/$(TARGET).bin: $(BUILD_DIR)/$(TARGET).elf
 # 烧录 (Linux 提示无权限时: sudo make flash, 或安装 openocd 的 udev 规则)
 # ============================================================
 
-flash:
-
+flash: $(BUILD_DIR)/$(TARGET).elf
 	openocd \
 		-f interface/stlink.cfg \
 		-f target/stm32f1x.cfg \

@@ -25,8 +25,8 @@ STM32-Template/
 ### Ubuntu / Debian
 
 ```bash
-# 1. 安装工具链与烧录器 (显式包含 newlib 库，避免 nano.specs/stdint.h 缺失)
-sudo apt update && sudo apt install -y gcc-arm-none-eabi libnewlib-arm-none-eabi make openocd
+# 1. 安装工具链与烧录器 (Ubuntu 24.04 及以下建议包含 newlib；Ubuntu 24.10+ 已由系统自动切换为 picolibc)
+sudo apt update && sudo apt install -y gcc-arm-none-eabi make openocd libnewlib-arm-none-eabi 2>/dev/null || sudo apt install -y gcc-arm-none-eabi make openocd
 
 # 2. 配置 ST-Link 免 sudo 烧录权限
 sudo usermod -aG plugdev $USER

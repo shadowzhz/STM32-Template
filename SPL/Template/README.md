@@ -8,7 +8,7 @@
 **Linux / macOS**:
 
 ```bash
-sudo apt install gcc-arm-none-eabi libnewlib-arm-none-eabi make openocd   # Debian/Ubuntu, macOS 用 brew
+sudo apt update && sudo apt install -y gcc-arm-none-eabi make openocd libnewlib-arm-none-eabi 2>/dev/null || sudo apt install -y gcc-arm-none-eabi make openocd   # Debian/Ubuntu, macOS 用 brew
 ```
 
 **Windows（原生，全程 PowerShell，不需要打开 MSYS2 终端）**:
@@ -49,8 +49,8 @@ make clean    # 清理
 
 ```
 Template/
-├── User/          用户代码: main.c、stm32f10x_conf.h(外设头开关)、
-│                  startup_stm32f10x_md.s(启动文件)、system_stm32f10x.c、stm32f10x.h
+├── User/          用户代码: main.c、stm32f10x_it.c/.h(中断)、stm32f10x_conf.h(外设头开关)、
+│                  startup_stm32f10x_md.s(启动文件)、system_stm32f10x.c
 ├── Hardware/      自己写的外设驱动模块 (xxx.c/xxx.h)
 ├── Drivers/       备用, 与 Hardware 同样会被自动搜索
 ├── Libraries/     CMSIS + STM32F10x_StdPeriph_Driver —— 不要改动
@@ -61,8 +61,8 @@ Template/
 
 ## 启用新外设
 
-编辑 `User/stm32f10x_conf.h`, 取消对应 `#include "stm32f10x_xxx.h"` 的注释。
-标准库源文件已在 Makefile 全量编译, 不需要动 Makefile。
+`User/stm32f10x_conf.h` 中已引入常用外设头文件。
+标准库源文件已在 Makefile 全量编译, 不需要动 Makefile。若需要精简头文件或按需引入，可在该文件中注释对应外设。
 
 ## 换芯片（同系列）
 

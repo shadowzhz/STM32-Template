@@ -1,4 +1,5 @@
 #include "stm32f10x.h"
+#include "stm32f10x_it.h"
 
 void Delay(volatile uint32_t count)
 {
@@ -23,7 +24,7 @@ int main(void)
 
     while (1)
     {
-        //GPIO_ResetBits(GPIOC, GPIO_Pin_13);  // LED亮
+        GPIO_ResetBits(GPIOC, GPIO_Pin_13);  // LED亮
         Delay(3000000);
 
         GPIO_SetBits(GPIOC, GPIO_Pin_13);    // LED灭

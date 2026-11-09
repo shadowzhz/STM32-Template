@@ -75,11 +75,4 @@ SECTIONS
         . = . + _Min_Stack_Size;
         . = ALIGN(8);
     } > RAM
-
-    /DISCARD/ :
-    {
-        libc.a ( * )
-        libm.a ( * )
-        libgcc.a ( * )
-    }
 }
