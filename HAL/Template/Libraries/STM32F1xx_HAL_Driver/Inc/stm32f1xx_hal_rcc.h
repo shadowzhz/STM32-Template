@@ -1112,6 +1112,19 @@ typedef struct
 /* 初始化和反初始化函数  ******************************/
 
 HAL_StatusTypeDef HAL_RCC_DeInit(void);
+
+/**
+  * @brief  根据 RCC_OscInitStruct 中指定的参数配置系统振荡器（HSE、HSI、LSE、LSI、PLL）
+  * @param  RCC_OscInitStruct: 指向包含振荡器配置信息的 RCC_OscInitTypeDef 结构体指针
+  * @note   配置成功后，选定的时钟源将被激活并锁相。
+  * @warning 【晶振起振超时与返回值检查避坑】
+  *          1. 【HSE 起振超时】：若选择 HSE 外部高速晶振，若板载 8MHz 晶振虚焊、负载电容不匹配或硬件无晶振，
+  *             本函数将等待起振直到超时，并返回 HAL_TIMEOUT！
+  *          2. 【必须检查返回值】：切勿忽略本函数返回值！若 HSE 起振超时而未做判断直接调用 HAL_RCC_ClockConfig()，
+  *             PLL 无法锁定有效时钟源，MCU 将维持在复位默认的 8MHz HSI 运行，导致后续所有串口波特率、定时器延时时序全部翻倍错乱！
+  *             建议一旦返回值非 HAL_OK 立即进入 Error_Handler() 死循环以便调试断点排查。
+  * @retval HAL 状态（HAL_OK, HAL_ERROR, HAL_TIMEOUT）
+  */
 HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct);
 HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t FLatency);
 

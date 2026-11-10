@@ -139,14 +139,12 @@ void HAL_NVIC_SetPriorityGrouping(uint32_t PriorityGroup)
 }
 
 /**
-  * @brief  设置中断优先级
+  * @brief  设置中断通道的优先级（抢占优先级与子优先级）
   * @param  IRQn: 外部中断号 
-  *         该参数可以是IRQn_Type枚举类型的枚举数
-  *         (有关完整的STM32器件IRQ通道列表，请参阅相应的CMSIS器件文件(stm32f10xx.h))
-  * @param  PreemptPriority: IRQn通道的抢占优先级。
-  *         取值范围为0 ~ 15，优先级值越低表示优先级越高
-  * @param  SubPriority: IRQ通道的子优先级。
-  *         取值范围为0 ~ 15，优先级值越低表示优先级越高        
+  *         该参数可以是 IRQn_Type 枚举类型的枚举值（如 USART1_IRQn, TIM2_IRQn）
+  * @param  PreemptPriority: 抢占优先级（取值范围 0 ~ 15，【数值越小优先级越高，0 为最高优先级】！）
+  * @param  SubPriority: 响应/子优先级（取值范围 0 ~ 15，在默认 Group 4 模式下无子优先级位，传 0 即可）
+  * @warning 【死锁陷阱】SysTick 默认优先级为 15（最低）。若外设中断优先级高于 SysTick，其中断服务函数中严禁调用 HAL_Delay()！
   * @retval None
   */
 void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t SubPriority)
@@ -196,7 +194,9 @@ void HAL_NVIC_DisableIRQ(IRQn_Type IRQn)
 }
 
 /**
-  * @brief  发起系统复位请求，复位MCU。
+  * @brief  发起系统软件复位请求（一键软件重启单片机）
+  * @note   通过向内核 AIRCR 寄存器写入 SYSRESETREQ 触发芯片全局硬件复位，程序从头重新引导。
+  *         常用于 IAP 在线升级跳转、致命通信超时故障自愈。
   * @retval None
   */
 void HAL_NVIC_SystemReset(void)

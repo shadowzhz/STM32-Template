@@ -254,6 +254,25 @@ typedef struct
   * @{
   */
 /* IO operation functions *****************************************************/
+
+/**
+  * @brief  向片上指定 Flash 地址写入半字（16位）或双字数据（掉电存储参数）
+  * @param  TypeProgram: 写入类型（FLASH_TYPEPROGRAM_HALFWORD 或 FLASH_TYPEPROGRAM_DOUBLEWORD）
+  * @param  Address: 目标 Flash 物理地址（STM32F1 起始地址为 0x08000000）
+  * @param  Data: 待写入的数据内容
+  * @note   【掉电参数存储实战规范】
+  *         1. 存储地址请选用 Flash 靠后的末尾页（如 F103C8T6 最后一页 0x0800FC00），严禁覆盖代码运行段。
+  *         2. 写入前【必须先将目标扇区/页擦除为全 0xFFFF】！直接覆盖已写入非 0xFFFF 的区域会报 PGERR 编程错误。
+  *         3. 标准三步走：
+  *            @code
+  *            HAL_FLASH_Unlock();
+  *            // 必须先通过 HAL_FLASHEx_Erase 擦除对应页...
+  *            HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, addr, data);
+  *            HAL_FLASH_Lock(); // 务必重新上锁
+  *            @endcode
+  * @warning 写入期间 CPU 总线会被硬件暂时挂起（约几十微秒），在此期间无法执行 Flash 中的代码。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
 HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
 
@@ -271,7 +290,20 @@ void       HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue);
   * @{
   */
 /* Peripheral Control functions ***********************************************/
+
+/**
+  * @brief  解锁 Flash 控制寄存器访问权限
+  * @note   复位后 Flash 控制寄存器默认处于写保护状态以防止程序跑飞误改写代码。
+  *         写入擦除或编程 Flash 前必须先调用本函数。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_FLASH_Unlock(void);
+
+/**
+  * @brief  重新对 Flash 控制寄存器上锁（使能写保护）
+  * @note   完成 Flash 擦写后【强烈建议必须立即调用本函数】，防止野指针或异常断电误损坏固件代码。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_FLASH_Lock(void);
 HAL_StatusTypeDef HAL_FLASH_OB_Unlock(void);
 HAL_StatusTypeDef HAL_FLASH_OB_Lock(void);

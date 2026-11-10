@@ -473,16 +473,27 @@ extern "C" {
 #define __HAL_AFIO_REMAP_SWJ_NONJTRST()  AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_NOJNTRST)
 
 /**
-  * @brief 启用串口线JTAG配置
-  * @note  NOJTAG: JTAG-DP 禁用 且 SW-DP 开启
+  * @brief 启用 SWD 调试并关闭 JTAG 调试接口（释放 PB3、PB4、PA15 作为普通 GPIO）
+  * @note  NOJTAG 模式：禁用 JTAG-DP，保持 SW-DP（串行线调试 SWD）开启。
+  *        - 释放引脚：PB3 (JTDO/TRACESWO), PB4 (JNTRST), PA15 (JTDI) 恢复为普通 GPIO 功能。
+  *        - 调试保留：PA13 (SWDIO), PA14 (SWCLK) 仍然保留，ST-Link / J-Link 可正常下载调试。
+  * @warning 【先决条件 / 避坑警告】
+  *          在调用本宏之前，【必须先开启 AFIO 时钟】：__HAL_RCC_AFIO_CLK_ENABLE()，否则重映射配置静默失败！
   * @retval None
   */
-
 #define __HAL_AFIO_REMAP_SWJ_NOJTAG()  AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_JTAGDISABLE)
 
 /**
-  * @brief 禁用串口线JTAG配置
-  * @note  DISABLE: JTAG-DP 禁用 且 SW-DP 禁用
+  * @brief 完全禁用 JTAG 和 SWD 调试接口
+  * @note  DISABLE 模式：JTAG-DP 和 SW-DP 均被禁用。
+  *        释放引脚：PA13、PA14、PA15、PB3、PB4 全部作为普通 GPIO。
+  * @warning 【极度危险 / 锁死芯片警告】
+  *          一旦执行此宏，SWD（PA13/PA14）调试下载功能将彻底失效！
+  *          芯片将无法通过 ST-Link 等调试器直接连接或烧录（报 Target Not Found 或 Error）。
+  *          【解救方法】：
+  *          1. 按住核心板的硬件 RESET 键不放，点击烧录/连接，在 OpenOCD 尝试建立连接的瞬间松开复位键。
+  *          2. 或将核心板 BOOT0 引脚跳线接到 3.3V（进入系统 ISP Bootloader），重新上电后全片擦除。
+  *          非极度受限且所有引脚必须耗尽的极特殊产品场景，【切勿调用此宏】！
   * @retval None
   */
 #define __HAL_AFIO_REMAP_SWJ_DISABLE()  AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_DISABLE)

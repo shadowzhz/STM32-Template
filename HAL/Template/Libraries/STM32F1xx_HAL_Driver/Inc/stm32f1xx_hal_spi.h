@@ -201,7 +201,10 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_Mode SPI 模式
   * @{
   */
+/** @brief SPI 从机模式（由外部主设备提供 SCK 时钟和片选信号） */
 #define SPI_MODE_SLAVE                  (0x00000000U)
+
+/** @brief SPI 主机模式（MCU 作为主控制器，自主产生 SCK 时钟驱动外设） */
 #define SPI_MODE_MASTER                 (SPI_CR1_MSTR | SPI_CR1_SSI)
 /**
   * @}
@@ -210,8 +213,13 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_Direction SPI 通信方向模式
   * @{
   */
+/** @brief 全双工双线模式（MOSI 与 MISO 独立，最常用标准 SPI 拓扑） */
 #define SPI_DIRECTION_2LINES            (0x00000000U)
+
+/** @brief 双线单向只收模式（仅接收数据，忽略发送） */
 #define SPI_DIRECTION_2LINES_RXONLY     SPI_CR1_RXONLY
+
+/** @brief 单线半双工模式（单根数据线分时复用收发） */
 #define SPI_DIRECTION_1LINE             SPI_CR1_BIDIMODE
 /**
   * @}
@@ -220,7 +228,10 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_Data_Size SPI 数据大小
   * @{
   */
+/** @brief 数据帧大小：8 位（标准字节传输，绝大部分传感器、Flash、屏幕通用） */
 #define SPI_DATASIZE_8BIT               (0x00000000U)
+
+/** @brief 数据帧大小：16 位（双字节传输，常用于 16 位音频 DAC、特殊传感器） */
 #define SPI_DATASIZE_16BIT              SPI_CR1_DFF
 /**
   * @}
@@ -229,7 +240,10 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_Clock_Polarity SPI 时钟极性
   * @{
   */
+/** @brief 时钟空闲极性：低电平（CPOL=0，SCK 在空闲未通信时保持低电平） */
 #define SPI_POLARITY_LOW                (0x00000000U)
+
+/** @brief 时钟空闲极性：高电平（CPOL=1，SCK 在空闲未通信时保持高电平） */
 #define SPI_POLARITY_HIGH               SPI_CR1_CPOL
 /**
   * @}
@@ -238,7 +252,10 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_Clock_Phase SPI 时钟相位
   * @{
   */
+/** @brief 时钟相位：第 1 个边沿（CPHA=0，在 SCK 的第 1 个跳变沿采样数据） */
 #define SPI_PHASE_1EDGE                 (0x00000000U)
+
+/** @brief 时钟相位：第 2 个边沿（CPHA=1，在 SCK 的第 2 个跳变沿采样数据） */
 #define SPI_PHASE_2EDGE                 SPI_CR1_CPHA
 /**
   * @}
@@ -247,8 +264,16 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_Slave_Select_management SPI 从机选择管理
   * @{
   */
+/**
+  * @brief 软件从机片选控制（强烈推荐）
+  * @note  由软件通过通用 GPIO（如 PB12、PA4）手动拉低拉高来控制从机 CS，最稳定可靠且支持多从机挂载。
+  */
 #define SPI_NSS_SOFT                    SPI_CR1_SSM
+
+/** @brief 硬件输入从机片选（用于从机模式下由外部主机拉低 NSS 引脚） */
 #define SPI_NSS_HARD_INPUT              (0x00000000U)
+
+/** @brief 硬件输出从机片选（主机使能后由硬件自动控制 NSS，仅支持单从机） */
 #define SPI_NSS_HARD_OUTPUT             (SPI_CR2_SSOE << 16U)
 /**
   * @}
@@ -257,13 +282,28 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_BaudRate_Prescaler SPI 波特率预分频器
   * @{
   */
+/** @brief SPI 波特率预分频：2 分频（SPI1 最大 36MHz，SPI2/3 最大 18MHz） */
 #define SPI_BAUDRATEPRESCALER_2         (0x00000000U)
+
+/** @brief SPI 波特率预分频：4 分频 */
 #define SPI_BAUDRATEPRESCALER_4         (SPI_CR1_BR_0)
+
+/** @brief SPI 波特率预分频：8 分频 */
 #define SPI_BAUDRATEPRESCALER_8         (SPI_CR1_BR_1)
+
+/** @brief SPI 波特率预分频：16 分频 */
 #define SPI_BAUDRATEPRESCALER_16        (SPI_CR1_BR_1 | SPI_CR1_BR_0)
+
+/** @brief SPI 波特率预分频：32 分频 */
 #define SPI_BAUDRATEPRESCALER_32        (SPI_CR1_BR_2)
+
+/** @brief SPI 波特率预分频：64 分频 */
 #define SPI_BAUDRATEPRESCALER_64        (SPI_CR1_BR_2 | SPI_CR1_BR_0)
+
+/** @brief SPI 波特率预分频：128 分频 */
 #define SPI_BAUDRATEPRESCALER_128       (SPI_CR1_BR_2 | SPI_CR1_BR_1)
+
+/** @brief SPI 波特率预分频：256 分频（适合长导线或慢速外设） */
 #define SPI_BAUDRATEPRESCALER_256       (SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)
 /**
   * @}
@@ -272,7 +312,10 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_MSB_LSB_transmission SPI 高位/低位优先传输
   * @{
   */
+/** @brief 最高有效位先行（MSB First，绝大多数 SPI 设备标准） */
 #define SPI_FIRSTBIT_MSB                (0x00000000U)
+
+/** @brief 最低有效位先行（LSB First，少部分专用器件使用） */
 #define SPI_FIRSTBIT_LSB                SPI_CR1_LSBFIRST
 /**
   * @}
@@ -281,6 +324,7 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_TI_mode SPI TI 模式
   * @{
   */
+/** @brief 禁用 TI 协议模式（使用标准 Motorola SPI 协议） */
 #define SPI_TIMODE_DISABLE              (0x00000000U)
 /**
   * @}
@@ -289,7 +333,10 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_CRC_Calculation SPI CRC 校验计算
   * @{
   */
+/** @brief 禁用硬件 CRC 校验计算 */
 #define SPI_CRCCALCULATION_DISABLE      (0x00000000U)
+
+/** @brief 使能硬件 CRC 校验计算 */
 #define SPI_CRCCALCULATION_ENABLE       SPI_CR1_CRCEN
 /**
   * @}
@@ -298,8 +345,13 @@ typedef  void (*pSPI_CallbackTypeDef)(SPI_HandleTypeDef *hspi); /*!< 指向 SPI 
 /** @defgroup SPI_Interrupt_definition SPI 中断定义
   * @{
   */
+/** @brief SPI 发送缓冲区空中断使能（TXEIE） */
 #define SPI_IT_TXE                      SPI_CR2_TXEIE
+
+/** @brief SPI 接收缓冲区非空中断使能（RXNEIE） */
 #define SPI_IT_RXNE                     SPI_CR2_RXNEIE
+
+/** @brief SPI 错误中断使能（ERRIE，覆盖 CRCERR、MODF、OVR 错误） */
 #define SPI_IT_ERR                      SPI_CR2_ERRIE
 /**
   * @}
@@ -671,8 +723,50 @@ HAL_StatusTypeDef HAL_SPI_UnRegisterCallback(SPI_HandleTypeDef *hspi, HAL_SPI_Ca
   * @{
   */
 /* I/O 操作函数  ***************************************************/
+
+/**
+  * @brief  以阻塞轮询模式发送指定量的数据
+  * @param  hspi: SPI 句柄指针（如 &hspi1）
+  * @param  pData: 待发送数据缓冲区指针
+  * @param  Size:  待发送数据字节数
+  * @param  Timeout: 阻塞超时时限（毫秒）
+  * @note   常用于只写外设（如 SPI 接口的 OLED 屏、LCD 驱动等）。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
+
+/**
+  * @brief  以阻塞轮询模式接收指定量的数据
+  * @param  hspi: SPI 句柄指针
+  * @param  pData: 接收数据缓冲区指针
+  * @param  Size:  待接收数据字节数
+  * @param  Timeout: 阻塞超时时限（毫秒）
+  * @note   在接收过程中，底层会自动循环向总线发送哑字节（Dummy Byte: 0xFF）以驱动 SCK 时钟产生。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+
+/**
+  * @brief  以全双工阻塞轮询模式同时发送与接收数据（SPI 传感器/存储器读写核心函数）
+  * @param  hspi: SPI 句柄指针
+  * @param  pTxData: 发送缓冲区指针（若仅读数据可传哑字节 0xFF）
+  * @param  pRxData: 接收缓冲区指针（若仅发送数据可传 NULL 或同等尺寸数组）
+  * @param  Size:    交换传输的数据字节数
+  * @param  Timeout: 阻塞超时时限（毫秒）
+  * @note   【SPI 本质与片选 NSS 实战规范】
+  *         1. SPI 物理层本质是主机与从机移位寄存器的“对穿互换”，每发一个字节必定同时收回一个字节。
+  *         2. 【片选 NSS 管理】：强烈推荐使用软件片选（NSS = SPI_NSS_SOFT）。
+  *            通信前拉低 CS，通信后拉高 CS：
+  *            @code
+  *            HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
+  *            HAL_SPI_TransmitReceive(&hspi1, tx_buf, rx_buf, len, 100);
+  *            HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
+  *            @endcode
+  * @warning 【时钟总线与速率上限】
+  *          SPI1 挂在 APB2 (72MHz)，最高速率可达 36MHz（DIV2）；
+  *          SPI2 挂在 APB1 (36MHz)，最高速率可达 18MHz（DIV2）。请根据外设所能承受的最大时钟选择合适的分频比。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, const uint8_t *pTxData, uint8_t *pRxData,
                                           uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, const uint8_t *pData, uint16_t Size);

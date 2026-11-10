@@ -284,7 +284,10 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
 /** @defgroup I2C_duty_cycle_in_fast_mode I2C 快速模式占空比
   * @{
   */
+/** @brief I2C 快速模式（400kHz）时钟占空比 Tlow/Thigh = 2 */
 #define I2C_DUTYCYCLE_2                 0x00000000U
+
+/** @brief I2C 快速模式（400kHz）时钟占空比 Tlow/Thigh = 16/9（适合快速达到 400kHz 频率上限） */
 #define I2C_DUTYCYCLE_16_9              I2C_CCR_DUTY
 /**
   * @}
@@ -293,7 +296,10 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
 /** @defgroup I2C_addressing_mode I2C 寻址模式
   * @{
   */
+/** @brief 标准 7 位从机寻址模式（绝大多数 I2C 从设备标准，如 OLED、MPU6050、AT24C02） */
 #define I2C_ADDRESSINGMODE_7BIT         0x00004000U
+
+/** @brief 扩展 10 位从机寻址模式 */
 #define I2C_ADDRESSINGMODE_10BIT        (I2C_OAR1_ADDMODE | 0x00004000U)
 /**
   * @}
@@ -302,7 +308,10 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
 /** @defgroup I2C_dual_addressing_mode I2C 双地址寻址模式
   * @{
   */
+/** @brief 禁用双地址模式（MCU 仅响应 OwnAddress1） */
 #define I2C_DUALADDRESS_DISABLE        0x00000000U
+
+/** @brief 使能双地址模式（MCU 作为从机时同时响应 OwnAddress1 与 OwnAddress2） */
 #define I2C_DUALADDRESS_ENABLE         I2C_OAR2_ENDUAL
 /**
   * @}
@@ -311,7 +320,10 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
 /** @defgroup I2C_general_call_addressing_mode I2C 广播呼叫寻址模式
   * @{
   */
+/** @brief 禁用广播呼叫模式 */
 #define I2C_GENERALCALL_DISABLE        0x00000000U
+
+/** @brief 使能广播呼叫模式（MCU 响应 0x00 广播地址） */
 #define I2C_GENERALCALL_ENABLE         I2C_CR1_ENGC
 /**
   * @}
@@ -320,7 +332,10 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
 /** @defgroup I2C_nostretch_mode I2C 时钟延展禁用模式 (nostretch)
   * @{
   */
+/** @brief 允许时钟延展（Clock Stretching，从机繁忙时可将 SCL 拉低暂停传输，标准行为） */
 #define I2C_NOSTRETCH_DISABLE          0x00000000U
+
+/** @brief 禁用时钟延展（从机不得拉低 SCL） */
 #define I2C_NOSTRETCH_ENABLE           I2C_CR1_NOSTRETCH
 /**
   * @}
@@ -329,7 +344,10 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
 /** @defgroup I2C_Memory_Address_Size I2C 内存地址大小
   * @{
   */
+/** @brief 内部寄存器/内存地址为 8 位（常见传感器如 MPU6050、小的 EEPROM 如 AT24C02） */
 #define I2C_MEMADD_SIZE_8BIT            0x00000001U
+
+/** @brief 内部寄存器/内存地址为 16 位（大容量 EEPROM 如 AT24C32/64/256、大屏幕驱动 IC） */
 #define I2C_MEMADD_SIZE_16BIT           0x00000010U
 /**
   * @}
@@ -338,7 +356,10 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
 /** @defgroup I2C_XferDirection_definition I2C 传输方向定义
   * @{
   */
+/** @brief I2C 接收方向（从设备读取数据） */
 #define I2C_DIRECTION_RECEIVE           0x00000000U
+
+/** @brief I2C 发送方向（向设备写入数据） */
 #define I2C_DIRECTION_TRANSMIT          0x00000001U
 /**
   * @}
@@ -357,7 +378,10 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
 /* 以下情况下使用的 XferOptions 列表：
  * 1- 所有使用场景下的重复起始条件 (Restart condition)（无论传输方向是否改变）
  */
+/** @brief 其他帧传输选项 */
 #define  I2C_OTHER_FRAME                (0x00AA0000U)
+
+/** @brief 其他帧及最后一帧传输选项 */
 #define  I2C_OTHER_AND_LAST_FRAME       (0xAA000000U)
 /**
   * @}
@@ -369,8 +393,13 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
   *           - XXXXXXXX  : 中断控制掩码
   * @{
   */
+/** @brief I2C 缓冲区中断使能（TXE / RXNE 中断） */
 #define I2C_IT_BUF                      I2C_CR2_ITBUFEN
+
+/** @brief I2C 事件中断使能（SB / ADDR / BTF / STOPF 等事件中断） */
 #define I2C_IT_EVT                      I2C_CR2_ITEVTEN
+
+/** @brief I2C 错误中断使能（BERR / ARLO / AF / OVR 等错误中断） */
 #define I2C_IT_ERR                      I2C_CR2_ITERREN
 /**
   * @}
@@ -558,12 +587,83 @@ HAL_StatusTypeDef HAL_I2C_UnRegisterAddrCallback(I2C_HandleTypeDef *hi2c);
   */
 /* IO 操作函数  ****************************************************/
 /******* 阻塞模式：轮询 */
+
+/**
+  * @brief  主机模式下以阻塞轮询方式发送数据
+  * @param  hi2c: 指向包含指定 I2C 模块配置信息的 I2C_HandleTypeDef 结构体指针
+  * @param  DevAddress: 目标从机设备地址（注意：必须传入 8 位地址格式，即 7 位物理地址左移 1 位，最低位读写位由库处理）
+  * @param  pData: 指向待发送数据缓冲区的指针
+  * @param  Size:  待发送的数据字节数
+  * @param  Timeout: 阻塞超时时限（毫秒）
+  * @warning 【STM32F1 硬件 I2C 硅缺陷与死锁陷阱 / 必看避坑】
+  *          1. 【地址左移】：DevAddress 必须传入 (7位地址 << 1)！例如若传感器手册标称地址为 0x68，则此处必须传入 (0x68 << 1) 即 0xD0。
+  *          2. 【硬件死锁与 BUSY 锁死】：STM32F1 系列硬件 I2C 存在已知硅缺陷（参考 ST 官方勘误手册 Errata Sheet），
+  *             在总线噪声、从机拉低 SDA/SCL 时钟拉伸、或通信被打断时，极易卡死在 BUSY 状态。
+  *          3. 【严禁传 HAL_MAX_DELAY】：Timeout 参数切勿设置为 HAL_MAX_DELAY，必须赋予合理的非零超时（如 50ms~100ms）。
+  *             一旦函数返回 HAL_TIMEOUT 或 HAL_BUSY，必须重新初始化 I2C 外设或执行总线恢复操作（模拟 9 个 SCL 时钟释放总线）。
+  *          4. 【物理上拉电阻】：SCL 和 SDA 引脚必须在 PCB 上外接 2.2kΩ~4.7kΩ 硬件上拉电阻，芯片内部弱上拉无法满足 I2C 上升沿要求。
+  *          5. 【工程替代方案】：在 STM32F1 的实际工程中，普遍推荐使用 GPIO 软件模拟 I2C，以彻底绕过硬件 I2C 锁死问题。
+  * @retval HAL 状态（HAL_OK, HAL_ERROR, HAL_BUSY, HAL_TIMEOUT）
+  */
 HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+
+/**
+  * @brief  主机模式下以阻塞轮询方式接收数据
+  * @param  hi2c: 指向包含指定 I2C 模块配置信息的 I2C_HandleTypeDef 结构体指针
+  * @param  DevAddress: 目标从机设备地址（7 位地址必须左移 1 位传入）
+  * @param  pData: 指向接收数据缓冲区的指针
+  * @param  Size:  期望接收的数据字节数
+  * @param  Timeout: 阻塞超时时限（毫秒，切勿设为 HAL_MAX_DELAY）
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_I2C_Slave_Transmit(I2C_HandleTypeDef *hi2c, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_I2C_Slave_Receive(I2C_HandleTypeDef *hi2c, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+
+/**
+  * @brief  向目标从机设备的指定内部寄存器/内存地址写入数据（传感器配置必备）
+  * @param  hi2c: I2C 句柄指针（如 &hi2c1）
+  * @param  DevAddress: 目标从机设备物理地址（7 位地址必须左移 1 位，如 MPU6050 为 0x68 << 1 即 0xD0）
+  * @param  MemAddress: 目标从机的内部寄存器或内存地址（如 MPU6050 的电源管理寄存器 0x6B）
+  * @param  MemAddSize: 寄存器地址宽度：
+  *                     - I2C_MEMADD_SIZE_8BIT  : 8 位寄存器地址（绝大多数传感器如 MPU6050/BMP280/小型EEPROM）
+  *                     - I2C_MEMADD_SIZE_16BIT : 16 位寄存器地址（大容量存储器如 AT24C32/64 等）
+  * @param  pData: 待写入数据的缓冲区指针
+  * @param  Size:  待写入的数据字节数
+  * @param  Timeout: 超时时限（毫秒，建议 50~100ms，切勿传 HAL_MAX_DELAY 防止死锁）
+  * @note   【日常传感器配置首选】
+  *         操作各类传感器时无需手写 Master_Transmit 拼装协议帧，直接调用本函数即可由底层自动完成：
+  *         [起始位 -> 从机写地址 -> 寄存器地址 -> 数据写入 -> 停止位]
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_I2C_Mem_Write(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+
+/**
+  * @brief  从目标从机设备的指定内部寄存器/内存地址读取数据（传感器数据采集必备）
+  * @param  hi2c: I2C 句柄指针（如 &hi2c1）
+  * @param  DevAddress: 目标从机设备物理地址（7 位地址必须左移 1 位传入）
+  * @param  MemAddress: 目标从机的内部寄存器或内存地址（如加速度计 X 轴高位寄存器 ACCEL_XOUT_H）
+  * @param  MemAddSize: 寄存器地址宽度（I2C_MEMADD_SIZE_8BIT 或 I2C_MEMADD_SIZE_16BIT）
+  * @param  pData: 接收数据缓冲区指针
+  * @param  Size:  期望读取的字节数（如连续读取加速度计 XYZ 六个字节）
+  * @param  Timeout: 超时时限（毫秒）
+  * @note   【自动复合时序】
+  *         本函数由硬件自动产生标准的 I2C 复合读时序：
+  *         [起始位 -> 从机写地址 -> 发送寄存器地址 -> 重复起始位(RESTART) -> 从机读地址 -> 读取数据 -> 产生NACK并停止]
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+
+/**
+  * @brief  检测指定的从机设备是否已在 I2C 总线上就绪（常用于 I2C 地址扫描与设备在线探测）
+  * @param  hi2c: I2C 句柄指针
+  * @param  DevAddress: 目标设备地址（左移 1 位后的 8 位格式）
+  * @param  Trials: 重试探测次数（通常传 2~5 次）
+  * @param  Timeout: 每次尝试的超时时限（毫秒，通常传 10ms）
+  * @note   【I2C 设备扫描器实现】
+  *         通过循环探测 1~127 地址即可轻松实现 I2C 挂载设备自动扫描与终端打印。
+  * @retval HAL_OK（设备存在并响应 ACK）或 HAL_BUSY / HAL_ERROR
+  */
 HAL_StatusTypeDef HAL_I2C_IsDeviceReady(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint32_t Trials, uint32_t Timeout);
 
 /******* 非阻塞模式：中断 */

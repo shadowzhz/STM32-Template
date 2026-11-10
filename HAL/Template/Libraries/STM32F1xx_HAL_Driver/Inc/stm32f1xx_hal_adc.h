@@ -250,7 +250,10 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 /** @defgroup ADC_Data_align ADC 数据对齐方式
   * @{
   */
+/** @brief ADC 转换结果右对齐（12 位数据位于低 12 位 [11:0]，常规最常用标准格式） */
 #define ADC_DATAALIGN_RIGHT      0x00000000U
+
+/** @brief ADC 转换结果左对齐（12 位数据位于高 12 位 [15:4]，常用于快速获取 8 位高有效值：val >> 8） */
 #define ADC_DATAALIGN_LEFT       ((uint32_t)ADC_CR2_ALIGN)
 /**
   * @}
@@ -262,7 +265,10 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 /* 注意：扫描模式的取值并非二选一的 ENABLE/DISABLE，这是为了与具有包含额外选项的  */
 /*       序列器的其他 STM32 系列器件保持兼容。                                */
 /*                                                                            */
+/** @brief 禁用多通道扫描模式（单通道采集时使用） */
 #define ADC_SCAN_DISABLE         0x00000000U
+
+/** @brief 使能多通道扫描模式（多通道顺序转换时必须开启，通常配合 DMA 循环搬运） */
 #define ADC_SCAN_ENABLE          ((uint32_t)ADC_CR1_SCAN)
 /**
   * @}
@@ -271,7 +277,10 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 /** @defgroup ADC_External_trigger_edge_Regular 规则组 ADC 外部触发使能
   * @{
   */
+/** @brief 禁用外部触发转换（由软件写入 SWSTART 启动转换） */
 #define ADC_EXTERNALTRIGCONVEDGE_NONE           0x00000000U
+
+/** @brief 使能外部触发转换（由定时器 TRGO 或外部引脚上升沿触发启动转换） */
 #define ADC_EXTERNALTRIGCONVEDGE_RISING         ((uint32_t)ADC_CR2_EXTTRIG)
 /**
   * @}
@@ -310,14 +319,32 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 /** @defgroup ADC_sampling_times ADC 采样时间
   * @{
   */
-#define ADC_SAMPLETIME_1CYCLE_5                   0x00000000U                                              /*!< 采样时间 1.5 个 ADC 时钟周期 */
-#define ADC_SAMPLETIME_7CYCLES_5      ((uint32_t)(                                      ADC_SMPR2_SMP0_0)) /*!< 采样时间 7.5 个 ADC 时钟周期 */
-#define ADC_SAMPLETIME_13CYCLES_5     ((uint32_t)(                   ADC_SMPR2_SMP0_1                   )) /*!< 采样时间 13.5 个 ADC 时钟周期 */
-#define ADC_SAMPLETIME_28CYCLES_5     ((uint32_t)(                   ADC_SMPR2_SMP0_1 | ADC_SMPR2_SMP0_0)) /*!< 采样时间 28.5 个 ADC 时钟周期 */
-#define ADC_SAMPLETIME_41CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2                                      )) /*!< 采样时间 41.5 个 ADC 时钟周期 */
-#define ADC_SAMPLETIME_55CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2                    | ADC_SMPR2_SMP0_0)) /*!< 采样时间 55.5 个 ADC 时钟周期 */
-#define ADC_SAMPLETIME_71CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2 | ADC_SMPR2_SMP0_1                   )) /*!< 采样时间 71.5 个 ADC 时钟周期 */
-#define ADC_SAMPLETIME_239CYCLES_5    ((uint32_t)(ADC_SMPR2_SMP0_2 | ADC_SMPR2_SMP0_1 | ADC_SMPR2_SMP0_0)) /*!< 采样时间 239.5 个 ADC 时钟周期 */
+/** @brief 采样时间：1.5 个 ADC 时钟周期（转换速度最快，仅适合极低输出阻抗的信号源） */
+#define ADC_SAMPLETIME_1CYCLE_5                   0x00000000U
+
+/** @brief 采样时间：7.5 个 ADC 时钟周期 */
+#define ADC_SAMPLETIME_7CYCLES_5      ((uint32_t)(                                      ADC_SMPR2_SMP0_0))
+
+/** @brief 采样时间：13.5 个 ADC 时钟周期 */
+#define ADC_SAMPLETIME_13CYCLES_5     ((uint32_t)(                   ADC_SMPR2_SMP0_1                   ))
+
+/** @brief 采样时间：28.5 个 ADC 时钟周期 */
+#define ADC_SAMPLETIME_28CYCLES_5     ((uint32_t)(                   ADC_SMPR2_SMP0_1 | ADC_SMPR2_SMP0_0))
+
+/** @brief 采样时间：41.5 个 ADC 时钟周期 */
+#define ADC_SAMPLETIME_41CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2                                      ))
+
+/** @brief 采样时间：55.5 个 ADC 时钟周期（推荐中高阻抗传感器配置） */
+#define ADC_SAMPLETIME_55CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2                    | ADC_SMPR2_SMP0_0))
+
+/** @brief 采样时间：71.5 个 ADC 时钟周期 */
+#define ADC_SAMPLETIME_71CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2 | ADC_SMPR2_SMP0_1                   ))
+
+/**
+  * @brief 采样时间：239.5 个 ADC 时钟周期
+  * @note  采样电容充电最充分、精度最高、抗高输出阻抗与通道间串扰能力最强，强烈推荐在多通道扫描及内部温度传感器采样时选用。
+  */
+#define ADC_SAMPLETIME_239CYCLES_5    ((uint32_t)(ADC_SMPR2_SMP0_2 | ADC_SMPR2_SMP0_1 | ADC_SMPR2_SMP0_0))
 /**
   * @}
   */
@@ -340,6 +367,8 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 #define ADC_REGULAR_RANK_13                0x0000000DU
 #define ADC_REGULAR_RANK_14                0x0000000EU
 #define ADC_REGULAR_RANK_15                0x0000000FU
+
+/** @brief 规则序列第 16 转换位 */
 #define ADC_REGULAR_RANK_16                0x00000010U
 /**
   * @}
@@ -348,12 +377,25 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 /** @defgroup ADC_analog_watchdog_mode ADC 模拟看门狗模式
   * @{
   */
+/** @brief 禁用模拟看门狗 */
 #define ADC_ANALOGWATCHDOG_NONE                             0x00000000U
+
+/** @brief 仅监控规则组中的单一指定通道 */
 #define ADC_ANALOGWATCHDOG_SINGLE_REG           ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_AWDEN))
+
+/** @brief 仅监控注入组中的单一指定通道 */
 #define ADC_ANALOGWATCHDOG_SINGLE_INJEC         ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_JAWDEN))
+
+/** @brief 同时监控规则组和注入组中的单一指定通道 */
 #define ADC_ANALOGWATCHDOG_SINGLE_REGINJEC      ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_AWDEN | ADC_CR1_JAWDEN))
+
+/** @brief 监控规则组中的所有通道 */
 #define ADC_ANALOGWATCHDOG_ALL_REG              ((uint32_t)ADC_CR1_AWDEN)
+
+/** @brief 监控注入组中的所有通道 */
 #define ADC_ANALOGWATCHDOG_ALL_INJEC            ((uint32_t)ADC_CR1_JAWDEN)
+
+/** @brief 同时监控规则组与注入组中的所有通道 */
 #define ADC_ANALOGWATCHDOG_ALL_REGINJEC         ((uint32_t)(ADC_CR1_AWDEN | ADC_CR1_JAWDEN))
 /**
   * @}
@@ -362,8 +404,13 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 /** @defgroup ADC_conversion_group ADC 转换组
   * @{
   */
+/** @brief 规则组转换完成标志 */
 #define ADC_REGULAR_GROUP             ((uint32_t)(ADC_FLAG_EOC))
+
+/** @brief 注入组转换完成标志 */
 #define ADC_INJECTED_GROUP            ((uint32_t)(ADC_FLAG_JEOC))
+
+/** @brief 规则组与注入组转换完成标志 */
 #define ADC_REGULAR_INJECTED_GROUP    ((uint32_t)(ADC_FLAG_EOC | ADC_FLAG_JEOC))
 /**
   * @}
@@ -372,9 +419,11 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 /** @defgroup ADC_Event_type ADC 事件类型
   * @{
   */
-#define ADC_AWD_EVENT               ((uint32_t)ADC_FLAG_AWD)   /*!< ADC 模拟看门狗事件 */
+/** @brief ADC 模拟看门狗事件 */
+#define ADC_AWD_EVENT               ((uint32_t)ADC_FLAG_AWD)
 
-#define ADC_AWD1_EVENT              ADC_AWD_EVENT              /*!< ADC 模拟看门狗 1 事件：备用命名，用于兼容具有多个模拟看门狗的其他 STM32 设备 */
+/** @brief ADC 模拟看门狗 1 事件：备用命名，用于兼容具有多个模拟看门狗的其他 STM32 设备 */
+#define ADC_AWD1_EVENT              ADC_AWD_EVENT
 /**
   * @}
   */
@@ -425,6 +474,8 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_41CYCLES5                54U
 #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_55CYCLES5                68U
 #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_71CYCLES5                84U
+
+/** @brief 239.5 周期采样时间对应的总转换时钟周期数（239.5 + 12.5 = 252） */
 #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_239CYCLES5              252U
 /**
   * @}
@@ -889,6 +940,21 @@ typedef  void (*pADC_CallbackTypeDef)(ADC_HandleTypeDef *hadc); /*!< 指向 ADC 
 
 
 /* 初始化和去初始化函数  **********************************/
+
+/**
+  * @brief  根据 hadc->Init 中的参数初始化 ADC 外设并创建关联句柄
+  * @param  hadc: 指向包含 ADC 模块配置信息的 ADC_HandleTypeDef 结构体指针
+  * @note   配置参数包括数据对齐（右对齐/左对齐）、扫描模式、连续转换模式、外部触发源等。
+  * @warning 【时钟上限与必须校准避坑】
+  *          1. 【ADCCLK 频率上限 14MHz】：STM32F1 内部逐次逼近型 ADC 的工作时钟 ADCCLK 绝对不能超过 14MHz！
+  *             在 72MHz 系统主频下，APB2 为 72MHz，RCC_ADCPCLK2 分频系数【必须配置为 6 分频（12MHz）或 8 分频（9MHz）】。
+  *             若错误配置为 2 分频（36MHz）或 4 分频（18MHz），ADC 将严重超频，导致采样非线性失真或完全无法正常转换！
+  *          2. 【上电自校准必需】：在调用本函数完成初始化后、启动转换前，【必须调用一次 HAL_ADCEx_Calibration_Start(hadc)】！
+  *             ADC 上电后内部电容网络存在偏移误差，校准过程会生成校正码并写入寄存器消除漂移。未执行校准会导致严重零点偏差。
+  *          3. 【信号源输出阻抗】：若测量信号的等效输出阻抗较大（>10kΩ），务必在通道配置中将采样时间拉长（如 71.5 或 239.5 周期），
+  *             以确保内部采样保持电容充分充电，避免采样值偏小。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef       HAL_ADC_Init(ADC_HandleTypeDef* hadc);
 HAL_StatusTypeDef       HAL_ADC_DeInit(ADC_HandleTypeDef *hadc);
 void                    HAL_ADC_MspInit(ADC_HandleTypeDef* hadc);
@@ -912,8 +978,38 @@ HAL_StatusTypeDef HAL_ADC_UnRegisterCallback(ADC_HandleTypeDef *hadc, HAL_ADC_Ca
 
 
 /* 阻塞模式：轮询 */
+
+/**
+  * @brief  启动常规通道的 ADC 模数转换
+  * @param  hadc: 指向包含 ADC 模块配置信息的 ADC_HandleTypeDef 结构体指针
+  * @note   【经典单次采样实战四步法】
+  *         @code
+  *         HAL_ADC_Start(&hadc1);                               // 1. 启动转换
+  *         if (HAL_ADC_PollForConversion(&hadc1, 10) == HAL_OK) // 2. 等待转换完成（10ms超时）
+  *         {
+  *             uint32_t val = HAL_ADC_GetValue(&hadc1);         // 3. 读取 12 位原始值 (0~4095)
+  *             float voltage = (float)val * 3.3f / 4095.0f;     // 换算为实际测量电压 (V)
+  *         }
+  *         HAL_ADC_Stop(&hadc1);                                // 4. 停止转换，节电并释放
+  *         @endcode
+  * @warning 单次轮询模式下，每次采样完成后推荐调用 HAL_ADC_Stop() 释放外设状态。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef       HAL_ADC_Start(ADC_HandleTypeDef* hadc);
+
+/**
+  * @brief  停止 ADC 转换并禁止外设
+  * @param  hadc: 指向包含 ADC 模块配置信息的 ADC_HandleTypeDef 结构体指针
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef       HAL_ADC_Stop(ADC_HandleTypeDef* hadc);
+
+/**
+  * @brief  轮询等待常规组 ADC 转换完成（EOC 标志置位）
+  * @param  hadc: 指向包含 ADC 模块配置信息的 ADC_HandleTypeDef 结构体指针
+  * @param  Timeout: 超时时限（毫秒，单次采样通常传 10 毫秒足够）
+  * @retval HAL 状态（HAL_OK / HAL_TIMEOUT）
+  */
 HAL_StatusTypeDef       HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Timeout);
 HAL_StatusTypeDef       HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventType, uint32_t Timeout);
 
@@ -926,6 +1022,15 @@ HAL_StatusTypeDef       HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pDa
 HAL_StatusTypeDef       HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc);
 
 /* ADC 获取转换值，用于轮询或中断模式 */
+
+/**
+  * @brief  获取常规通道最近一次的 ADC 转换结果原始值
+  * @param  hadc: 指向包含 ADC 模块配置信息的 ADC_HandleTypeDef 结构体指针
+  * @note   【电压换算公式】
+  *         STM32F1 内部为 12 位逐次逼近型 ADC，数字量范围为 0 ~ 4095（0x000 ~ 0xFFF）：
+  *         实际电压 V = (float)ADC_Value * 3.3f / 4095.0f （假设参考电压 VREF+ = 3.3V）
+  * @retval 12 位 ADC 转换原始值（0 ~ 4095）
+  */
 uint32_t                HAL_ADC_GetValue(ADC_HandleTypeDef* hadc);
 
 /* 用于非阻塞模式（中断和 DMA）的 ADC 中断处理程序 (IRQHandler) 及回调函数 */

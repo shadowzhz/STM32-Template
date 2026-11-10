@@ -622,10 +622,20 @@ void I2C_FastModeDutyCycleConfig(I2C_TypeDef* I2Cx, uint16_t I2C_DutyCycle);
  */
 
 /**
- *
  *  1) 基本状态监控
  *******************************************************************************
  */
+/**
+  * @brief  检查指定的 I2C 事件是否发生
+  * @param  I2Cx: I2C 外设基地址（I2C1 或 I2C2）
+  * @param  I2C_EVENT: 待检查的事件标志组合（如 I2C_EVENT_MASTER_MODE_SELECT 等）
+  * @warning 【死循环锁死避坑】
+  *          STM32F1 硬件 I2C 存在已知硅 Bug，极易因总线噪声、从机拉低 SDA 时钟拉伸等陷入死锁。
+  *          【切勿使用裸 while(!I2C_CheckEvent(I2Cx, EVENT)); 盲目等待】！
+  *          等待时必须加入超时计数变量（Timeout），一旦超时必须退出循环并执行总线复位或报错处理，否则单片机将在此永久卡死！
+  *          硬件上 SCL/SDA 必须外接 4.7kΩ 强上拉电阻；对于高可靠性场景建议直接改用软件模拟 I2C。
+  * @retval SUCCESS（事件已发生）或 ERROR（事件未发生）
+  */
 ErrorStatus I2C_CheckEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT);
 /**
  *

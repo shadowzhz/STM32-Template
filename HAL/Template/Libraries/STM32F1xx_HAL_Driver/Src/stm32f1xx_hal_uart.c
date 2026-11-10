@@ -1295,10 +1295,18 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, const uint8_t 
 }
 
 /**
-  * @brief  以非阻塞模式接收一定量的数据。
+  * @brief  以中断非阻塞模式接收指定长度的数据。
   * @note   当未使能 UART 奇偶校验 (PCE = 0) 且字长配置为 9 位 (M1-M0 = 01) 时，
   *         接收的数据将作为 u16 数组进行处理。在此情况下，Size 必须表示通过
   *         pData 可获取的 u16 数据元素个数。
+  * @warning 【单次触发与重挂陷阱 / 必看避坑】
+  *          1. 【单次生效】：本函数仅触发一次接收过程，收满 Size 个字节后硬件中断自动关闭！
+  *             若需实现连续持续接收，必须在 HAL_UART_RxCpltCallback() 回调函数末尾重新调用本函数。
+  *          2. 【HAL_BUSY 状态】：若上一次接收尚未完成时再次调用本函数，将直接返回 HAL_BUSY 且拒绝配置。
+  *          3. 【ORE 过载错误锁死】：若主程序长时间阻塞未及时响应串口中断，硬件将置位 ORE (Overrun) 错误标志，
+  *             进而导致后续所有接收中断被硬件锁定！必须在 HAL_UART_ErrorCallback() 中调用
+  *             __HAL_UART_CLEAR_OREFLAG(huart) 清除错误标志才能恢复接收。
+  *          4. 【跨中断共享变量】：回调函数中修改的全局变量与标志位，在主循环中访问时必须声明为 volatile！
   * @param  huart 指向包含指定 UART 模块配置信息的
   *               UART_HandleTypeDef 结构体的指针。
   * @param  pData 指向数据缓冲区的指针（u8 或 u16 数据元素）。
@@ -1729,6 +1737,21 @@ HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle_IT(UART_HandleTypeDef *huart, uint8_t
   * @note   当未使能 UART 奇偶校验（PCE = 0）且字长配置为 9 位（M = 01）时，
   *         接收到的数据将作为一组 uint16_t 处理。在此情况下，Size 必须表示
   *         通过 pData 可用的 uint16_t 元素数量。
+  * @param huart UART 句柄。
+  * @param pData 指向数据缓冲区的指针（uint8_t 或 uint16_t 数据元素）。
+  * @param Size  待接收的数据元素数量（uint8_t 或 uint16_t）。
+  * @retval HAL 状态
+  */
+/**
+  * @brief  以 DMA 模式启动不定长数据接收（空闲中断 IDLE 或半满/全满触发）
+  * @note   【不定长串口数据帧推荐方案】
+  *         当收到完整一帧数据且总线进入空闲（IDLE）状态，或 DMA 缓冲区已满时，硬件自动触发接收事件，
+  *         并回调用户编写的 HAL_UARTEx_RxEventCallback(huart, Size)，其中 Size 为实际接收到的字节数！
+  * @warning 【缓冲区与生命周期避坑】
+  *          1. pData 指向的接收缓冲区必须具有全局（global）或静态（static）生命周期，【严禁传入局部栈变量】！
+  *          2. 在 HAL_UARTEx_RxEventCallback 回调中处理完数据后，若需继续接收下一帧，
+  *             必须再次调用 HAL_UARTEx_ReceiveToIdle_DMA 重新启动接收。
+  *          3. 必须在系统初始化时正确配置 DMA 通道及 UART 串口中断（USARTx_IRQHandler）。
   * @param huart UART 句柄。
   * @param pData 指向数据缓冲区的指针（uint8_t 或 uint16_t 数据元素）。
   * @param Size  待接收的数据元素数量（uint8_t 或 uint16_t）。

@@ -22,41 +22,41 @@ extern "C" {
 
 /* ########################## Module Selection ############################## */
 /**
-  * @brief This is the list of modules to be used in the HAL driver
+  * @brief 模块使能开关：用到哪个外设就取消注释哪个宏；未启用的驱动模块会被链接器自动裁剪
   */
-#define HAL_MODULE_ENABLED
-/* #define HAL_ADC_MODULE_ENABLED */
-/* #define HAL_CAN_MODULE_ENABLED */
+#define HAL_MODULE_ENABLED          /* 核心基础库 (必开，提供 SysTick 时基与底层延时) */
+/* #define HAL_ADC_MODULE_ENABLED */ /* 模数转换：采集电位器、光敏/热敏电阻等模拟量电压 */
+/* #define HAL_CAN_MODULE_ENABLED */ /* CAN 总线通信：车载通信、工业现场通信 */
 /* #define HAL_CAN_LEGACY_MODULE_ENABLED */
 /* #define HAL_CEC_MODULE_ENABLED */
-#define HAL_CORTEX_MODULE_ENABLED
-/* #define HAL_CRC_MODULE_ENABLED */
-/* #define HAL_DAC_MODULE_ENABLED */
-#define HAL_DMA_MODULE_ENABLED
-/* #define HAL_ETH_MODULE_ENABLED */
-#define HAL_EXTI_MODULE_ENABLED
-#define HAL_FLASH_MODULE_ENABLED
-#define HAL_GPIO_MODULE_ENABLED
+#define HAL_CORTEX_MODULE_ENABLED   /* Cortex 内核驱动 (必开，NVIC 中断与 SysTick 控制) */
+/* #define HAL_CRC_MODULE_ENABLED */ /* 硬件 CRC 校验计算 */
+/* #define HAL_DAC_MODULE_ENABLED */ /* 数模转换：输出模拟电压波形（大容量 F103 芯片支持） */
+#define HAL_DMA_MODULE_ENABLED      /* DMA 控制器 (必开，高速免 CPU 数据自动搬运) */
+/* #define HAL_ETH_MODULE_ENABLED */ /* 以太网驱动（仅互联型 F107 支持） */
+#define HAL_EXTI_MODULE_ENABLED     /* 外部中断线 (必开，按键中断、边沿触发唤醒) */
+#define HAL_FLASH_MODULE_ENABLED    /* 片上 Flash 驱动 (必开，读写芯片内部 Flash 掉电存储) */
+#define HAL_GPIO_MODULE_ENABLED     /* GPIO 通用输入输出 (必开，LED、按键、各种控制) */
 /* #define HAL_HCD_MODULE_ENABLED */
-/* #define HAL_I2C_MODULE_ENABLED */
-/* #define HAL_I2S_MODULE_ENABLED */
-/* #define HAL_IRDA_MODULE_ENABLED */
-/* #define HAL_IWDG_MODULE_ENABLED */
-/* #define HAL_NAND_MODULE_ENABLED */
+/* #define HAL_I2C_MODULE_ENABLED */ /* I2C 总线：连接 OLED 屏、MPU6050 陀螺仪、AT24C02 EEPROM */
+/* #define HAL_I2S_MODULE_ENABLED */ /* I2S 音频接口 */
+/* #define HAL_IRDA_MODULE_ENABLED*/ /* 红外通信驱动 */
+/* #define HAL_IWDG_MODULE_ENABLED*/ /* 独立看门狗：防止主程序死锁或跑飞 */
+/* #define HAL_NAND_MODULE_ENABLED*/
 /* #define HAL_NOR_MODULE_ENABLED */
 /* #define HAL_PCCARD_MODULE_ENABLED */
-/* #define HAL_PCD_MODULE_ENABLED */
-/* #define HAL_PWR_MODULE_ENABLED */
-#define HAL_RCC_MODULE_ENABLED
-/* #define HAL_RTC_MODULE_ENABLED */
-/* #define HAL_SD_MODULE_ENABLED */
+/* #define HAL_PCD_MODULE_ENABLED */ /* USB 设备模式驱动（模拟虚拟串口、HID 鼠标键盘） */
+/* #define HAL_PWR_MODULE_ENABLED */ /* 电源控制：进入低功耗休眠、解开备份域 BKP 写保护 */
+#define HAL_RCC_MODULE_ENABLED      /* 时钟复位控制 (必开，PLL 72MHz 系统主频初始化) */
+/* #define HAL_RTC_MODULE_ENABLED */ /* 实时时钟：掉电走时、日历与定时闹钟唤醒 */
+/* #define HAL_SD_MODULE_ENABLED  */ /* SDIO 接口：读取 MicroSD 存储卡（大容量芯片支持） */
 /* #define HAL_SMARTCARD_MODULE_ENABLED */
-/* #define HAL_SPI_MODULE_ENABLED */
-/* #define HAL_SRAM_MODULE_ENABLED */
-/* #define HAL_TIM_MODULE_ENABLED */
-#define HAL_UART_MODULE_ENABLED
+/* #define HAL_SPI_MODULE_ENABLED */ /* SPI 总线：高速驱动 TFT 彩屏、W25Q64 Flash、NRF24L01 无线 */
+/* #define HAL_SRAM_MODULE_ENABLED*/
+/* #define HAL_TIM_MODULE_ENABLED */ /* 定时器驱动：定时中断、PWM 调速/调光、输入捕获测量脉宽 */
+#define HAL_UART_MODULE_ENABLED     /* 异步串口驱动：printf 日志打印、上位机通信、蓝牙通信 */
 /* #define HAL_USART_MODULE_ENABLED */
-/* #define HAL_WWDG_MODULE_ENABLED */
+/* #define HAL_WWDG_MODULE_ENABLED*/ /* 窗口看门狗 */
 /* #define HAL_MMC_MODULE_ENABLED */
 
 /* ########################## Oscillator Values adaptation ####################*/
@@ -66,11 +66,11 @@ extern "C" {
   *        (when HSE is used as system clock source, directly or through the PLL).
   */
 #if !defined  (HSE_VALUE)
-#define HSE_VALUE    8000000U /*!< Value of the External oscillator in Hz (BluePill: 8MHz) */
+#define HSE_VALUE    8000000U /*!< 外部高速晶振频率(Hz)。淘宝常见 BluePill 核心板固定为 8MHz (8000000U) */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
-#define HSE_STARTUP_TIMEOUT    100U      /*!< Time out for HSE start up, in ms */
+#define HSE_STARTUP_TIMEOUT    100U      /*!< HSE 外部晶振起振超时时限（毫秒） */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -106,8 +106,8 @@ extern "C" {
 /**
   * @brief This is the HAL system configuration section
   */
-#define  VDD_VALUE                    3300U /*!< Value of VDD in mv */
-#define  TICK_INT_PRIORITY            0x0FU /*!< tick interrupt priority */
+#define  VDD_VALUE                    3300U /*!< 芯片供电电压（mV） */
+#define  TICK_INT_PRIORITY            0x0FU /*!< SysTick 滴答时基中断优先级（固定设为 15，即最低优先级）。注意：严禁在其他中断中调用 HAL_Delay()！ */
 #define  USE_RTOS                     0U
 #define  PREFETCH_ENABLE              1U
 

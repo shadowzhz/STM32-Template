@@ -77,16 +77,12 @@
   * @brief  配置优先级分组：抢占优先级与子优先级各占多少位。
   * @param  NVIC_PriorityGroup: 指定优先级分组的位数分配。
   *   该参数可取下列值之一：
-  *     @arg NVIC_PriorityGroup_0: 抢占优先级占 0 位
-  *                                 子优先级占 4 位
-  *     @arg NVIC_PriorityGroup_1: 抢占优先级占 1 位
-  *                                 子优先级占 3 位
-  *     @arg NVIC_PriorityGroup_2: 抢占优先级占 2 位
-  *                                 子优先级占 2 位
-  *     @arg NVIC_PriorityGroup_3: 抢占优先级占 3 位
-  *                                 子优先级占 1 位
-  *     @arg NVIC_PriorityGroup_4: 抢占优先级占 4 位
-  *                                 子优先级占 0 位
+  *     @arg NVIC_PriorityGroup_0: 抢占优先级占 0 位，子优先级占 4 位（无嵌套）
+  *     @arg NVIC_PriorityGroup_1: 抢占优先级占 1 位，子优先级占 3 位
+  *     @arg NVIC_PriorityGroup_2: 抢占优先级占 2 位，子优先级占 2 位（推荐最常用方案）
+  *     @arg NVIC_PriorityGroup_3: 抢占优先级占 3 位，子优先级占 1 位
+  *     @arg NVIC_PriorityGroup_4: 抢占优先级占 4 位，子优先级占 0 位（全抢占模式）
+  * @warning 【全工程只能调用一次】建议仅在 main() 初始化开头调用一次，切勿在各个子外设驱动中重复调用覆盖全局分组！
   * @retval 无
   */
 void NVIC_PriorityGroupConfig(uint32_t NVIC_PriorityGroup)

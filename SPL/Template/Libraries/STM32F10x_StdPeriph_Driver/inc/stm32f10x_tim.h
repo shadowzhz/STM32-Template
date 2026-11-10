@@ -1062,6 +1062,20 @@ void TIM_OCStructInit(TIM_OCInitTypeDef* TIM_OCInitStruct);
 void TIM_ICStructInit(TIM_ICInitTypeDef* TIM_ICInitStruct);
 void TIM_BDTRStructInit(TIM_BDTRInitTypeDef* TIM_BDTRInitStruct);
 void TIM_Cmd(TIM_TypeDef* TIMx, FunctionalState NewState);
+
+/**
+  * @brief  使能或失能高级定时器（TIM1/TIM8）的主输出（MOE，Main Output Enable）
+  * @param  TIMx: 定时器基地址（仅适用于高级控制定时器 TIM1 或 TIM8）
+  * @param  NewState: 新状态（ENABLE 或 DISABLE）
+  * @warning 【高级定时器 PWM 必配避坑】
+  *          使用 TIM1 或 TIM8 输出 PWM 时，即使配置好了引脚与通道并调用了 TIM_Cmd(TIM1, ENABLE)，
+  *          引脚依然不会输出任何波形！必须额外调用一次：
+  *          @code
+  *          TIM_CtrlPWMOutputs(TIM1, ENABLE);
+  *          @endcode
+  *          开启主输出使能，否则通道处于刹车高阻保护状态。通用定时器（TIM2~4）无 MOE 寄存器，无需也不可调用此函数。
+  * @retval 无
+  */
 void TIM_CtrlPWMOutputs(TIM_TypeDef* TIMx, FunctionalState NewState);
 void TIM_ITConfig(TIM_TypeDef* TIMx, uint16_t TIM_IT, FunctionalState NewState);
 void TIM_GenerateEvent(TIM_TypeDef* TIMx, uint16_t TIM_EventSource);

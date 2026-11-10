@@ -266,8 +266,17 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Word_Length UART 数据字长
   * @{
   */
-#define UART_WORDLENGTH_8B                  0x00000000U               /*!< 8 位数据字长（最常用标准无校验数据格式，8-N-1） */
-#define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)   /*!< 9 位数据字长（常用于携带奇偶校验位或多机通信地址位） */
+/**
+  * @brief 8 位数据字长（最常用标准配置，8-N-1 格式）
+  */
+#define UART_WORDLENGTH_8B                  0x00000000U
+
+/**
+  * @brief 9 位数据字长
+  * @note  若启用了奇偶校验位（PCE=1），硬件校验位会自动占用第 9 位，此时用户有效数据仍为 8 位；
+  *        常用于 Modbus 奇偶校验传输或多机通信地址唤醒。
+  */
+#define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
 /**
   * @}
   */
@@ -275,8 +284,15 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Stop_Bits UART 停止位个数
   * @{
   */
-#define UART_STOPBITS_1                     0x00000000U               /*!< 1 个停止位（常规异步通信最常用默认配置） */
-#define UART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1) /*!< 2 个停止位（用于抗噪声干扰或长距离通信） */
+/**
+  * @brief 1 个停止位（常规异步通信最常用默认配置）
+  */
+#define UART_STOPBITS_1                     0x00000000U
+
+/**
+  * @brief 2 个停止位（用于抗噪声干扰或长距离通信）
+  */
+#define UART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
 /**
   * @}
   */
@@ -284,9 +300,22 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Parity UART 奇偶校验
   * @{
   */
-#define UART_PARITY_NONE                    0x00000000U               /*!< 无校验（常规最常用配置，数据直接传输，无校验开销） */
-#define UART_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE) /*!< 偶校验（数据中 1 的个数加上校验位后为偶数） */
-#define UART_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) /*!< 奇校验（数据中 1 的个数加上校验位后为奇数） */
+/**
+  * @brief 无校验（常规最常用默认配置，数据直接传输，无校验位开销）
+  */
+#define UART_PARITY_NONE                    0x00000000U
+
+/**
+  * @brief 偶校验（数据中 1 的个数加上校验位后为偶数）
+  * @note  启用偶校验时，通常需将 WordLength 配置为 9 位。
+  */
+#define UART_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
+
+/**
+  * @brief 奇校验（数据中 1 的个数加上校验位后为奇数）
+  * @note  启用奇校验时，通常需将 WordLength 配置为 9 位。
+  */
+#define UART_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS))
 /**
   * @}
   */
@@ -294,10 +323,25 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Hardware_Flow_Control UART 硬件流控制
   * @{
   */
-#define UART_HWCONTROL_NONE                  0x00000000U               /*!< 无硬件流控制（常规串口最常用默认配置） */
-#define UART_HWCONTROL_RTS                   ((uint32_t)USART_CR3_RTSE)/*!< 仅使能 RTS 硬件流控制（准备好接收数据时拉低 RTS 引脚） */
-#define UART_HWCONTROL_CTS                   ((uint32_t)USART_CR3_CTSE)/*!< 仅使能 CTS 硬件流控制（发送数据前检测 CTS 引脚是否允许发送） */
-#define UART_HWCONTROL_RTS_CTS               ((uint32_t)(USART_CR3_RTSE | USART_CR3_CTSE)) /*!< 同时使能 RTS 和 CTS 全硬件流控制 */
+/**
+  * @brief 无硬件流控制（常规串口最常用默认配置）
+  */
+#define UART_HWCONTROL_NONE                  0x00000000U
+
+/**
+  * @brief 仅使能 RTS 硬件流控制（接收缓冲区可用时主动拉低 RTS 引脚通知对方可发送）
+  */
+#define UART_HWCONTROL_RTS                   ((uint32_t)USART_CR3_RTSE)
+
+/**
+  * @brief 仅使能 CTS 硬件流控制（发送数据前检测 CTS 引脚是否被对方拉低允许发送）
+  */
+#define UART_HWCONTROL_CTS                   ((uint32_t)USART_CR3_CTSE)
+
+/**
+  * @brief 同时使能 RTS 和 CTS 全硬件流控制（防止高速通信时接收缓冲区溢出）
+  */
+#define UART_HWCONTROL_RTS_CTS               ((uint32_t)(USART_CR3_RTSE | USART_CR3_CTSE))
 /**
   * @}
   */
@@ -305,9 +349,20 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Mode UART 传输模式
   * @{
   */
-#define UART_MODE_RX                        ((uint32_t)USART_CR1_RE)   /*!< 仅使能接收模式 */
-#define UART_MODE_TX                        ((uint32_t)USART_CR1_TE)   /*!< 仅使能发送模式 */
-#define UART_MODE_TX_RX                     ((uint32_t)(USART_CR1_TE | USART_CR1_RE)) /*!< 同时使能发送和接收模式（全双工双向收发，最常用） */
+/**
+  * @brief 仅使能接收模式
+  */
+#define UART_MODE_RX                        ((uint32_t)USART_CR1_RE)
+
+/**
+  * @brief 仅使能发送模式
+  */
+#define UART_MODE_TX                        ((uint32_t)USART_CR1_TE)
+
+/**
+  * @brief 同时使能发送和接收模式（全双工双向收发，最常用配置）
+  */
+#define UART_MODE_TX_RX                     ((uint32_t)(USART_CR1_TE | USART_CR1_RE))
 /**
   * @}
   */
@@ -315,7 +370,10 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_State UART 状态
   * @{
   */
+/** @brief 禁用 UART 外设 */
 #define UART_STATE_DISABLE                  0x00000000U
+
+/** @brief 使能 UART 外设 */
 #define UART_STATE_ENABLE                   ((uint32_t)USART_CR1_UE)
 /**
   * @}
@@ -335,7 +393,10 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_LIN_Break_Detection_Length  UART LIN 断开符检测长度
   * @{
   */
+/** @brief LIN 10 位断开符检测 */
 #define UART_LINBREAKDETECTLENGTH_10B      0x00000000U
+
+/** @brief LIN 11 位断开符检测 */
 #define UART_LINBREAKDETECTLENGTH_11B      ((uint32_t)USART_CR2_LBDL)
 /**
   * @}
@@ -344,7 +405,10 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_WakeUp_functions  UART 唤醒功能
   * @{
   */
+/** @brief 空闲总线唤醒模式 */
 #define UART_WAKEUPMETHOD_IDLELINE                0x00000000U
+
+/** @brief 地址标记唤醒模式（多机通信模式） */
 #define UART_WAKEUPMETHOD_ADDRESSMARK             ((uint32_t)USART_CR1_WAKE)
 /**
   * @}
@@ -355,15 +419,34 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   *           - 0xXXXX  : SR 寄存器中的标志位掩码
   * @{
   */
+/** @brief CTS 引脚电平跳变标志 */
 #define UART_FLAG_CTS                       ((uint32_t)USART_SR_CTS)
+
+/** @brief LIN 断开符检测标志 */
 #define UART_FLAG_LBD                       ((uint32_t)USART_SR_LBD)
+
+/** @brief 发送数据寄存器空标志（TXE: Transmit Data Register Empty） */
 #define UART_FLAG_TXE                       ((uint32_t)USART_SR_TXE)
+
+/** @brief 发送完成标志（TC: Transmission Complete） */
 #define UART_FLAG_TC                        ((uint32_t)USART_SR_TC)
+
+/** @brief 接收数据寄存器非空标志（RXNE: Read Data Register Not Empty） */
 #define UART_FLAG_RXNE                      ((uint32_t)USART_SR_RXNE)
+
+/** @brief 检测到总线空闲帧标志（IDLE: Idle Line Detected） */
 #define UART_FLAG_IDLE                      ((uint32_t)USART_SR_IDLE)
+
+/** @brief 接收过载错误标志（ORE: Overrun Error） */
 #define UART_FLAG_ORE                       ((uint32_t)USART_SR_ORE)
+
+/** @brief 噪声检测错误标志（NE: Noise Error） */
 #define UART_FLAG_NE                        ((uint32_t)USART_SR_NE)
+
+/** @brief 帧格式错误标志（FE: Framing Error） */
 #define UART_FLAG_FE                        ((uint32_t)USART_SR_FE)
+
+/** @brief 奇偶校验错误标志（PE: Parity Error） */
 #define UART_FLAG_PE                        ((uint32_t)USART_SR_PE)
 /**
   * @}
@@ -379,15 +462,28 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   * @{
   */
 
+/** @brief 奇偶校验错误中断使能 */
 #define UART_IT_PE                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_PEIE))
+
+/** @brief 发送寄存器空中断使能（TXEIE） */
 #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+
+/** @brief 发送完成中断使能（TCIE） */
 #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+
+/** @brief 接收非空中断使能（RXNEIE） */
 #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+
+/** @brief 总线空闲中断使能（IDLEIE） */
 #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
 
+/** @brief LIN 断开符检测中断使能 */
 #define UART_IT_LBD                      ((uint32_t)(UART_CR2_REG_INDEX << 28U | USART_CR2_LBDIE))
 
+/** @brief CTS 跳变中断使能 */
 #define UART_IT_CTS                      ((uint32_t)(UART_CR3_REG_INDEX << 28U | USART_CR3_CTSIE))
+
+/** @brief 错误中断使能（帧错误/过载错误/噪声错误） */
 #define UART_IT_ERR                      ((uint32_t)(UART_CR3_REG_INDEX << 28U | USART_CR3_EIE))
 /**
   * @}
@@ -396,8 +492,11 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_Reception_Type_Values UART 接收类型值
   * @{
   */
-#define HAL_UART_RECEPTION_STANDARD          (0x00000000U)             /*!< 标准接收                                 */
-#define HAL_UART_RECEPTION_TOIDLE            (0x00000001U)             /*!< 接收直至完成或产生空闲 (IDLE) 事件       */
+/** @brief 标准定长接收模式（接收到指定 Size 字节数后产生完成中断或回调） */
+#define HAL_UART_RECEPTION_STANDARD          (0x00000000U)
+
+/** @brief 空闲中断不定长接收模式（接收到指定 Size 或总线产生 IDLE 空闲帧时产生完成中断或回调） */
+#define HAL_UART_RECEPTION_TOIDLE            (0x00000001U)
 /**
   * @}
   */
@@ -405,8 +504,13 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
 /** @defgroup UART_RxEvent_Type_Values UART 接收事件 (RxEvent) 类型值
   * @{
   */
-#define HAL_UART_RXEVENT_TC                  (0x00000000U)             /*!< 关联到传输完成 (Transfer Complete) 事件的 RxEvent */
-#define HAL_UART_RXEVENT_HT                  (0x00000001U)             /*!< 关联到过半传输 (Half Transfer) 事件的 RxEvent     */
+/** @brief 接收完成事件（收满指定的期望字节数） */
+#define HAL_UART_RXEVENT_TC                  (0x00000000U)
+
+/** @brief 接收过半事件（DMA 接收缓冲区已填充一半） */
+#define HAL_UART_RXEVENT_HT                  (0x00000001U)
+
+/** @brief 总线空闲事件（检测到串口总线 IDLE 空闲帧，代表一帧数据接收完毕） */
 #define HAL_UART_RXEVENT_IDLE                (0x00000002U)
 /**
   * @}
@@ -742,10 +846,52 @@ HAL_StatusTypeDef HAL_UART_UnRegisterRxEventCallback(UART_HandleTypeDef *huart);
   */
 
 /* IO 操作函数 *******************************************************/
+
+/**
+  * @brief  以阻塞轮询模式发送指定长度的数据
+  * @param  huart: 指向包含指定 UART 模块配置信息的 UART_HandleTypeDef 结构体指针
+  * @param  pData: 指向待发送数据缓冲区的指针
+  * @param  Size:  待发送的字节数据量
+  * @param  Timeout: 阻塞超时时间（毫秒）
+  * @note   如果在指定超时内未能发送完毕，函数将返回 HAL_TIMEOUT 并中止后续数据发送。
+  * @retval HAL 状态（HAL_OK, HAL_ERROR, HAL_BUSY, HAL_TIMEOUT）
+  */
 HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, const uint8_t *pData, uint16_t Size, uint32_t Timeout);
+
+/**
+  * @brief  以阻塞轮询模式接收指定长度的数据
+  * @param  huart: 指向包含指定 UART 模块配置信息的 UART_HandleTypeDef 结构体指针
+  * @param  pData: 指向接收数据缓冲区的指针
+  * @param  Size:  期望接收的字节数据量
+  * @param  Timeout: 阻塞超时时限（毫秒）
+  * @warning 【主循环卡死隐患】
+  *          在指定超时时间内，CPU 将完全阻塞在此函数中等待数据接收。
+  *          若 Timeout 设置为 HAL_MAX_DELAY 且对端未发送足够字节，系统将在此发生永久等待！
+  *          常规工程通信中，推荐使用 HAL_UART_Receive_IT() 或 HAL_UARTEx_ReceiveToIdle_DMA()。
+  * @retval HAL 状态（HAL_OK, HAL_TIMEOUT, HAL_ERROR）
+  */
 HAL_StatusTypeDef HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, const uint8_t *pData, uint16_t Size);
+
+/**
+  * @brief  以中断非阻塞模式接收指定长度的数据
+  * @param  huart: 指向包含指定 UART 模块配置信息的 UART_HandleTypeDef 结构体指针
+  * @param  pData: 指向接收数据缓冲区的指针
+  * @param  Size:  期望接收的字节数据量
+  * @note   当接收到指定 Size 个字节后，HAL 库会自动回调用户编写的 HAL_UART_RxCpltCallback()。
+  * @warning 【单次触发与重挂陷阱 / 必看避坑】
+  *          1. 【单次生效特性】：本函数仅触发一次接收过程，收满 Size 个字节后硬件中断自动关闭！
+  *             若需实现连续持续接收，【必须在 HAL_UART_RxCpltCallback() 回调函数末尾重新调用本函数】。
+  *          2. 【HAL_BUSY 状态】：若上一次接收仍在进行中再次调用本函数，函数将直接返回 HAL_BUSY 且拒绝配置。
+  *             请务必检查函数返回值，切勿忽略！
+  *          3. 【ORE 过载错误锁死】：若主程序长时间阻塞未及时响应串口中断，硬件将置位 ORE (Overrun) 错误标志，
+  *             进而导致后续所有接收中断被硬件锁定！必须在 HAL_UART_ErrorCallback() 中调用
+  *             __HAL_UART_CLEAR_OREFLAG(huart) 清除错误标志才能恢复接收。
+  *          4. 【跨中断共享变量】：回调函数中修改的全局变量与标志位，在主循环中访问时必须声明为 volatile！
+  * @retval HAL 状态（HAL_OK / HAL_BUSY / HAL_ERROR）
+  */
 HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
+
 HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, const uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart);
@@ -755,6 +901,20 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint16_t *RxLen,
                                            uint32_t Timeout);
 HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle_IT(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
+
+/**
+  * @brief  以 DMA 模式启动不定长串口数据帧接收（空闲中断 IDLE 或缓冲区半满/全满触发）
+  * @param  huart: 指向包含指定 UART 模块配置信息的 UART_HandleTypeDef 结构体指针
+  * @param  pData: 指向接收数据缓冲区的指针
+  * @param  Size:  DMA 接收缓冲区的最大容量
+  * @note   【强烈推荐的不定长数据接收方案】
+  *         当收到完整一帧数据且总线进入空闲（IDLE）状态，或 DMA 缓冲区已满时，硬件自动触发接收事件，
+  *         并回调用户编写的 HAL_UARTEx_RxEventCallback(huart, Size)，其中传入的 Size 即为当前帧实际接收到的字节数！
+  * @warning 【缓冲区生命周期与重挂避坑】
+  *          1. pData 指向的内存缓冲区必须具有持久的生命周期（全局变量或 static 变量），【严禁传入局部栈变量】！
+  *          2. 在 HAL_UARTEx_RxEventCallback() 回调中处理完数据后，必须再次调用本函数重新挂起 DMA 接收下一帧。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_UARTEx_ReceiveToIdle_DMA(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size);
 
 HAL_UART_RxEventTypeTypeDef HAL_UARTEx_GetRxEventType(UART_HandleTypeDef *huart);
@@ -770,6 +930,28 @@ HAL_StatusTypeDef HAL_UART_AbortReceive_IT(UART_HandleTypeDef *huart);
 void HAL_UART_IRQHandler(UART_HandleTypeDef *huart);
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart);
+
+/**
+  * @brief  串口中断接收完成弱定义回调函数
+  * @param  huart: 触发当前接收完成事件的 UART 句柄指针
+  * @note   【连续接收标准实战模板】
+  *         单字节接收与环形缓冲区分发标准写法：
+  *         @code
+  *         uint8_t rx_byte;
+  *         // main() 初始化完毕后启动首次监听：
+  *         HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
+  *
+  *         // 每次接收到一个字节即进此回调：
+  *         void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+  *             if (huart->Instance == USART1) {
+  *                 RingBuffer_Write(rx_byte); // 写入缓冲区或解析数据
+  *                 HAL_UART_Receive_IT(&huart1, &rx_byte, 1); // 必须！重新挂起下一次接收
+  *             }
+  *         }
+  *         @endcode
+  * @warning 严禁在此回调中执行耗时操作或调用阻塞型发送/延时函数。
+  * @retval None
+  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart);

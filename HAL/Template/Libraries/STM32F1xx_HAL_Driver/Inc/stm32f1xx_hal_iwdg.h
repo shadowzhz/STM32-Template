@@ -124,6 +124,19 @@ typedef struct
   * @{
   */
 /* Initialization/Start functions  ********************************************/
+
+/**
+  * @brief  初始化独立看门狗（IWDG）并立即启动硬件计数
+  * @param  hiwdg: IWDG 句柄指针
+  * @note   【超时时间估算公式】
+  *         IWDG 由芯片内部专用的低速 RC 振荡器（LSI，标称 40kHz，实际约 30~60kHz）独立供电驱动：
+  *         溢出超时时间：Tout = (4 * 2^PR * (Reload + 1)) / 40000 秒
+  *         例如：Prescaler = IWDG_PRESCALER_64, Reload = 624 对应超时时间约为 1.0 秒。
+  * @warning 【不可逆启动警告】
+  *          在 STM32 硬件设计中，独立看门狗一旦被初始化启动，【在本次上电运行期间任何软件指令都无法将其关闭】！
+  *          系统必须定期调用 HAL_IWDG_Refresh() 喂狗，否则看门狗计数归零将触发全片硬件复位。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef     HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg);
 /**
   * @}
@@ -133,6 +146,14 @@ HAL_StatusTypeDef     HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg);
   * @{
   */
 /* I/O operation functions ****************************************************/
+
+/**
+  * @brief  刷新/重载独立看门狗计数器（即常说的“喂狗”）
+  * @param  hiwdg: IWDG 句柄指针
+  * @note   向 IWDG_KR 寄存器写入键值 0xAAAA，使计数器重新装载初始设定值，防止芯片复位。
+  * @warning 喂狗操作应置于主循环最外层或核心健康监控任务中，严禁在定时器中断中机械喂狗（否则主循环卡死也无法检测）。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef     HAL_IWDG_Refresh(IWDG_HandleTypeDef *hiwdg);
 /**
   * @}

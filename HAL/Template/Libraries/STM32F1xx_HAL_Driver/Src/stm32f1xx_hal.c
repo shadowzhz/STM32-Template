@@ -328,9 +328,14 @@ HAL_TickFreqTypeDef HAL_GetTickFreq(void)
 }
 
 /**
-  * @brief 根据递增的变量提供最小延迟（以毫秒为单位）
-  * @note  在默认实现中，SysTick定时器是时间基准的来源。它用于在固定时间间隔内生成中断，从而递增uwTick。
-  * @note  此函数被声明为__weak，在用户文件中有其他实现时可以被覆盖。
+  * @brief 提供毫秒级阻塞延时
+  * @note  在默认实现中，SysTick 定时器是时间基准来源，以固定 1ms 间隔触发中断并递增全局变量 uwTick。
+  * @note  此函数被声明为 __weak，可在需要高精度时钟源或 RTOS 调度时在用户文件中重写覆盖。
+  * @warning 【死锁陷阱 / 必看避坑】
+  *          SysTick 的中断优先级由 TICK_INT_PRIORITY（本工程模板中固定设为 15，即最低优先级）决定。
+  *          【严禁】在任何中断服务函数（ISR）或优先级高于/等于 SysTick 的中断回调中直接调用 HAL_Delay()！
+  *          否则高优先级中断会阻断 SysTick 中断的执行，导致 uwTick 永远不会递增，MCU 将在此陷入永久死锁！
+  *          中断内部如需延时，请采用非阻塞状态机、记录 HAL_GetTick() 差值，或使用 DWT / 定时器微秒忙等待。
   * @param Delay 指定延迟时间长度，单位为毫秒。
   * @retval None
   */

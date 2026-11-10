@@ -258,10 +258,70 @@ typedef struct
   */
 /* 初始化和反初始化函数 *****************************/
 
+/**
+  * @brief  配置 NVIC 中断优先级分组（分配抢占优先级与子优先级的位宽）
+  * @param  PriorityGroup: 优先级分组方案，取值可为：
+  *         - NVIC_PRIORITYGROUP_0: 0 位抢占，4 位子优先级（无中断嵌套功能）
+  *         - NVIC_PRIORITYGROUP_1: 1 位抢占（0~1），3 位子优先级（0~7）
+  *         - NVIC_PRIORITYGROUP_2: 2 位抢占（0~3），2 位子优先级（0~3）
+  *         - NVIC_PRIORITYGROUP_3: 3 位抢占（0~7），1 位子优先级（0~1）
+  *         - NVIC_PRIORITYGROUP_4: 4 位抢占（0~15），0 位子优先级（全抢占模式，HAL 库默认预设）
+  * @note   【HAL 库默认配置规范】
+  *         HAL_Init() 在系统启动时已默认调用本函数配置为 NVIC_PRIORITYGROUP_4！
+  *         在此模式下，所有 4 位全部用于抢占优先级（0~15 级），无子优先级。
+  *         全局整个工程只需配置一次，切勿在各个外设初始化模块中重复随意更改分组！
+  * @retval None
+  */
 void HAL_NVIC_SetPriorityGrouping(uint32_t PriorityGroup);
+
+/**
+  * @brief  设置指定中断通道的抢占优先级与子优先级
+  * @param  IRQn: 目标中断向量号（如 USART1_IRQn, TIM2_IRQn, EXTI0_IRQn 等）
+  * @param  PreemptPriority: 抢占优先级（取值 0 ~ 15，【数值越小，优先级越高，0 为最高优先级】！）
+  * @param  SubPriority: 响应/子优先级（取值 0 ~ 15，在默认 Group 4 下无子优先级位，传 0 即可）
+  * @note   【抢占 vs 响应（子）优先级核心机制】
+  *         1. 【抢占优先级（Preemption）】：高抢占优先级中断可以打断正在执行的低抢占优先级中断（形成中断嵌套）。
+  *         2. 【响应优先级（SubPriority）】：仅在两个中断抢占优先级相同且同时到达时，裁决谁先排队执行；
+  *            一旦其中一个开始运行，另一个即使响应优先级更高也无法中途打断它！
+  * @warning 【HAL_Delay 死锁终极陷阱】
+  *          HAL 时基 SysTick 的优先级在模板中固定为 15（TICK_INT_PRIORITY，即最低优先级）。
+  *          若为某个外设中断赋予了 0~14 的高抢占优先级，则在此中断的 ISR 中【绝对严禁调用 HAL_Delay()】！
+  *          因为此时 SysTick（优先级 15）被硬件屏蔽无法嵌套递增 uwTick，系统将在此发生永久死锁！
+  * @retval None
+  */
 void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t SubPriority);
+
+/**
+  * @brief  使能 NVIC 中断控制器中的指定中断通道
+  * @param  IRQn: 目标中断向量号（如 USART1_IRQn）
+  * @note   【中断触发双重开关法则】
+  *         STM32 的外设中断必须两道开关全部打开才能生效：
+  *         1. 外设自身的中断控制位使能（如 USART 的 RXNEIE、TIM 的 UIE）。
+  *         2. 内核 NVIC 中断通道使能（即调用本函数 HAL_NVIC_EnableIRQ）。
+  * @retval None
+  */
 void HAL_NVIC_EnableIRQ(IRQn_Type IRQn);
+
+/**
+  * @brief  关闭/禁止 NVIC 中断控制器中的指定中断通道
+  * @param  IRQn: 目标中断向量号
+  * @retval None
+  */
 void HAL_NVIC_DisableIRQ(IRQn_Type IRQn);
+
+/**
+  * @brief  发起系统软件复位请求（一键软件重启单片机）
+  * @note   【软件重启核心机制】
+  *         通过向 ARM 内核 AIRCR 寄存器写入 SYSRESETREQ 请求触发全局硬件复位：
+  *         - CPU 内核与所有片上外设（GPIO/TIM/USART/ADC等）全部复位恢复初始态。
+  *         - 程序计数器 PC 跳回 0x08000000 处的 Reset_Handler 从头开始重新引导。
+  *         - 备份域（BKP 备份寄存器与 RTC 走时计数器）在保持供电时数据不会丢失。
+  * @warning 【实战应用场景】
+  *          1. 固件在线升级（IAP）：新固件写入 Flash 后，调用本函数让芯片全新重启运行新固件。
+  *          2. 致命错误自愈：遇到严重硬件异常、通信超时崩溃时，主动软件复位恢复系统运行。
+  *          3. 调用前若有正在发送的串口数据或未完成的 Flash 写入，建议先等待传输完成。
+  * @retval None
+  */
 void HAL_NVIC_SystemReset(void);
 uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb);
 /**

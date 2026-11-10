@@ -277,10 +277,30 @@ extern HAL_TickFreqTypeDef uwTickFreq;
   */
 /* 初始化和反初始化函数  ******************************/
 
+/**
+  * @brief  初始化 HAL 库；该函数必须在 main() 函数开头最先被调用
+  * @note   主要执行以下底层配置：
+  *         1. 使能 Flash 预取缓冲区（若芯片支持）。
+  *         2. 配置 NVIC 优先级分组为 Group 4（4位抢占优先级，0位响应优先级）。
+  *         3. 初始化 SysTick 时基定时器为 1ms 中断（此时主频仍为复位默认的 HSI 8MHz）。
+  *         4. 调用弱定义的 HAL_MspInit() 进行用户级全局硬件底层初始化。
+  * @warning 【调用顺序铁律】
+  *          必须最先调用！切勿在调用本函数之前配置系统时钟（SystemClock_Config）或初始化任何外设。
+  * @retval HAL 状态（HAL_OK / HAL_ERROR）
+  */
 HAL_StatusTypeDef HAL_Init(void);
+
 HAL_StatusTypeDef HAL_DeInit(void);
 void HAL_MspInit(void);
 void HAL_MspDeInit(void);
+
+/**
+  * @brief  初始化 SysTick 滴答时基源
+  * @param  TickPriority: SysTick 中断优先级（取值范围 0~15）
+  * @note   配置 SysTick 定时器以 1ms 的固定周期触发中断，递增全局计数器 uwTick。
+  *         在 HAL_Init() 及 HAL_RCC_ClockConfig() 更新系统主频后会自动调用此函数重新计算重装载值。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority);
 /**
   * @}
@@ -292,8 +312,33 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority);
 /* 外设控制函数  ************************************************/
 
 void HAL_IncTick(void);
+
+/**
+  * @brief  毫秒级阻塞延时函数
+  * @param  Delay: 延时时长（单位：毫秒）
+  * @note   延时基准基于 SysTick 中断每 1ms 递增的全局变量 uwTick。
+  * @warning 【死锁陷阱 / 必看避坑】
+  *          SysTick 中断优先级由 TICK_INT_PRIORITY（工程模板中固定设为 15，即最低优先级）决定。
+  *          【严禁】在任何中断服务函数（ISR）或优先级高于/等于 SysTick 的中断回调中直接调用 HAL_Delay()！
+  *          否则高优先级中断会阻断 SysTick 中断的执行，导致 uwTick 永远不会递增，MCU 将陷入永久死锁！
+  *          中断内部如需计时，请采用非阻塞状态机、记录 HAL_GetTick() 差值，或使用 DWT / 定时器忙等待。
+  * @retval None
+  */
 void HAL_Delay(uint32_t Delay);
+
+/**
+  * @brief  获取自系统启动以来的毫秒级 Tick 计数
+  * @note   uwTick 为 32 位无符号整型（uint32_t），每 1ms 递增 1。
+  *         连续运行约 49.7 天后计数器会溢出回绕至 0。
+  *         判断非阻塞超时请统一使用无符号相减形式：
+  *         @code
+  *         if ((HAL_GetTick() - tickstart) >= TIMEOUT_MS) { ... }
+  *         @endcode
+  *         利用 C 语言无符号数溢出特性，此写法在 uwTick 溢出前后均能保证计算结果完全正确！
+  * @retval 当前已流逝的毫秒数 (uwTick)
+  */
 uint32_t HAL_GetTick(void);
+
 uint32_t HAL_GetTickPrio(void);
 HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq);
 HAL_TickFreqTypeDef HAL_GetTickFreq(void);

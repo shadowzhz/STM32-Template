@@ -158,10 +158,14 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Data_transfer_direction DMA 数据传输方向
   * @{
   */
-#define DMA_PERIPH_TO_MEMORY         0x00000000U                 /*!< 外设到存储器方向               */
-#define DMA_MEMORY_TO_PERIPH         ((uint32_t)DMA_CCR_DIR)     /*!< 存储器到外设方向               */
-#define DMA_MEMORY_TO_MEMORY         ((uint32_t)DMA_CCR_MEM2MEM) /*!< 存储器到存储器方向             */
+/** @brief 外设到存储器方向（如串口接收 RX、ADC 采集等，外设数据搬移至内存） */
+#define DMA_PERIPH_TO_MEMORY         0x00000000U
 
+/** @brief 存储器到外设方向（如串口发送 TX、DAC 输出等，内存数据搬移至外设发送寄存器） */
+#define DMA_MEMORY_TO_PERIPH         ((uint32_t)DMA_CCR_DIR)
+
+/** @brief 存储器到存储器方向（纯内存间快速高速搬移拷贝，仅 DMA1 的部分通道支持） */
+#define DMA_MEMORY_TO_MEMORY         ((uint32_t)DMA_CCR_MEM2MEM)
 /**
   * @}
   */
@@ -169,8 +173,11 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Peripheral_incremented_mode DMA 外设地址自增模式
   * @{
   */
-#define DMA_PINC_ENABLE        ((uint32_t)DMA_CCR_PINC)  /*!< 使能外设地址自增模式             */
-#define DMA_PINC_DISABLE       0x00000000U               /*!< 禁用外设地址自增模式             */
+/** @brief 使能外设地址自增模式（极少使用，仅在访问连续外设 FIFO 或内存到内存时作为源） */
+#define DMA_PINC_ENABLE        ((uint32_t)DMA_CCR_PINC)
+
+/** @brief 禁用外设地址自增模式（常规配置，固定访问外设单一数据寄存器，如 USART_DR、ADC_DR） */
+#define DMA_PINC_DISABLE       0x00000000U
 /**
   * @}
   */
@@ -178,8 +185,11 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Memory_incremented_mode DMA 内存地址递增模式
   * @{
   */
-#define DMA_MINC_ENABLE         ((uint32_t)DMA_CCR_MINC)  /*!< 使能内存地址递增模式  */
-#define DMA_MINC_DISABLE        0x00000000U               /*!< 禁用内存地址递增模式 */
+/** @brief 使能内存地址递增模式（常规配置，每次搬移后内存指针自增，填充缓冲区数组） */
+#define DMA_MINC_ENABLE         ((uint32_t)DMA_CCR_MINC)
+
+/** @brief 禁用内存地址递增模式（固定访问单一内存变量） */
+#define DMA_MINC_DISABLE        0x00000000U
 /**
   * @}
   */
@@ -187,9 +197,14 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Peripheral_data_size DMA 外设数据宽度
   * @{
   */
-#define DMA_PDATAALIGN_BYTE          0x00000000U                  /*!< 外设数据对齐：字节     */
-#define DMA_PDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_PSIZE_0)  /*!< 外设数据对齐：半字 */
-#define DMA_PDATAALIGN_WORD          ((uint32_t)DMA_CCR_PSIZE_1)  /*!< 外设数据对齐：字     */
+/** @brief 外设数据宽度：字节（8 位，常用于 UART、8 位 SPI/I2C 数据寄存器） */
+#define DMA_PDATAALIGN_BYTE          0x00000000U
+
+/** @brief 外设数据宽度：半字（16 位，常用于 ADC 规则采样数据、16 位定时器捕获） */
+#define DMA_PDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_PSIZE_0)
+
+/** @brief 外设数据宽度：字（32 位，常用于 32 位定时器或特定高速总线） */
+#define DMA_PDATAALIGN_WORD          ((uint32_t)DMA_CCR_PSIZE_1)
 /**
   * @}
   */
@@ -197,9 +212,14 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Memory_data_size DMA 内存数据宽度
   * @{
   */
-#define DMA_MDATAALIGN_BYTE          0x00000000U                  /*!< 内存数据对齐：字节     */
-#define DMA_MDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_MSIZE_0)  /*!< 内存数据对齐：半字 */
-#define DMA_MDATAALIGN_WORD          ((uint32_t)DMA_CCR_MSIZE_1)  /*!< 内存数据对齐：字     */
+/** @brief 内存数据宽度：字节（8 位，对应 uint8_t 数组缓冲区） */
+#define DMA_MDATAALIGN_BYTE          0x00000000U
+
+/** @brief 内存数据宽度：半字（16 位，对应 uint16_t 数组缓冲区，如 ADC 多通道扫描缓存） */
+#define DMA_MDATAALIGN_HALFWORD      ((uint32_t)DMA_CCR_MSIZE_0)
+
+/** @brief 内存数据宽度：字（32 位，对应 uint32_t 数组缓冲区） */
+#define DMA_MDATAALIGN_WORD          ((uint32_t)DMA_CCR_MSIZE_1)
 /**
   * @}
   */
@@ -207,8 +227,17 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_mode DMA 模式
   * @{
   */
-#define DMA_NORMAL         0x00000000U                  /*!< 正常模式                      */
-#define DMA_CIRCULAR       ((uint32_t)DMA_CCR_CIRC)     /*!< 循环模式                      */
+/**
+  * @brief DMA 正常单次传输模式
+  * @note  传输指定字节数后 DMA 硬件自动停止；如需再次传输必须在软件中重新配置并启动。
+  */
+#define DMA_NORMAL         0x00000000U
+
+/**
+  * @brief DMA 循环缓冲传输模式
+  * @note  传输计数器减到 0 后自动重新装载初始长度并持续循环传输；常用于 ADC 连续多通道扫描、串口循环接收。
+  */
+#define DMA_CIRCULAR       ((uint32_t)DMA_CCR_CIRC)
 /**
   * @}
   */
@@ -216,10 +245,17 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Priority_level DMA 优先级
   * @{
   */
-#define DMA_PRIORITY_LOW             0x00000000U               /*!< 优先级：低                 */
-#define DMA_PRIORITY_MEDIUM          ((uint32_t)DMA_CCR_PL_0)  /*!< 优先级：中                 */
-#define DMA_PRIORITY_HIGH            ((uint32_t)DMA_CCR_PL_1)  /*!< 优先级：高                 */
-#define DMA_PRIORITY_VERY_HIGH       ((uint32_t)DMA_CCR_PL)    /*!< 优先级：非常高             */
+/** @brief DMA 通道软件仲裁优先级：低（Low） */
+#define DMA_PRIORITY_LOW             0x00000000U
+
+/** @brief DMA 通道软件仲裁优先级：中（Medium） */
+#define DMA_PRIORITY_MEDIUM          ((uint32_t)DMA_CCR_PL_0)
+
+/** @brief DMA 通道软件仲裁优先级：高（High） */
+#define DMA_PRIORITY_HIGH            ((uint32_t)DMA_CCR_PL_1)
+
+/** @brief DMA 通道软件仲裁优先级：非常高（Very High，优先响应处理） */
+#define DMA_PRIORITY_VERY_HIGH       ((uint32_t)DMA_CCR_PL)
 /**
   * @}
   */
@@ -228,8 +264,13 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_interrupt_enable_definitions DMA 中断使能定义
   * @{
   */
+/** @brief DMA 传输完成中断使能（Transfer Complete Interrupt Enable） */
 #define DMA_IT_TC                         ((uint32_t)DMA_CCR_TCIE)
+
+/** @brief DMA 半传输中断使能（Half Transfer Interrupt Enable，常用于双缓冲乒乓操作） */
 #define DMA_IT_HT                         ((uint32_t)DMA_CCR_HTIE)
+
+/** @brief DMA 传输错误中断使能（Transfer Error Interrupt Enable） */
 #define DMA_IT_TE                         ((uint32_t)DMA_CCR_TEIE)
 /**
   * @}
@@ -372,7 +413,33 @@ HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
   * @{
   */
 /* IO 操作函数 *****************************************************************/
+
+/**
+  * @brief  启动 DMA 传输（轮询阻塞模式）
+  * @param  hdma: 指向包含 DMA 通道配置信息的 DMA_HandleTypeDef 结构体指针
+  * @param  SrcAddress: 源内存/外设寄存器地址
+  * @param  DstAddress: 目的内存/外设寄存器地址
+  * @param  DataLength: 传输的数据项数量（单位为配置的数据宽度：Byte / HalfWord / Word）
+  * @warning 【缓冲区生命周期与通道映射避坑】
+  *          1. 【内存生命周期】：内存缓冲区【必须具有全局（global）或静态（static）生命周期】！
+  *             严禁传入函数栈内的局部变量指针。DMA 是独立于 CPU 的硬件控制器，函数退出后栈被复用，
+  *             DMA 将在后台读写已损坏的内存，造成极其诡异的数据破坏和 HardFault。
+  *          2. 【通道固定绑定】：STM32F1 的 DMA1/DMA2 各通道与外设请求是严格硬件固定的（如 USART1_TX 只能用 DMA1_Channel4），
+  *             不支持跨通道任意调度，配置时务必查阅《STM32F10xxx参考手册》的 DMA 请求映射表。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
+
+/**
+  * @brief  以中断非阻塞模式启动 DMA 传输
+  * @param  hdma: 指向包含 DMA 通道配置信息的 DMA_HandleTypeDef 结构体指针
+  * @param  SrcAddress: 源内存/外设寄存器地址
+  * @param  DstAddress: 目的内存/外设寄存器地址
+  * @param  DataLength: 传输的数据项数量
+  * @note   传输完成、半传输完成或发生传输错误时会触发 DMA 中断并调用注册的回调函数。
+  * @warning 内存缓冲区必须为全局或静态变量，严禁传入局部栈变量！
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma);

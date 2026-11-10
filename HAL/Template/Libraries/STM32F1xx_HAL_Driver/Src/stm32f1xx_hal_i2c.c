@@ -1047,10 +1047,14 @@ static void I2C_Flush_DR(I2C_HandleTypeDef *hi2c)
 /**
   * @brief  在主机模式下以阻塞模式发送指定量的数据。
   * @param  hi2c 指向包含指定 I2C 配置信息的 I2C_HandleTypeDef 结构的指针。
-  * @param  DevAddress 目标设备地址：在调用该接口之前，数据手册中的 7 位设备地址值必须左移一位
+  * @param  DevAddress 目标设备地址：在调用该接口之前，数据手册中的 7 位设备地址值必须左移一位（DevAddress << 1）
   * @param  pData 指向数据缓冲区的指针
   * @param  Size 要发送的数据量
-  * @param  Timeout 超时时间
+  * @param  Timeout 超时时间（毫秒，严禁传 HAL_MAX_DELAY，建议 50~100ms）
+  * @warning 【STM32F1 硬件 I2C 硅缺陷与死锁避坑】
+  *          1. STM32F1 硬件 I2C 存在已知硅 Bug，总线干扰或从机拉低总线可能导致外设锁死在 BUSY 状态。
+  *          2. 必须在 PCB 外部接 2.2kΩ~4.7kΩ 硬件上拉电阻。
+  *          3. 若超时返回 HAL_TIMEOUT / HAL_BUSY，需重新初始化 I2C 或软件翻转 SCL 释放总线。
   * @retval HAL 状态
   */
 HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)

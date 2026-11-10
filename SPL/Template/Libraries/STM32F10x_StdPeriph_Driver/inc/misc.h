@@ -46,21 +46,17 @@
 typedef struct
 {
   uint8_t NVIC_IRQChannel;                    /*!< 指定要使能或关闭的中断通道。
-                                                   该参数可取 @ref IRQn_Type 中的值
-                                                   （完整的 STM32 器件中断通道列表请
-                                                   参阅 stm32f10x.h 文件） */
+                                                   该参数可取 @ref IRQn_Type 中的值（如 USART1_IRQn, TIM2_IRQn） */
 
-  uint8_t NVIC_IRQChannelPreemptionPriority;  /*!< 指定 NVIC_IRQChannel 中所列中断通道的抢占优先级。
-                                                   该参数可取 0 到 15 之间的值，
-                                                   详见 @ref NVIC_Priority_Table 表格 */
+  uint8_t NVIC_IRQChannelPreemptionPriority;  /*!< 指定中断通道的抢占优先级。
+                                                   该参数可取 0 到 15 之间的值（【数值越小，优先级越高，0 为最高】）。
+                                                   高抢占优先级中断可打断正在执行的低抢占优先级中断形成中断嵌套。 */
 
-  uint8_t NVIC_IRQChannelSubPriority;         /*!< 指定 NVIC_IRQChannel 中所列中断通道的子优先级。
-                                                   该参数可取 0 到 15 之间的值，
-                                                   详见 @ref NVIC_Priority_Table 表格 */
+  uint8_t NVIC_IRQChannelSubPriority;         /*!< 指定中断通道的响应/子优先级。
+                                                   该参数可取 0 到 15 之间的值。
+                                                   仅在两个抢占优先级相同的中断同时挂起时，裁决谁先执行；无法形成中断打断。 */
 
-  FunctionalState NVIC_IRQChannelCmd;         /*!< 指定 NVIC_IRQChannel 中所定义的中断通道
-                                                   是使能还是关闭。
-                                                   该参数可设为 ENABLE 或 DISABLE */   
+  FunctionalState NVIC_IRQChannelCmd;         /*!< 指定目标中断通道是使能还是关闭（ENABLE 或 DISABLE）。 */
 } NVIC_InitTypeDef;
  
 /**
@@ -195,7 +191,27 @@ typedef struct
   * @{
   */
 
+/**
+  * @brief  配置中断优先级分组（PRIGROUP 分配抢占与响应优先级位数）
+  * @param  NVIC_PriorityGroup: 优先级分组方案，可取以下值之一：
+  *         - NVIC_PriorityGroup_0: 0 位抢占优先级，4 位响应优先级（无中断嵌套功能）
+  *         - NVIC_PriorityGroup_1: 1 位抢占优先级（0~1），3 位响应优先级（0~7）
+  *         - NVIC_PriorityGroup_2: 2 位抢占优先级（0~3），2 位响应优先级（0~3）（最常用方案，支持 4 级嵌套与 4 级响应）
+  *         - NVIC_PriorityGroup_3: 3 位抢占优先级（0~7），1 位响应优先级（0~1）
+  *         - NVIC_PriorityGroup_4: 4 位抢占优先级（0~15），0 位响应优先级（全抢占模式）
+  * @warning 【全工程只允许调用一次】
+  *          本函数通常【仅在 main() 函数开头最先调用一次】！
+  *          切勿在各个子外设驱动（如 usart.c, timer.c, key.c）中重复调用，否则后调用的模块会覆盖前面的全局分组，
+  *          导致原本算好的优先级位宽全盘错乱！
+  * @retval 无
+  */
 void NVIC_PriorityGroupConfig(uint32_t NVIC_PriorityGroup);
+
+/**
+  * @brief  根据 NVIC_InitStruct 中指定的参数初始化 NVIC 外设中断通道
+  * @param  NVIC_InitStruct: 指向包含中断通道、抢占优先级、子优先级与使能状态的 NVIC_InitTypeDef 结构体指针
+  * @retval 无
+  */
 void NVIC_Init(NVIC_InitTypeDef* NVIC_InitStruct);
 void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset);
 void NVIC_SystemLPConfig(uint8_t LowPowerMode, FunctionalState NewState);

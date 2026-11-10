@@ -639,6 +639,16 @@ typedef struct
   */
 
 /* ADC 校准 */
+
+/**
+  * @brief  启动 ADC 硬件自校准过程
+  * @param  hadc: 指向包含 ADC 模块配置信息的 ADC_HandleTypeDef 结构体指针
+  * @note   校准开始前必须确保 ADC 处于已上电且使能状态，校准过程完成后校准位由硬件自动清除。
+  * @warning 【测量准确度避坑】
+  *          在每次单片机上电复位完成 ADC 初始化之后、启动第一次 ADC 采样转换之前，【必须执行此函数进行校准】！
+  *          若不进行校准，ADC 内部电容网络制造公差会导致采样读数存在高达几十至上百 LSB 的严重固定偏移。
+  * @retval HAL 状态
+  */
 HAL_StatusTypeDef       HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc);
 
 /* 阻塞模式：轮询 */

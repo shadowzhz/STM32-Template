@@ -420,6 +420,16 @@ typedef struct
   */
 
 void ADC_DeInit(ADC_TypeDef* ADCx);
+
+/**
+  * @brief  根据 ADC_InitStruct 中指定的参数初始化 ADCx 外设
+  * @param  ADCx: ADC 外设基地址（ADC1, ADC2, ADC3）
+  * @param  ADC_InitStruct: 指向包含模式、扫描、连续转换、外部触发等参数的 ADC_InitTypeDef 结构体指针
+  * @warning 【ADCCLK 时钟上限避坑】
+  *          STM32F1 的 ADCCLK 绝对不能超过 14MHz！在 72MHz 系统主频下，必须调用
+  *          RCC_ADCCLKConfig(RCC_PCLK2_Div6) 或 Div8，严禁使用 Div2 或 Div4，否则采样严重超频失真！
+  * @retval 无
+  */
 void ADC_Init(ADC_TypeDef* ADCx, ADC_InitTypeDef* ADC_InitStruct);
 void ADC_StructInit(ADC_InitTypeDef* ADC_InitStruct);
 void ADC_Cmd(ADC_TypeDef* ADCx, FunctionalState NewState);
@@ -427,6 +437,21 @@ void ADC_DMACmd(ADC_TypeDef* ADCx, FunctionalState NewState);
 void ADC_ITConfig(ADC_TypeDef* ADCx, uint16_t ADC_IT, FunctionalState NewState);
 void ADC_ResetCalibration(ADC_TypeDef* ADCx);
 FlagStatus ADC_GetResetCalibrationStatus(ADC_TypeDef* ADCx);
+
+/**
+  * @brief  开始指定 ADC 的硬件自校准过程
+  * @param  ADCx: ADC 外设基地址
+  * @note   标准校准流程（ADC 使能后且开始转换前必做）：
+  *         @code
+  *         ADC_Cmd(ADC1, ENABLE);
+  *         ADC_ResetCalibration(ADC1);
+  *         while(ADC_GetResetCalibrationStatus(ADC1));
+  *         ADC_StartCalibration(ADC1);
+  *         while(ADC_GetCalibrationStatus(ADC1));
+  *         @endcode
+  * @warning 【校准必要性】未执行自校准会导致采样零点存在严重偏移（几毫伏至数十毫伏误差）。
+  * @retval 无
+  */
 void ADC_StartCalibration(ADC_TypeDef* ADCx);
 FlagStatus ADC_GetCalibrationStatus(ADC_TypeDef* ADCx);
 void ADC_SoftwareStartConvCmd(ADC_TypeDef* ADCx, FunctionalState NewState);

@@ -320,7 +320,26 @@ typedef struct
 /* 初始化和反初始化函数 *******************************/
 
 void HAL_PWR_DeInit(void);
+
+/**
+  * @brief  使能对备份域（RTC 和 BKP 备份寄存器）的写访问权限
+  * @note   【RTC 与 BKP 掉电保存必调】
+  *         系统复位后，为防止意外写损坏，RTC 和备份寄存器（BKP_DRx）默认处于硬件写保护状态。
+  *         若要配置 RTC 时间、修改校准值或往 BKP 备份寄存器存入参数，必须遵循三步流程：
+  *         @code
+  *         __HAL_RCC_PWR_CLK_ENABLE();   // 1. 开启电源时钟
+  *         __HAL_RCC_BKP_CLK_ENABLE();   // 2. 开启备份接口时钟
+  *         HAL_PWR_EnableBkUpAccess();   // 3. 解除备份域写保护
+  *         @endcode
+  * @warning 若未调用本函数直接向 RTC 或 BKP 寄存器写入数据，写入操作将静默被忽略！
+  * @retval None
+  */
 void HAL_PWR_EnableBkUpAccess(void);
+
+/**
+  * @brief  禁止对备份域（RTC 和 BKP 备份寄存器）的写访问权限（恢复写保护）
+  * @retval None
+  */
 void HAL_PWR_DisableBkUpAccess(void);
 
 /**

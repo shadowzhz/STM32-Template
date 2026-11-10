@@ -358,11 +358,33 @@ typedef struct
   */
 
 void USART_DeInit(USART_TypeDef* USARTx);
+/**
+  * @brief  根据 USART_InitStruct 中指定的参数初始化 USARTx 外设
+  * @param  USARTx: USART 外设基地址（USART1, USART2, USART3, UART4, UART5）
+  * @param  USART_InitStruct: 指向包含波特率、字长、停止位、校验位等信息的 USART_InitTypeDef 结构体指针
+  * @warning 【总线时钟与 GPIO 配置避坑】
+  *          1. 【时钟总线归属】：USART1 挂在 APB2 总线上（调用 RCC_APB2PeriphClockCmd）；
+  *             USART2/3/4/5 挂在 APB1 总线上（必须调用 RCC_APB1PeriphClockCmd）！开错总线会导致初始化不生效。
+  *          2. 【引脚模式】：TX 引脚必须配置为复用推挽输出（GPIO_Mode_AF_PP），RX 引脚配置为浮空输入（GPIO_Mode_IN_FLOATING）。
+  * @retval 无
+  */
 void USART_Init(USART_TypeDef* USARTx, USART_InitTypeDef* USART_InitStruct);
 void USART_StructInit(USART_InitTypeDef* USART_InitStruct);
 void USART_ClockInit(USART_TypeDef* USARTx, USART_ClockInitTypeDef* USART_ClockInitStruct);
 void USART_ClockStructInit(USART_ClockInitTypeDef* USART_ClockInitStruct);
 void USART_Cmd(USART_TypeDef* USARTx, FunctionalState NewState);
+
+/**
+  * @brief  使能或失能指定的 USART 中断
+  * @param  USARTx: USART 外设基地址
+  * @param  USART_IT: 指定要使能的中断源（如 USART_IT_RXNE、USART_IT_TXE、USART_IT_TC 等）
+  * @param  NewState: 新状态（ENABLE 或 DISABLE）
+  * @warning 【ORE 过载中断陷阱】
+  *          开启 USART_IT_RXNE 时，若接收到数据但未及时读取，硬件将产生 ORE（Overrun 溢出）错误。
+  *          在很多固件库实现中，ORE 会连带触发中断；若中断服务函数中仅检查 RXNE 而未清除 ORE，
+  *          程序将在此中断中无限死循环！清除 ORE 需依次读取 USART_SR 寄存器和 USART_DR 寄存器。
+  * @retval 无
+  */
 void USART_ITConfig(USART_TypeDef* USARTx, uint16_t USART_IT, FunctionalState NewState);
 void USART_DMACmd(USART_TypeDef* USARTx, uint16_t USART_DMAReq, FunctionalState NewState);
 void USART_SetAddress(USART_TypeDef* USARTx, uint8_t USART_Address);
@@ -371,6 +393,13 @@ void USART_ReceiverWakeUpCmd(USART_TypeDef* USARTx, FunctionalState NewState);
 void USART_LINBreakDetectLengthConfig(USART_TypeDef* USARTx, uint16_t USART_LINBreakDetectLength);
 void USART_LINCmd(USART_TypeDef* USARTx, FunctionalState NewState);
 void USART_SendData(USART_TypeDef* USARTx, uint16_t Data);
+
+/**
+  * @brief  返回 USARTx 最近接收到的数据
+  * @param  USARTx: USART 外设基地址
+  * @note   读取数据寄存器（DR）会自动清除状态寄存器（SR）中的 RXNE 标志位。
+  * @retval 接收到的数据（低 8 位或 9 位）
+  */
 uint16_t USART_ReceiveData(USART_TypeDef* USARTx);
 void USART_SendBreak(USART_TypeDef* USARTx);
 void USART_SetGuardTime(USART_TypeDef* USARTx, uint8_t USART_GuardTime);

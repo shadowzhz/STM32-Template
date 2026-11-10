@@ -88,13 +88,17 @@ typedef enum
 typedef struct
 {
   uint16_t GPIO_Pin;             /*!< 指定要配置的 GPIO 引脚。
-                                      该参数可取 @ref GPIO_pins_define 的任意值 */
+                                      该参数可取 @ref GPIO_pins_define 的任意值（或单/多引脚按位或组合）。
+                                      @warning 【特殊引脚避坑】
+                                      - PC13/PC14/PC15：由备份电源域供电，驱动电流仅约 3mA，输出速度上限 2MHz。
+                                      - PA13/PA14：默认 SWD 调试引脚，切勿配置为普通 IO，否则调试器断开！
+                                      - PA15/PB3/PB4：默认 JTAG 引脚，需作普通 IO 时必须调用 GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE) 释放。 */
 
-  GPIOSpeed_TypeDef GPIO_Speed;  /*!< 指定所选引脚的速度。
-                                      该参数可取 @ref GPIOSpeed_TypeDef 的值 */
+  GPIOSpeed_TypeDef GPIO_Speed;  /*!< 指定所选输出引脚的翻转速度 / 压摆率。
+                                      该参数可取 @ref GPIOSpeed_TypeDef 的值（2MHz, 10MHz, 50MHz）。 */
 
   GPIOMode_TypeDef GPIO_Mode;    /*!< 指定所选引脚的工作模式。
-                                      该参数可取 @ref GPIOMode_TypeDef 的值 */
+                                      该参数可取 @ref GPIOMode_TypeDef 的值。 */
 }GPIO_InitTypeDef;
 
 
@@ -191,8 +195,8 @@ typedef enum
 #define GPIO_Remap_ETH              ((uint32_t)0x00200020)  /*!< 以太网重映射（仅适用于互联型器件） */
 #define GPIO_Remap_CAN2             ((uint32_t)0x00200040)  /*!< CAN2 重映射（仅适用于互联型器件） */
 #define GPIO_Remap_SWJ_NoJTRST      ((uint32_t)0x00300100)  /*!< 使能全部 SWJ（JTAG-DP + SW-DP）但不含 JTRST */
-#define GPIO_Remap_SWJ_JTAGDisable  ((uint32_t)0x00300200)  /*!< 关闭 JTAG-DP 并使能 SW-DP */
-#define GPIO_Remap_SWJ_Disable      ((uint32_t)0x00300400)  /*!< 关闭全部 SWJ（JTAG-DP + SW-DP） */
+#define GPIO_Remap_SWJ_JTAGDisable  ((uint32_t)0x00300200)  /*!< 关闭 JTAG-DP 并使能 SW-DP（释放 PA15、PB3、PB4 作为普通 GPIO，保留 SWD 烧录；调用前须使能 AFIO 时钟） */
+#define GPIO_Remap_SWJ_Disable      ((uint32_t)0x00300400)  /*!< 【极度危险】关闭全部 SWJ（JTAG-DP + SW-DP），将彻底锁死 SWD 烧录接口导致调试器断开无法连接，非绝对必要切勿使用！ */
 #define GPIO_Remap_SPI3             ((uint32_t)0x00201100)  /*!< SPI3/I2S3 复用功能映射（仅适用于互联型器件） */
 #define GPIO_Remap_TIM2ITR1_PTP_SOF ((uint32_t)0x00202000)  /*!< 以太网 PTP 输出或 USB OTG SOF（帧起始）连接到
                                                                  TIM2 内部触发 1 用于校准
@@ -345,6 +349,13 @@ typedef enum
 
 void GPIO_DeInit(GPIO_TypeDef* GPIOx);
 void GPIO_AFIODeInit(void);
+/**
+  * @brief  根据 GPIO_InitStruct 中指定的参数初始化 GPIOx 外设
+  * @param  GPIOx: GPIO 端口基地址指针，x 可以是 (A..G)
+  * @param  GPIO_InitStruct: 指向包含目标引脚配置信息的 GPIO_InitTypeDef 结构体指针
+  * @warning 【外设时钟先决条件】调用本函数前必须先调用 RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOx, ENABLE) 使能对应时钟，否则配置静默失效！
+  * @retval 无
+  */
 void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct);
 void GPIO_StructInit(GPIO_InitTypeDef* GPIO_InitStruct);
 uint8_t GPIO_ReadInputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
@@ -358,6 +369,14 @@ void GPIO_Write(GPIO_TypeDef* GPIOx, uint16_t PortVal);
 void GPIO_PinLockConfig(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 void GPIO_EventOutputConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_EventOutputCmd(FunctionalState NewState);
+
+/**
+  * @brief  改变指定引脚的复用映射功能
+  * @param  GPIO_Remap: 待选择的重映射参数（例如 GPIO_Remap_SWJ_JTAGDisable、GPIO_Remap_USART1 等）
+  * @param  NewState: 新状态（ENABLE 或 DISABLE）
+  * @warning 【AFIO 时钟先决条件】调用本函数前必须先调用 RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE) 开启 AFIO 时钟，否则重映射不生效！
+  * @retval 无
+  */
 void GPIO_PinRemapConfig(uint32_t GPIO_Remap, FunctionalState NewState);
 void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
