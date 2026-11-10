@@ -46,39 +46,52 @@
 
 typedef struct
 {
-  uint32_t DMA_PeripheralBaseAddr; /*!< 指定 DMAy 通道 x 的外设基地址。 */
+  uint32_t DMA_PeripheralBaseAddr; /*!< 指定 DMA 通道关联的外设数据寄存器基地址（如 (uint32_t)&USART1->DR 或 (uint32_t)&ADC1->DR）。 */
 
-  uint32_t DMA_MemoryBaseAddr;     /*!< 指定 DMAy 通道 x 的存储器基地址。 */
+  uint32_t DMA_MemoryBaseAddr;     /*!< 指定 DMA 通道关联的内部 SRAM 存储器缓冲区首地址（如 (uint32_t)rx_buffer）。
+                                        @warning 存储区数组的生命周期必须在传输期间持续有效！严禁传入局部临时变量指针，
+                                                 必须定义为全局变量或 static 变量，否则函数退出后栈内存被覆盖将导致数据严重损毁！ */
 
-  uint32_t DMA_DIR;                /*!< 指定外设是源还是目标。
-                                        该参数可以是 @ref DMA_data_transfer_direction 的值 */
+  uint32_t DMA_DIR;                /*!< 指定数据传输方向（外设作为源还是目标）：
+                                        - DMA_DIR_PeripheralDST: 内存 -> 外设（如串口发送 TX）
+                                        - DMA_DIR_PeripheralSRC: 外设 -> 内存（如串口接收 RX、ADC 采集） */
 
-  uint32_t DMA_BufferSize;         /*!< 指定所选通道的缓冲区大小（以数据单元为单位）。
-                                        该数据单元等于 DMA_PeripheralDataSize
-                                        或 DMA_MemoryDataSize 成员中配置的值，取决于传输方向。 */
+  uint32_t DMA_BufferSize;         /*!< 指定所选通道单次传输的数据单元数目（0 ~ 65535）。
+                                        数据单元宽度由 DMA_PeripheralDataSize 与 DMA_MemoryDataSize 共同决定。 */
 
-  uint32_t DMA_PeripheralInc;      /*!< 指定外设地址寄存器是否递增。
-                                        该参数可以是 @ref DMA_peripheral_incremented_mode 的值 */
+  uint32_t DMA_PeripheralInc;      /*!< 指定外设地址寄存器在每次传输后是否自增：
+                                        - DMA_PeripheralInc_Disable: 外设地址固定（最常用，固定读写单个 DR 寄存器）
+                                        - DMA_PeripheralInc_Enable : 外设地址自增（仅在内存到内存拷贝或连续 FIFO 时使用） */
 
-  uint32_t DMA_MemoryInc;          /*!< 指定存储器地址寄存器是否递增。
-                                        该参数可以是 @ref DMA_memory_incremented_mode 的值 */
+  uint32_t DMA_MemoryInc;          /*!< 指定内部存储器地址在每次传输后是否自增：
+                                        - DMA_MemoryInc_Enable : 内存地址递增（最常用，顺序填充数组缓冲区）
+                                        - DMA_MemoryInc_Disable: 内存地址固定（固定写入单一全局变量） */
 
-  uint32_t DMA_PeripheralDataSize; /*!< 指定外设数据宽度。
-                                        该参数可以是 @ref DMA_peripheral_data_size 的值 */
+  uint32_t DMA_PeripheralDataSize; /*!< 指定外设数据传输宽度：
+                                        - DMA_PeripheralDataSize_Byte    : 8 位（字节，串口、I2C、8 位 SPI 寄存器）
+                                        - DMA_PeripheralDataSize_HalfWord: 16 位（半字，ADC 转换结果、16 位定时器）
+                                        - DMA_PeripheralDataSize_Word    : 32 位（字，32 位定时器或特定总线） */
 
-  uint32_t DMA_MemoryDataSize;     /*!< 指定存储器数据宽度。
-                                        该参数可以是 @ref DMA_memory_data_size 的值 */
+  uint32_t DMA_MemoryDataSize;     /*!< 指定内存数据传输宽度：
+                                        - DMA_MemoryDataSize_Byte    : 8 位（uint8_t 数组）
+                                        - DMA_MemoryDataSize_HalfWord: 16 位（uint16_t 数组，如 ADC 采样缓存）
+                                        - DMA_MemoryDataSize_Word    : 32 位（uint32_t 数组） */
 
-  uint32_t DMA_Mode;               /*!< 指定 DMAy 通道 x 的工作模式。
-                                        该参数可以是 @ref DMA_circular_normal_mode 的值。
-                                        @note: 若所选通道配置了存储器到存储器的
-                                              数据传输，则不能使用循环缓冲模式 */
+  uint32_t DMA_Mode;               /*!< 指定 DMA 通道的工作模式：
+                                        - DMA_Mode_Normal  : 正常单次模式（计数器递减到 0 后自动停止）
+                                        - DMA_Mode_Circular: 循环缓冲模式（计数器到 0 后自动重装初值循环传输，常用于 ADC 多通道连续采集）
+                                        @note 在存储器到存储器模式下不能使用循环缓冲模式。 */
 
-  uint32_t DMA_Priority;           /*!< 指定 DMAy 通道 x 的软件优先级。
-                                        该参数可以是 @ref DMA_priority_level 的值 */
+  uint32_t DMA_Priority;           /*!< 指定 DMA 通道的软件仲裁优先级：
+                                        - DMA_Priority_VeryHigh（最高）
+                                        - DMA_Priority_High
+                                        - DMA_Priority_Medium
+                                        - DMA_Priority_Low（最低）
+                                        @note 软件优先级相同时，硬件通道号越小优先级越高（通道 1 高于通道 2）。 */
 
-  uint32_t DMA_M2M;                /*!< 指定 DMAy 通道 x 是否用于存储器到存储器传输。
-                                        该参数可以是 @ref DMA_memory_to_memory 的值 */
+  uint32_t DMA_M2M;                /*!< 指定是否启用纯存储器到存储器（SRAM -> SRAM）高速拷贝传输：
+                                        - DMA_M2M_Disable: 禁用 M2M（由外设硬件请求信号触发传输，最常用）
+                                        - DMA_M2M_Enable : 启用 M2M（使能后软件立即全速触发传输，仅 DMA1 部分通道支持） */
 }DMA_InitTypeDef;
 
 /**
@@ -405,12 +418,65 @@ typedef struct
   */
 
 void DMA_DeInit(DMA_Channel_TypeDef* DMAy_Channelx);
+
+/**
+  * @brief  根据 DMA_InitStruct 中的指定参数初始化指定的 DMA 通道
+  * @param  DMAy_Channelx: 目标 DMA 通道（例如 DMA1_Channel1、DMA1_Channel4 等）
+  * @param  DMA_InitStruct: 指向包含配置参数的 DMA_InitTypeDef 结构体指针
+  * @warning 【外设时钟先决条件】
+  *          在调用本函数之前，【必须先开启 DMA 的 AHB 外设时钟】！
+  *          例如：RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+  *          若时钟未使能，访问 DMA 寄存器将静默失败，DMA 完全无法启动！
+  * @warning 【硬件通道映射约束】
+  *          STM32F1 的每个 DMA 通道绑定的硬件外设是固定的（查阅《参考手册》DMA 请求映射表）：
+  *          - ADC1 规则通道固定使用 DMA1_Channel1；
+  *          - SPI1_RX/TX 固定使用 DMA1_Channel2/3；
+  *          - USART1_TX/RX 固定使用 DMA1_Channel4/5；
+  *          切勿配置错误的通道号，否则外设产生数据请求时 DMA 将无法响应。
+  * @retval None
+  */
 void DMA_Init(DMA_Channel_TypeDef* DMAy_Channelx, DMA_InitTypeDef* DMA_InitStruct);
+
 void DMA_StructInit(DMA_InitTypeDef* DMA_InitStruct);
+
+/**
+  * @brief  使能或失能指定的 DMA 通道
+  * @param  DMAy_Channelx: 目标 DMA 通道（例如 DMA1_Channel4）
+  * @param  NewState: 新状态（ENABLE 或 DISABLE）
+  * @note   只有使能通道后，DMA 才能响应外设或内存的传输请求。
+  * @retval None
+  */
 void DMA_Cmd(DMA_Channel_TypeDef* DMAy_Channelx, FunctionalState NewState);
+
 void DMA_ITConfig(DMA_Channel_TypeDef* DMAy_Channelx, uint32_t DMA_IT, FunctionalState NewState);
-void DMA_SetCurrDataCounter(DMA_Channel_TypeDef* DMAy_Channelx, uint16_t DataNumber); 
+
+/**
+  * @brief  设置指定 DMA 通道的当前剩余传输数据单元数（重载 CNDTR 寄存器）
+  * @param  DMAy_Channelx: 目标 DMA 通道（例如 DMA1_Channel4）
+  * @param  DataNumber: 待传输的数据单元数（0 ~ 65535）
+  * @warning 【运行中动态修改重载长度死穴 / 避坑警告】
+  *          STM32 硬件规定：【仅在 DMA 通道处于禁用（DISABLE）状态时，CNDTR 寄存器才允许被写入】！
+  *          若在 DMA_Cmd(..., ENABLE) 运行期间直接调用本函数，硬件将【静默丢弃写入】，长度绝不会更新！
+  *          标准动态重装长度的标准三步操作时序：
+  *          @code
+  *          DMA_Cmd(DMA1_Channel4, DISABLE);                      // 1. 先关闭通道
+  *          DMA_SetCurrDataCounter(DMA1_Channel4, new_length);    // 2. 写入新传输长度
+  *          DMA_Cmd(DMA1_Channel4, ENABLE);                       // 3. 重新使能通道开始传输
+  *          @endcode
+  * @retval None
+  */
+void DMA_SetCurrDataCounter(DMA_Channel_TypeDef* DMAy_Channelx, uint16_t DataNumber);
+
+/**
+  * @brief  获取指定 DMA 通道当前剩余未传输的数据单元数（读取 CNDTR 寄存器）
+  * @param  DMAy_Channelx: 目标 DMA 通道（例如 DMA1_Channel5）
+  * @note   【串口不定长接收计算实际接收字节数】
+  *         若总缓冲大小为 BUF_SIZE，在总线产生空闲中断（IDLE）时：
+  *         实际接收字节数 = BUF_SIZE - DMA_GetCurrDataCounter(DMA1_Channel5);
+  * @retval 当前通道剩余未完成的数据单元数
+  */
 uint16_t DMA_GetCurrDataCounter(DMA_Channel_TypeDef* DMAy_Channelx);
+
 FlagStatus DMA_GetFlagStatus(uint32_t DMAy_FLAG);
 void DMA_ClearFlag(uint32_t DMAy_FLAG);
 ITStatus DMA_GetITStatus(uint32_t DMAy_IT);

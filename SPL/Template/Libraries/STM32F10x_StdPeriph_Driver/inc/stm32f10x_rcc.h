@@ -685,9 +685,60 @@ void RCC_LSEConfig(uint8_t RCC_LSE);
 void RCC_LSICmd(FunctionalState NewState);
 void RCC_RTCCLKConfig(uint32_t RCC_RTCCLKSource);
 void RCC_RTCCLKCmd(FunctionalState NewState);
+/**
+  * @brief  获取当前系统的各级主干时钟频率（SYSCLK、HCLK、PCLK1、PCLK2、ADCCLK）
+  * @param  RCC_Clocks: 指向存储时钟频率结果的 RCC_ClocksTypeDef 结构体指针
+  * @note   该函数根据寄存器配置实时反算当前理论时钟，常用于调试验证 PLL 配置是否符合 72MHz 预期。
+  * @retval None
+  */
 void RCC_GetClocksFreq(RCC_ClocksTypeDef* RCC_Clocks);
+
+/**
+  * @brief  使能或失能 AHB 高速总线上的外设时钟
+  * @param  RCC_AHBPeriph: 目标 AHB 外设掩码（支持 | 或运算同时开启多个）：
+  *                        - RCC_AHBPeriph_DMA1 / RCC_AHBPeriph_DMA2 : DMA 控制器时钟
+  *                        - RCC_AHBPeriph_SRAM                      : SRAM 接口时钟
+  *                        - RCC_AHBPeriph_FLITF                     : Flash 接口时钟
+  *                        - RCC_AHBPeriph_CRC                       : 硬件 CRC 单元时钟
+  * @param  NewState: 新状态（ENABLE 或 DISABLE）
+  * @warning 【外设配置铁律】
+  *          在初始化任何 DMA 通道前，【必须先调用本函数使能 DMA 时钟】！否则 DMA 寄存器写入将被硬件直接忽略！
+  * @retval None
+  */
 void RCC_AHBPeriphClockCmd(uint32_t RCC_AHBPeriph, FunctionalState NewState);
+
+/**
+  * @brief  使能或失能 APB2 高速外设总线上的外设时钟（APB2 最高频率 72MHz）
+  * @param  RCC_APB2Periph: 目标 APB2 外设掩码（支持 | 或运算同时开启多个）：
+  *                         - RCC_APB2Periph_GPIOA / B / C / D / E : GPIO 端口时钟
+  *                         - RCC_APB2Periph_AFIO                  : 端口复用与重映射时钟（EXTI、引脚重映射必开）
+  *                         - RCC_APB2Periph_USART1                : 串口 1 时钟
+  *                         - RCC_APB2Periph_SPI1                  : 高速 SPI 1 时钟
+  *                         - RCC_APB2Periph_ADC1 / ADC2           : ADC 模数转换器时钟
+  *                         - RCC_APB2Periph_TIM1                  : 高级定时器 1 时钟
+  * @param  NewState: 新状态（ENABLE 或 DISABLE）
+  * @warning 【STM32 最经典踩坑点：时钟先决条件】
+  *          STM32 所有外设上电后默认【时钟完全处于关闭状态】以降低功耗。
+  *          在调用对应外设的初始化函数（如 GPIO_Init、USART_Init、ADC_Init 等）之前，
+  *          【必须首先调用本函数使能对应的外设时钟】！
+  *          若时钟未开直接写寄存器，读写操作完全无效，MCU 不会报错 HardFault，外设将彻底不工作！
+  * @retval None
+  */
 void RCC_APB2PeriphClockCmd(uint32_t RCC_APB2Periph, FunctionalState NewState);
+
+/**
+  * @brief  使能或失能 APB1 低速外设总线上的外设时钟（APB1 最高频率 36MHz）
+  * @param  RCC_APB1Periph: 目标 APB1 外设掩码（支持 | 或运算同时开启多个）：
+  *                         - RCC_APB1Periph_TIM2 / 3 / 4          : 通用定时器 2/3/4 时钟
+  *                         - RCC_APB1Periph_USART2 / 3 / UART4 / 5: 串口 2/3/4/5 时钟
+  *                         - RCC_APB1Periph_SPI2 / 3              : SPI 2/3 时钟
+  *                         - RCC_APB1Periph_I2C1 / 2              : I2C 1/2 时钟
+  *                         - RCC_APB1Periph_CAN1                  : CAN 总线控制器时钟
+  *                         - RCC_APB1Periph_PWR / BKP             : 电源控制与备份域接口时钟（RTC/BKP 操作必开）
+  * @param  NewState: 新状态（ENABLE 或 DISABLE）
+  * @warning 操作 I2C、通用定时器或访问备份域前，必须先使能对应的 APB1 时钟。
+  * @retval None
+  */
 void RCC_APB1PeriphClockCmd(uint32_t RCC_APB1Periph, FunctionalState NewState);
 
 #ifdef STM32F10X_CL

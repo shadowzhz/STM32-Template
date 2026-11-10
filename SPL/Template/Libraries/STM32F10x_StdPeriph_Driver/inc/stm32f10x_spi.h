@@ -48,35 +48,42 @@
 
 typedef struct
 {
-  uint16_t SPI_Direction;           /*!< 指定 SPI 单向或双向数据模式。
-                                         该参数可取 @ref SPI_data_direction 的值 */
+  uint16_t SPI_Direction;           /*!< 指定 SPI 单向或双向全双工数据传输模式：
+                                         - SPI_Direction_2Lines_FullDuplex: 双线全双工（最常用标准 SPI 模式，MOSI+MISO 独立）
+                                         - SPI_Direction_2Lines_RxOnly    : 双线单向只收模式
+                                         - SPI_Direction_1Line_Rx / Tx    : 单线半双工分时复用模式 */
 
-  uint16_t SPI_Mode;                /*!< 指定 SPI 工作模式。
-                                         该参数可取 @ref SPI_mode 的值 */
+  uint16_t SPI_Mode;                /*!< 指定 SPI 工作模式（主设备还是从设备）：
+                                         - SPI_Mode_Master: 主机模式（MCU 自主产生 SCK 时钟驱动外设）
+                                         - SPI_Mode_Slave : 从机模式（由外部主控制器提供 SCK 与片选） */
 
-  uint16_t SPI_DataSize;            /*!< 指定 SPI 数据大小。
-                                         该参数可取 @ref SPI_data_size 的值 */
+  uint16_t SPI_DataSize;            /*!< 指定 SPI 数据帧宽度：
+                                         - SPI_DataSize_8b : 8 位数据帧（绝大多数传感器、Flash、OLED 屏幕标准）
+                                         - SPI_DataSize_16b: 16 位数据帧 */
 
-  uint16_t SPI_CPOL;                /*!< 指定串行时钟的稳态。
-                                         该参数可取 @ref SPI_Clock_Polarity 的值 */
+  uint16_t SPI_CPOL;                /*!< 指定串行时钟 SCK 在空闲状态下的电平极性：
+                                         - SPI_CPOL_Low : SCK 空闲时保持低电平（0V）
+                                         - SPI_CPOL_High: SCK 空闲时保持高电平（3.3V） */
 
-  uint16_t SPI_CPHA;                /*!< 指定位采样所使用的时钟有效边沿。
-                                         该参数可取 @ref SPI_Clock_Phase 的值 */
+  uint16_t SPI_CPHA;                /*!< 指定位采样所使用的时钟跳变沿相位：
+                                         - SPI_CPHA_1Edge: 在 SCK 的第 1 个边沿（奇数沿）采样数据
+                                         - SPI_CPHA_2Edge: 在 SCK 的第 2 个边沿（偶数沿）采样数据 */
 
-  uint16_t SPI_NSS;                 /*!< 指定 NSS 信号由硬件（NSS 引脚）管理还是
-                                         由软件通过 SSI 位管理。
-                                         该参数可取 @ref SPI_Slave_Select_management 的值 */
- 
-  uint16_t SPI_BaudRatePrescaler;   /*!< 指定波特率预分频值，该值将用于配置
-                                         发送和接收 SCK 时钟。
-                                         该参数可取 @ref SPI_BaudRate_Prescaler 的值。
-                                         @note 通信时钟由主时钟分频得到。
-                                               从时钟无需设置。 */
+  uint16_t SPI_NSS;                 /*!< 指定 NSS 片选信号的管理模式：
+                                         - SPI_NSS_Soft: 软件控制 NSS（强烈推荐，使用标准 GPIO 引脚手动拉低拉高 CS，最稳定可靠且支持挂载多从机）
+                                         - SPI_NSS_Hard: 硬件管理 NSS */
 
-  uint16_t SPI_FirstBit;            /*!< 指定数据传输从 MSB 位还是 LSB 位开始。
-                                         该参数可取 @ref SPI_MSB_LSB_transmission 的值 */
+  uint16_t SPI_BaudRatePrescaler;   /*!< 指定波特率预分频系数（配置 SCK 输出频率）：
+                                         - SPI_BaudRatePrescaler_2 / 4 / 8 / 16 / 32 / 64 / 128 / 256
+                                         @note 【总线时钟上限差异】
+                                               - SPI1 挂载在 APB2（最大 72MHz），2 分频时 SCK 最高可达 36MHz；
+                                               - SPI2/3 挂载在 APB1（最大 36MHz），2 分频时 SCK 最高仅为 18MHz！ */
 
-  uint16_t SPI_CRCPolynomial;       /*!< 指定用于 CRC 计算的多项式。 */
+  uint16_t SPI_FirstBit;            /*!< 指定数据传输的高低位优先次序：
+                                         - SPI_FirstBit_MSB: 高位先发（绝大多数 SPI 外设标准）
+                                         - SPI_FirstBit_LSB: 低位先发 */
+
+  uint16_t SPI_CRCPolynomial;       /*!< 指定用于硬件 CRC 计算的多项式（常规配置传入 7 即可）。 */
 }SPI_InitTypeDef;
 
 /**
@@ -443,16 +450,69 @@ typedef struct
   */
 
 void SPI_I2S_DeInit(SPI_TypeDef* SPIx);
+
+/**
+  * @brief  根据 SPI_InitStruct 中指定的参数初始化目标 SPI 外设
+  * @param  SPIx: 目标 SPI 外设（SPI1、SPI2 或 SPI3）
+  * @param  SPI_InitStruct: 指向包含 SPI 配置参数的 SPI_InitTypeDef 结构体指针
+  * @warning 【先决条件与引脚复用配置】
+  *          1. 调用前必须开启对应的 APB 外设时钟（SPI1 属于 APB2，SPI2/3 属于 APB1）；
+  *          2. SCK 与 MOSI 引脚必须配置为【复用推挽输出 (GPIO_Mode_AF_PP)】；
+  *          3. MISO 引脚应配置为【浮空输入 (GPIO_Mode_IN_FLOATING)】或【上拉输入 (GPIO_Mode_IPU)】；
+  *          4. NSS/CS 片选引脚建议配置为普通推挽输出 (GPIO_Mode_Out_PP)，由软件自主控制。
+  * @retval None
+  */
 void SPI_Init(SPI_TypeDef* SPIx, SPI_InitTypeDef* SPI_InitStruct);
+
 void I2S_Init(SPI_TypeDef* SPIx, I2S_InitTypeDef* I2S_InitStruct);
 void SPI_StructInit(SPI_InitTypeDef* SPI_InitStruct);
 void I2S_StructInit(I2S_InitTypeDef* I2S_InitStruct);
+
+/**
+  * @brief  使能或关闭指定的 SPI 外设
+  * @param  SPIx: 目标 SPI 外设（SPI1..SPI3）
+  * @param  NewState: 新状态（ENABLE 或 DISABLE）
+  * @note   配置完 SPI_Init 及 GPIO 后，必须调用 SPI_Cmd(SPIx, ENABLE) 方能正常通信。
+  * @retval None
+  */
 void SPI_Cmd(SPI_TypeDef* SPIx, FunctionalState NewState);
+
 void I2S_Cmd(SPI_TypeDef* SPIx, FunctionalState NewState);
 void SPI_I2S_ITConfig(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT, FunctionalState NewState);
 void SPI_I2S_DMACmd(SPI_TypeDef* SPIx, uint16_t SPI_I2S_DMAReq, FunctionalState NewState);
+
+/**
+  * @brief  通过 SPIx 外设向发送数据寄存器写入一个数据帧（8 位或 16 位）
+  * @param  SPIx: 目标 SPI 外设（SPI1..SPI3）
+  * @param  Data: 待发送的数据
+  * @warning 【非阻塞直写危险 / 踩坑警告】
+  *          本函数仅将数据写入 SPIx->DR 寄存器，【不会阻塞等待发送完成】！
+  *          在写入数据前，【必须确保发送缓冲区为空（TXE 标志置位）】；
+  *          若连续调用两次 SendData 而未检查 TXE，前一个数据将被直接冲掉！
+  * @see    SPI_I2S_GetFlagStatus
+  * @retval None
+  */
 void SPI_I2S_SendData(SPI_TypeDef* SPIx, uint16_t Data);
+
+/**
+  * @brief  从 SPIx 外设的接收数据寄存器中读取最近接收到的数据帧
+  * @param  SPIx: 目标 SPI 外设（SPI1..SPI3）
+  * @note   【SPI“发送即接收”与哑数据驱动铁律】
+  *         SPI 是同步移位总线，主机必须向外移出数据的同时才能移入数据。
+  *         若想从 SPI 从机读取一个字节，【主机必须发送一个哑字节（通常为 0xFF）】以驱动 SCK 时钟生成！
+  *         标准阻塞读写一个字节的标准范式：
+  *         @code
+  *         uint8_t SPI_SwapByte(SPI_TypeDef* SPIx, uint8_t tx_data) {
+  *             while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET); // 等待发送缓冲空
+  *             SPI_I2S_SendData(SPIx, tx_data);                                // 发送数据
+  *             while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE) == RESET);// 等待接收缓冲非空
+  *             return (uint8_t)SPI_I2S_ReceiveData(SPIx);                       // 读取接收到的数据
+  *         }
+  *         @endcode
+  * @retval 读取到的数据
+  */
 uint16_t SPI_I2S_ReceiveData(SPI_TypeDef* SPIx);
+
 void SPI_NSSInternalSoftwareConfig(SPI_TypeDef* SPIx, uint16_t SPI_NSSInternalSoft);
 void SPI_SSOutputCmd(SPI_TypeDef* SPIx, FunctionalState NewState);
 void SPI_DataSizeConfig(SPI_TypeDef* SPIx, uint16_t SPI_DataSize);
@@ -461,6 +521,18 @@ void SPI_CalculateCRC(SPI_TypeDef* SPIx, FunctionalState NewState);
 uint16_t SPI_GetCRC(SPI_TypeDef* SPIx, uint8_t SPI_CRC);
 uint16_t SPI_GetCRCPolynomial(SPI_TypeDef* SPIx);
 void SPI_BiDirectionalLineConfig(SPI_TypeDef* SPIx, uint16_t SPI_Direction);
+
+/**
+  * @brief  检查指定的 SPI/I2S 状态标志位是否被置位
+  * @param  SPIx: 目标 SPI 外设（SPI1..SPI3）
+  * @param  SPI_I2S_FLAG: 待检查的状态标志位，可取：
+  *                       - SPI_I2S_FLAG_TXE : 发送缓冲区为空标志（为 SET 时可写入下一字节）
+  *                       - SPI_I2S_FLAG_RXNE: 接收缓冲区非空标志（为 SET 时可读取已收字节）
+  *                       - SPI_I2S_FLAG_BSY : 总线忙标志（为 RESET 时代表总线空闲，所有移位完成）
+  * @note   在拉高 CS 片选引脚结束通信之前，【强烈建议等待 SPI_I2S_FLAG_BSY 为 RESET】，
+  *         否则若最后一个字节尚未完全移出就提前拉高片选，将导致从设备接收残缺！
+  * @retval SET 或 RESET
+  */
 FlagStatus SPI_I2S_GetFlagStatus(SPI_TypeDef* SPIx, uint16_t SPI_I2S_FLAG);
 void SPI_I2S_ClearFlag(SPI_TypeDef* SPIx, uint16_t SPI_I2S_FLAG);
 ITStatus SPI_I2S_GetITStatus(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT);

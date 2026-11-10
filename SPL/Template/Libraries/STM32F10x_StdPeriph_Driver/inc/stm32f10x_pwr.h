@@ -124,6 +124,21 @@
   */
 
 void PWR_DeInit(void);
+
+/**
+  * @brief  使能或禁止对后备寄存器（BKP）及实时时钟（RTC）的写访问权限
+  * @param  NewState: 新状态（ENABLE 或 DISABLE）
+  * @warning 【RTC 与 BKP 操作铁律 / 避坑警告】
+  *          在向 RTC 寄存器或 BKP 数据寄存器（BKP_DRx）写入数据前，
+  *          【必须先使能 PWR 和 BKP 时钟，并调用本函数使能写访问】！
+  *          标准前置时序：
+  *          @code
+  *          RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+  *          PWR_BackupAccessCmd(ENABLE); // 解除写保护
+  *          @endcode
+  *          若未解除写保护，向 RTC 或 BKP 寄存器的写入操作将被硬件直接忽略！
+  * @retval None
+  */
 void PWR_BackupAccessCmd(FunctionalState NewState);
 void PWR_PVDCmd(FunctionalState NewState);
 void PWR_PVDLevelConfig(uint32_t PWR_PVDLevel);

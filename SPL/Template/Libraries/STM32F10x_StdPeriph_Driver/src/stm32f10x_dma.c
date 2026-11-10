@@ -190,9 +190,13 @@ void DMA_DeInit(DMA_Channel_TypeDef* DMAy_Channelx)
 /**
   * @brief  根据 DMA_InitStruct 中指定的参数初始化 DMAy 通道 x。
   * @param  DMAy_Channelx: 其中 y 可取 1 或 2 以选择 DMA，
-  *   x 对于 DMA1 可取 1 到 7，对于 DMA2 可取 1 到 5，以选择 DMA 通道。
+  *         x 对于 DMA1 可取 1 到 7，对于 DMA2 可取 1 到 5，以选择 DMA 通道。
   * @param  DMA_InitStruct: 指向 DMA_InitTypeDef 结构的指针，
   *         该结构包含指定 DMA 通道的配置信息。
+  * @warning 【先决条件与通道映射】
+  *          1. 调用前必须开启对应的 AHB 时钟（如 RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE)）；
+  *          2. 内存缓冲区必须为全局或 static 变量，严禁传入函数局部栈变量；
+  *          3. 外设通道硬件固定绑定（如 ADC1 绑定 DMA1_Channel1，USART1_TX 绑定 DMA1_Channel4）。
   * @retval 无
   */
 void DMA_Init(DMA_Channel_TypeDef* DMAy_Channelx, DMA_InitTypeDef* DMA_InitStruct)
@@ -336,21 +340,27 @@ void DMA_ITConfig(DMA_Channel_TypeDef* DMAy_Channelx, uint32_t DMA_IT, Functiona
 }
 
 /**
-  * @brief  设置当前 DMAy 通道 x 传输中的数据单元数。
+  * @brief  设置当前 DMAy 通道 x 传输中的数据单元数（写入 CNDTR 寄存器）。
   * @param  DMAy_Channelx: 其中 y 可取 1 或 2 以选择 DMA，
   *         x 对于 DMA1 可取 1 到 7，对于 DMA2 可取 1 到 5，以选择 DMA 通道。
   * @param  DataNumber: 当前 DMAy 通道 x 传输中的数据单元数。
-  * @note   本函数只能在 DMAy_Channelx 被关闭时使用。
+  * @warning 【死穴警示：仅通道关闭时方可写入】
+  *          STM32 硬件规定：只有在 DMA 通道被关闭（DMA_Cmd(..., DISABLE)）时，CNDTR 才可写！
+  *          在通道使能状态下写入将被硬件静默忽略。
+  *          动态修改传输长度标准操作：
+  *          DMA_Cmd(DMAy_Channelx, DISABLE);
+  *          DMA_SetCurrDataCounter(DMAy_Channelx, new_len);
+  *          DMA_Cmd(DMAy_Channelx, ENABLE);
   * @retval 无。
   */
 void DMA_SetCurrDataCounter(DMA_Channel_TypeDef* DMAy_Channelx, uint16_t DataNumber)
 {
   /* 检查参数 */
   assert_param(IS_DMA_ALL_PERIPH(DMAy_Channelx));
-  
+
 /*--------------------------- DMAy 通道 x CNDTR 配置 ---------------*/
   /* 写入 DMAy 通道 x CNDTR */
-  DMAy_Channelx->CNDTR = DataNumber;  
+  DMAy_Channelx->CNDTR = DataNumber;
 }
 
 /**

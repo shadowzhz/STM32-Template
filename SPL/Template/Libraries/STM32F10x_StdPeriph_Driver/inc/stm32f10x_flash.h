@@ -365,12 +365,67 @@ typedef enum
 void FLASH_SetLatency(uint32_t FLASH_Latency);
 void FLASH_HalfCycleAccessCmd(uint32_t FLASH_HalfCycleAccess);
 void FLASH_PrefetchBufferCmd(uint32_t FLASH_PrefetchBuffer);
+/**
+  * @brief  解锁内部 Flash 控制器（清除 CR 寄存器的 LOCK 位）
+  * @note   系统上电后内部 Flash 默认处于写保护加锁状态，以防意外篡改固件代码。
+  *         在执行任何擦除（Erase）或写入（Program）操作前，【必须首先调用本函数解锁】。
+  * @see    FLASH_Lock
+  * @retval None
+  */
 void FLASH_Unlock(void);
+
+/**
+  * @brief  重新加锁内部 Flash 控制器（设置 CR 寄存器的 LOCK 位）
+  * @note   【安全规范铁律】
+  *         在执行完用户数据页的擦除或写入操作后，【必须立即调用本函数重新上锁】！
+  *         避免在后续程序因死机、堆栈溢出跑飞或野指针误写时意外破坏 Flash 内的代码段或关键参数。
+  * @retval None
+  */
 void FLASH_Lock(void);
+
+/**
+  * @brief  擦除内部 Flash 的指定扇区/页（Page）
+  * @param  Page_Address: 待擦除页的起始基地址（必须为页首地址，如 0x0800F000）
+  * @warning 【Flash 擦写物理特性与避坑铁律】
+  *          1. Flash 存储单元只能由 1 改写为 0，不能直接将 0 改写为 1！
+  *             在向目标地址写入新数据前，【必须先执行本函数将整页数据全部擦除为 0xFFFF】；
+  *             若尝试直接向非 0xFFFF 地址覆盖写入，硬件将置位编程错误标志（PGERR）并拒绝写入！
+  *          2. 【页大小规范】：STM32F103 中小容量器件（如 C8T6 64KB/128KB）每页大小为 **1KB（1024 字节）**；
+  *             大容量器件（如 ZET6 512KB）每页大小为 2KB。擦除是以整页为单位进行的，同页内的所有原有数据将被一次性清空。
+  * @retval FLASH_Status: 操作结果（FLASH_COMPLETE、FLASH_BUSY、FLASH_ERROR_PG、FLASH_ERROR_WRP、FLASH_TIMEOUT）
+  */
 FLASH_Status FLASH_ErasePage(uint32_t Page_Address);
+
 FLASH_Status FLASH_EraseAllPages(void);
 FLASH_Status FLASH_EraseOptionBytes(void);
+
+/**
+  * @brief  在内部 Flash 指定地址写入一个 32 位全字（4 字节）数据
+  * @param  Address: 待写入的目标 Flash 地址（必须 4 字节对齐）
+  * @param  Data: 待写入的 32 位数据
+  * @note   内部实际上是通过两次连续的 16 位半字编程完成的。
+  * @warning 写入前目标地址内容必须为 0xFFFFFFFF（已完成擦除）。
+  * @retval FLASH_Status 操作状态
+  */
 FLASH_Status FLASH_ProgramWord(uint32_t Address, uint32_t Data);
+
+/**
+  * @brief  在内部 Flash 指定地址写入一个 16 位半字（2 字节）数据
+  * @param  Address: 待写入的目标 Flash 地址（必须 2 字节对齐，如 0x0800FC00）
+  * @param  Data: 待写入的 16 位数据
+  * @note   STM32F1 硬件 Flash 控制器的原生写入位宽为 16 位半字。
+  * @warning 【掉电保存标准时序】
+  *          标准 Flash 写入三部曲：
+  *          @code
+  *          FLASH_Unlock();
+  *          FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
+  *          if (FLASH_ErasePage(PAGE_ADDR) == FLASH_COMPLETE) {
+  *              FLASH_ProgramHalfWord(PAGE_ADDR, 0x1234);
+  *          }
+  *          FLASH_Lock();
+  *          @endcode
+  * @retval FLASH_Status 操作状态
+  */
 FLASH_Status FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data);
 FLASH_Status FLASH_ProgramOptionByteData(uint32_t Address, uint8_t Data);
 FLASH_Status FLASH_EnableWriteProtection(uint32_t FLASH_Pages);
