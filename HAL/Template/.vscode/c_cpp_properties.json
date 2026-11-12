@@ -2,6 +2,7 @@
     "configurations": [
         {
             "name": "STM32F103C8T6",
+            "compilerPath": "arm-none-eabi-gcc",
             "cStandard": "gnu11",
             "intelliSenseMode": "gcc-arm",
             "defines": [
