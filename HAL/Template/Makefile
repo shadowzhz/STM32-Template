@@ -181,8 +181,11 @@ flash: $(BUILD_DIR)/$(TARGET).elf
 # ============================================================
 
 clean:
-
+ifeq ($(OS),Windows_NT)
+	powershell.exe -NoProfile -Command "if (Test-Path -LiteralPath '$(BUILD_DIR)') { Remove-Item -LiteralPath '$(BUILD_DIR)' -Recurse -Force -ErrorAction Stop }"
+else
 	rm -rf $(BUILD_DIR)
+endif
 
 
 

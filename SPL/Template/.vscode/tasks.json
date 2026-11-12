@@ -1,34 +1,78 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "STM32: Build",
-            "type": "shell",
-            "command": "make",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "presentation": {
-                "reveal": "always",
-                "panel": "shared",
-                "clear": true
-            }
-        },
-        {
-            "label": "STM32: Flash",
-            "type": "shell",
-            "command": "make flash",
-            "problemMatcher": []
-        },
-        {
-            "label": "STM32: Clean",
-            "type": "shell",
-            "command": "make clean",
-            "problemMatcher": []
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "STM32: Build",
+      "type": "process",
+      "command": "make",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "windows": {
+        "command": "make",
+        "args": [
+          "SHELL=${env:ProgramFiles}/Git/bin/sh.exe"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PATH": "${env:LOCALAPPDATA}/EmbeddedTools/arm-gnu-toolchain/bin;${env:LOCALAPPDATA}/EmbeddedTools/openocd/bin;${env:ProgramFiles}/Git/usr/bin;${env:PATH}"
+          }
         }
-    ]
+      }
+    },
+    {
+      "label": "STM32: Flash",
+      "type": "process",
+      "command": "make",
+      "problemMatcher": [],
+      "windows": {
+        "command": "make",
+        "args": [
+          "SHELL=${env:ProgramFiles}/Git/bin/sh.exe",
+          "flash"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PATH": "${env:LOCALAPPDATA}/EmbeddedTools/arm-gnu-toolchain/bin;${env:LOCALAPPDATA}/EmbeddedTools/openocd/bin;${env:ProgramFiles}/Git/usr/bin;${env:PATH}"
+          }
+        }
+      },
+      "args": [
+        "flash"
+      ]
+    },
+    {
+      "label": "STM32: Clean",
+      "type": "process",
+      "command": "make",
+      "problemMatcher": [],
+      "windows": {
+        "command": "make",
+        "args": [
+          "SHELL=${env:ProgramFiles}/Git/bin/sh.exe",
+          "clean"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "PATH": "${env:LOCALAPPDATA}/EmbeddedTools/arm-gnu-toolchain/bin;${env:LOCALAPPDATA}/EmbeddedTools/openocd/bin;${env:ProgramFiles}/Git/usr/bin;${env:PATH}"
+          }
+        }
+      },
+      "args": [
+        "clean"
+      ]
+    }
+  ]
 }

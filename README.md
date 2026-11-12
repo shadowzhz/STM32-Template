@@ -112,6 +112,22 @@ brew install arm-none-eabi-gcc make openocd
 
 ---
 
+### VSCode 编译、补全与清理
+
+- 直接打开 `HAL/Template` 或 `SPL/Template` 文件夹，使其中的 `.vscode` 配置生效。
+- 按 `Ctrl+Shift+B` 编译；通过“终端 → 运行任务”选择 `STM32: Flash` 烧录或 `STM32: Clean` 清理。
+- 补全配置使用 VSCode 用户设置中的 `C_Cpp.default.compilerPath`。请将其设为本机 `arm-none-eabi-gcc` 的完整路径，避免自动选择 `cl.exe`。例如：
+
+  ```json
+  "C_Cpp.default.compilerPath": "C:/path/to/arm-gnu-toolchain/bin/arm-none-eabi-gcc.exe"
+  ```
+
+- Windows 任务通过 `PATH` 查找 `make`，并使用默认安装位置 `%ProgramFiles%/Git/bin/sh.exe` 执行构建命令；请安装 Git for Windows，或按实际 shell 位置修改任务的 `SHELL` 参数。任务同时支持放在 `%LOCALAPPDATA%/EmbeddedTools/arm-gnu-toolchain` 和 `%LOCALAPPDATA%/EmbeddedTools/openocd` 的本机工具，其他位置仍通过 `PATH` 查找。
+- 修改环境变量后完全退出并重新打开 VSCode。若补全仍显示旧错误，可运行 `C/C++: Reset IntelliSense Database`。
+- `make clean` 在 Windows 下调用 PowerShell，在其他系统下调用 `rm`；构建目录不存在时也可以重复执行。
+
+---
+
 ## ⚖️ 架构选型：SPL 还是 HAL？
 
 | 评估维度 | SPL（标准外设库） | HAL + LL（现代硬件抽象层） |
